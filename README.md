@@ -1,59 +1,60 @@
-# CampconnectFrontend
+# CampConnect Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.7.
+Frontend du projet **CampConnect** développé avec **Angular**.  
+Cette application couvre la partie publique, l’authentification, ainsi que l’espace d’administration, avec une architecture modulaire et maintenable.
 
-## Development server
+## Objectif du projet
 
-To start a local development server, run:
+CampConnect est une plateforme de gestion orientée camping / services / assurances, permettant :
 
-```bash
-ng serve
-```
+- la consultation publique de contenus
+- l’inscription et la connexion des utilisateurs
+- la gestion du profil utilisateur
+- l’administration des modules via un dashboard admin
+- la communication avec le backend via API REST
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+---
 
-## Code scaffolding
+## Technologies utilisées
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- **Angular**
+- **TypeScript**
+- **HTML / CSS**
+- **Angular Router**
+- **HttpClient**
+- **Reactive Forms**
+- **Guards**
+- **Interceptors**
+- **JWT Authentication** (prévu / intégré selon l’avancement)
+- **Spring Boot Backend** (API)
 
-```bash
-ng generate component component-name
-```
+---
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Structure du projet
 
 ```bash
-ng test
-```
+app/
+ ├── core/
+ │   ├── services/
+ │   │   ├── auth.service.ts
+ │   │   ├── assurance.service.ts
+ │   │   ├── user.service.ts
+ │   ├── guards/
+ │   │   ├── auth.guard.ts
+ │   ├── interceptors/
+ │   │   ├── token.interceptor.ts
+ │   └── models/
+ │       ├── user.model.ts
+ │       └── assurance.model.ts
+ │
+ ├── features/
+ │   ├── admin/
+ │   ├── public/
+ │   └── auth/
+ │
+ ├── shared/
+ │   ├── components/
+ │   ├── pipes/
+ │   └── directives/
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+ 
