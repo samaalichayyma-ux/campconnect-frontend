@@ -30,6 +30,13 @@ CampConnect est une plateforme de gestion orientée camping / services / assuran
 
 ---
 
+##Lien de client
+http://localhost:4200/public
+
+##lien de admin
+http://localhost:4200/admin
+
+
 ## Structure du projet
 
 ```bash
