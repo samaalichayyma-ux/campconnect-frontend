@@ -1,1 +1,74 @@
-<p>register works!</p>
+<section class="register-page">
+  <div class="register-card">
+    <div class="register-header">
+      <div class="register-icon">
+        <span>👤</span>
+      </div>
+      <h1>Create Account</h1>
+      <p>Join CampConnect and start your journey</p>
+    </div>
+
+    <form class="register-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="firstName">First name</label>
+          <input id="firstName" type="text" placeholder="Enter your first name" />
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Last name</label>
+          <input id="lastName" type="text" placeholder="Enter your last name" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input id="email" type="email" placeholder="Enter your email" />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Phone number</label>
+        <input id="phone" type="text" placeholder="Enter your phone number" />
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role">
+          <option value="" selected disabled>Select your role</option>
+          <option value="CLIENT">Client</option>
+          <option value="ORGANIZER">Organizer</option>
+          <option value="ADMIN">Admin</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="address">Address</label>
+        <input id="address" type="text" placeholder="Enter your address" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="Enter your password" />
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" type="password" placeholder="Confirm your password" />
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input id="terms" type="checkbox" />
+        <label for="terms">I accept the terms and conditions</label>
+      </div>
+
+      <button type="submit" class="register-btn">Sign Up</button>
+
+      <div class="register-footer">
+        <span>Already have an account?</span>
+        <a routerLink="/login">Login</a>
+      </div>
+    </form>
+  </div>
+</section>
