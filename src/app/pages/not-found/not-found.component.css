@@ -1,0 +1,79 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.not-found-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  box-sizing: border-box;
+
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)),
+    url('https://assets.nicepagecdn.com/2a44517d/6627704/images/photo-1515444744559-7be63e1600de.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.not-found-content {
+  color: white;
+  max-width: 700px;
+}
+
+.not-found-content h1 {
+  font-size: 12.5rem;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 28px;
+  margin-bottom: 0;
+}
+
+.description {
+  font-size: 1.5rem;
+  margin: 44px auto 0;
+  max-width: 525px;
+}
+
+.home-btn {
+  display: inline-block;
+  margin-top: 44px;
+  padding: 10px 52px;
+  border-radius: 999px;
+  background: white;
+  color: black;
+  text-decoration: none;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.home-btn:hover {
+  background: black;
+  color: white;
+}
+
+@media (max-width: 575px) {
+  .not-found-content h1 {
+    font-size: 7.5rem;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+  }
+
+  .description {
+    font-size: 1.1rem;
+  }
+}

@@ -20,6 +20,7 @@ import { UserDetailsComponent } from './features/admin/users/user-details/user-d
 
 import { AssuranceCreateComponent } from './features/admin/assurances/assurance-create/assurance-create.component';
 import { AssuranceEditComponent } from './features/admin/assurances/assurance-edit/assurance-edit.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 
 export const routes: Routes = [
   // ADMIN d'abord
@@ -55,5 +56,5 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
 
-  { path: '**', redirectTo: '' },
+  { path: '**', component: NotFoundComponent },
 ];
