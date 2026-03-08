@@ -1,0 +1,208 @@
+:host {
+  display: block;
+}
+
+.cc-navbar {
+  width: 100%;
+  background: #f4ede4;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  position: relative;
+  z-index: 1000;
+}
+
+.cc-topbar {
+  background: linear-gradient(90deg, #1f3d2b 0%, #838332 100%);
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 32px;
+}
+
+.cc-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cc-social {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  transition: 0.2s ease-in-out;
+}
+
+.cc-social:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cc-topbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.cc-search-input {
+  width: 220px;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: transparent;
+  color: #ffffff;
+  outline: none;
+  border-radius: 8px;
+}
+
+.cc-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.cc-mainbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 28px;
+  padding: 14px 32px;
+}
+
+.cc-logo img {
+  height: 56px;
+  width: auto;
+  display: block;
+}
+
+.cc-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 26px;
+  flex-wrap: wrap;
+}
+
+.cc-menu a {
+  text-decoration: none;
+  color: #1c2a39;
+  font-weight: 600;
+  font-size: 15px;
+  transition: 0.2s ease-in-out;
+}
+
+.cc-menu a:hover {
+  color: #1f3d2b;
+}
+
+.cc-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cc-cart-btn,
+.cc-login-btn,
+.cc-profile-btn,
+.cc-logout-btn {
+  border: 1.5px solid #1f3d2b;
+  background: transparent;
+  color: #1c2a39;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.2s ease-in-out;
+}
+
+.cc-cart-btn {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  font-size: 18px;
+}
+
+.cc-login-btn:hover,
+.cc-profile-btn:hover,
+.cc-logout-btn:hover,
+.cc-cart-btn:hover {
+  background: #1f3d2b;
+  color: #ffffff;
+}
+
+.cc-user-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cc-user-name {
+  color: #1c2a39;
+  font-weight: 700;
+  font-size: 14px;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cc-logout-btn {
+  cursor: pointer;
+}
+
+@media (max-width: 992px) {
+  .cc-mainbar {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 18px;
+  }
+
+  .cc-menu {
+    gap: 16px;
+  }
+
+  .cc-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .cc-user-name {
+    display: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .cc-topbar {
+    padding: 10px 16px;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cc-mainbar {
+    padding: 14px 16px;
+  }
+
+  .cc-search-input {
+    width: 180px;
+  }
+
+  .cc-menu {
+    gap: 12px;
+  }
+
+  .cc-menu a {
+    font-size: 14px;
+  }
+
+  .cc-login-btn,
+  .cc-profile-btn,
+  .cc-logout-btn {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+}

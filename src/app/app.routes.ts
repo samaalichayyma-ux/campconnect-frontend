@@ -21,14 +21,17 @@ import { UserDetailsComponent } from './features/admin/users/user-details/user-d
 import { AssuranceCreateComponent } from './features/admin/assurances/assurance-create/assurance-create.component';
 import { AssuranceEditComponent } from './features/admin/assurances/assurance-edit/assurance-edit.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { authGuard } from './core/guards/auth.guards';
+import { ProfileComponent } from './features/public/profile/profile/profile.component';
 
 export const routes: Routes = [
   // ADMIN d'abord
   {
     path: 'admin',
     component: AdminLayoutComponent,
+    canActivate: [authGuard],
     children: [
-      { path: '', component: DashboardComponent, pathMatch: 'full' },
+      { path: 'dashboard', component: DashboardComponent },
 
       { path: 'users', component: UserListComponent },
       { path: 'users/new', component: UserCreateComponent },
@@ -40,7 +43,7 @@ export const routes: Routes = [
     ],
   },
 
-  // PUBLIC ensuite
+  // client ensuite
   {
     path: 'public',
     component: PublicLayoutComponent,
@@ -50,6 +53,8 @@ export const routes: Routes = [
       { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
     ],
   },
+
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
 
 
 

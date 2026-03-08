@@ -1,0 +1,31 @@
+<section class="profile-page">
+  <div class="profile-card">
+    <div class="profile-avatar">
+      👤
+    </div>
+
+    <h1 class="profile-title">My Profile</h1>
+
+    <div class="profile-info">
+      <div class="profile-item">
+        <span class="label">Name:</span>
+        <span class="value">{{ name || 'User' }}</span>
+      </div>
+
+      <div class="profile-item">
+        <span class="label">Email:</span>
+        <span class="value">{{ email || 'Not available' }}</span>
+      </div>
+
+      <div class="profile-item">
+        <span class="label">Role:</span>
+        <span class="value">{{ role }}</span>
+      </div>
+    </div>
+
+    <div class="profile-actions">
+      <button class="btn back-btn" routerLink="/public">Back to Home</button>
+      <button class="btn logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</section>

@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ViewEncapsulation } from '@angular/core';
-import { RouterOutlet } from "@angular/router";
+import { Router, RouterOutlet } from "@angular/router";
 import { TestApiService } from '../../../../core/services/test-api.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -10,7 +11,8 @@ import { TestApiService } from '../../../../core/services/test-api.service';
   encapsulation: ViewEncapsulation.None
 })
 export class LandingPageComponent  {
-  constructor(private testApi: TestApiService) {}
+  constructor(private testApi: TestApiService , public authService: AuthService,
+    private router: Router) {}
 
   ngOnInit() {
     this.testApi.testDocs().subscribe({
@@ -18,5 +20,9 @@ export class LandingPageComponent  {
       error: (err) => console.log('❌ backend KO', err),
     });
   }
+
+
+
+
 
 }

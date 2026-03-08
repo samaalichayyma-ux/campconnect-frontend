@@ -1,1 +1,79 @@
-<p>dashboard works!</p>
+<section class="stats-grid">
+  <div class="stat-card" *ngFor="let stat of stats" [ngClass]="stat.colorClass">
+    <div class="stat-icon">{{ stat.icon }}</div>
+    <div class="stat-text">
+      <h3>{{ stat.value }}</h3>
+      <p>{{ stat.title }}</p>
+    </div>
+  </div>
+</section>
+
+<section class="dashboard-main-grid">
+  <div class="modules-section card-box">
+    <div class="section-header">
+      <h2>Quick Access</h2>
+      <span>Manage your modules</span>
+    </div>
+
+    <div class="modules-grid">
+      <a class="module-card" *ngFor="let module of modules" [routerLink]="module.link">
+        <div class="module-icon">{{ module.icon }}</div>
+        <div class="module-content">
+          <h3>{{ module.title }}</h3>
+          <p>{{ module.subtitle }}</p>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="profile-section card-box">
+    <div class="section-header">
+      <h2>Admin Overview</h2>
+      <span>Platform summary</span>
+    </div>
+
+    <div class="profile-card-box">
+      <div class="large-avatar">A</div>
+      <h3>{{ adminName }}</h3>
+      <p>{{ adminRole }}</p>
+
+      <div class="profile-meta">
+        <div>
+          <strong>Email</strong>
+          <span>admincampconnect.com</span>
+        </div>
+        <div>
+          <strong>Status</strong>
+          <span>Active</span>
+        </div>
+        <div>
+          <strong>Access</strong>
+          <span>Full permissions</span>
+        </div>
+      </div>
+
+      <button class="profile-btn">Edit Profile</button>
+    </div>
+  </div>
+</section>
+
+<section class="activity-section card-box">
+  <div class="section-header">
+    <h2>Recent Activity</h2>
+    <span>Latest updates in the platform</span>
+  </div>
+
+  <div class="activity-table">
+    <div class="activity-row activity-head">
+      <span>Action</span>
+      <span>User</span>
+      <span>Date</span>
+    </div>
+
+    <div class="activity-row" *ngFor="let activity of recentActivities">
+      <span>{{ activity.action }}</span>
+      <span>{{ activity.user }}</span>
+      <span>{{ activity.date }}</span>
+    </div>
+  </div>
+</section>
