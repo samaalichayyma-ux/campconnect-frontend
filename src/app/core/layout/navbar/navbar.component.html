@@ -32,13 +32,17 @@
         <a routerLink="/login" class="cc-login-btn">Login</a>
       </ng-container>
 
+      <a *ngIf="authService.getRole() === 'ADMINISTRATEUR'" routerLink="/admin">
+  Admin
+</a>
+
       <ng-template #loggedInBlock>
         <div class="cc-user-box">
           <span class="cc-user-name">
             {{ authService.getUserName() }}
           </span>
 
-          <a routerLink="/profile" class="cc-profile-btn">Profile</a>
+          <a routerLink="/public/profile" class="cc-profile-btn">Profile</a>
 
           <button type="button" class="cc-logout-btn" (click)="logout()">
             Logout

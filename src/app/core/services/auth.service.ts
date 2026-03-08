@@ -50,6 +50,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
     localStorage.removeItem('nom');
+    localStorage.removeItem('email');
   }
 
   isLoggedIn(): boolean {

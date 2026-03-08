@@ -1,1 +1,66 @@
-<p>admin-profile works!</p>
+<section class="profile-page" *ngIf="!loading; else loadingTpl">
+  <div class="profile-card">
+    <div class="profile-avatar">👤</div>
+
+    <h1 class="profile-title">Admin Profile</h1>
+
+    <div class="profile-info" *ngIf="user">
+      <div class="profile-item">
+        <span class="label">Name:</span>
+        <span class="value">{{ user.nom }}</span>
+      </div>
+
+      <div class="profile-item">
+        <span class="label">Email:</span>
+        <span class="value">{{ user.email }}</span>
+      </div>
+
+      <div class="profile-item">
+        <span class="label">Phone:</span>
+        <span class="value">{{ user.telephone || 'Not available' }}</span>
+      </div>
+
+      <div class="profile-item">
+        <span class="label">Role:</span>
+        <span class="value">{{ user.role }}</span>
+      </div>
+    </div>
+
+    <div class="profile-form">
+      <div class="form-group">
+        <label>Adresse</label>
+        <input type="text" [(ngModel)]="profile.adresse" />
+      </div>
+
+      <div class="form-group">
+        <label>Photo URL</label>
+        <input type="text" [(ngModel)]="profile.photo" />
+      </div>
+
+      <div class="form-group">
+        <label>Biographie</label>
+        <textarea rows="4" [(ngModel)]="profile.biographie"></textarea>
+      </div>
+    </div>
+
+    <div *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <div class="profile-actions">
+      <button class="btn back-btn" routerLink="/admin">Back to Dashboard</button>
+      <button class="btn save-btn" (click)="saveProfile()" [disabled]="saving">
+        {{ saving ? 'Saving...' : 'Save Profile' }}
+      </button>
+      <button class="btn logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </div>
+</section>
+
+<ng-template #loadingTpl>
+  <p>Loading admin profile...</p>
+</ng-template>
