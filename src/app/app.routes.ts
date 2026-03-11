@@ -25,8 +25,11 @@ import { authGuard } from './core/guards/auth.guards';
 import { ProfileComponent } from './features/public/profile/profile/profile.component';
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
+import { CampingSitesComponent } from './features/public/camping-sites/camping-sites.component';
+import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 
 export const routes: Routes = [
+  { path: '', redirectTo: 'public', pathMatch: 'full' },
   // ADMIN d'abord
   {
     path: 'admin',
@@ -57,6 +60,8 @@ export const routes: Routes = [
       { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
       { path: 'assurances', component: PublicAssuranceListComponent },
       { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
+       { path: 'camping-sites', component: CampingSitesComponent },
+      { path: 'site-booking/:id', component: SiteBookingComponent }
     ],
   },
 
