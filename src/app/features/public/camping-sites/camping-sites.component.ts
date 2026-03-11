@@ -1,45 +1,42 @@
-import { Component } from '@angular/core';
-import { CampingSite } from '../models/camping-site.model';
-import { RouterModule } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { CampingSite } from '../models/camping-site.model';
+import { CampingService } from '../services/camping.service';
 
 @Component({
   selector: 'app-camping-sites',
+  standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './camping-sites.component.html',
   styleUrl: './camping-sites.component.css'
 })
-export class CampingSitesComponent {
-sites: CampingSite[] = [
-    {
-      idSite: 1,
-      nom: 'Forest Escape Camp',
-      localisation: 'Ain Draham, Tunisia',
-      capacite: 20,
-      prixParNuit: 45,
-      statutDispo: 'AVAILABLE',
-      image: 'assets/images/camp1.jpg',
-      description: 'A peaceful camping destination surrounded by trees and nature.'
-    },
-    {
-      idSite: 2,
-      nom: 'Lake View Camp',
-      localisation: 'Bizerte, Tunisia',
-      capacite: 12,
-      prixParNuit: 60,
-      statutDispo: 'FULL',
-      image: 'assets/images/camp2.jpg',
-      description: 'Enjoy a relaxing experience near the lake with beautiful outdoor scenery.'
-    },
-    {
-      idSite: 3,
-      nom: 'Mountain Breeze Camp',
-      localisation: 'Zaghouan, Tunisia',
-      capacite: 16,
-      prixParNuit: 55,
-      statutDispo: 'AVAILABLE',
-      image: 'assets/images/camp3.jpg',
-      description: 'A scenic mountain camping site for nature lovers and hikers.'
-    }
-  ];
+export class CampingSitesComponent implements OnInit {
+  sites: CampingSite[] = [];
+  isLoading = false;
+  errorMessage = '';
+
+  constructor(private campingService: CampingService) {}
+
+  ngOnInit(): void {
+    this.loadCampingSites();
+  }
+
+  loadCampingSites(): void {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.campingService.getAllCampingSites().subscribe({
+      next: (data) => {
+        this.sites = data;
+        this.isLoading = false;
+        console.log('Camping sites loaded:', data);
+      },
+      error: (error) => {
+        this.errorMessage = 'Failed to load camping sites.';
+        this.isLoading = false;
+        console.error('Error loading camping sites:', error);
+      }
+    });
+  }
 }
