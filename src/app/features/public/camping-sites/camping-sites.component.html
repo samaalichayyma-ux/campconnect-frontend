@@ -3,59 +3,55 @@
     <div class="section-header">
       <span class="section-subtitle">CampConnect</span>
       <h2>Camping Sites</h2>
-      <p>
-        Explore the best camping destinations and choose the perfect place for your next adventure.
-      </p>
+      <p>Explore the available camping sites and choose your next destination.</p>
     </div>
 
-    <div class="filters">
-      <input type="text" placeholder="Search by site name or location" />
-
-      <select>
-        <option>Availability</option>
-        <option>Available</option>
-        <option>Full</option>
-        <option>Closed</option>
-      </select>
-
-      <select>
-        <option>Price range</option>
-        <option>Under TND30</option>
-        <option>TND30 - TND60</option>
-        <option>Above TND60</option>
-      </select>
+    <div *ngIf="isLoading" class="info-message">
+      Loading camping sites...
     </div>
 
-<div class="sites-grid">
-  <div class="site-card" *ngFor="let site of sites">
-    <img [src]="site.image" [alt]="site.nom" />
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
 
-    <div class="site-card-content">
-      <span class="status" [ngClass]="{
-        'available': site.statutDispo === 'AVAILABLE',
-        'full': site.statutDispo === 'FULL',
-        'closed': site.statutDispo === 'CLOSED'
-      }">
-        {{ site.statutDispo }}
-      </span>
+    <div class="sites-grid" *ngIf="!isLoading && !errorMessage">
+      <div class="site-card" *ngFor="let site of sites">
+        <img
+          [src]="site.image || 'assets/images/default-camp.jpg'"
+          [alt]="site.nom"
+        />
 
-      <h3>{{ site.nom }}</h3>
-      <p class="location">{{ site.localisation }}</p>
-      <p class="description">{{ site.description }}</p>
+        <div class="site-card-content">
+          <span
+            class="status"
+            [ngClass]="{
+              'available': site.statutDispo === 'AVAILABLE',
+              'full': site.statutDispo === 'FULL',
+              'closed': site.statutDispo === 'CLOSED'
+            }"
+          >
+            {{ site.statutDispo }}
+          </span>
 
-      <div class="site-info">
-        <span>Capacity: {{ site.capacite }}</span>
-        <span>TND{{ site.prixParNuit }} / night</span>
-      </div>
+          <h3>{{ site.nom }}</h3>
+          <p class="location">{{ site.localisation }}</p>
 
-      <div class="site-actions">
-        <button class="btn-outline">View Details</button>
-        <a class="btn-primary" [routerLink]="['/public/site-booking', site.idSite]">
-          Book Now
-        </a>
+          <p class="description">
+            {{ site.description || 'A beautiful camping destination for your next trip.' }}
+          </p>
+
+          <div class="site-info">
+            <span>Capacity: {{ site.capacite }}</span>
+            <span>{{ site.prixParNuit }} DT / night</span>
+          </div>
+
+          <div class="site-actions">
+            <a class="btn-primary" [routerLink]="['/public/site-booking', site.idSite]">
+              Book Now
+            </a>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
   </div>
 </section>
