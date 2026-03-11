@@ -206,3 +206,37 @@
     font-size: 13px;
   }
 }
+
+.cc-menu a {
+  position: relative;
+  text-decoration: none;
+  color: #1a2a44;
+  font-weight: 600;
+  padding: 8px 14px;
+  transition: all 0.3s ease;
+}
+
+/* Hover movement */
+.cc-menu a:hover {
+  transform: translateY(-3px);
+  color: #3d5a2a;
+}
+
+.cc-menu a::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  left: 0;
+  bottom: -3px;
+  background-color: #3d5a2a;
+  transition: width 0.3s ease;
+}
+
+.cc-menu a:hover::after {
+  width: 100%;
+}
+
+.cc-menu a:hover {
+  transform: translateY(-3px) scale(1.05);
+}
