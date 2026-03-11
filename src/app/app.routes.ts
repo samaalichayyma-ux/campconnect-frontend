@@ -27,6 +27,9 @@ import { adminGuard } from './core/guards/admin.guard';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
 import { CampingSitesComponent } from './features/public/camping-sites/camping-sites.component';
 import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
+import { CampingSiteListComponent } from './features/admin/camping-sites/camping-site-list/camping-site-list.component';
+import { CampingSiteCreateComponent } from './features/admin/camping-sites/camping-site-create/camping-site-create.component';
+import { CampingSiteEditComponent } from './features/admin/camping-sites/camping-site-edit/camping-site-edit.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -47,6 +50,10 @@ export const routes: Routes = [
 
       { path: 'assurances/new', component: AssuranceCreateComponent },
       { path: 'assurances/:id/edit', component: AssuranceEditComponent },
+
+      { path: 'camping-sites', component: CampingSiteListComponent },
+      { path: 'camping-sites/new', component: CampingSiteCreateComponent },
+      { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
     ],
   },
 

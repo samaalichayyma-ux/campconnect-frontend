@@ -1,0 +1,38 @@
+<section class="admin-form-page">
+  <div class="container">
+    <h2>Add New Camping Site</h2>
+
+    <form class="site-form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" name="nom" [(ngModel)]="site.nom" required />
+      </div>
+
+      <div class="form-group">
+        <label>Location</label>
+        <input type="text" name="localisation" [(ngModel)]="site.localisation" required />
+      </div>
+
+      <div class="form-group">
+        <label>Capacity</label>
+        <input type="number" name="capacite" [(ngModel)]="site.capacite" min="1" required />
+      </div>
+
+      <div class="form-group">
+        <label>Price Per Night</label>
+        <input type="number" name="prixParNuit" [(ngModel)]="site.prixParNuit" min="0" required />
+      </div>
+
+      <div class="form-group">
+        <label>Status</label>
+        <select name="statutDispo" [(ngModel)]="site.statutDispo">
+          <option value="AVAILABLE">AVAILABLE</option>
+          <option value="FULL">FULL</option>
+          <option value="CLOSED">CLOSED</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn-primary">Save Site</button>
+    </form>
+  </div>
+</section>
