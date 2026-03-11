@@ -216,74 +216,91 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
         </p>
       </div>
     </section>
-    <section class="u-clearfix u-container-align-center u-section-7" id="block-16">
-      <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xs u-sheet-1" bis_skin_checked="1">
-        <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1" bis_skin_checked="1">
-          <div class="u-layout" style bis_skin_checked="1">
-            <div class="u-layout-row" style bis_skin_checked="1">
-              <div class="u-align-left u-container-style u-image u-layout-cell u-left-cell u-shading u-size-30 u-size-xs-60 u-image-1" src="" data-image-width="602" data-image-height="542">
-                <div class="u-container-layout u-container-layout-1" src="" bis_skin_checked="1"></div>
-              </div>
-              <div class="u-align-left u-container-style u-grey-5 u-layout-cell u-right-cell u-size-30 u-size-xs-60 u-layout-cell-2" bis_skin_checked="1">
-                <div class="u-container-layout u-container-layout-2" bis_skin_checked="1">
-                  <h2 class="u-align-left u-text u-text-1"> Mountain Escape</h2>
-                  <p class="u-align-left u-text u-text-2"> Mars 24, 2026 | Jandouba</p>
-                  <p class="u-align-left u-text u-text-3"> Experience breathtaking mountain views and fresh air.</p>
-                  <a href="" class="u-btn u-button-style u-none u-text-custom-color-1 u-text-hover-custom-color-1 u-btn-1">LEARN MORE&nbsp;<span class="u-icon u-text-custom-color-1"><svg class="u-svg-content" viewBox="0 -32 426.66667 426" style="width: 1em; height: 1em;"><path d="m213.332031 181.667969c0 4.265625-1.277343 8.53125-3.625 11.730469l-106.667969 160c-3.839843 5.761718-10.238281 9.601562-17.707031 9.601562h-64c-11.730469 0-21.332031-9.601562-21.332031-21.332031 0-4.269531 1.28125-8.535157 3.625-11.734375l98.773438-148.265625-98.773438-148.269531c-2.34375-3.199219-3.625-7.464844-3.625-11.730469 0-11.734375 9.601562-21.335938 21.332031-21.335938h64c7.46875 0 13.867188 3.839844 17.707031 9.601563l106.667969 160c2.347657 3.199218 3.625 7.464844 3.625 11.734375zm0 0"></path><path d="m426.667969 181.667969c0 4.265625-1.28125 8.53125-3.628907 11.730469l-106.664062 160c-3.839844 5.761718-10.242188 9.601562-17.707031 9.601562h-64c-11.734375 0-21.335938-9.601562-21.335938-21.332031 0-4.269531 1.28125-8.535157 3.628907-11.734375l98.773437-148.265625-98.773437-148.269531c-2.347657-3.199219-3.628907-7.464844-3.628907-11.730469 0-11.734375 9.601563-21.335938 21.335938-21.335938h64c7.464843 0 13.867187 3.839844 17.707031 9.601563l106.664062 160c2.347657 3.199218 3.628907 7.464844 3.628907 11.734375zm0 0"></path></svg></span>
-                  </a>
-                </div>
-              </div>
+<section class="u-clearfix u-section-7" id="block-16">
+  <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xs u-sheet-1">
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" style="text-align:center; padding:40px;">
+      <h3>Loading camping sites...</h3>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && latestSites.length === 0" style="text-align:center; padding:40px;">
+      <h3>No camping sites available yet</h3>
+      <p>We are preparing amazing destinations for you. Please check back soon.</p>
+    </div>
+
+    <!-- Sites List -->
+    <div
+      *ngFor="let site of latestSites"
+      class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1"
+    >
+      <div class="u-layout">
+        <div class="u-layout-row">
+
+          <!-- Image -->
+          <div
+            class="u-align-left u-container-style u-image u-layout-cell u-left-cell u-shading u-size-30 u-size-xs-60 u-image-1"
+            [ngStyle]="{
+              'background-image': 'url(' + (site.image || 'assets/images/default-camp.jpg') + ')',
+              'background-size': 'cover',
+              'background-position': 'center'
+            }"
+          >
+            <div class="u-container-layout u-container-layout-1"></div>
+          </div>
+
+          <!-- Content -->
+          <div class="u-align-left u-container-style u-grey-5 u-layout-cell u-right-cell u-size-30 u-size-xs-60 u-layout-cell-2">
+            <div class="u-container-layout u-container-layout-2">
+
+              <h2 class="u-align-left u-text u-text-1">
+                {{ site.nom }}
+              </h2>
+
+              <p class="u-align-left u-text u-text-2">
+                {{ site.localisation }}
+              </p>
+
+              <p class="u-align-left u-text u-text-3">
+                {{ site.description || 'Discover this beautiful camping destination and enjoy nature.' }}
+              </p>
+
+              <a
+                class="u-btn u-button-style u-none u-text-custom-color-1 u-text-hover-custom-color-1 u-btn-1"
+                [routerLink]="['/public/site-booking', site.idSite]"
+              >
+                LEARN MORE
+                <span class="u-icon u-text-custom-color-1">
+                  <svg class="u-svg-content" viewBox="0 -32 426.66667 426" style="width:1em;height:1em;">
+                    <path d="m213.332031 181.667969c0 4.265625-1.277343 8.53125-3.625 11.730469l-106.667969 160c-3.839843 5.761718-10.238281 9.601562-17.707031 9.601562h-64c-11.730469 0-21.332031-9.601562-21.332031-21.332031 0-4.269531 1.28125-8.535157 3.625-11.734375l98.773438-148.265625-98.773438-148.269531c-2.34375-3.199219-3.625-7.464844-3.625-11.730469 0-11.734375 9.601562-21.335938 21.332031-21.335938h64c7.46875 0 13.867188 3.839844 17.707031 9.601563l106.667969 160c2.347657 3.199218 3.625 7.464844 3.625 11.734375zm0 0"></path>
+                    <path d="m426.667969 181.667969c0 4.265625-1.28125 8.53125-3.628907 11.730469l-106.664062 160c-3.839844 5.761718-10.242188 9.601562-17.707031 9.601562h-64c-11.734375 0-21.335938-9.601562-21.335938-21.332031 0-4.269531 1.28125-8.535157 3.628907-11.734375l98.773437-148.265625-98.773437-148.269531c-2.347657-3.199219-3.628907-7.464844-3.628907-11.730469 0-11.734375 9.601563-21.335938 21.335938-21.335938h64c7.464843 0 13.867187 3.839844 17.707031 9.601563l106.664062 160c2.347657 3.199218 3.628907 7.464844 3.628907 11.734375zm0 0"></path>
+                  </svg>
+                </span>
+              </a>
+
             </div>
           </div>
+
         </div>
       </div>
-    </section>
-    <section class="u-clearfix u-container-align-center u-section-8" id="block-17">
-      <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xs u-sheet-1" bis_skin_checked="1">
-        <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1" bis_skin_checked="1">
-          <div class="u-layout" style bis_skin_checked="1">
-            <div class="u-layout-row" style bis_skin_checked="1">
-              <div class="u-align-left u-container-align-left u-container-style u-image u-layout-cell u-left-cell u-shading u-size-30 u-size-xs-60 u-image-1" src="" data-image-width="594" data-image-height="558">
-                <div class="u-container-layout u-container-layout-1" src="" bis_skin_checked="1"></div>
-              </div>
-              <div class="u-align-left u-container-align-left u-container-style u-grey-5 u-layout-cell u-right-cell u-size-30 u-size-xs-60 u-layout-cell-2" bis_skin_checked="1">
-                <div class="u-container-layout u-container-layout-2" bis_skin_checked="1">
-                  <h2 class="u-align-left u-text u-text-1"> Lake Paradise</h2>
-                  <p class="u-align-left u-text u-text-2"> Mai 1, 2026&nbsp;| ​Ghar El Melh</p>
-                  <p class="u-align-left u-text u-text-3"> Relax near calm waters with family-friendly facilities.</p>
-                  <a href="" class="u-btn u-button-style u-none u-text-custom-color-1 u-text-hover-custom-color-1 u-btn-1">LEARN MORE&nbsp;<span class="u-icon u-text-custom-color-1"><svg class="u-svg-content" viewBox="0 -32 426.66667 426" style="width: 1em; height: 1em;"><path d="m213.332031 181.667969c0 4.265625-1.277343 8.53125-3.625 11.730469l-106.667969 160c-3.839843 5.761718-10.238281 9.601562-17.707031 9.601562h-64c-11.730469 0-21.332031-9.601562-21.332031-21.332031 0-4.269531 1.28125-8.535157 3.625-11.734375l98.773438-148.265625-98.773438-148.269531c-2.34375-3.199219-3.625-7.464844-3.625-11.730469 0-11.734375 9.601562-21.335938 21.332031-21.335938h64c7.46875 0 13.867188 3.839844 17.707031 9.601563l106.667969 160c2.347657 3.199218 3.625 7.464844 3.625 11.734375zm0 0"></path><path d="m426.667969 181.667969c0 4.265625-1.28125 8.53125-3.628907 11.730469l-106.664062 160c-3.839844 5.761718-10.242188 9.601562-17.707031 9.601562h-64c-11.734375 0-21.335938-9.601562-21.335938-21.332031 0-4.269531 1.28125-8.535157 3.628907-11.734375l98.773437-148.265625-98.773437-148.269531c-2.347657-3.199219-3.628907-7.464844-3.628907-11.730469 0-11.734375 9.601563-21.335938 21.335938-21.335938h64c7.464843 0 13.867187 3.839844 17.707031 9.601563l106.664062 160c2.347657 3.199218 3.628907 7.464844 3.628907 11.734375zm0 0"></path></svg></span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="u-clearfix u-section-9" id="block-18">
-      <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xs u-sheet-1" bis_skin_checked="1">
-        <div class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1" bis_skin_checked="1">
-          <div class="u-layout" style bis_skin_checked="1">
-            <div class="u-layout-row" style bis_skin_checked="1">
-              <div class="u-align-left u-container-align-left u-container-style u-image u-layout-cell u-left-cell u-shading u-size-30 u-size-xs-60 u-image-1" src="" data-image-width="593" data-image-height="515">
-                <div class="u-container-layout u-container-layout-1" src="" bis_skin_checked="1"></div>
-              </div>
-              <div class="u-align-left u-container-align-left u-container-style u-grey-5 u-layout-cell u-right-cell u-size-30 u-size-xs-60 u-layout-cell-2" bis_skin_checked="1">
-                <div class="u-container-layout u-container-layout-2" bis_skin_checked="1">
-                  <h2 class="u-align-left u-text u-text-1"> Forest Retreat</h2>
-                  <p class="u-align-left u-text u-text-2"> November 25, 2026&nbsp;| ​Rimel</p>
-                  <p class="u-align-left u-text u-text-3"> Immerse yourself in nature and peaceful surroundings.</p>
-                  <a href="" class="u-btn u-button-style u-none u-text-custom-color-1 u-text-hover-custom-color-1 u-btn-1">lEARN MORE&nbsp;<span class="u-icon u-text-custom-color-1"><svg class="u-svg-content" viewBox="0 -32 426.66667 426" style="width: 1em; height: 1em;"><path d="m213.332031 181.667969c0 4.265625-1.277343 8.53125-3.625 11.730469l-106.667969 160c-3.839843 5.761718-10.238281 9.601562-17.707031 9.601562h-64c-11.730469 0-21.332031-9.601562-21.332031-21.332031 0-4.269531 1.28125-8.535157 3.625-11.734375l98.773438-148.265625-98.773438-148.269531c-2.34375-3.199219-3.625-7.464844-3.625-11.730469 0-11.734375 9.601562-21.335938 21.332031-21.335938h64c7.46875 0 13.867188 3.839844 17.707031 9.601563l106.667969 160c2.347657 3.199218 3.625 7.464844 3.625 11.734375zm0 0"></path><path d="m426.667969 181.667969c0 4.265625-1.28125 8.53125-3.628907 11.730469l-106.664062 160c-3.839844 5.761718-10.242188 9.601562-17.707031 9.601562h-64c-11.734375 0-21.335938-9.601562-21.335938-21.332031 0-4.269531 1.28125-8.535157 3.628907-11.734375l98.773437-148.265625-98.773437-148.269531c-2.347657-3.199219-3.628907-7.464844-3.628907-11.730469 0-11.734375 9.601563-21.335938 21.335938-21.335938h64c7.464843 0 13.867187 3.839844 17.707031 9.601563l106.664062 160c2.347657 3.199218 3.628907 7.464844 3.628907 11.734375zm0 0"></path></svg></span>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <a href="" class="u-border-1 u-border-palette-2-base u-btn u-btn-round u-button-style u-gradient u-none u-radius u-text-hover-black u-btn-2"> View Available Sites&nbsp;<span class="u-icon u-text-palette-2-base u-icon-2"><svg class="u-svg-content" viewBox="0 0 490.667 490.667" x="0px" y="0px" style="width: 1em; height: 1em;"><path d="M466.201,237.781L231.534,3.115C229.55,1.131,226.841,0,224.003,0h-192c-4.309,0-8.213,2.603-9.856,6.592 s-0.725,8.555,2.304,11.627l227.136,227.115L24.451,472.448c-3.051,3.051-3.968,7.637-2.304,11.627 c1.664,3.989,5.547,6.592,9.856,6.592h192c2.837,0,5.547-1.131,7.552-3.115l234.667-234.667 C470.382,248.704,470.382,241.963,466.201,237.781z"></path></svg></span>
-        </a>
-      </div>
-    </section>
+    </div>
+
+    <!-- View All Button -->
+    <a
+      class="u-border-1 u-border-palette-2-base u-btn u-btn-round u-button-style u-gradient u-none u-radius u-text-hover-black u-btn-2"
+      routerLink="/public/camping-sites"
+    >
+      View Available Sites
+      <span class="u-icon u-text-palette-2-base u-icon-2">
+        <svg class="u-svg-content" viewBox="0 0 490.667 490.667" style="width:1em;height:1em;">
+          <path d="M466.201,237.781L231.534,3.115C229.55,1.131,226.841,0,224.003,0h-192c-4.309,0-8.213,2.603-9.856,6.592 s-0.725,8.555,2.304,11.627l227.136,227.115L24.451,472.448c-3.051,3.051-3.968,7.637-2.304,11.627 c1.664,3.989,5.547,6.592,9.856,6.592h192c2.837,0,5.547-1.131,7.552-3.115l234.667-234.667 C470.382,248.704,470.382,241.963,466.201,237.781z"></path>
+        </svg>
+      </span>
+    </a>
+
+  </div>
+</section>
     <section class="u-align-center u-clearfix u-container-align-center u-section-10" id="sec-e71f">
       <div class="u-container-style u-expanded-width u-group u-image u-shading u-image-1" data-image-width="1620" data-image-height="1080">
         <div class="u-container-layout u-valign-top u-container-layout-1" bis_skin_checked="1">
