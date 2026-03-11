@@ -17,6 +17,17 @@ export class CampingService {
     return this.http.get<CampingSite[]>(`http://localhost:8082/api/site-camping/getAll`);
   }
 
+  addCampingSite(site: CampingSite): Observable<CampingSite> {
+    return this.http.post<CampingSite>(`${this.apiUrl}/site-camping/add`, site);
+  }
+
+  updateCampingSite(idSite: number, site: CampingSite): Observable<CampingSite> {
+    return this.http.put<CampingSite>(`${this.apiUrl}/site-camping/update/${idSite}`, site);
+  }
+
+  deleteCampingSite(idSite: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/site-camping/delete/${idSite}`);
+  }
   getCampingSiteById(idSite: number): Observable<CampingSite> {
     return this.http.get<CampingSite>(`${this.apiUrl}/site-camping/getsite/${idSite}`);
   }
