@@ -1,0 +1,61 @@
+<section class="sites-page">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-subtitle">CampConnect</span>
+      <h2>Camping Sites</h2>
+      <p>
+        Explore the best camping destinations and choose the perfect place for your next adventure.
+      </p>
+    </div>
+
+    <div class="filters">
+      <input type="text" placeholder="Search by site name or location" />
+
+      <select>
+        <option>Availability</option>
+        <option>Available</option>
+        <option>Full</option>
+        <option>Closed</option>
+      </select>
+
+      <select>
+        <option>Price range</option>
+        <option>Under TND30</option>
+        <option>TND30 - TND60</option>
+        <option>Above TND60</option>
+      </select>
+    </div>
+
+<div class="sites-grid">
+  <div class="site-card" *ngFor="let site of sites">
+    <img [src]="site.image" [alt]="site.nom" />
+
+    <div class="site-card-content">
+      <span class="status" [ngClass]="{
+        'available': site.statutDispo === 'AVAILABLE',
+        'full': site.statutDispo === 'FULL',
+        'closed': site.statutDispo === 'CLOSED'
+      }">
+        {{ site.statutDispo }}
+      </span>
+
+      <h3>{{ site.nom }}</h3>
+      <p class="location">{{ site.localisation }}</p>
+      <p class="description">{{ site.description }}</p>
+
+      <div class="site-info">
+        <span>Capacity: {{ site.capacite }}</span>
+        <span>TND{{ site.prixParNuit }} / night</span>
+      </div>
+
+      <div class="site-actions">
+        <button class="btn-outline">View Details</button>
+        <a class="btn-primary" [routerLink]="['/public/site-booking', site.idSite]">
+          Book Now
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</section>

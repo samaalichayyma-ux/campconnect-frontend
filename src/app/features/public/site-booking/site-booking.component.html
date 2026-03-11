@@ -1,0 +1,138 @@
+<section class="booking-page" *ngIf="selectedSite; else notFound">
+  <div class="container">
+    <div class="booking-wrapper">
+      <div class="booking-summary">
+        <img [src]="selectedSite.image" [alt]="selectedSite.nom" />
+
+        <div class="summary-content">
+          <span
+            class="badge"
+            [ngClass]="{
+              'available': selectedSite.statutDispo === 'AVAILABLE',
+              'full': selectedSite.statutDispo === 'FULL',
+              'closed': selectedSite.statutDispo === 'CLOSED'
+            }"
+          >
+            {{ selectedSite.statutDispo }}
+          </span>
+
+          <h2>{{ selectedSite.nom }}</h2>
+          <p class="location">{{ selectedSite.localisation }}</p>
+
+          <div class="summary-info">
+            <p><strong>Capacity:</strong> {{ selectedSite.capacite }} guests</p>
+            <p><strong>Price:</strong> TND{{ selectedSite.prixParNuit }} / night</p>
+            <p><strong>Status:</strong> {{ selectedSite.statutDispo }}</p>
+          </div>
+
+          <p class="summary-text">
+            {{ selectedSite.description }}
+          </p>
+        </div>
+      </div>
+
+      <div class="booking-form-card">
+        <div class="form-header">
+          <span class="section-subtitle">Reservation</span>
+          <h2>Book This Site</h2>
+          <p>Fill in your details to complete the booking request.</p>
+        </div>
+
+        <form class="booking-form" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input
+              id="fullName"
+              type="text"
+              name="fullName"
+              [(ngModel)]="fullName"
+              placeholder="Enter your full name"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                id="email"
+                type="email"
+                name="email"
+                [(ngModel)]="email"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input
+                id="phone"
+                type="text"
+                name="phone"
+                [(ngModel)]="phone"
+                placeholder="Enter your phone number"
+              />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dateDebut">Start Date</label>
+              <input
+                id="dateDebut"
+                type="date"
+                name="dateDebut"
+                [(ngModel)]="bookingForm.dateDebut"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="dateFin">End Date</label>
+              <input
+                id="dateFin"
+                type="date"
+                name="dateFin"
+                [(ngModel)]="bookingForm.dateFin"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="guests">Number of Guests</label>
+            <input
+              id="guests"
+              type="number"
+              name="guests"
+              [(ngModel)]="bookingForm.numberOfGuests"
+              min="1"
+              [max]="selectedSite?.capacite || 1"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Additional Notes</label>
+            <textarea
+              id="notes"
+              name="notes"
+              [(ngModel)]="notes"
+              rows="4"
+              placeholder="Write any extra details here..."
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit">Confirm Booking</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #notFound>
+  <section class="booking-page">
+    <div class="container">
+      <div class="booking-form-card">
+        <h2>Camping site not found</h2>
+        <p>The selected camping site does not exist.</p>
+      </div>
+    </div>
+  </section>
+</ng-template>
