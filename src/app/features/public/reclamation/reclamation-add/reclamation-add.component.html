@@ -1,0 +1,14 @@
+<h2>Ajouter une réclamation</h2>
+
+<form (ngSubmit)="save()">
+  <div>
+    <label>Description</label>
+    <br />
+    <textarea [(ngModel)]="reclamation.description" 
+    name="description" required></textarea>
+  </div>
+
+  <br />
+
+  <button type="submit">Enregistrer</button>
+</form>

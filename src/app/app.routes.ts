@@ -31,6 +31,17 @@ import { CampingSiteListComponent } from './features/admin/camping-sites/camping
 import { CampingSiteCreateComponent } from './features/admin/camping-sites/camping-site-create/camping-site-create.component';
 import { CampingSiteEditComponent } from './features/admin/camping-sites/camping-site-edit/camping-site-edit.component';
 
+
+import { ReclamationListComponent } from './features/public/reclamation/reclamation-list/reclamation-list.component';
+import { ReclamationAddComponent } from './features/public/reclamation/reclamation-add/reclamation-add.component';
+import { RepasListComponent } from './features/public/restauration/repas-list/repas-list.component';
+import { CommandeRepasComponent } from './features/public/restauration/commande-repas/commande-repas.component';
+
+import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
+import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
+import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
+
+
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
   // ADMIN d'abord
@@ -50,10 +61,15 @@ export const routes: Routes = [
 
       { path: 'assurances/new', component: AssuranceCreateComponent },
       { path: 'assurances/:id/edit', component: AssuranceEditComponent },
-
+      
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
+      
+       { path: 'reclamations', component: ReclamationAdminListComponent },
+  { path: 'repas', component: RepasAdminComponent },
+  { path: 'commandes-repas', component: CommandesAdminComponent },
+  
     ],
   },
 
@@ -67,9 +83,16 @@ export const routes: Routes = [
       { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
       { path: 'assurances', component: PublicAssuranceListComponent },
       { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
+
        { path: 'camping-sites', component: CampingSitesComponent },
-      { path: 'site-booking/:id', component: SiteBookingComponent }
-    ],
+      { path: 'site-booking/:id', component: SiteBookingComponent },
+ 
+        { path: 'reclamations/add', component: ReclamationAddComponent },
+        { path: 'reclamations', component: ReclamationListComponent },
+        { path: 'repas', component: RepasListComponent },
+         { path: 'commande-repas', component: CommandeRepasComponent },
+],
+
   },
 
   

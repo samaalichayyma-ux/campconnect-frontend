@@ -1,0 +1,24 @@
+<h2>Administration des réclamations</h2>
+
+<table border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Description</th>
+      <th>Statut</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let r of reclamations">
+      <td>{{ r.id }}</td>
+      <td>{{ r.description }}</td>
+      <td>{{ r.statut }}</td>
+      <td>
+        <button (click)="changerStatut(r.id, 'EN_COURS')">En cours</button>
+        <button (click)="changerStatut(r.id, 'RESOLUE')">Résolue</button>
+        <button (click)="changerStatut(r.id, 'REJETEE')">Rejetée</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
