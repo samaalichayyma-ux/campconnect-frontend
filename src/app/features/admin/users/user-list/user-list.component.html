@@ -1,1 +1,49 @@
-<p>user-list works!</p>
+<section class="users-page">
+  <div class="users-header">
+    <div>
+      <h1>Users Management</h1>
+      <p>Manage all users and their profiles</p>
+    </div>
+
+    <a routerLink="/admin/users/create" class="add-btn">+ Add User</a>
+  </div>
+
+  <div *ngIf="loading">Loading users...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Téléphone</th>
+          <th>Rôle</th>
+          <th>Adresse</th>
+          <th>Biographie</th>
+          <th>Date création</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.nom }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.telephone }}</td>
+          <td>{{ user.role }}</td>
+          <td>{{ user.profil?.adresse || '-' }}</td>
+          <td>{{ user.profil?.biographie || '-' }}</td>
+          <td>{{ user.dateCreation || '-' }}</td>
+          <td class="actions">
+            <a [routerLink]="['/admin/users/details', user.id]" class="btn details">Details</a>
+            <a [routerLink]="['/admin/users/edit', user.id]" class="btn edit">Edit</a>
+            <button class="btn delete" (click)="deleteUser(user.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

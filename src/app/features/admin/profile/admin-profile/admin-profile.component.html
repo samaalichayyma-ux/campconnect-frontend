@@ -1,8 +1,19 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
   <div class="profile-card">
-    <div class="profile-avatar">👤</div>
+    <div class="profile-header">
+      <div class="profile-avatar" *ngIf="!profile.photo">👤</div>
+      <img
+        *ngIf="profile.photo"
+        [src]="profile.photo"
+        alt="Photo profil"
+        class="profile-image"
+      />
 
-    <h1 class="profile-title">Admin Profile</h1>
+      <div>
+        <h1 class="profile-title">Admin Profile</h1>
+        <p class="profile-subtitle">Manage your personal information</p>
+      </div>
+    </div>
 
     <div class="profile-info" *ngIf="user">
       <div class="profile-item">
@@ -62,5 +73,5 @@
 </section>
 
 <ng-template #loadingTpl>
-  <p>Loading admin profile...</p>
+  <p class="loading-text">Loading admin profile...</p>
 </ng-template>

@@ -55,9 +55,9 @@ export const routes: Routes = [
       { path: 'profile', component: AdminProfileComponent },
 
       { path: 'users', component: UserListComponent },
-      { path: 'users/new', component: UserCreateComponent },
-      { path: 'users/:id/edit', component: UserEditComponent },
-      { path: 'users/:id', component: UserDetailsComponent },
+      { path: 'users/create', component: UserCreateComponent },
+      { path: 'users/edit/:id', component: UserEditComponent },
+      { path: 'users/details/:id', component: UserDetailsComponent },
 
       { path: 'assurances/new', component: AssuranceCreateComponent },
       { path: 'assurances/:id/edit', component: AssuranceEditComponent },
