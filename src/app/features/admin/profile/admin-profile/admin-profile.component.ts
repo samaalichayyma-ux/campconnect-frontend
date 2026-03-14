@@ -1,20 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CurrentUser } from '../../../public/profile/models/current-user.model';
 import { Profile } from '../../../public/profile/models/profile.model';
-import { Router, RouterLink } from '@angular/router';
+
 @Component({
   selector: 'app-admin-profile',
-  imports: [CommonModule , FormsModule , RouterLink],
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-profile.component.html',
   styleUrl: './admin-profile.component.css'
 })
 export class AdminProfileComponent implements OnInit {
-
-user: CurrentUser | null = null;
+  user: CurrentUser | null = null;
 
   profile: Profile = {
     adresse: '',
@@ -39,6 +40,8 @@ user: CurrentUser | null = null;
 
   loadCurrentUser(): void {
     this.loading = true;
+    this.errorMessage = '';
+
     this.profileService.getCurrentUser().subscribe({
       next: (data) => {
         this.user = data;
@@ -68,7 +71,7 @@ user: CurrentUser | null = null;
         this.loadCurrentUser();
       },
       error: () => {
-        this.errorMessage = 'Erreur lors de la mise à jour';
+        this.errorMessage = 'Erreur lors de la mise à jour du profil';
         this.saving = false;
       }
     });
@@ -78,5 +81,4 @@ user: CurrentUser | null = null;
     this.authService.logout();
     this.router.navigate(['/public']);
   }
-
 }

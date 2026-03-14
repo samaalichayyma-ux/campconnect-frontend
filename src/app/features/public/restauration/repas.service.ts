@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 })
 export class RepasService {
 
-  private apiUrl = 'http://localhost:8080/api/repas';
+  private apiUrl = 'http://localhost:8082/api/repas';
 
   constructor(private http: HttpClient) {}
 
