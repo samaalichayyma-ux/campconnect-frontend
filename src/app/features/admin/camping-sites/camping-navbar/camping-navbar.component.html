@@ -1,0 +1,33 @@
+<div class="camping-navbar">
+  <div class="camping-navbar__left">
+    <span class="camping-navbar__eyebrow">CampConnect Admin</span>
+    <h2>Camping Sites Management</h2>
+    <p>Manage sites, availability, pricing and updates.</p>
+  </div>
+
+  <div class="camping-navbar__actions">
+    <a
+      routerLink="/admin/camping-sites"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      class="camping-nav-link"
+    >
+      All Sites
+    </a>
+
+    <a
+      routerLink="/admin/camping-sites/new"
+      routerLinkActive="active"
+      class="camping-nav-link"
+    >
+      Add New Site
+    </a>
+        <a
+      routerLink="/admin/site-bookings"
+      routerLinkActive="active"
+      class="camping-nav-link"
+    >
+      Bookings
+    </a>
+  </div>
+</div>

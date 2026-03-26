@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking } from '../models/booking.model';
+import { CampingSiteCreatePayload } from '../../admin/camping-sites/models/camping-site-create.model';
 
 @Injectable({
   providedIn: 'root'
@@ -17,12 +18,12 @@ export class CampingService {
     return this.http.get<CampingSite[]>(`http://localhost:8082/api/site-camping/getAll`);
   }
 
-  addCampingSite(site: CampingSite): Observable<CampingSite> {
-    return this.http.post<CampingSite>(`${this.apiUrl}/site-camping/add`, site);
+  addCampingSite(formData: FormData): Observable<CampingSite> {
+    return this.http.post<CampingSite>(`${this.apiUrl}/site-camping/addSite`, formData);
   }
 
-  updateCampingSite(idSite: number, site: CampingSite): Observable<CampingSite> {
-    return this.http.put<CampingSite>(`${this.apiUrl}/site-camping/update/${idSite}`, site);
+  updateCampingSite(idSite: number, formData: FormData): Observable<CampingSite> {
+    return this.http.patch<CampingSite>(`${this.apiUrl}/site-camping/updateSite/${idSite}`, formData);
   }
 
   deleteCampingSite(idSite: number): Observable<void> {
@@ -43,5 +44,9 @@ export class CampingService {
   getBookingsBySite(idSite: number): Observable<SiteBooking[]> {
     return this.http.get<SiteBooking[]>(`${this.apiUrl}/inscriptionsite/bySite/${idSite}`);
   }
+  updateBooking(idInscription: number, booking: SiteBooking): Observable<SiteBooking> {
+    return this.http.patch<SiteBooking>(`${this.apiUrl}/inscriptionsite/update/${idInscription}`, booking);
+  }
+
 
 }

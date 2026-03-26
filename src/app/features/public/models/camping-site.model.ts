@@ -3,8 +3,9 @@ export interface CampingSite {
   nom: string;
   localisation: string;
   capacite: number;
+  remainingCapacity?: number;
   prixParNuit: number;
-  image?:string;
+  imageUrl?:string;
   description?: string;
   statutDispo: 'AVAILABLE' | 'FULL' | 'CLOSED';
 }

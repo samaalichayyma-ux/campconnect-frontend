@@ -1,0 +1,77 @@
+<section class="admin-bookings-page">
+  <div class="container">
+
+    <app-camping-navbar></app-camping-navbar>
+
+    <div class="page-header">
+      <h2>Bookings Management</h2>
+      <p>Monitor and manage all camping reservations.</p>
+    </div>
+
+    <div *ngIf="isLoading" class="state-message">
+      Loading bookings...
+    </div>
+
+    <div *ngIf="errorMessage" class="state-message error">
+      {{ errorMessage }}
+    </div>
+
+    <table *ngIf="!isLoading && bookings.length > 0" class="bookings-table">
+      <thead>
+        <tr>
+          <th>Site</th>
+          <th>Dates</th>
+          <th>Guests</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let booking of bookings">
+          <td>{{ booking.siteCamping?.nom }}</td>
+
+          <td>
+            {{ booking.dateDebut }} → {{ booking.dateFin }}
+          </td>
+
+          <td>{{ booking.numberOfGuests }}</td>
+
+          <td>
+            <span
+              class="badge"
+              [ngClass]="{
+                'pending': booking.statut === 'PENDING',
+                'confirmed': booking.statut === 'CONFIRMED',
+                'cancelled': booking.statut === 'CANCELLED'
+              }"
+            >
+              {{ booking.statut }}
+            </span>
+          </td>
+
+          <td class="actions">
+            <button
+              class="btn-confirm"
+              (click)="updateStatus(booking, 'CONFIRMED')"
+            >
+              Confirm
+            </button>
+
+            <button
+              class="btn-cancel"
+              (click)="updateStatus(booking, 'CANCELLED')"
+            >
+              Cancel
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && bookings.length === 0" class="empty-state">
+      No bookings found.
+    </div>
+
+  </div>
+</section>
