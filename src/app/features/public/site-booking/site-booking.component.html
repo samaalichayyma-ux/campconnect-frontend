@@ -26,7 +26,7 @@
             <p><strong>Capacity:</strong> {{ selectedSite.capacite }} guests</p>
             <p><strong>Remaining Capacity:</strong> {{ selectedSite.remainingCapacity ?? 0 }} guests</p>
             <p><strong>Price:</strong> {{ selectedSite.prixParNuit }} DT / night</p>
-            <p><strong>Status:</strong> {{ selectedSite.statutDispo ?? 0 }}</p>
+            <p><strong>Status:</strong> {{ selectedSite.statutDispo }}</p>
           </div>
 
           <p class="summary-text">
@@ -35,79 +35,116 @@
         </div>
       </div>
 
-      <form class="booking-form" (ngSubmit)="onSubmit()">
-        <div class="form-row">
+      <div class="booking-form-card">
+        <div class="form-header">
+          <span class="section-subtitle">Reservation</span>
+          <h2>Book This Site</h2>
+          <p>Fill in the form below to submit your booking request.</p>
+        </div>
+
+        <div *ngIf="successMessage" class="success-message">
+          {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <form class="booking-form" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dateDebut">Start Date</label>
+              <input
+                id="dateDebut"
+                type="date"
+                name="dateDebut"
+                [(ngModel)]="bookingForm.dateDebut"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="dateFin">End Date</label>
+              <input
+                id="dateFin"
+                type="date"
+                name="dateFin"
+                [(ngModel)]="bookingForm.dateFin"
+                required
+              />
+            </div>
+          </div>
+
           <div class="form-group">
-            <label for="dateDebut">Start Date</label>
+            <label for="numberOfGuests">Number of Guests</label>
             <input
-              id="dateDebut"
-              type="date"
-              name="dateDebut"
-              [(ngModel)]="bookingForm.dateDebut"
+              id="numberOfGuests"
+              type="number"
+              name="numberOfGuests"
+              [(ngModel)]="bookingForm.numberOfGuests"
+              min="1"
+              [max]="selectedSite.remainingCapacity ?? 1"
               required
+            />
+            <small class="helper-text">
+              Maximum allowed: {{ selectedSite.remainingCapacity ?? 0 }} guest(s)
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="siteName">Selected Camping Site</label>
+            <input
+              id="siteName"
+              type="text"
+              [value]="selectedSite.nom"
+              disabled
             />
           </div>
 
           <div class="form-group">
-            <label for="dateFin">End Date</label>
+            <label for="siteLocation">Location</label>
             <input
-              id="dateFin"
-              type="date"
-              name="dateFin"
-              [(ngModel)]="bookingForm.dateFin"
-              required
+              id="siteLocation"
+              type="text"
+              [value]="selectedSite.localisation"
+              disabled
             />
           </div>
+
+          <div *ngIf="(selectedSite.remainingCapacity ?? 0) === 0" class="error-message">
+            This camping site is fully booked. No remaining spots are available.
+          </div>
+
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="(selectedSite.remainingCapacity ?? 0) === 0"
+          >
+            {{ (selectedSite.remainingCapacity ?? 0) === 0 ? 'Fully Booked' : 'Confirm Booking' }}
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+      <div class="reviews-header">
+        <span class="section-subtitle">Reviews</span>
+        <h2>What Visitors Say</h2>
+        <p>Read reviews from other campers and share your own experience.</p>
+      </div>
+
+      <div class="reviews-grid">
+        <div class="reviews-list-card">
+          <h3>Site Reviews</h3>
+          <app-avis-list [siteId]="selectedSite.idSite"></app-avis-list>
         </div>
 
-        <div class="form-group">
-          <label for="numberOfGuests">Number of Guests</label>
-          <input
-            id="numberOfGuests"
-            type="number"
-            name="numberOfGuests"
-            [(ngModel)]="bookingForm.numberOfGuests"
-            min="1"
-            [max]="selectedSite.remainingCapacity ?? 1"
-            required
-          />
-          <small class="helper-text">
-            Maximum allowed: {{ selectedSite.remainingCapacity }} guest(s)
-          </small>
+        <div class="reviews-form-card">
+          <h3>Leave a Review</h3>
+          <app-add-avis [siteId]="selectedSite.idSite"></app-add-avis>
         </div>
-
-        <div class="form-group">
-          <label for="siteName">Selected Camping Site</label>
-          <input
-            id="siteName"
-            type="text"
-            [value]="selectedSite.nom"
-            disabled
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="siteLocation">Location</label>
-          <input
-            id="siteLocation"
-            type="text"
-            [value]="selectedSite.localisation"
-            disabled
-          />
-        </div>
-
-        <div *ngIf="selectedSite.remainingCapacity === 0" class="error-message">
-          This camping site is fully booked. No remaining spots are available.
-        </div>
-
-        <button
-          type="submit"
-          class="btn-submit"
-          [disabled]="selectedSite.remainingCapacity === 0"
-        >
-          {{ selectedSite.remainingCapacity === 0 ? 'Fully Booked' : 'Confirm Booking' }}
-        </button>
-      </form>
+      </div>
     </div>
   </div>
 </section>

@@ -1,0 +1,13 @@
+<div class="avis-list">
+  <div class="avis-card" *ngFor="let avis of avisList">
+
+    <div class="stars">
+      <span *ngFor="let s of getStars(avis.note)">★</span>
+    </div>
+
+    <p *ngIf="avis.commentaire">{{ avis.commentaire }}</p>
+
+    <span class="date">{{ avis.dateCreation | date }}</span>
+
+  </div>
+</div>

@@ -170,3 +170,28 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.site-avis {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+/* limit height so cards don’t explode */
+.site-avis .avis-list {
+  max-height: 150px;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+/* smaller form inside card */
+.site-avis .avis-form {
+  padding: 10px;
+  background: #f9f8f4;
+  border-radius: 10px;
+}
+
+/* stars smaller inside cards */
+.site-avis .stars {
+  font-size: 16px;
+}

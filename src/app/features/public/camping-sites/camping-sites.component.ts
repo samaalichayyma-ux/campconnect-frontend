@@ -3,11 +3,13 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CampingSite } from '../models/camping-site.model';
 import { CampingService } from '../services/camping.service';
+import { AddAvisComponent } from '../avis/add-avis/add-avis.component';
+import { AvisListComponent } from '../avis/avis-list/avis-list.component';
 
 @Component({
   selector: 'app-camping-sites',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AvisListComponent, AddAvisComponent],
   templateUrl: './camping-sites.component.html',
   styleUrl: './camping-sites.component.css'
 })

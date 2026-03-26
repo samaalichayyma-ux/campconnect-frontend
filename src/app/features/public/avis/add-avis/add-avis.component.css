@@ -1,0 +1,26 @@
+.avis-form {
+  background: #f3efe8;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.stars {
+  font-size: 22px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.stars span {
+  color: #ccc;
+}
+
+.stars span.active {
+  color: #96952f;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}

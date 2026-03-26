@@ -41,6 +41,7 @@ import { ReclamationAdminListComponent } from './features/admin/reclamation/recl
 import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
 import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
 import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
+import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
 
 
 export const routes: Routes = [
@@ -67,6 +68,7 @@ export const routes: Routes = [
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
       { path: 'site-bookings', component: SiteBookingsComponent },
+      { path: 'avis', component: AdminAvisListComponent },
       
        { path: 'reclamations', component: ReclamationAdminListComponent },
   { path: 'repas', component: RepasAdminComponent },

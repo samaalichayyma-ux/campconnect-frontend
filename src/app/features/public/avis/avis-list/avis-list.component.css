@@ -1,0 +1,15 @@
+.avis-card {
+  background: white;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.stars {
+  color: #96952f;
+}
+
+.date {
+  font-size: 12px;
+  color: #777;
+}

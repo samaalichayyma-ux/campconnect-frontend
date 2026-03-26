@@ -1,0 +1,25 @@
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Note</th>
+      <th>Comment</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr *ngFor="let avis of avisList">
+      <td>{{ avis.id }}</td>
+      <td>{{ avis.note }}</td>
+      <td>{{ avis.commentaire }}</td>
+      <td>{{ avis.dateCreation | date }}</td>
+      <td>
+        <button (click)="deleteAvis(avis.id)" class="btn-delete">
+          Delete
+        </button>
+      </td>
+    </tr>
+  </tbody>
+</table>

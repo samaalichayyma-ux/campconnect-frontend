@@ -6,11 +6,13 @@ import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking } from '../models/booking.model';
 import { CampingService } from '../services/camping.service';
 import Swal from 'sweetalert2';
+import { AvisListComponent } from '../avis/avis-list/avis-list.component';
+import { AddAvisComponent } from '../avis/add-avis/add-avis.component';
 
 @Component({
   selector: 'app-site-booking',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,AvisListComponent,AddAvisComponent],
   templateUrl: './site-booking.component.html',
   styleUrl: './site-booking.component.css'
 })
