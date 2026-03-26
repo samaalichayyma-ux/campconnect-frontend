@@ -56,47 +56,86 @@ export class SiteBookingComponent implements OnInit {
     });
   }
 
-  onSubmit(): void {
-    if (!this.selectedSite) {
+onSubmit(): void {
+  if (!this.selectedSite) {
+    this.errorMessage = 'Unable to complete the booking because no camping site was selected.';
+
     Swal.fire({
       icon: 'error',
       title: 'Site not found',
-      text: 'Unable to complete the booking because no camping site was selected.'
+      text: this.errorMessage
     });
     return;
   }
 
-    this.errorMessage = '';
-    this.successMessage = '';
+  const remaining = this.selectedSite.remainingCapacity ?? 0;
 
-    this.campingService.createBooking(this.bookingForm).subscribe({
-      next: (response) => {
-        this.successMessage = 'Booking created successfully.';
-        console.log('Booking created:', response);
-        Swal.fire({
-                icon: 'success',
-                title: 'Booking Confirmed',
-                text: 'Your booking has been created successfully.',
-                confirmButtonText: 'OK'
-              });
-        this.bookingForm = {
-          dateDebut: '',
-          dateFin: '',
-          numberOfGuests: 1,
-          statut: 'PENDING',
-          siteCamping: this.selectedSite as CampingSite
-        };
-      },
-      error: (error) => {
-        this.errorMessage = 'Failed to create booking.';
-        console.error('Booking error:', error);
+  if (remaining === 0) {
+    this.errorMessage = 'This camping site is fully booked.';
 
-        Swal.fire({
+    Swal.fire({
+      icon: 'warning',
+      title: 'Fully Booked',
+      text: this.errorMessage
+    });
+    return;
+  }
+
+  if (!this.bookingForm.dateDebut || !this.bookingForm.dateFin) {
+  this.errorMessage = 'Please select both start and end dates.';
+
+  Swal.fire({
+    icon: 'warning',
+    title: 'Missing Dates',
+    text: this.errorMessage
+  });
+  return;
+}
+
+  if (this.bookingForm.numberOfGuests > remaining) {
+    this.errorMessage = `You cannot book more than ${remaining} guest(s).`;
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Invalid Number of Guests',
+      text: this.errorMessage
+    });
+    return;
+  }
+
+  this.errorMessage = '';
+  this.successMessage = '';
+
+  this.campingService.createBooking(this.bookingForm).subscribe({
+    next: (response) => {
+      this.successMessage = 'Booking created successfully.';
+      console.log('Booking created:', response);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Booking Confirmed',
+        text: 'Your booking has been created successfully.'
+      });
+
+      this.bookingForm = {
+        dateDebut: '',
+        dateFin: '',
+        numberOfGuests: 1,
+        statut: 'PENDING',
+        siteCamping: this.selectedSite as CampingSite
+      };
+    },
+    error: (error) => {
+      this.errorMessage = 'Failed to create booking.';
+      console.error(error);
+
+      Swal.fire({
         icon: 'error',
         title: 'Booking Failed',
-        text: 'Something went wrong while creating your booking. Please try again.'
+        text: 'Something went wrong. Please try again.'
       });
-      }
-    });
-  }
+    }
+  });
+}
+  
 }

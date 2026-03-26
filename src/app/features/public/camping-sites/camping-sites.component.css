@@ -116,10 +116,28 @@
 
 .site-info {
   display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  color: #222;
+  flex-direction: column;
+  gap: 10px;
   margin-bottom: 18px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.info-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #222;
+  font-weight: 700;
+  text-align: right;
 }
 
 .site-actions {
@@ -146,4 +164,9 @@
   background: transparent;
   border: 1px solid #8a8f2a;
   color: #8a8f2a;
+}
+
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

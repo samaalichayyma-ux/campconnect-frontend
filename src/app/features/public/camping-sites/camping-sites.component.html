@@ -17,7 +17,7 @@
     <div class="sites-grid" *ngIf="!isLoading && !errorMessage">
       <div class="site-card" *ngFor="let site of sites">
         <img
-          [src]="site.image || 'assets/images/default-camp.jpg'"
+          [src]="site.imageUrl || 'assets/images/default-camp.jpg'"
           [alt]="site.nom"
         />
 
@@ -41,15 +41,34 @@
           </p>
 
           <div class="site-info">
-            <span>Capacity: {{ site.capacite }}</span>
-            <span>{{ site.prixParNuit }} DT / night</span>
-          </div>
+            <div class="info-row">
+              <span class="info-label">Capacity:</span>
+              <span class="info-value">{{ site.capacite ?? 0 }}</span>
+            </div>
 
-          <div class="site-actions">
-            <a class="btn-primary" [routerLink]="['/public/site-booking', site.idSite]">
-              Book Now
-            </a>
+            <div class="info-row">
+              <span class="info-label">Remaining Capacity:</span>
+              <span class="info-value"> {{ site.remainingCapacity ?? 0 }}</span>
+            </div>
+
+            <div class="info-row">
+              <span class="info-label">Price:</span>
+              <span class="info-value">{{ site.prixParNuit }} DT / night</span>
+            </div>
           </div>
+        <div class="site-actions">
+          <a
+            class="btn-primary"
+            [routerLink]="['/public/site-booking', site.idSite]"
+            *ngIf="(site.remainingCapacity ?? 0) > 0"
+          >
+            Book Now
+          </a>
+
+          <button class="btn-outline" *ngIf="site.remainingCapacity === 0" disabled>
+            Fully Booked
+          </button>
+        </div>
         </div>
       </div>
     </div>

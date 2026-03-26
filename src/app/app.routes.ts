@@ -40,6 +40,7 @@ import { CommandeRepasComponent } from './features/public/restauration/commande-
 import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
 import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
 import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
+import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
 
 
 export const routes: Routes = [
@@ -65,6 +66,7 @@ export const routes: Routes = [
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
+      { path: 'site-bookings', component: SiteBookingsComponent },
       
        { path: 'reclamations', component: ReclamationAdminListComponent },
   { path: 'repas', component: RepasAdminComponent },

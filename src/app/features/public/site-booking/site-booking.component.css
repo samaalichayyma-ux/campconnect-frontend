@@ -159,3 +159,14 @@
     grid-template-columns: 1fr;
   }
 }
+
+.helper-text {
+  font-size: 13px;
+  color: #777;
+}
+
+.btn-submit:disabled {
+  background: #b8b8b8;
+  cursor: not-allowed;
+  opacity: 0.8;
+}

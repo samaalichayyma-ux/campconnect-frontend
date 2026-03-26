@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
 import { CampingService } from '../../../public/services/camping.service';
 import { CampingSite } from '../../../public/models/camping-site.model';
+import { CampingNavbarComponent } from '../camping-navbar/camping-navbar.component';
 
 @Component({
   selector: 'app-camping-site-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, CampingNavbarComponent],
   templateUrl: './camping-site-list.component.html',
   styleUrl: './camping-site-list.component.css'
 })
