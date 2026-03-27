@@ -1,71 +1,103 @@
 .booking-page {
-  padding: 70px 20px;
-  background: #f5f5f3;
+  padding: 76px 20px;
+  background:
+    linear-gradient(rgba(245, 245, 243, 0.96), rgba(243, 239, 232, 0.97)),
+    url('/assets/images/camping-bg.jpg') center/cover no-repeat;
 }
 
 .container {
-  width: 90%;
-  max-width: 1200px;
+  width: min(92%, 1240px);
   margin: 0 auto;
 }
 
 .booking-wrapper {
   display: grid;
-  grid-template-columns: 1fr 1.1fr;
+  grid-template-columns: 1fr 1.05fr;
   gap: 32px;
   align-items: start;
 }
 
 .booking-summary,
-.booking-form-card {
-  background: #ffffff;
-  border-radius: 20px;
+.booking-form-card,
+.reviews-list-card,
+.reviews-form-card {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8e1d7;
+  box-shadow: 0 14px 34px rgba(23, 43, 68, 0.08);
+  backdrop-filter: blur(3px);
 }
 
 .booking-summary img {
   width: 100%;
-  height: 280px;
+  height: 320px;
   object-fit: cover;
+  display: block;
 }
 
 .summary-content {
-  padding: 24px;
+  padding: 26px;
 }
 
 .badge {
-  display: inline-block;
-  background: #dce8c3;
-  color: #5f6c1f;
-  padding: 6px 14px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
   border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   margin-bottom: 14px;
+  letter-spacing: 0.4px;
+}
+
+.badge.available {
+  background: #dde9cb;
+  color: #1f5c36;
+}
+
+.badge.full {
+  background: #f4d7d7;
+  color: #9b3f3f;
+}
+
+.badge.closed {
+  background: #e4e4e4;
+  color: #555;
 }
 
 .summary-content h2 {
-  font-size: 32px;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
   margin: 0 0 10px;
-  color: #161616;
+  color: #172b44;
+  line-height: 1.15;
 }
 
 .location {
-  color: #777;
-  margin-bottom: 18px;
+  color: #667281;
+  margin: 0 0 18px;
+  font-size: 0.98rem;
 }
 
 .summary-info {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 18px;
-  color: #2b2b2b;
+  padding: 16px;
+  background: #f8f5ee;
+  border-radius: 16px;
+  border: 1px solid #eee5d8;
+}
+
+.summary-info p {
+  margin: 0;
+  color: #263648;
 }
 
 .summary-text {
-  color: #555;
-  line-height: 1.7;
+  margin: 0;
+  color: #526172;
+  line-height: 1.8;
 }
 
 .booking-form-card {
@@ -74,22 +106,25 @@
 
 .section-subtitle {
   display: inline-block;
-  color: #8a8f2a;
-  font-weight: 600;
+  color: #96952f;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.8px;
   margin-bottom: 10px;
+  font-size: 0.82rem;
 }
 
 .form-header h2 {
   margin: 0 0 10px;
-  font-size: 34px;
-  color: #151515;
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  color: #172b44;
+  line-height: 1.15;
 }
 
 .form-header p {
-  color: #666;
+  color: #667281;
   margin-bottom: 24px;
+  line-height: 1.7;
 }
 
 .booking-form {
@@ -109,20 +144,23 @@
 }
 
 .form-group label {
-  font-weight: 600;
-  color: #202020;
+  font-weight: 700;
+  color: #172b44;
+  font-size: 0.95rem;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 13px 15px;
-  border: 1px solid #d6d6d6;
-  border-radius: 10px;
+  padding: 14px 15px;
+  border: 1px solid #ddd5ca;
+  border-radius: 14px;
   font-size: 15px;
   outline: none;
-  background: #fff;
+  background: #fcfbf8;
   box-sizing: border-box;
+  color: #172b44;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 
 .form-group textarea {
@@ -131,48 +169,76 @@
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: #8a8f2a;
+  border-color: #96952f;
+  box-shadow: 0 0 0 3px rgba(150, 149, 47, 0.12);
+  background: #ffffff;
+}
+
+.form-group input:disabled {
+  background: #f1ede6;
+  color: #667281;
+}
+
+.helper-text {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.info-message,
+.success-message,
+.error-message {
+  padding: 15px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.info-message {
+  background: #ffffff;
+  color: #172b44;
+  border: 1px solid #e7dfd4;
+}
+
+.success-message {
+  background: #e8f4e7;
+  color: #1f5c36;
+  border: 1px solid #cfe3cc;
+}
+
+.error-message {
+  background: #fce9e9;
+  color: #a53333;
+  border: 1px solid #f3cccc;
 }
 
 .btn-submit {
   border: none;
   border-radius: 999px;
   padding: 14px 22px;
-  background: #8a8f2a;
+  background: linear-gradient(135deg, #1f5c36, #96952f);
   color: white;
   font-weight: 700;
   font-size: 15px;
   cursor: pointer;
   margin-top: 8px;
+  box-shadow: 0 12px 24px rgba(31, 92, 54, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .btn-submit:hover {
-  opacity: 0.95;
-}
-
-@media (max-width: 900px) {
-  .booking-wrapper {
-    grid-template-columns: 1fr;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-.helper-text {
-  font-size: 13px;
-  color: #777;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 28px rgba(31, 92, 54, 0.22);
 }
 
 .btn-submit:disabled {
   background: #b8b8b8;
   cursor: not-allowed;
-  opacity: 0.8;
+  opacity: 0.85;
+  box-shadow: none;
 }
 
 .reviews-section {
-  margin-top: 40px;
+  margin-top: 44px;
 }
 
 .reviews-header {
@@ -182,13 +248,14 @@
 
 .reviews-header h2 {
   margin: 8px 0;
-  font-size: 34px;
-  color: #151515;
+  font-size: clamp(2rem, 3.5vw, 2.6rem);
+  color: #172b44;
 }
 
 .reviews-header p {
-  color: #666;
+  color: #667281;
   margin: 0;
+  line-height: 1.7;
 }
 
 .reviews-grid {
@@ -200,10 +267,7 @@
 
 .reviews-list-card,
 .reviews-form-card {
-  background: #ffffff;
-  border-radius: 20px;
   padding: 24px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .reviews-list-card h3,
@@ -213,19 +277,99 @@
   font-size: 22px;
 }
 
-.helper-text {
-  font-size: 13px;
-  color: #777;
-}
-
-.btn-submit:disabled {
-  background: #b8b8b8;
-  cursor: not-allowed;
-  opacity: 0.8;
-}
-
 @media (max-width: 900px) {
+  .booking-wrapper,
   .reviews-grid {
     grid-template-columns: 1fr;
   }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-summary img {
+    height: 260px;
+  }
+}
+
+.booking-total-card {
+  margin-top: 6px;
+  padding: 18px;
+  background: #f8f5ee;
+  border: 1px solid #e9e1d4;
+  border-radius: 16px;
+  display: grid;
+  gap: 12px;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  color: #172b44;
+  font-size: 0.95rem;
+}
+
+.total-row span {
+  color: #667281;
+}
+
+.total-row strong {
+  color: #172b44;
+  font-weight: 700;
+}
+
+.total-final {
+  padding-top: 12px;
+  border-top: 1px solid #e3dacd;
+  font-size: 1.05rem;
+}
+
+.reviews-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: stretch;
+}
+
+/* BOTH CARDS SAME STYLE */
+.reviews-list-card,
+.reviews-form-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 26px rgba(23, 43, 68, 0.08);
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+}
+
+/* HEADER */
+.reviews-list-card h3,
+.reviews-form-card h3 {
+  margin: 0 0 16px;
+  color: #172b44;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* CONTENT AREA */
+.reviews-content {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 350px;
+  padding-right: 6px;
+}
+
+/* empty state style (important) */
+.reviews-content:empty::after {
+  content: "No reviews yet";
+  display: block;
+  text-align: center;
+  color: #6b7280;
+  padding: 40px 0;
+}
+.reviews-list-card {
+  background: linear-gradient(180deg, #ffffff, #f9f7f2);
 }

@@ -4,10 +4,11 @@ import { Observable } from 'rxjs';
 
 export interface Avis {
   id: number;
-  note: number | null;
-  commentaire: string | null;
+  note?: number | null;
+  commentaire?: string | null;
   dateCreation: string;
   siteId: number;
+  siteNom?: string;
 }
 
 @Injectable({
@@ -33,4 +34,7 @@ export class SiteCampingAvisService {
   deleteAvis(idAvis: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${idAvis}`);
   }
+  getAllAdminAvis() {
+  return this.http.get<Avis[]>(`${this.apiUrl}/admin/site-camping-avis`);
+}
 }

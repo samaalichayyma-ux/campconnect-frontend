@@ -1,143 +1,155 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import Swal from 'sweetalert2';
+
 import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking } from '../models/booking.model';
 import { CampingService } from '../services/camping.service';
-import Swal from 'sweetalert2';
+
 import { AvisListComponent } from '../avis/avis-list/avis-list.component';
 import { AddAvisComponent } from '../avis/add-avis/add-avis.component';
 
 @Component({
   selector: 'app-site-booking',
   standalone: true,
-  imports: [CommonModule, FormsModule,AvisListComponent,AddAvisComponent],
+  imports: [CommonModule, FormsModule, AvisListComponent, AddAvisComponent],
   templateUrl: './site-booking.component.html',
   styleUrl: './site-booking.component.css'
 })
 export class SiteBookingComponent implements OnInit {
+
   selectedSite?: CampingSite;
+  hoverRating = 0;
   errorMessage = '';
   successMessage = '';
   isLoading = false;
+
+  todayString = '';
 
   bookingForm: SiteBooking = {
     dateDebut: '',
     dateFin: '',
     numberOfGuests: 1,
-    statut: 'PENDING',
-    siteCamping: {} as CampingSite
+    siteId: 0
   };
 
   constructor(
-    private route: ActivatedRoute,
-    private campingService: CampingService
-  ) {}
+  private route: ActivatedRoute,
+  private router: Router,
+  private campingService: CampingService
+) {}
 
   ngOnInit(): void {
+    const today = new Date();
+    this.todayString = today.toISOString().split('T')[0];
+
     const siteId = Number(this.route.snapshot.paramMap.get('id'));
     this.loadSelectedSite(siteId);
   }
 
   loadSelectedSite(siteId: number): void {
     this.isLoading = true;
-    this.errorMessage = '';
 
     this.campingService.getCampingSiteById(siteId).subscribe({
       next: (site) => {
         this.selectedSite = site;
-        this.bookingForm.siteCamping = site;
+        this.bookingForm.siteId = site.idSite;
         this.isLoading = false;
       },
       error: (error) => {
+        console.error(error);
         this.errorMessage = 'Failed to load camping site.';
         this.isLoading = false;
-        console.error(error);
       }
     });
   }
 
-onSubmit(): void {
-  if (!this.selectedSite) {
-    this.errorMessage = 'Unable to complete the booking because no camping site was selected.';
+  getNumberOfNights(): number {
+    if (!this.bookingForm.dateDebut || !this.bookingForm.dateFin) return 0;
 
-    Swal.fire({
-      icon: 'error',
-      title: 'Site not found',
-      text: this.errorMessage
-    });
+    const start = new Date(this.bookingForm.dateDebut);
+    const end = new Date(this.bookingForm.dateFin);
+
+    const diff = end.getTime() - start.getTime();
+    return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
+  }
+
+  getTotalPrice(): number {
+    if (!this.selectedSite) return 0;
+
+    return this.getNumberOfNights()
+      * this.bookingForm.numberOfGuests
+      * this.selectedSite.prixParNuit;
+  }
+
+ onSubmit(): void {
+  if (!this.selectedSite) {
+    this.showError('Site not found');
     return;
   }
 
   const remaining = this.selectedSite.remainingCapacity ?? 0;
 
   if (remaining === 0) {
-    this.errorMessage = 'This camping site is fully booked.';
-
-    Swal.fire({
-      icon: 'warning',
-      title: 'Fully Booked',
-      text: this.errorMessage
-    });
+    this.showError('This camping site is fully booked.');
     return;
   }
 
   if (!this.bookingForm.dateDebut || !this.bookingForm.dateFin) {
-  this.errorMessage = 'Please select both start and end dates.';
-
-  Swal.fire({
-    icon: 'warning',
-    title: 'Missing Dates',
-    text: this.errorMessage
-  });
-  return;
-}
-
-  if (this.bookingForm.numberOfGuests > remaining) {
-    this.errorMessage = `You cannot book more than ${remaining} guest(s).`;
-
-    Swal.fire({
-      icon: 'warning',
-      title: 'Invalid Number of Guests',
-      text: this.errorMessage
-    });
+    this.showError('Please select both dates.');
     return;
   }
 
-  this.errorMessage = '';
-  this.successMessage = '';
+  const start = new Date(this.bookingForm.dateDebut);
+  const end = new Date(this.bookingForm.dateFin);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-  this.campingService.createBooking(this.bookingForm).subscribe({
-    next: (response) => {
-      this.successMessage = 'Booking created successfully.';
-      console.log('Booking created:', response);
+  if (start < today) {
+    this.showError('Start date cannot be in the past.');
+    return;
+  }
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Booking Confirmed',
-        text: 'Your booking has been created successfully.'
-      });
+  if (end <= start) {
+    this.showError('End date must be after start date.');
+    return;
+  }
 
-      this.bookingForm = {
-        dateDebut: '',
-        dateFin: '',
-        numberOfGuests: 1,
-        statut: 'PENDING',
-        siteCamping: this.selectedSite as CampingSite
-      };
-    },
-    error: (error) => {
-      this.errorMessage = 'Failed to create booking.';
-      console.error(error);
+  if (this.bookingForm.numberOfGuests < 1) {
+    this.showError('Guests must be at least 1.');
+    return;
+  }
 
-      Swal.fire({
-        icon: 'error',
-        title: 'Booking Failed',
-        text: 'Something went wrong. Please try again.'
-      });
+  if (this.bookingForm.numberOfGuests > remaining) {
+    this.showError(`Max allowed is ${remaining} guests.`);
+    return;
+  }
+
+  this.router.navigate(['/public/booking-summary'], {
+    state: {
+      bookingData: {
+        ...this.bookingForm,
+        siteId: this.selectedSite.idSite
+      },
+      selectedSite: this.selectedSite,
+      totalPrice: this.getTotalPrice(),
+      nights: this.getNumberOfNights()
     }
   });
 }
-  
+
+  private showError(msg: string) {
+    this.errorMessage = msg;
+
+    Swal.fire({
+      icon: 'warning',
+      title: 'Error',
+      text: msg,
+      confirmButtonColor: '#96952f',
+      background: '#f5f5f3',
+      color: '#172b44'
+    });
+  }
 }

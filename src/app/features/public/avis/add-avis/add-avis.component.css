@@ -24,3 +24,31 @@ textarea {
   border-radius: 10px;
   margin-bottom: 10px;
 }
+
+.stars.error span {
+  border-bottom: 2px solid #b64141;
+}
+
+.stars {
+  display: flex;
+  gap: 8px;
+  font-size: 28px;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 12px;
+}
+
+.stars span {
+  color: #d1d5db; /* light gray */
+  transition: all 0.2s ease;
+}
+
+.stars span.active {
+  color: #fbbf24; /* gold */
+  text-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+}
+
+.stars span:hover {
+  transform: scale(1.2);
+  color: #fbbf24;
+}
