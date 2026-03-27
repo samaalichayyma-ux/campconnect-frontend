@@ -25,8 +25,7 @@
           <div class="summary-info">
             <p><strong>Capacity:</strong> {{ selectedSite.capacite }} guests</p>
             <p><strong>Remaining Capacity:</strong> {{ selectedSite.remainingCapacity ?? 0 }} guests</p>
-            <p><strong>Price:</strong> {{ selectedSite.prixParNuit }} DT / night</p>
-            <p><strong>Status:</strong> {{ selectedSite.statutDispo }}</p>
+            <p><strong>Price:</strong> {{ selectedSite.prixParNuit }} DT / night / guest</p>
           </div>
 
           <p class="summary-text">
@@ -59,6 +58,7 @@
                 type="date"
                 name="dateDebut"
                 [(ngModel)]="bookingForm.dateDebut"
+                [min]="todayString"
                 required
               />
             </div>
@@ -66,13 +66,14 @@
             <div class="form-group">
               <label for="dateFin">End Date</label>
               <input
-                id="dateFin"
-                type="date"
-                name="dateFin"
-                [(ngModel)]="bookingForm.dateFin"
-                required
-              />
-            </div>
+              id="dateFin"
+              type="date"
+              name="dateFin"
+              [(ngModel)]="bookingForm.dateFin"
+              [min]="bookingForm.dateDebut || todayString"
+              required
+            />
+        </div>
           </div>
 
           <div class="form-group">
@@ -111,6 +112,28 @@
             />
           </div>
 
+          <div class="booking-total-card">
+            <div class="total-row">
+              <span>Price per night</span>
+              <strong>{{ selectedSite.prixParNuit }} DT</strong>
+            </div>
+
+            <div class="total-row">
+              <span>Guests</span>
+              <strong>{{ bookingForm.numberOfGuests }}</strong>
+            </div>
+
+            <div class="total-row">
+              <span>Nights</span>
+              <strong>{{ getNumberOfNights() }}</strong>
+            </div>
+
+            <div class="total-row total-final">
+              <span>Total</span>
+              <strong>{{ getTotalPrice() }} DT</strong>
+            </div>
+          </div>
+
           <div *ngIf="(selectedSite.remainingCapacity ?? 0) === 0" class="error-message">
             This camping site is fully booked. No remaining spots are available.
           </div>
@@ -126,7 +149,6 @@
       </div>
     </div>
 
-    <!-- Reviews Section -->
     <div class="reviews-section">
       <div class="reviews-header">
         <span class="section-subtitle">Reviews</span>
@@ -134,17 +156,24 @@
         <p>Read reviews from other campers and share your own experience.</p>
       </div>
 
-      <div class="reviews-grid">
-        <div class="reviews-list-card">
-          <h3>Site Reviews</h3>
-          <app-avis-list [siteId]="selectedSite.idSite"></app-avis-list>
-        </div>
+<div class="reviews-grid">
 
-        <div class="reviews-form-card">
-          <h3>Leave a Review</h3>
-          <app-add-avis [siteId]="selectedSite.idSite"></app-add-avis>
-        </div>
-      </div>
+  <!-- LEFT -->
+  <div class="reviews-list-card">
+    <h3>Site Reviews</h3>
+
+    <div class="reviews-content">
+      <app-avis-list [siteId]="selectedSite.idSite"></app-avis-list>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="reviews-form-card">
+    <h3>Leave a Review</h3>
+    <app-add-avis [siteId]="selectedSite.idSite"></app-add-avis>
+  </div>
+
+</div>
     </div>
   </div>
 </section>

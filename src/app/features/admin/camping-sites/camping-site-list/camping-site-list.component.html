@@ -57,12 +57,13 @@
                 </span>
               </td>
               <td class="actions">
+                <a class="btn-view" [routerLink]="['/admin/camping-sites', site.idSite]"> View </a>
                 <a class="btn-edit" [routerLink]="['/admin/camping-sites', site.idSite, 'edit']">
                   Edit
                 </a>
-                <button class="btn-delete" (click)="deleteSite(site.idSite)">
+              <!--  <button class="btn-delete" (click)="deleteSite(site.idSite)">
                   Delete
-                </button>
+                </button>  -->
               </td>
             </tr>
           </tbody>

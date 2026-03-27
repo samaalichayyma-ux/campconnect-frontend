@@ -15,6 +15,7 @@ export class AddAvisComponent {
   @Input() siteId!: number;
 
   selectedRating = 0;
+  hoverRating = 0;
   form: FormGroup;
 
   constructor(
@@ -32,44 +33,77 @@ export class AddAvisComponent {
     this.form.patchValue({ note: star });
   }
 
-  onSubmit(): void {
-    const value = this.form.value;
-    const note = value.note as number | null;
-    const commentaire = (value.commentaire || '').trim();
+onSubmit(): void {
+  const value = this.form.value;
+  const note = value.note as number | null;
+  const commentaire = (value.commentaire || '').trim();
 
-    if (note == null && !commentaire) {
-      Swal.fire('Error', 'Provide at least a rating or a comment.', 'error');
-      return;
-    }
 
-    if (note != null && (note < 1 || note > 5)) {
-      Swal.fire('Error', 'Rating must be between 1 and 5.', 'error');
-      return;
-    }
-
-    const payload: { note?: number; commentaire?: string } = {};
-
-    if (note != null) {
-      payload.note = note;
-    }
-
-    if (commentaire) {
-      payload.commentaire = commentaire;
-    }
-
-    this.avisService.createAvis(this.siteId, payload).subscribe({
-      next: () => {
-        Swal.fire('Success', 'Review submitted!', 'success');
-        this.form.reset({
-          note: null,
-          commentaire: ''
-        });
-        this.selectedRating = 0;
-      },
-      error: (error) => {
-        console.error(error);
-        Swal.fire('Error', 'Failed to submit review.', 'error');
+  if (note == null) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Rating Required',
+      text: 'Please select a rating before submitting your review.',
+      confirmButtonColor: '#96952f',
+      background: '#f5f5f3',
+      color: '#172b44',
+      customClass: {
+        popup: 'custom-swal-popup'
       }
     });
+    return;
   }
+
+  if (note < 1 || note > 5) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Invalid Rating',
+      text: 'Rating must be between 1 and 5.',
+      confirmButtonColor: '#96952f',
+      background: '#f5f5f3',
+      color: '#172b44'
+    });
+    return;
+  }
+
+  const payload: { note: number; commentaire?: string } = {
+    note
+  };
+
+  if (commentaire) {
+    payload.commentaire = commentaire;
+  }
+
+  this.avisService.createAvis(this.siteId, payload).subscribe({
+    next: () => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Review Submitted',
+        text: 'Thank you for your feedback!',
+        confirmButtonColor: '#96952f',
+        background: '#f5f5f3',
+        color: '#172b44'
+      });
+
+      this.form.reset({
+        note: null,
+        commentaire: ''
+      });
+
+      this.selectedRating = 0;
+    },
+    error: (error) => {
+      console.error(error);
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: 'Could not submit your review. Please try again.',
+        confirmButtonColor: '#96952f',
+        background: '#f5f5f3',
+        color: '#172b44'
+      });
+    }
+  });
+}
 }

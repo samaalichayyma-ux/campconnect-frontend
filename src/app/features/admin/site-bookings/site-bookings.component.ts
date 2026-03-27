@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CampingService } from '../../public/services/camping.service';
+import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { CampingService } from '../../public/services/camping.service';
+import { UpdateSiteBooking } from '../../public/models/booking.model';
 import { CampingNavbarComponent } from '../camping-sites/camping-navbar/camping-navbar.component';
-import { SiteBooking } from '../../public/models/booking.model';
-
 
 @Component({
   selector: 'app-site-bookings',
   standalone: true,
-  imports: [CommonModule, CampingNavbarComponent],
+  imports: [CommonModule, FormsModule, CampingNavbarComponent],
   templateUrl: './site-bookings.component.html',
   styleUrl: './site-bookings.component.css'
 })
 export class SiteBookingsComponent implements OnInit {
-  bookings: SiteBooking[] = [];
+  bookings: UpdateSiteBooking[] = [];
   isLoading = false;
   errorMessage = '';
 
@@ -26,13 +26,14 @@ export class SiteBookingsComponent implements OnInit {
 
   loadBookings(): void {
     this.isLoading = true;
+    this.errorMessage = '';
 
     this.campingService.getAllBookings().subscribe({
-      next: (data) => {
-        this.bookings = data;
+      next: (res) => {
+        this.bookings = res as UpdateSiteBooking[];
         this.isLoading = false;
       },
-      error: (error) => {
+      error: (error: unknown) => {
         console.error(error);
         this.errorMessage = 'Failed to load bookings.';
         this.isLoading = false;
@@ -40,15 +41,49 @@ export class SiteBookingsComponent implements OnInit {
     });
   }
 
-  updateStatus(booking: SiteBooking, status: string) {
-    booking.statut = status as any;
+  updateStatus(
+    booking: UpdateSiteBooking,
+    newStatus: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+  ): void {
+    if (!booking.idInscription) {
+      return;
+    }
 
-    this.campingService.updateBooking(booking.idInscription!, booking).subscribe({
+    const updatedBooking: UpdateSiteBooking = {
+      ...booking,
+      statut: newStatus
+    };
+
+    this.campingService.updateBooking(booking.idInscription, updatedBooking).subscribe({
       next: () => {
-        Swal.fire('Updated!', 'Booking status updated.', 'success');
+        booking.statut = newStatus;
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Updated',
+          text: `Booking status changed to ${newStatus}.`,
+          confirmButtonColor: '#96952f',
+          background: '#f5f5f3',
+          color: '#172b44',
+          customClass: {
+            popup: 'custom-swal-popup'
+          }
+        });
       },
-      error: () => {
-        Swal.fire('Error', 'Failed to update booking.', 'error');
+      error: (error: unknown) => {
+        console.error(error);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: 'Could not update booking status.',
+          confirmButtonColor: '#96952f',
+          background: '#f5f5f3',
+          color: '#172b44',
+          customClass: {
+            popup: 'custom-swal-popup'
+          }
+        });
       }
     });
   }

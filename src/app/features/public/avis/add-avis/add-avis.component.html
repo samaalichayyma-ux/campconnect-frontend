@@ -1,14 +1,16 @@
 <div class="avis-form">
   <h3>Leave a Review</h3>
 
-  <div class="stars">
-    <span
-      *ngFor="let star of [1,2,3,4,5]"
-      (click)="setRating(star)"
-      [class.active]="star <= selectedRating"
-    >
-      ★
-    </span>
+  <div class="stars" [class.error]="selectedRating === 0">
+<span
+  *ngFor="let star of [1,2,3,4,5]"
+  (click)="setRating(star)"
+  (mouseenter)="hoverRating = star"
+  (mouseleave)="hoverRating = 0"
+  [class.active]="star <= (hoverRating || selectedRating)"
+>
+  ★
+</span>
   </div>
 
   <form [formGroup]="form" (ngSubmit)="onSubmit()">

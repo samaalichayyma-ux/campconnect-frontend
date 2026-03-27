@@ -1,13 +1,38 @@
 <div class="avis-list">
   <div class="avis-card" *ngFor="let avis of avisList">
 
-    <div class="stars">
-      <span *ngFor="let s of getStars(avis.note)">★</span>
+    <div class="avis-header">
+      <div class="avis-user">
+        <img
+          src="assets/images/default-avatar.png"
+          alt="User Avatar"
+          class="avatar"
+        />
+
+        <div class="user-details">
+          <span class="user-name">Guest User</span>
+          <span class="date">{{ avis.dateCreation | date }}</span>
+        </div>
+      </div>
+
+      <button class="btn-edit-icon" (click)="openEditPopup(avis)" title="Update review">
+        ✏️
+      </button>
     </div>
 
-    <p *ngIf="avis.commentaire">{{ avis.commentaire }}</p>
+    <div class="stars" *ngIf="avis.note !== null">
+      <span
+        *ngFor="let star of [1,2,3,4,5]"
+        [class.filled]="star <= (avis.note ?? 0)"
+        [class.empty]="star > (avis.note ?? 0)"
+      >
+        ★
+      </span>
+    </div>
 
-    <span class="date">{{ avis.dateCreation | date }}</span>
+    <p class="comment" *ngIf="avis.commentaire">
+      {{ avis.commentaire }}
+    </p>
 
   </div>
 </div>
