@@ -1,24 +1,12 @@
 <header class="cc-navbar">
-  <div class="cc-topbar">
-    <div class="cc-topbar-left">
-      <a href="https://facebook.com/name" target="_blank" class="cc-social">f</a>
-      <a href="https://twitter.com/name" target="_blank" class="cc-social">t</a>
-      <a href="https://instagram.com/name" target="_blank" class="cc-social">i</a>
-    </div>
-
-    <div class="cc-topbar-right">
-      <input type="text" placeholder="Search" class="cc-search-input" />
-    </div>
-  </div>
-
   <div class="cc-mainbar">
     <a routerLink="/public" class="cc-logo">
       <img src="assets/images/logotranssansslo.png" alt="CampConnect" />
     </a>
 
     <nav class="cc-menu">
-      <a routerLink="/public">Home</a>
-      <a routerLink="/public/camping-sites">Destinations</a>
+      <a routerLink="/public" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/public/camping-sites" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Destinations</a>
       <a href="#">Shop</a>
       <a href="#">Restaurant</a>
       <a href="#">Events</a>
