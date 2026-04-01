@@ -1,8 +1,9 @@
 import { Component , OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReclamationService } from '../reclamation.service';
 @Component({
   selector: 'app-reclamation-list',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './reclamation-list.component.html',
   styleUrl: './reclamation-list.component.css'
 })

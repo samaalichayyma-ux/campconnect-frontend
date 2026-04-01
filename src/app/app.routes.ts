@@ -41,6 +41,17 @@ import { ReclamationAdminListComponent } from './features/admin/reclamation/recl
 import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
 import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
 
+import { EventsListComponent } from './features/public/events/events-list/events-list.component';
+import { EventDetailsComponent } from './features/public/events/event-details/event-details.component';
+import { EventReservationComponent } from './features/public/events/event-reservation/event-reservation.component';
+import { EventListComponent } from './features/admin/events/event-list/event-list.component';
+import { EventCreateComponent } from './features/admin/events/event-create/event-create.component';
+import { EventEditComponent } from './features/admin/events/event-edit/event-edit.component';
+import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.component';
+import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
+import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
+import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -66,6 +77,14 @@ export const routes: Routes = [
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
       
+      { path: 'events', component: EventListComponent },
+      { path: 'events/new', component: EventCreateComponent },
+      { path: 'events/:id/edit', component: EventEditComponent },
+      { path: 'events/api-demo', component: ApiDemoComponent },
+      { path: 'reservations', component: ReservationListComponent },
+      { path: 'reservations/new', component: ReservationCreateComponent },
+      { path: 'reservations/:id/edit', component: ReservationEditComponent },
+      
        { path: 'reclamations', component: ReclamationAdminListComponent },
   { path: 'repas', component: RepasAdminComponent },
   { path: 'commandes-repas', component: CommandesAdminComponent },
@@ -87,6 +106,19 @@ export const routes: Routes = [
        { path: 'camping-sites', component: CampingSitesComponent },
       { path: 'site-booking/:id', component: SiteBookingComponent },
  
+      { path: 'events', component: EventsListComponent },
+      {
+        path: 'events/my-reservations',
+        loadComponent: () =>
+          import('./features/public/events/my-reservations/my-reservations.component').then(
+            (module) => module.MyReservationsComponent
+          ),
+        canActivate: [authGuard]
+      },
+      { path: 'events/:id/reservation', component: EventReservationComponent },
+      { path: 'events/:id/book', component: EventReservationComponent },
+      { path: 'events/:id', component: EventDetailsComponent },
+
         { path: 'reclamations/add', component: ReclamationAddComponent },
         { path: 'reclamations', component: ReclamationListComponent },
         { path: 'repas', component: RepasListComponent },

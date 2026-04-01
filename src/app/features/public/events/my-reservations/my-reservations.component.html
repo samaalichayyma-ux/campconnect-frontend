@@ -1,0 +1,525 @@
+<div class="reservations-page">
+  <div class="page-shell">
+    <section class="hero-card">
+      <div class="hero-copy">
+        <button class="back-btn" (click)="goToEvents()" type="button">
+          <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
+          <span>Back to Events</span>
+        </button>
+
+        <span class="hero-kicker">Reservation Dashboard</span>
+        <h1>Track bookings, bills, receipts, and refund windows in one place.</h1>
+        <p>
+          Review reservation history, reopen Stripe invoices, download receipts, and keep refund timing easy to follow
+          from one reservation dashboard.
+        </p>
+
+        <div class="hero-actions">
+          <button class="hero-btn primary" (click)="goToEvents()" type="button">
+            <app-admin-icon name="events" [size]="16"></app-admin-icon>
+            <span>Browse Events</span>
+          </button>
+
+          <button *ngIf="isLoggedIn" class="hero-btn secondary" (click)="refreshReservations()" type="button">
+            <app-admin-icon name="clock" [size]="16"></app-admin-icon>
+            <span>Refresh</span>
+          </button>
+
+          <button *ngIf="!isLoggedIn" class="hero-btn secondary" (click)="goToLogin()" type="button">
+            <app-admin-icon name="check" [size]="16"></app-admin-icon>
+            <span>Sign In</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <span class="stat-icon shell-blue">
+            <app-admin-icon name="reservations" [size]="18"></app-admin-icon>
+          </span>
+          <div>
+            <span class="stat-label">Total Bookings</span>
+            <strong>{{ getTotalReservationsCount() }}</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-icon shell-green">
+            <app-admin-icon name="calendar" [size]="18"></app-admin-icon>
+          </span>
+          <div>
+            <span class="stat-label">Upcoming</span>
+            <strong>{{ getUpcomingReservationsCount() }}</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-icon shell-amber">
+            <app-admin-icon name="check" [size]="18"></app-admin-icon>
+          </span>
+          <div>
+            <span class="stat-label">Events Attended</span>
+            <strong>{{ getEventsAttendedCount() }}</strong>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-icon shell-coral">
+            <app-admin-icon name="download" [size]="18"></app-admin-icon>
+          </span>
+          <div>
+            <span class="stat-label">Bills Ready</span>
+            <strong>{{ getBillsReadyCount() }}</strong>
+          </div>
+        </div>
+
+        <div class="stat-card stat-card-wide">
+          <span class="stat-icon shell-dark">
+            <app-admin-icon name="wallet" [size]="18"></app-admin-icon>
+          </span>
+          <div>
+            <span class="stat-label">Total Spent</span>
+            <strong>{{ getTotalSpentAmount() | currency:'USD':'code':'1.0-2' }}</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section *ngIf="!isLoggedIn" class="state-card auth-card">
+      <span class="state-icon soft-blue">
+        <app-admin-icon name="info" [size]="22"></app-admin-icon>
+      </span>
+      <h2>Sign in to unlock your reservation dashboard.</h2>
+      <p>Once you are signed in, you will be able to track every booking, payment state, bill, and waitlist update here.</p>
+      <button class="hero-btn primary" (click)="goToLogin()" type="button">
+        <app-admin-icon name="check" [size]="16"></app-admin-icon>
+        <span>Go to Login</span>
+      </button>
+    </section>
+
+    <ng-container *ngIf="isLoggedIn">
+      <div *ngIf="errorMessage" class="message-banner error-banner">
+        <span class="message-icon">
+          <app-admin-icon name="warning" [size]="18"></app-admin-icon>
+        </span>
+        <div class="message-copy">
+          <p class="message-title">Something needs attention</p>
+          <p class="message-text">{{ errorMessage }}</p>
+        </div>
+      </div>
+
+      <div *ngIf="successMessage" class="message-banner success-banner">
+        <span class="message-icon">
+          <app-admin-icon name="check" [size]="18"></app-admin-icon>
+        </span>
+        <div class="message-copy">
+          <p class="message-title">Reservation updated</p>
+          <p class="message-text">{{ successMessage }}</p>
+        </div>
+      </div>
+
+      <section class="dashboard-switcher">
+        <button
+          *ngFor="let section of dashboardSections"
+          class="dashboard-tab"
+          [class.active]="activeDashboardSection === section.id"
+          (click)="jumpToSection(section.id)"
+          type="button">
+          <span class="dashboard-tab-label">{{ section.label }}</span>
+        </button>
+      </section>
+
+      <section *ngIf="!isLoading && reservations.length > 0 && activeDashboardSection === 'dashboard-overview'" class="insights-card">
+        <div class="toolbar-copy">
+          <span class="section-kicker">Summary</span>
+          <h2>Focus on the reservations that still need something from you.</h2>
+          <p>These are live counts from your bookings, so you can quickly spot approvals, payments, and waitlist requests.</p>
+        </div>
+
+        <div class="insights-grid">
+          <article class="insight-panel">
+            <span class="metric-kicker">Pending Review</span>
+            <strong>{{ getPendingReservationsCount() }}</strong>
+            <span class="metric-copy">Reservations still waiting for admin confirmation</span>
+          </article>
+
+          <article class="insight-panel">
+            <span class="metric-kicker">Ready to Pay</span>
+            <strong>{{ getPayableReservationsCount() }}</strong>
+            <span class="metric-copy">Confirmed bookings you can pay for in Stripe right now</span>
+          </article>
+
+          <article class="insight-panel">
+            <span class="metric-kicker">Waitlist Requests</span>
+            <strong>{{ getWaitlistReservationsCount() }}</strong>
+            <span class="metric-copy">Requests still waiting for an open seat</span>
+          </article>
+        </div>
+      </section>
+
+      <section *ngIf="!isLoading && reservations.length > 0 && activeDashboardSection === 'billing-center'" class="billing-center-card">
+        <div class="billing-center-copy">
+          <span class="section-kicker">Billing Center</span>
+          <h2>Open invoices, download Stripe PDFs, and save CampConnect receipts.</h2>
+          <p>
+            Every paid or refunded reservation shows up here. Older payments that predate Stripe invoice creation can
+            still be downloaded through the CampConnect receipt generator.
+          </p>
+        </div>
+
+        <div class="billing-center-summary">
+          <div class="billing-metric">
+            <span class="metric-kicker">Bills Available</span>
+            <strong>{{ getBillsReadyCount() }}</strong>
+            <span>{{ billingReservations.length }} billing record{{ billingReservations.length !== 1 ? 's' : '' }}</span>
+          </div>
+
+          <div class="billing-metric">
+            <span class="metric-kicker">Net Paid</span>
+            <strong>{{ getBillingTotalNetPaid() | currency:'USD':'code':'1.0-2' }}</strong>
+            <span>After completed refunds</span>
+          </div>
+        </div>
+
+        <section *ngIf="!isLoading && billingReservations.length === 0" class="state-card empty-card compact-state">
+          <span class="state-icon soft-green">
+            <app-admin-icon name="wallet" [size]="22"></app-admin-icon>
+          </span>
+          <h2>No bills yet.</h2>
+          <p>Once Stripe confirms a reservation payment, the invoice and receipt actions will appear here automatically.</p>
+        </section>
+
+        <div *ngIf="billingReservations.length > 0" class="billing-history">
+          <article *ngFor="let reservation of billingReservations" class="billing-record-card">
+            <div class="billing-record-copy">
+              <div class="reservation-overline">
+                <span>Booking #{{ reservation.id }}</span>
+                <span>{{ formatStatusLabel(reservation.statutPaiement) }}</span>
+              </div>
+              <h3>{{ reservation.eventTitre }}</h3>
+              <p>{{ formatDate(reservation.eventDateDebut) }} - {{ reservation.eventLieu }}</p>
+            </div>
+
+            <div class="billing-record-meta">
+              <div class="billing-meta-item">
+                <span class="metric-kicker">Charged</span>
+                <strong>{{ reservation.prixTotal | currency:'USD':'code':'1.0-2' }}</strong>
+              </div>
+              <div class="billing-meta-item">
+                <span class="metric-kicker">Refunded</span>
+                <strong>{{ (reservation.refundAmount || 0) | currency:'USD':'code':'1.0-2' }}</strong>
+              </div>
+              <div class="billing-meta-item">
+                <span class="metric-kicker">Net Paid</span>
+                <strong>{{ (reservation.netPaidAmount || 0) | currency:'USD':'code':'1.0-2' }}</strong>
+              </div>
+            </div>
+
+            <div class="action-row billing-actions">
+              <a
+                *ngIf="hasInvoicePage(reservation)"
+                class="action-btn secondary action-link"
+                [href]="reservation.invoiceHostedUrl"
+                target="_blank"
+                rel="noopener">
+                <app-admin-icon name="eye" [size]="15"></app-admin-icon>
+                <span>Open Bill</span>
+              </a>
+
+              <a
+                *ngIf="hasInvoicePdf(reservation)"
+                class="action-btn secondary action-link"
+                [href]="reservation.invoicePdfUrl"
+                [attr.download]="getInvoiceFilename(reservation)"
+                target="_blank"
+                rel="noopener">
+                <app-admin-icon name="download" [size]="15"></app-admin-icon>
+                <span>Stripe PDF</span>
+              </a>
+
+              <button
+                *ngIf="canDownloadReceipt(reservation)"
+                class="action-btn primary"
+                (click)="downloadReceipt(reservation)"
+                [disabled]="downloadingReceiptReservationId === reservation.id"
+                type="button">
+                <app-admin-icon name="download" [size]="15"></app-admin-icon>
+                <span>{{ downloadingReceiptReservationId === reservation.id ? 'Preparing...' : 'CampConnect Receipt' }}</span>
+              </button>
+
+              <button class="action-btn secondary" (click)="goToReservationCard(reservation.id)" type="button">
+                <app-admin-icon name="reservations" [size]="15"></app-admin-icon>
+                <span>Show Booking</span>
+              </button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section *ngIf="!isLoading && reservations.length > 0 && activeDashboardSection === 'dashboard-overview' && getPayableReservationsCount() > 0" class="payment-ready-card">
+        <div class="payment-ready-copy">
+          <span class="section-kicker">Stripe Checkout</span>
+          <h2>{{ getPayableReservationsCount() }} reservation{{ getPayableReservationsCount() > 1 ? 's are' : ' is' }} ready for payment.</h2>
+          <p>
+            Confirmed reservations and waitlist holds that still need payment appear here. Pick the next booking that should be paid and jump straight into checkout.
+          </p>
+        </div>
+
+        <div class="payment-ready-summary" *ngIf="getNextPayableReservation() as nextPayableReservation">
+          <div class="payment-ready-metric">
+            <span class="metric-kicker">Next To Pay</span>
+            <strong>{{ nextPayableReservation.eventTitre }}</strong>
+            <span>{{ formatDate(nextPayableReservation.eventDateDebut) }} - {{ formatTime(nextPayableReservation.eventDateDebut) }}</span>
+          </div>
+
+          <div class="payment-ready-metric">
+            <span class="metric-kicker">Amount Due</span>
+            <strong>{{ nextPayableReservation.prixTotal | currency:'USD':'code':'1.0-2' }}</strong>
+            <span>{{ nextPayableReservation.nombreParticipants }} guest{{ nextPayableReservation.nombreParticipants > 1 ? 's' : '' }}</span>
+          </div>
+
+          <div class="payment-ready-actions">
+            <button class="hero-btn primary" (click)="payNextReservation()" type="button">
+              <app-admin-icon name="wallet" [size]="16"></app-admin-icon>
+              <span>Pay Next Reservation</span>
+            </button>
+
+            <button class="hero-btn secondary" (click)="goToReservationCard(nextPayableReservation.id)" type="button">
+              <app-admin-icon name="reservations" [size]="16"></app-admin-icon>
+              <span>Show Reservation</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="!isLoading && reservations.length > 0 && activeDashboardSection === 'reservation-history'" class="toolbar-card">
+        <div class="toolbar-copy">
+          <span class="section-kicker">Reservation History</span>
+          <h2>Focus on the reservations that matter right now.</h2>
+          <p>Switch views quickly to find upcoming plans, pending approvals, refunded bookings, or past events without leaving this page.</p>
+        </div>
+
+        <div class="toolbar-controls">
+          <label class="field-group">
+            <span class="field-label">Status</span>
+            <select class="field-control" [(ngModel)]="selectedStatusFilter" (change)="applyFilters()">
+              <option *ngFor="let status of statusFilters" [value]="status.value">
+                {{ status.label }}
+              </option>
+            </select>
+          </label>
+
+          <label class="field-group">
+            <span class="field-label">Sort By</span>
+            <select class="field-control" [(ngModel)]="sortBy" (change)="applyFilters()">
+              <option *ngFor="let option of sortOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+          </label>
+
+          <div class="toolbar-actions">
+            <button
+              class="toolbar-btn secondary"
+              (click)="resetFilters()"
+              [disabled]="selectedStatusFilter === 'all' && sortBy === 'recent'"
+              type="button">
+              Reset
+            </button>
+
+            <button class="toolbar-btn primary" (click)="refreshReservations()" type="button">
+              Refresh
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section *ngIf="isLoading" class="state-card loading-card">
+        <div class="spinner"></div>
+        <h2>Loading your reservations</h2>
+        <p>Pulling the latest booking, billing, and refund policy details from CampConnect.</p>
+      </section>
+
+      <section *ngIf="!isLoading && reservations.length === 0" class="state-card empty-card">
+        <span class="state-icon soft-green">
+          <app-admin-icon name="events" [size]="22"></app-admin-icon>
+        </span>
+        <h2>{{ noReservationsMessage }}</h2>
+        <p>Browse the public events list, pick a date that fits, and your first reservation will show up here instantly.</p>
+        <button class="hero-btn primary" (click)="goToEvents()" type="button">
+          <app-admin-icon name="calendar" [size]="16"></app-admin-icon>
+          <span>Explore Events</span>
+        </button>
+      </section>
+
+      <section *ngIf="!isLoading && reservations.length > 0 && activeDashboardSection === 'reservation-history' && filteredReservations.length === 0" class="state-card empty-card">
+        <span class="state-icon soft-amber">
+          <app-admin-icon name="warning" [size]="22"></app-admin-icon>
+        </span>
+        <h2>No reservations match these filters.</h2>
+        <p>Try resetting the status or sorting controls to bring the full reservation history back into view.</p>
+        <button class="hero-btn secondary" (click)="resetFilters()" type="button">
+          <app-admin-icon name="close" [size]="16"></app-admin-icon>
+          <span>Clear Filters</span>
+        </button>
+      </section>
+
+      <div *ngIf="!isLoading && reservations.length > 0 && activeDashboardSection === 'reservation-history' && filteredReservations.length > 0" class="reservations-stack">
+        <article
+          *ngFor="let reservation of filteredReservations"
+          class="reservation-card"
+          [id]="getReservationCardId(reservation.id)"
+          [class.waitlisted-card]="reservation.estEnAttente"
+          [class.highlighted-card]="isHighlightedReservation(reservation.id)"
+          [class.payable-card]="canPay(reservation)">
+          <div class="reservation-header">
+            <div class="reservation-heading">
+              <div class="reservation-overline">
+                <span>Booking #{{ reservation.id }}</span>
+                <span>{{ getReservationTone(reservation) }}</span>
+              </div>
+              <h3>{{ reservation.eventTitre }}</h3>
+              <p class="reservation-subtitle">
+                {{ reservation.eventLieu }} - {{ formatDate(reservation.eventDateDebut) }} - {{ formatTime(reservation.eventDateDebut) }}
+              </p>
+            </div>
+
+            <div class="reservation-badges">
+              <span class="status-chip" [ngClass]="getStatusClass(reservation.statut)">
+                <app-admin-icon [name]="getStatusIcon(reservation.statut)" [size]="14"></app-admin-icon>
+                <span>{{ formatStatusLabel(reservation.statut) }}</span>
+              </span>
+
+              <span class="payment-chip" [ngClass]="getPaymentStatusClass(reservation.statutPaiement)">
+                {{ getPaymentStatusDisplay(reservation.statutPaiement) }}
+              </span>
+            </div>
+          </div>
+
+          <div class="reservation-metrics">
+            <div class="metric-card">
+              <span class="metric-kicker">Participants</span>
+              <strong>{{ reservation.nombreParticipants }}</strong>
+              <span class="metric-copy">guest{{ reservation.nombreParticipants > 1 ? 's' : '' }}</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-kicker">Total Price</span>
+              <strong>{{ reservation.prixTotal | currency:'USD':'code':'1.0-2' }}</strong>
+              <span class="metric-copy">reservation total</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-kicker">Net Paid</span>
+              <strong>{{ (reservation.netPaidAmount || 0) | currency:'USD':'code':'1.0-2' }}</strong>
+              <span class="metric-copy">after refunds</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-kicker">Booked On</span>
+              <strong>{{ formatDate(reservation.dateCreation) }}</strong>
+              <span class="metric-copy">{{ formatTime(reservation.dateCreation) }}</span>
+            </div>
+          </div>
+
+          <div *ngIf="reservation.remarques" class="remarks-card">
+            <span class="remarks-kicker">Your Notes</span>
+            <p>{{ reservation.remarques }}</p>
+          </div>
+
+          <div *ngIf="reservation.estEnAttente" class="waitlist-note">
+            <span class="waitlist-icon">
+              <app-admin-icon name="warning" [size]="18"></app-admin-icon>
+            </span>
+            <div>
+              <p class="waitlist-title">{{ getWaitlistBannerTitle(reservation) }}</p>
+              <p class="waitlist-copy">{{ getWaitlistBannerCopy(reservation) }}</p>
+            </div>
+          </div>
+
+          <div class="policy-note" [ngClass]="getCancellationPolicyClass(reservation)">
+            <span class="payment-note-icon">
+              <app-admin-icon [name]="getCancellationPolicyIcon(reservation)" [size]="18"></app-admin-icon>
+            </span>
+            <div>
+              <p class="payment-note-title">{{ getCancellationPolicyTitle(reservation) }}</p>
+              <p class="payment-note-copy">{{ getCancellationPolicyCopy(reservation) }}</p>
+            </div>
+          </div>
+
+          <div class="payment-note" [ngClass]="getPaymentHintClass(reservation)">
+            <span class="payment-note-icon">
+              <app-admin-icon [name]="getPaymentHintIcon(reservation)" [size]="18"></app-admin-icon>
+            </span>
+            <div>
+              <p class="payment-note-title">{{ getPaymentHintTitle(reservation) }}</p>
+              <p class="payment-note-copy">{{ getPaymentHintCopy(reservation) }}</p>
+            </div>
+          </div>
+
+          <div class="reservation-footer">
+            <div class="meta-line">
+              <span>Created {{ formatDate(reservation.dateCreation) }}</span>
+              <span *ngIf="reservation.transactionId">Transaction {{ reservation.transactionId }}</span>
+              <span *ngIf="reservation.invoiceNumber">Bill {{ reservation.invoiceNumber }}</span>
+              <span>{{ isUpcomingReservation(reservation) ? 'Upcoming reservation' : 'Past reservation' }}</span>
+            </div>
+
+            <div class="action-row">
+              <button class="action-btn secondary" (click)="viewEventDetails(reservation.eventId)" type="button">
+                <app-admin-icon name="location" [size]="15"></app-admin-icon>
+                <span>View Event</span>
+              </button>
+
+              <a
+                *ngIf="hasInvoicePage(reservation)"
+                class="action-btn secondary action-link"
+                [href]="reservation.invoiceHostedUrl"
+                target="_blank"
+                rel="noopener">
+                <app-admin-icon name="eye" [size]="15"></app-admin-icon>
+                <span>View Bill</span>
+              </a>
+
+              <a
+                *ngIf="hasInvoicePdf(reservation)"
+                class="action-btn secondary action-link"
+                [href]="reservation.invoicePdfUrl"
+                [attr.download]="getInvoiceFilename(reservation)"
+                target="_blank"
+                rel="noopener">
+                <app-admin-icon name="download" [size]="15"></app-admin-icon>
+                <span>Download PDF</span>
+              </a>
+
+              <button
+                *ngIf="canDownloadReceipt(reservation)"
+                class="action-btn secondary"
+                (click)="downloadReceipt(reservation)"
+                [disabled]="downloadingReceiptReservationId === reservation.id"
+                type="button">
+                <app-admin-icon name="download" [size]="15"></app-admin-icon>
+                <span>{{ downloadingReceiptReservationId === reservation.id ? 'Preparing...' : 'Receipt' }}</span>
+              </button>
+
+              <button
+                *ngIf="canPay(reservation)"
+                class="action-btn primary"
+                (click)="startPayment(reservation)"
+                [disabled]="processingPaymentReservationId === reservation.id"
+                type="button">
+                <app-admin-icon name="wallet" [size]="15"></app-admin-icon>
+                <span>{{ processingPaymentReservationId === reservation.id ? 'Redirecting...' : 'Pay with Stripe' }}</span>
+              </button>
+
+              <button *ngIf="canCancel(reservation)" class="action-btn danger" (click)="cancelReservation(reservation)" type="button">
+                <app-admin-icon name="close" [size]="15"></app-admin-icon>
+                <span>Cancel Reservation</span>
+              </button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </ng-container>
+  </div>
+</div>

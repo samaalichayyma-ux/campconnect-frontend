@@ -41,17 +41,60 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value).subscribe({
       next: (response) => {
         this.successMessage = response.message;
-        this.authService.redirectByRole(this.router);
+        console.log('✅ Login successful, fetching current user info...');
+        
+        // Fetch current user info to get userId
+        this.authService.fetchCurrentUser().subscribe({
+          next: (userInfo: any) => {
+            console.log('✅ User info received:', userInfo);
+            // Save userId from userInfo (try common field names)
+            const userId = userInfo.id || userInfo.utilisateurId || userInfo.userId;
+            if (userId) {
+              this.authService.saveUserId(userId);
+              console.log('✅ UserId saved:', userId);
+            } else {
+              console.warn('⚠️ UserId not found in user info. Response:', userInfo);
+            }
+            
+            // Now redirect
+            this.performRedirect();
+          },
+          error: (error) => {
+            console.warn('⚠️ Could not fetch user info:', error);
+            // Continue anyway - maybe userId is in JWT
+            this.performRedirect();
+          }
+        });
       },
       error: (error) => {
         this.errorMessage =
           error?.error?.message ||
           'Échec de connexion. Vérifiez vos identifiants.';
+        console.error('Login error details:', {
+          status: error?.status,
+          statusText: error?.statusText,
+          message: error?.error?.message,
+          email: this.loginForm.value.email
+        });
         this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
       }
     });
+  }
+
+  private performRedirect(): void {
+    // Check if there's a return URL to redirect to
+    const returnUrl = this.authService.getReturnUrl();
+    if (returnUrl) {
+      this.authService.clearReturnUrl();
+      setTimeout(() => {
+        this.router.navigateByUrl(returnUrl);
+      }, 500);
+    } else {
+      // Otherwise use role-based redirect
+      this.authService.redirectByRole(this.router);
+    }
   }
 }

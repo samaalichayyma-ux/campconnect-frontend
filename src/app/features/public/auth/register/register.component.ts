@@ -57,8 +57,12 @@ export class RegisterComponent {
 
     this.authService.register(payload).subscribe({
       next: (response) => {
-        this.successMessage = response.message;
-        this.authService.redirectByRole(this.router);
+        this.successMessage = 'Registration successful! Redirecting to login...';
+        // Redirect to login page after successful registration
+        // The user will log in with their credentials
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 1500);
       },
       error: (error) => {
         this.errorMessage =

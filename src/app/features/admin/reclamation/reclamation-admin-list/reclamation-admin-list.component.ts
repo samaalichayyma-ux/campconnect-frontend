@@ -1,9 +1,10 @@
 import { Component , OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReclamationService } from '../../../public/reclamation/reclamation.service';
 
 @Component({
   selector: 'app-reclamation-admin-list',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './reclamation-admin-list.component.html',
   styleUrl: './reclamation-admin-list.component.css'
 })

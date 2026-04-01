@@ -7,7 +7,9 @@ export class TestApiService {
   constructor(private http: HttpClient) {}
 
   testDocs() {
-    return this.http.get(`${this.api}/v3/api-docs`);
+    // Test if backend is responding by calling a safe endpoint
+    // Using getAllCampingSites which doesn't require authentication
+    return this.http.get(`${this.api}/site-camping/getAll`);
   }
   
 }

@@ -28,7 +28,7 @@
       </thead>
 
       <tbody>
-        <tr *ngFor="let user of users">
+        <tr *ngFor="let user of paginatedUsers">
           <td>{{ user.id }}</td>
           <td>{{ user.nom }}</td>
           <td>{{ user.email }}</td>
@@ -45,5 +45,30 @@
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <div class="pagination-section" *ngIf="!loading && users.length > 0">
+    <div class="pagination-summary">
+      Showing {{ paginationStart }}-{{ paginationEnd }} of {{ users.length }} users
+    </div>
+
+    <div class="pagination-controls" *ngIf="users.length > pageSize">
+      <button type="button" class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        *ngFor="let page of visiblePageNumbers"
+        type="button"
+        class="page-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button type="button" class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
   </div>
 </section>

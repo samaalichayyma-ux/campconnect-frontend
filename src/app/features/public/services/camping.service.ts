@@ -9,12 +9,12 @@ import { SiteBooking } from '../models/booking.model';
 })
 export class CampingService {
 
-  private apiUrl = 'http://localhost:8082/api';
+  private apiUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
 
    getAllCampingSites(): Observable<CampingSite[]> {
-    return this.http.get<CampingSite[]>(`http://localhost:8082/api/site-camping/getAll`);
+    return this.http.get<CampingSite[]>(`http://localhost:8080/api/site-camping/getAll`);
   }
 
   addCampingSite(site: CampingSite): Observable<CampingSite> {

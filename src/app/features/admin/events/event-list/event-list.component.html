@@ -1,0 +1,128 @@
+<div class="event-list-container">
+  <div class="list-header">
+    <h1>Event Management</h1>
+    <a routerLink="/admin/events/new" class="create-btn">+ Create New Event</a>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading events...</p>
+  </div>
+
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <div class="alert-icon">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="alert-copy">
+      <strong>Something went wrong</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+    <button (click)="loadEvents()" class="retry-btn">Retry</button>
+  </div>
+
+  <div *ngIf="!isLoading && events.length > 0" class="table-wrapper">
+    <table class="events-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Location</th>
+          <th>Category</th>
+          <th>Capacity</th>
+          <th>Registered</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of paginatedEvents" [class.deleting]="deleteConfirmId === event.id">
+          <td class="image-cell">
+            <img [src]="getEventImageUrl(event)" [alt]="event.titre" class="event-thumbnail" (error)="onImageError($event)">
+          </td>
+          <td class="title-cell">
+            <span class="event-title">{{ event.titre }}</span>
+            <span class="organizer-meta">{{ event.organizerNom }}</span>
+          </td>
+          <td>{{ formatDate(event.dateDebut) }}</td>
+          <td>{{ event.dateDebut | date:'shortTime' }}</td>
+          <td>{{ event.lieu }}</td>
+          <td>
+            <span class="category-badge">{{ getCategoryLabel(event.categorie) }}</span>
+          </td>
+          <td>{{ event.capaciteMax }}</td>
+          <td>
+            <span class="registered-badge">
+              {{ event.participantsCount || 0 }} / {{ event.capaciteMax }}
+            </span>
+          </td>
+          <td class="price">${{ event.prix | number:'1.0-2' }}</td>
+          <td class="actions-cell">
+            <a
+              [routerLink]="['/admin/events', event.id, 'edit']"
+              class="edit-btn"
+              title="Edit"
+              aria-label="Edit event">
+              <app-admin-icon name="edit" [size]="18"></app-admin-icon>
+            </a>
+            <button
+              *ngIf="deleteConfirmId !== event.id"
+              (click)="confirmDelete(event.id!)"
+              class="delete-btn"
+              type="button"
+              title="Delete"
+              aria-label="Delete event">
+              <app-admin-icon name="delete" [size]="18"></app-admin-icon>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!isLoading && events.length === 0" class="no-events">
+    <p>No events found. Create your first event!</p>
+    <a routerLink="/admin/events/new" class="create-btn">+ Create Event</a>
+  </div>
+
+  <div *ngIf="!isLoading && events.length > 0" class="pagination-section">
+    <div class="pagination-summary">
+      Showing {{ paginationStart }}-{{ paginationEnd }} of {{ events.length }} events
+    </div>
+
+    <div class="pagination-controls" *ngIf="events.length > pageSize">
+      <button type="button" class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        *ngFor="let page of visiblePageNumbers"
+        type="button"
+        class="page-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button type="button" class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="deleteConfirmId as confirmId" class="confirm-overlay" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-badge">
+        <app-admin-icon name="warning" [size]="18"></app-admin-icon>
+      </div>
+      <div class="dialog-copy">
+        <h3>Delete this event?</h3>
+        <p>This will remove the event from the admin list and can affect upcoming reservations.</p>
+      </div>
+      <div class="confirm-buttons">
+        <button type="button" (click)="cancelDelete()" class="no-btn">Keep event</button>
+        <button type="button" (click)="deleteEvent(confirmId)" class="yes-btn">Delete event</button>
+      </div>
+    </div>
+  </div>
+</div>
