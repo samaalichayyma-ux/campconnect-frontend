@@ -19,6 +19,8 @@ export interface AuthResponse {
   token: string;
   message: string;
   role: string;
+  nom: string;
+  email: string; 
 }
 
 @Injectable({
@@ -41,9 +43,23 @@ export class AuthService {
     );
   }
 
+  private decodeToken(token: string): any {
+    try {
+      const payload = token.split('.')[1];
+      return JSON.parse(atob(payload));
+    } catch (e) {
+      return null;
+    }
+  }
   private saveAuthData(response: AuthResponse): void {
     localStorage.setItem('token', response.token);
     localStorage.setItem('role', response.role);
+    const decoded = this.decodeToken(response.token);
+
+  if (decoded?.sub) {
+    localStorage.setItem('email', decoded.sub);
+    localStorage.setItem('nom', decoded.sub);
+  }
   }
 
   logout(): void {
@@ -79,7 +95,7 @@ export class AuthService {
         router.navigate(['/public']);
         break;
       case 'GUIDE':
-        router.navigate(['/public']);
+        router.navigate(['/admin']);
         break;
       case 'GERANT_RESTAU':
         router.navigate(['/public']);

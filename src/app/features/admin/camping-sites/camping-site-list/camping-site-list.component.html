@@ -1,46 +1,92 @@
-<section class="admin-sites-page">
+<section class="admin-camping-page">
   <div class="container">
-    <div class="page-header">
-      <h2>Camping Sites Management</h2>
-      <a class="btn-primary" routerLink="/admin/camping-sites/new">Add New Site</a>
-    </div>
+    <app-camping-navbar></app-camping-navbar>
 
-    <div *ngIf="isLoading">Loading camping sites...</div>
-    <div *ngIf="errorMessage">{{ errorMessage }}</div>
+    <div class="content-card">
+      <div class="page-header">
+        <div>
+          <span class="section-tag">Overview</span>
+          <h3>{{ pageTitle }}</h3>
+          <p>{{ pageDescription }}</p>
+        </div>
 
-    <table *ngIf="!isLoading && sites.length > 0" class="sites-table">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Location</th>
-          <th>Capacity</th>
-          <th>Price / Night</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
+        <a class="btn-primary" routerLink="/admin/camping-sites/new">
+          + Add New Site
+        </a>
+      </div>
 
-      <tbody>
-        <tr *ngFor="let site of sites">
-          <td>{{ site.nom }}</td>
-          <td>{{ site.localisation }}</td>
-          <td>{{ site.capacite }}</td>
-          <td>{{ site.prixParNuit }}</td>
-          <td>{{ site.statutDispo }}</td>
-          <td class="actions">
-            <a class="btn-edit" [routerLink]="['/admin/camping-sites', site.idSite, 'edit']">
-              Edit
-            </a>
-            <button class="btn-delete" (click)="deleteSite(site.idSite)">
-              Delete
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <div *ngIf="isLoading" class="state-message">
+        Loading camping sites...
+      </div>
 
-    <div *ngIf="!isLoading && sites.length === 0">
-      No camping sites found.
+      <div *ngIf="errorMessage" class="state-message error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="table-wrapper" *ngIf="!isLoading && sites.length > 0">
+        <table class="sites-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Capacity</th>
+              <th>Remaining</th>
+              <th>Price / Night</th>
+              <th>Status</th>
+              <th *ngIf="userRole === 'ADMINISTRATEUR'">Owner</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let site of sites">
+              <td class="site-name">{{ site.nom }}</td>
+              <td>{{ site.localisation }}</td>
+              <td>{{ site.capacite }}</td>
+              <td>{{ site.remainingCapacity ?? 0 }}</td>
+              <td>{{ site.prixParNuit }} DT</td>
+              <td>
+                <span
+                  class="status-badge"
+                  [ngClass]="{
+                    'available': site.statutDispo === 'AVAILABLE',
+                    'full': site.statutDispo === 'FULL',
+                    'closed': site.statutDispo === 'CLOSED'
+                  }"
+                >
+                  {{ site.statutDispo }}
+                </span>
+              </td>
+
+              <td *ngIf="userRole === 'ADMINISTRATEUR'">
+                {{ site.ownerEmail || '—' }}
+              </td>
+
+              <td class="actions">
+                <a class="btn-view" [routerLink]="['/admin/camping-sites', site.idSite]">
+                  View
+                </a>
+
+                <a class="btn-edit" [routerLink]="['/admin/camping-sites', site.idSite, 'edit']">
+                  Edit
+                </a>
+
+                <button
+                  class="btn-delete"
+                  *ngIf="site.statutDispo !== 'CLOSED'"
+                  (click)="closeSite(site.idSite)"
+                >
+                  Close
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!isLoading && sites.length === 0" class="state-message empty">
+        No camping sites found.
+      </div>
     </div>
   </div>
 </section>

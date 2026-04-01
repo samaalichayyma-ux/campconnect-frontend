@@ -1,0 +1,57 @@
+<div class="avis-admin-card">
+  <div class="avis-admin-header">
+    <h2>Reviews Management</h2>
+    <p>Manage camping site reviews submitted by users.</p>
+  </div>
+
+  <div class="table-wrapper" *ngIf="avisList.length > 0; else emptyState">
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Site</th>
+          <th>Note</th>
+          <th>Comment</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+<tbody>
+  <tr *ngFor="let avis of avisList">
+    <td class="site-name">{{ avis.siteNom }}</td>
+    <td>
+      <div class="stars" *ngIf="avis.note !== null && avis.note !== undefined; else noNote">
+        <span
+          *ngFor="let star of [1,2,3,4,5]"
+          [ngClass]="{ 'filled': star <= (avis.note ?? 0) }"
+        >
+          ★
+        </span>
+      </div>
+      <ng-template #noNote>-</ng-template>
+    </td>
+    <td class="comment-cell">
+      {{ (avis.commentaire || '-') | slice:0:60 }}
+      <span *ngIf="avis.commentaire && avis.commentaire.length > 60">...</span>
+    </td>
+
+    <td>{{ avis.dateCreation | date:'mediumDate' }}</td>
+
+    <!-- 🎯 cleaner action -->
+    <td class="actions">
+      <button (click)="deleteAvis(avis.id)" class="btn-delete">
+        Delete
+      </button>
+    </td>
+  </tr>
+</tbody>
+    </table>
+  </div>
+
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <h3>No reviews found</h3>
+      <p>There are no reviews to display right now.</p>
+    </div>
+  </ng-template>
+</div>

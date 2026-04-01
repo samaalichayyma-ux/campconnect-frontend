@@ -26,7 +26,6 @@ import { ProfileComponent } from './features/public/profile/profile/profile.comp
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
 import { CampingSitesComponent } from './features/public/camping-sites/camping-sites.component';
-import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 import { CampingSiteListComponent } from './features/admin/camping-sites/camping-site-list/camping-site-list.component';
 import { CampingSiteCreateComponent } from './features/admin/camping-sites/camping-site-create/camping-site-create.component';
 import { CampingSiteEditComponent } from './features/admin/camping-sites/camping-site-edit/camping-site-edit.component';
@@ -40,6 +39,14 @@ import { CommandeRepasComponent } from './features/public/restauration/commande-
 import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
 import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
 import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
+
+import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
+import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites/admin-camping-site-details/admin-camping-site-details.component';
+import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
+import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
+import { BookingSummaryComponent } from './features/public/booking-summary/booking-summary.component';
+
+
 
 
 export const routes: Routes = [
@@ -65,6 +72,11 @@ export const routes: Routes = [
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
+      { path: 'camping-sites/:id', component: AdminCampingSiteDetailsComponent },
+      
+      { path: 'site-bookings', component: SiteBookingsComponent},
+
+      { path: 'avis', component: AdminAvisListComponent },
       
        { path: 'reclamations', component: ReclamationAdminListComponent },
   { path: 'repas', component: RepasAdminComponent },
@@ -85,7 +97,8 @@ export const routes: Routes = [
       { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
 
        { path: 'camping-sites', component: CampingSitesComponent },
-      { path: 'site-booking/:id', component: SiteBookingComponent },
+      { path: 'site-booking/:id', component: SiteBookingComponent},
+      { path: 'booking-summary', component: BookingSummaryComponent },
  
         { path: 'reclamations/add', component: ReclamationAddComponent },
         { path: 'reclamations', component: ReclamationListComponent },

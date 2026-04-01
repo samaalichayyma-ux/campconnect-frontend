@@ -1,0 +1,67 @@
+<section class="summary-page" *ngIf="selectedSite && bookingData">
+  <div class="container">
+    <div class="summary-card">
+      <div class="summary-header">
+        <span class="section-subtitle">Booking Summary</span>
+        <h2>Review Your Reservation</h2>
+        <p>Please check your booking details before proceeding to payment.</p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-image-card">
+          <img
+            [src]="selectedSite.imageUrl || 'assets/images/default-camp.jpg'"
+            [alt]="selectedSite.nom"
+          />
+        </div>
+
+        <div class="summary-details-card">
+          <h3>{{ selectedSite.nom }}</h3>
+          <p class="location">{{ selectedSite.localisation }}</p>
+
+          <div class="bill-box">
+            <div class="bill-row">
+              <span>Start Date</span>
+              <strong>{{ bookingData.dateDebut }}</strong>
+            </div>
+
+            <div class="bill-row">
+              <span>End Date</span>
+              <strong>{{ bookingData.dateFin }}</strong>
+            </div>
+
+            <div class="bill-row">
+              <span>Guests</span>
+              <strong>{{ bookingData.numberOfGuests }}</strong>
+            </div>
+
+            <div class="bill-row">
+              <span>Nights</span>
+              <strong>{{ nights }}</strong>
+            </div>
+
+            <div class="bill-row">
+              <span>Price / Night / Guest</span>
+              <strong>{{ selectedSite.prixParNuit }} DT</strong>
+            </div>
+
+            <div class="bill-row total">
+              <span>Total Amount</span>
+              <strong>{{ totalPrice }} DT</strong>
+            </div>
+          </div>
+
+          <div class="summary-actions">
+            <button class="btn-secondary" (click)="goBack()">
+              Back
+            </button>
+
+            <button class="btn-primary" (click)="confirmPayment()">
+              Pay Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

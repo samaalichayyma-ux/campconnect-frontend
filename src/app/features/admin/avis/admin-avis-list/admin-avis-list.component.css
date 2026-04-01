@@ -1,0 +1,129 @@
+.custom-swal-popup {
+  border-radius: 18px;
+}
+
+.avis-admin-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(23, 43, 68, 0.08);
+}
+
+.avis-admin-header {
+  margin-bottom: 20px;
+}
+
+.avis-admin-header h2 {
+  margin: 0 0 6px;
+  color: #172b44;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.avis-admin-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 750px;
+}
+
+.admin-table thead th {
+  background: #172b44;
+  color: #ffffff;
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.admin-table thead th:first-child {
+  border-top-left-radius: 14px;
+}
+
+.admin-table thead th:last-child {
+  border-top-right-radius: 14px;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid #ece8df;
+  transition: background 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+  background: #f8f6f0;
+}
+
+.admin-table td {
+  padding: 16px;
+  vertical-align: middle;
+  color: #172b44;
+  font-size: 0.95rem;
+}
+
+.site-name {
+  font-weight: 600;
+  color: #172b44;
+}
+
+.comment-cell {
+  max-width: 300px;
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.btn-delete {
+  background: #b64141;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease;
+}
+
+.btn-delete:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f8f6f0;
+  border-radius: 16px;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: #172b44;
+  font-size: 1.2rem;
+}
+
+.empty-state p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.stars {
+  display: flex;
+  gap: 4px;
+  font-size: 16px;
+}
+
+.stars span {
+  color: #d3d3d3;
+}
+
+.stars span.filled {
+  color: #96952f;
+}

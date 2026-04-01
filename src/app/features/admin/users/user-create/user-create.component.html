@@ -25,13 +25,16 @@
     </div>
 
     <div class="form-group">
-      <label>Rôle</label>
-      <select [(ngModel)]="user.role">
-        <option value="CLIENT">CLIENT</option>
-        <option value="GUIDE">GUIDE</option>
-        <option value="ADMINISTRATEUR">ADMINISTRATEUR</option>
-      </select>
-    </div>
+  <label for="role">Role</label>
+  <select id="role" [(ngModel)]="user.role" name="role">
+    <option value="" disabled>Select user role</option>
+    <option value="CLIENT">Client</option>
+    <option value="LIVREUR">Livreur</option>
+    <option value="GERANT_RESTAU">Gerant_Restau</option>
+    <option value="GUIDE">Guide</option>
+    <option value="AGENT_ASSURANCE">Agent_Assurance</option>
+  </select>
+</div>
 
     <div class="form-group">
       <label>Adresse</label>

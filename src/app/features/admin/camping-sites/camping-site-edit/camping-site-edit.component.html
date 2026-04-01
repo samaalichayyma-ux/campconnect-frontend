@@ -1,83 +1,126 @@
-<section class="admin-form-page">
-
+<section class="admin-camping-page">
   <div class="container">
+    <app-camping-navbar></app-camping-navbar>
 
-    <h2>Edit Camping Site</h2>
+    <div class="form-card">
+      <div class="form-header">
+        <span class="section-tag">Update</span>
+        <h3>Edit Camping Site</h3>
+        <p>Update site details, image, pricing and status.</p>
+      </div>
 
-    <div *ngIf="isLoading">
-      Loading camping site...
+      <div *ngIf="isLoading" class="state-message">
+        Loading camping site...
+      </div>
+
+      <div *ngIf="errorMessage" class="state-message error">
+        {{ errorMessage }}
+      </div>
+
+      <form
+        *ngIf="!isLoading"
+        class="site-form"
+        (ngSubmit)="onSubmit()"
+      >
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="nom">Name</label>
+            <input
+              id="nom"
+              type="text"
+              name="nom"
+              [(ngModel)]="site.nom"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="localisation">Location</label>
+            <input
+              id="localisation"
+              type="text"
+              name="localisation"
+              [(ngModel)]="site.localisation"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="capacite">Capacity</label>
+            <input
+              id="capacite"
+              type="number"
+              name="capacite"
+              [(ngModel)]="site.capacite"
+              min="1"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="prixParNuit">Price Per Night</label>
+            <input
+              id="prixParNuit"
+              type="number"
+              name="prixParNuit"
+              [(ngModel)]="site.prixParNuit"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="description">Description</label>
+            <textarea
+              id="description"
+              name="description"
+              [(ngModel)]="site.description"
+              rows="4"
+              required
+            ></textarea>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="statutDispo">Status</label>
+            <select
+              id="statutDispo"
+              name="statutDispo"
+              [(ngModel)]="site.statutDispo"
+              required
+            >
+              <option value="AVAILABLE">AVAILABLE</option>
+              <option value="FULL">FULL</option>
+              <option value="CLOSED">CLOSED</option>
+            </select>
+          </div>
+
+          <div class="form-group full-width" *ngIf="currentImageUrl">
+            <label>Current Image</label>
+            <img
+              [src]="currentImageUrl"
+              alt="Current camping site image"
+              class="preview-image"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label for="image">Update Image</label>
+            <input
+              id="image"
+              type="file"
+              name="image"
+              accept="image/*"
+              (change)="onFileSelected($event)"
+            />
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <a class="btn-secondary" routerLink="/admin/camping-sites">Cancel</a>
+          <button type="submit" class="btn-primary">Update Site</button>
+        </div>
+      </form>
     </div>
-
-    <div *ngIf="errorMessage">
-      {{ errorMessage }}
-    </div>
-
-    <form
-      *ngIf="!isLoading && site"
-      class="site-form"
-      (ngSubmit)="onSubmit()"
-    >
-
-      <div class="form-group">
-        <label>Name</label>
-        <input
-          type="text"
-          name="nom"
-          [(ngModel)]="site.nom"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Location</label>
-        <input
-          type="text"
-          name="localisation"
-          [(ngModel)]="site.localisation"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Capacity</label>
-        <input
-          type="number"
-          name="capacite"
-          [(ngModel)]="site.capacite"
-          min="1"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Price Per Night</label>
-        <input
-          type="number"
-          name="prixParNuit"
-          [(ngModel)]="site.prixParNuit"
-          min="0"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label>Status</label>
-        <select
-          name="statutDispo"
-          [(ngModel)]="site.statutDispo"
-        >
-          <option value="AVAILABLE">AVAILABLE</option>
-          <option value="FULL">FULL</option>
-          <option value="CLOSED">CLOSED</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn-primary">
-        Update Site
-      </button>
-
-    </form>
-
   </div>
-
 </section>
