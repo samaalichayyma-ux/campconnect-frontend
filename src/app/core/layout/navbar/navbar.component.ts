@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 export class NavbarComponent implements OnInit {
   userName = '';
   userRole = '';
+  isDropdownOpen = false;
 
   constructor(
     public authService: AuthService,
@@ -54,6 +55,14 @@ getAvatarColor(): string {
   }
 
   return colors[Math.abs(hash) % colors.length];
+}
+
+toggleDropdown(): void {
+  this.isDropdownOpen = !this.isDropdownOpen;
+}
+
+closeDropdown(): void {
+  this.isDropdownOpen = false;
 }
 
 }
