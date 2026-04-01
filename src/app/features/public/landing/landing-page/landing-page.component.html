@@ -410,6 +410,120 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
         </div><!--/products-->
       </div>
     </section>
+    <section class="cc-events-banner">
+      <div class="u-clearfix u-sheet cc-events-slider__shell">
+        <div class="cc-events-slider__header">
+          <div class="cc-events-slider__intro">
+            <h2 class="cc-events-slider__title">Upcoming Events</h2>
+            <p class="cc-events-slider__text">
+              Discover the next outdoor workshops, guided escapes, and community gatherings waiting on CampConnect.
+            </p>
+          </div>
+
+          <div class="cc-events-slider__actions">
+            <a routerLink="/public/events" class="cc-events-slider__link">View all events</a>
+
+            <div *ngIf="hasMultipleEventPages" class="cc-events-slider__controls">
+              <button
+                type="button"
+                class="cc-events-slider__control"
+                (click)="previousEventsPage()"
+                aria-label="Previous events">
+                <span aria-hidden="true">&#8249;</span>
+              </button>
+
+              <span class="cc-events-slider__counter">{{ currentEventsPage + 1 }} of {{ totalEventsPages }}</span>
+
+              <button
+                type="button"
+                class="cc-events-slider__control"
+                (click)="nextEventsPage()"
+                aria-label="Next events">
+                <span aria-hidden="true">&#8250;</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="isUpcomingEventsLoading" class="cc-events-slider__loading">
+          <div *ngFor="let item of visibleEventSkeletons" class="cc-events-slide cc-events-slide--skeleton">
+            <div class="cc-events-slide__skeleton-media"></div>
+            <div class="cc-events-slide__skeleton-line cc-events-slide__skeleton-line--short"></div>
+            <div class="cc-events-slide__skeleton-line"></div>
+            <div class="cc-events-slide__skeleton-line cc-events-slide__skeleton-line--soft"></div>
+          </div>
+        </div>
+
+        <div *ngIf="!isUpcomingEventsLoading && pagedUpcomingEvents.length" class="cc-events-slider">
+          <div class="cc-events-slider__viewport">
+            <div
+              class="cc-events-slider__track"
+              [style.transform]="'translateX(-' + (currentEventsPage * 100) + '%)'">
+              <div
+                *ngFor="let eventsPage of pagedUpcomingEvents"
+                class="cc-events-slider__page"
+                [style.gridTemplateColumns]="'repeat(' + cardsPerView + ', minmax(0, 1fr))'">
+                <a
+                  *ngFor="let event of eventsPage"
+                  [routerLink]="['/public/events', event.id]"
+                  class="cc-events-slide">
+                  <div class="cc-events-slide__media">
+                    <img
+                      [src]="getEventImageUrl(event)"
+                      [alt]="event.titre"
+                      class="cc-events-slide__image"
+                      (error)="onUpcomingImageError($event)">
+
+                    <div class="cc-events-slide__date">
+                      <span>{{ getEventDay(event.dateDebut) }}</span>
+                      <small>{{ getEventMonth(event.dateDebut) }}</small>
+                    </div>
+                  </div>
+
+                  <div class="cc-events-slide__body">
+                    <div class="cc-events-slide__topline">
+                      <span class="cc-events-slide__category">{{ getCategoryLabel(event.categorie) }}</span>
+                      <span class="cc-events-slide__price">{{ formatPrice(event.prix) }}</span>
+                    </div>
+
+                    <h3>{{ event.titre }}</h3>
+                    <p>{{ getShortDescription(event.description, 88) }}</p>
+
+                    <div class="cc-events-slide__meta">
+                      <span>{{ formatEventDate(event.dateDebut) }}</span>
+                      <span>{{ formatEventTimeRange(event.dateDebut, event.dateFin) }}</span>
+                    </div>
+
+                    <div class="cc-events-slide__footer">
+                      <span class="cc-events-slide__location">{{ event.lieu || 'Location to be announced' }}</span>
+                      <span class="cc-events-slide__arrow">View</span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <div *ngIf="hasMultipleEventPages" class="cc-events-slider__dots">
+            <button
+              *ngFor="let eventsPage of pagedUpcomingEvents; let pageIndex = index"
+              type="button"
+              class="cc-events-slider__dot"
+              [class.is-active]="pageIndex === currentEventsPage"
+              [attr.aria-label]="'Go to events page ' + (pageIndex + 1)"
+              (click)="goToEventsPage(pageIndex)">
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!isUpcomingEventsLoading && !pagedUpcomingEvents.length" class="cc-events-slider__empty">
+          <span class="cc-events-slider__empty-tag">Calendar refresh in progress</span>
+          <h3>New outdoor experiences are being prepared.</h3>
+          <p>Check the events page for the latest CampConnect releases and newly published activities.</p>
+          <a routerLink="/public/events" class="cc-events-slider__link">Open events page</a>
+        </div>
+      </div>
+    </section>
     <section class="u-align-center u-clearfix u-container-align-center u-section-13" id="block-33">
       <div class="u-clearfix u-sheet u-valign-middle u-sheet-1" bis_skin_checked="1"><span class="u-file-icon u-icon u-icon-1"><img src="/assets/images/1600667.png" alt=""></span>
         <h2 class="u-align-center u-text u-text-default u-text-1"> Upcoming Events</h2>
