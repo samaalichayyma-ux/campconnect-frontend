@@ -45,6 +45,7 @@ import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites
 import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
 import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 import { BookingSummaryComponent } from './features/public/booking-summary/booking-summary.component';
+import { MyBookingsComponent } from './features/public/my-bookings/my-bookings.component';
 
 
 
@@ -99,6 +100,7 @@ export const routes: Routes = [
        { path: 'camping-sites', component: CampingSitesComponent },
       { path: 'site-booking/:id', component: SiteBookingComponent},
       { path: 'booking-summary', component: BookingSummaryComponent },
+      { path: 'my-bookings', component: MyBookingsComponent },
  
         { path: 'reclamations/add', component: ReclamationAddComponent },
         { path: 'reclamations', component: ReclamationListComponent },

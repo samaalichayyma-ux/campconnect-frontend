@@ -51,4 +51,7 @@ export class CampingService {
   getMyCampingSites(): Observable<CampingSite[]> {
     return this.http.get<CampingSite[]>(`${this.apiUrl}/site-camping/my-sites`);
   }
+  getMyBookings(): Observable<UpdateSiteBooking[]> {
+  return this.http.get<UpdateSiteBooking[]>(`${this.apiUrl}/inscriptionsite/my-inscriptions`);
+}
 }
