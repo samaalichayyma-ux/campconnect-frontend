@@ -8,4 +8,6 @@ export interface CampingSite {
   imageUrl?:string;
   description?: string;
   statutDispo: 'AVAILABLE' | 'FULL' | 'CLOSED';
+  ownerId?: number;
+  ownerEmail?: string;
 }
