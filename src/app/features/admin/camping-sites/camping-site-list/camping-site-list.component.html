@@ -6,8 +6,8 @@
       <div class="page-header">
         <div>
           <span class="section-tag">Overview</span>
-          <h3>Camping Sites List</h3>
-          <p>View, edit and remove camping destinations from the platform.</p>
+          <h3>{{ pageTitle }}</h3>
+          <p>{{ pageDescription }}</p>
         </div>
 
         <a class="btn-primary" routerLink="/admin/camping-sites/new">
@@ -33,6 +33,7 @@
               <th>Remaining</th>
               <th>Price / Night</th>
               <th>Status</th>
+              <th *ngIf="userRole === 'ADMINISTRATEUR'">Owner</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -56,14 +57,27 @@
                   {{ site.statutDispo }}
                 </span>
               </td>
+
+              <td *ngIf="userRole === 'ADMINISTRATEUR'">
+                {{ site.ownerEmail || '—' }}
+              </td>
+
               <td class="actions">
-                <a class="btn-view" [routerLink]="['/admin/camping-sites', site.idSite]"> View </a>
+                <a class="btn-view" [routerLink]="['/admin/camping-sites', site.idSite]">
+                  View
+                </a>
+
                 <a class="btn-edit" [routerLink]="['/admin/camping-sites', site.idSite, 'edit']">
                   Edit
                 </a>
-              <!--  <button class="btn-delete" (click)="deleteSite(site.idSite)">
-                  Delete
-                </button>  -->
+
+                <button
+                  class="btn-delete"
+                  *ngIf="site.statutDispo !== 'CLOSED'"
+                  (click)="closeSite(site.idSite)"
+                >
+                  Close
+                </button>
               </td>
             </tr>
           </tbody>

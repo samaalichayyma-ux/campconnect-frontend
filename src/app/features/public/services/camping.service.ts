@@ -3,19 +3,17 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking, UpdateSiteBooking } from '../models/booking.model';
-import { CampingSiteCreatePayload } from '../../admin/camping-sites/models/camping-site-create.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CampingService {
-
   private apiUrl = 'http://localhost:8082/api';
 
   constructor(private http: HttpClient) {}
 
-   getAllCampingSites(): Observable<CampingSite[]> {
-    return this.http.get<CampingSite[]>(`http://localhost:8082/api/site-camping/getAll`);
+  getAllCampingSites(): Observable<CampingSite[]> {
+    return this.http.get<CampingSite[]>(`${this.apiUrl}/site-camping/getAll`);
   }
 
   addCampingSite(formData: FormData): Observable<CampingSite> {
@@ -25,13 +23,11 @@ export class CampingService {
   updateCampingSite(idSite: number, formData: FormData): Observable<CampingSite> {
     return this.http.patch<CampingSite>(`${this.apiUrl}/site-camping/updateSite/${idSite}`, formData);
   }
-  cancelCampingSite(idSite: number, formData: FormData): Observable<CampingSite> {
-    return this.http.patch<CampingSite>(`${this.apiUrl}/site-camping/close/${idSite}`, formData);
+
+  closeCampingSite(idSite: number): Observable<CampingSite> {
+    return this.http.patch<CampingSite>(`${this.apiUrl}/site-camping/close/${idSite}`, {});
   }
 
-  deleteCampingSite(idSite: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/site-camping/deleteSite/${idSite}`);
-  }
   getCampingSiteById(idSite: number): Observable<CampingSite> {
     return this.http.get<CampingSite>(`${this.apiUrl}/site-camping/getsite/${idSite}`);
   }
@@ -47,9 +43,12 @@ export class CampingService {
   getBookingsBySite(idSite: number): Observable<SiteBooking[]> {
     return this.http.get<SiteBooking[]>(`${this.apiUrl}/inscriptionsite/bySite/${idSite}`);
   }
+
   updateBooking(idInscription: number, booking: UpdateSiteBooking): Observable<UpdateSiteBooking> {
     return this.http.patch<UpdateSiteBooking>(`${this.apiUrl}/inscriptionsite/update/${idInscription}`, booking);
   }
 
-
+  getMyCampingSites(): Observable<CampingSite[]> {
+    return this.http.get<CampingSite[]>(`${this.apiUrl}/site-camping/my-sites`);
+  }
 }
