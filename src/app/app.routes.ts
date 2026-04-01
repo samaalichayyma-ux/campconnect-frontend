@@ -26,10 +26,10 @@ import { ProfileComponent } from './features/public/profile/profile/profile.comp
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
 import { CampingSitesComponent } from './features/public/camping-sites/camping-sites.component';
+import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 import { CampingSiteListComponent } from './features/admin/camping-sites/camping-site-list/camping-site-list.component';
 import { CampingSiteCreateComponent } from './features/admin/camping-sites/camping-site-create/camping-site-create.component';
 import { CampingSiteEditComponent } from './features/admin/camping-sites/camping-site-edit/camping-site-edit.component';
-
 
 import { ReclamationListComponent } from './features/public/reclamation/reclamation-list/reclamation-list.component';
 import { ReclamationAddComponent } from './features/public/reclamation/reclamation-add/reclamation-add.component';
@@ -43,23 +43,28 @@ import { CommandesAdminComponent } from './features/admin/restauration/commandes
 import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
 import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites/admin-camping-site-details/admin-camping-site-details.component';
 import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
-import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 import { BookingSummaryComponent } from './features/public/booking-summary/booking-summary.component';
 import { MyBookingsComponent } from './features/public/my-bookings/my-bookings.component';
 
-
-
+import { EventsListComponent } from './features/public/events/events-list/events-list.component';
+import { EventDetailsComponent } from './features/public/events/event-details/event-details.component';
+import { EventReservationComponent } from './features/public/events/event-reservation/event-reservation.component';
+import { EventListComponent } from './features/admin/events/event-list/event-list.component';
+import { EventCreateComponent } from './features/admin/events/event-create/event-create.component';
+import { EventEditComponent } from './features/admin/events/event-edit/event-edit.component';
+import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.component';
+import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
+import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
+import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
-  // ADMIN d'abord
   {
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-
       { path: 'profile', component: AdminProfileComponent },
 
       { path: 'users', component: UserListComponent },
@@ -69,24 +74,28 @@ export const routes: Routes = [
 
       { path: 'assurances/new', component: AssuranceCreateComponent },
       { path: 'assurances/:id/edit', component: AssuranceEditComponent },
-      
+
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
       { path: 'camping-sites/:id', component: AdminCampingSiteDetailsComponent },
-      
-      { path: 'site-bookings', component: SiteBookingsComponent},
-
+      { path: 'site-bookings', component: SiteBookingsComponent },
       { path: 'avis', component: AdminAvisListComponent },
-      
-       { path: 'reclamations', component: ReclamationAdminListComponent },
-  { path: 'repas', component: RepasAdminComponent },
-  { path: 'commandes-repas', component: CommandesAdminComponent },
-  
-    ],
-  },
 
-  // client ensuite
+      { path: 'events', component: EventListComponent },
+      { path: 'events/new', component: EventCreateComponent },
+      { path: 'events/:id/edit', component: EventEditComponent },
+      { path: 'events/api-demo', component: ApiDemoComponent },
+
+      { path: 'reservations', component: ReservationListComponent },
+      { path: 'reservations/new', component: ReservationCreateComponent },
+      { path: 'reservations/:id/edit', component: ReservationEditComponent },
+
+      { path: 'reclamations', component: ReclamationAdminListComponent },
+      { path: 'repas', component: RepasAdminComponent },
+      { path: 'commandes-repas', component: CommandesAdminComponent }
+    ]
+  },
   {
     path: 'public',
     component: PublicLayoutComponent,
@@ -97,25 +106,31 @@ export const routes: Routes = [
       { path: 'assurances', component: PublicAssuranceListComponent },
       { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
 
-       { path: 'camping-sites', component: CampingSitesComponent },
-      { path: 'site-booking/:id', component: SiteBookingComponent},
+      { path: 'camping-sites', component: CampingSitesComponent },
+      { path: 'site-booking/:id', component: SiteBookingComponent },
       { path: 'booking-summary', component: BookingSummaryComponent },
       { path: 'my-bookings', component: MyBookingsComponent },
- 
-        { path: 'reclamations/add', component: ReclamationAddComponent },
-        { path: 'reclamations', component: ReclamationListComponent },
-        { path: 'repas', component: RepasListComponent },
-         { path: 'commande-repas', component: CommandeRepasComponent },
-],
 
+      { path: 'events', component: EventsListComponent },
+      {
+        path: 'events/my-reservations',
+        loadComponent: () =>
+          import('./features/public/events/my-reservations/my-reservations.component').then(
+            (module) => module.MyReservationsComponent
+          ),
+        canActivate: [authGuard]
+      },
+      { path: 'events/:id/reservation', component: EventReservationComponent },
+      { path: 'events/:id/book', component: EventReservationComponent },
+      { path: 'events/:id', component: EventDetailsComponent },
+
+      { path: 'reclamations/add', component: ReclamationAddComponent },
+      { path: 'reclamations', component: ReclamationListComponent },
+      { path: 'repas', component: RepasListComponent },
+      { path: 'commande-repas', component: CommandeRepasComponent }
+    ]
   },
-
-  
-
-
-
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-
-  { path: '**', component: NotFoundComponent },
+  { path: '**', component: NotFoundComponent }
 ];

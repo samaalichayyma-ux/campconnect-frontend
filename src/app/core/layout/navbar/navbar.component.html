@@ -8,68 +8,54 @@
       <a routerLink="/public" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
       <a routerLink="/public/camping-sites" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Destinations</a>
       <a href="#">Shop</a>
-      <a href="/public/repas">Restaurant</a>
-      <a href="#">Events</a>
+      <a routerLink="/public/repas" routerLinkActive="active">Restaurant</a>
+      <a routerLink="/public/events" routerLinkActive="active">Events</a>
       <a href="#">Formations</a>
     </nav>
 
     <div class="cc-actions">
-      <a href="#" class="cc-cart-btn" aria-label="Cart">🛒</a>
+      <a href="#" class="cc-cart-btn" aria-label="Cart">&#128722;</a>
 
       <ng-container *ngIf="!authService.isLoggedIn(); else loggedInBlock">
         <a routerLink="/login" class="cc-login-btn">Login</a>
       </ng-container>
 
+      <ng-template #loggedInBlock>
+        <a *ngIf="userRole === 'ADMINISTRATEUR'" routerLink="/admin" class="cc-role-btn">
+          Admin
+        </a>
 
-<ng-template #loggedInBlock>
-<!-- ROLE BUTTONS (OUTSIDE DROPDOWN) -->
-<a *ngIf="userRole === 'ADMINISTRATEUR'"
-   routerLink="/admin"
-   class="cc-role-btn">
-  Admin
-</a>
+        <a *ngIf="userRole === 'GUIDE'" routerLink="/admin" class="cc-role-btn">
+          Camp Host
+        </a>
 
-<a *ngIf="userRole === 'GUIDE'"
-   routerLink="/admin"
-   class="cc-role-btn">
-  Camp Host
-</a>
+        <div class="cc-user-box" (click)="toggleDropdown()">
+          <div
+            class="cc-avatar"
+            [ngStyle]="{ background: getAvatarColor() }">
+            {{ getUserInitial() }}
+          </div>
 
-<!-- USER DROPDOWN -->
-<div class="cc-user-box" (click)="toggleDropdown()">
+          <div
+            class="cc-dropdown"
+            *ngIf="isDropdownOpen"
+            (click)="$event.stopPropagation()">
+            <a routerLink="/public/my-bookings" (click)="closeDropdown()">
+              My Bookings
+            </a>
 
-  <!-- Avatar -->
-  <div
-    class="cc-avatar"
-    [ngStyle]="{ background: getAvatarColor() }"
-  >
-    {{ getUserInitial() }}
-  </div>
+            <a routerLink="/public/profile" (click)="closeDropdown()">
+              Profile
+            </a>
 
-  <!-- Dropdown -->
-  <div class="cc-dropdown"
-       *ngIf="isDropdownOpen"
-       (click)="$event.stopPropagation()">
-      
-      
-     <a routerLink="/public/my-bookings" (click)="closeDropdown()">
-      My Bookings
-    </a>
+            <div class="dropdown-divider"></div>
 
-    <a routerLink="/public/profile" (click)="closeDropdown()">
-      Profile
-    </a>
-
-    <div class="dropdown-divider"></div>
-
-    <button (click)="logout()">
-      Logout
-    </button>
-
-  </div>
-</div>
-
-</ng-template>
+            <button (click)="logout()">
+              Logout
+            </button>
+          </div>
+        </div>
+      </ng-template>
     </div>
   </div>
 </header>

@@ -1,51 +1,53 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AdminIconComponent } from '../../../core/components/admin-icon/admin-icon.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, AdminIconComponent],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent {
-   adminName = 'Admin CampConnect';
+  adminName = 'Admin CampConnect';
   adminRole = 'ADMINISTRATEUR';
 
   stats = [
     {
       title: 'Users',
       value: 124,
-      icon: '👥',
+      icon: 'users',
       colorClass: 'blue-card'
     },
     {
       title: 'Reservations',
       value: 58,
-      icon: '📅',
+      icon: 'reservations',
       colorClass: 'green-card'
     },
     {
       title: 'Restaurants',
       value: 16,
-      icon: '🍽️',
+      icon: 'restaurants',
       colorClass: 'olive-card'
     },
     {
       title: 'Assurances',
       value: 27,
-      icon: '🛡️',
+      icon: 'assurances',
       colorClass: 'blue-card'
     }
   ];
 
   modules = [
-    { title: 'Users', subtitle: 'Manage all users', icon: '👤', link: '/admin/users' },
-    { title: 'Assurances', subtitle: 'Manage assurances', icon: '🛡️', link: '/admin/assurances' },
-    { title: 'Restaurants', subtitle: 'Manage restaurants', icon: '🍴', link: '/admin/repas' },
-    { title: 'Guides', subtitle: 'Manage guides', icon: '🧭', link: '/admin/guides' },
-    { title: 'Events', subtitle: 'Manage events', icon: '🎉', link: '/admin/events' },
-    { title: 'Formations', subtitle: 'Manage trainings', icon: '📘', link: '/admin/formations' }
+    { title: 'Users', subtitle: 'Manage all users', icon: 'users', link: '/admin/users' },
+    { title: 'Assurances', subtitle: 'Manage assurances', icon: 'assurances', link: '/admin/assurances' },
+    { title: 'Restaurants', subtitle: 'Manage restaurants', icon: 'restaurants', link: '/admin/repas' },
+    { title: 'Guides', subtitle: 'Manage guides', icon: 'guides', link: '/admin/guides' },
+    { title: 'Events', subtitle: 'Manage events', icon: 'events', link: '/admin/events' },
+    { title: 'Reservations', subtitle: 'Manage reservations', icon: 'reservations', link: '/admin/reservations' },
+    { title: 'Formations', subtitle: 'Manage trainings', icon: 'formations', link: '/admin/formations' }
   ];
 
   recentActivities = [
@@ -54,5 +56,4 @@ export class DashboardComponent {
     { action: 'Insurance added', user: 'Molka', date: 'Yesterday - 17:20' },
     { action: 'Guide account approved', user: 'Admin', date: 'Yesterday - 14:05' }
   ];
-
 }
