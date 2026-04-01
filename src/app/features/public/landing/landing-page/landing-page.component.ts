@@ -18,6 +18,15 @@ export class LandingPageComponent implements OnInit {
   isLoading = false;
   constructor(private testApi: TestApiService , public authService: AuthService,
     private router: Router, private campingService: CampingService) {}
+  
+  
+    selectedSection: string = '';
+
+  showSection(section: string): void {
+    this.selectedSection = section;
+  }
+
+
 
   ngOnInit() {
     this.loadLatestSites();

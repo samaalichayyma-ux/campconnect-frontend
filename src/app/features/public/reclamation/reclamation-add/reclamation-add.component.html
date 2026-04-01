@@ -1,14 +1,89 @@
-<h2>Ajouter une réclamation</h2>
+<section class="reclamation-page">
+  <div class="reclamation-overlay">
+    <div class="reclamation-card">
+      <form (ngSubmit)="save()" #reclamationForm="ngForm">
+        <div class="mb-3">
+          <label for="description" class="form-label">Complaint Description</label>
+        <br>
+          <textarea
+            id="description"
+            name="description"
+            class="form-control"
+            rows="5"
+            [(ngModel)]="reclamation.description"
+            required
+            #description="ngModel">
+          </textarea>
 
-<form (ngSubmit)="save()">
-  <div>
-    <label>Description</label>
-    <br />
-    <textarea [(ngModel)]="reclamation.description" 
-    name="description" required></textarea>
+          <div class="text-danger" *ngIf="submitted && description.invalid">
+            Description is required.
+          </div>
+        </div>
+
+        <div class="form-check mb-3">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="acceptationDeclaration"
+            name="acceptationDeclaration"
+            [(ngModel)]="reclamation.acceptationDeclaration"
+            required
+            #acceptationDeclaration="ngModel">
+
+          <label class="form-check-label" for="acceptationDeclaration">
+            I accept the processing of my personal data for handling my complaint.
+            <br>
+            <a href="javascript:void(0)" (click)="ouvrirDeclaration()">View the declaration</a>
+          </label>
+        </div>
+
+        <div class="text-danger mb-3" *ngIf="submitted && !reclamation.acceptationDeclaration">
+          You must accept the declaration before submitting your complaint.
+        </div>
+
+        <button type="submit" class="btn btn-primary submit-btn">
+          Submit Complaint
+        </button>
+      </form>
+    </div>
   </div>
+</section>
 
-  <br />
+<div class="modal-backdrop-custom" *ngIf="showDeclaration">
+  <div class="modal-box-custom">
+    <div class="modal-header-custom">
+      <h4>Personal Data Processing Declaration</h4>
+      <button type="button" class="btn-close-custom" (click)="fermerDeclaration()">×</button>
+    </div>
 
-  <button type="submit">Enregistrer</button>
-</form>
+    <div class="modal-body-custom">
+      <p>
+        The <strong>CampConnect</strong> platform collects and processes the data provided in this form
+        solely for the purpose of managing and tracking your complaint.
+      </p>
+
+      <p>The collected data may include:</p>
+      <ul>
+        <li>your identification information;</li>
+        <li>your contact details;</li>
+        <li>the description of your complaint;</li>
+        <li>information related to the services used on the platform;</li>
+        <li>technical data related to the use of the application.</li>
+      </ul>
+
+      <p>
+        This data is processed confidentially and securely. It is used only
+        within the scope of handling your request and improving the services provided.
+      </p>
+
+      <p>
+        By checking the acceptance box, you confirm that you have read this declaration
+        and agree to the processing of your personal data in connection with your complaint.
+      </p>
+    </div>
+
+    <div class="modal-footer-custom">
+      <button class="btn btn-secondary modal-close-btn" type="button" (click)="fermerDeclaration()">Close</button>
+    </div>
+  </div>
+</div>

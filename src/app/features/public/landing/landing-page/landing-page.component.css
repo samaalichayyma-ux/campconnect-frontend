@@ -51016,3 +51016,26 @@ a.u-link.u-text-hover-color-var:hover {
   color: #666;
   margin-bottom: 20px;
 }
+
+
+
+
+
+.restaurant-description-box {
+  margin-top: 30px;
+  padding: 25px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.restaurant-description-box h3 {
+  margin-bottom: 12px;
+  color: #2e8b57;
+}
+
+.restaurant-description-box p {
+  margin: 0;
+  line-height: 1.7;
+  color: #444;
+}

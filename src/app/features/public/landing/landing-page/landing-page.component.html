@@ -612,23 +612,70 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
             <div class="u-container-style u-list-item u-repeater-item" bis_skin_checked="1">
               <div class="u-container-layout u-similar-container u-valign-top-lg u-valign-top-md u-valign-top-sm u-valign-top-xs u-container-layout-1" bis_skin_checked="1"><span class="u-file-icon u-icon u-icon-circle u-palette-2-light-1 u-icon-1"><img src="/assets/images/12242852.png" alt=""></span>
                 <h5 class="u-text u-text-1"> Fresh and local ingredients</h5>
-                <a href="" class="u-active-none u-border-2 u-border-active-palette-2-dark-1 u-border-black u-border-hover-palette-2-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-hover-none u-none u-text-color-var u-text-hover-color-var u-btn-1"> Read more</a>
+                <a  href="javascript:void(0)"    (click)="showSection('fresh')" class="u-active-none u-border-2 u-border-active-palette-2-dark-1 u-border-black u-border-hover-palette-2-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-hover-none u-none u-text-color-var u-text-hover-color-var u-btn-1"> Read more</a>
               </div>
             </div>
             <div class="u-container-style u-list-item u-repeater-item" bis_skin_checked="1">
               <div class="u-container-layout u-similar-container u-valign-top-lg u-valign-top-md u-valign-top-sm u-valign-top-xs u-container-layout-2" bis_skin_checked="1"><span class="u-file-icon u-icon u-icon-circle u-palette-2-light-1 u-icon-2"><img src="/assets/images/2558180.png" alt=""></span>
                 <h5 class="u-text u-text-2"> Quick ordering system</h5>
-                <a href="" class="u-active-none u-border-2 u-border-active-palette-2-dark-1 u-border-black u-border-hover-palette-2-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-hover-none u-none u-text-custom-color-2 u-text-hover-custom-color-1 u-btn-2"> Read more</a>
+                <a href="javascript:void(0)"    (click)="showSection('quick')" class="u-active-none u-border-2 u-border-active-palette-2-dark-1 u-border-black u-border-hover-palette-2-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-hover-none u-none u-text-custom-color-2 u-text-hover-custom-color-1 u-btn-2"> Read more</a>
               </div>
             </div>
             <div class="u-container-style u-list-item u-repeater-item" bis_skin_checked="1">
               <div class="u-container-layout u-similar-container u-valign-top-lg u-valign-top-md u-valign-top-sm u-valign-top-xs u-container-layout-3" bis_skin_checked="1"><span class="u-file-icon u-icon u-icon-circle u-palette-2-light-1 u-icon-3"><img src="/assets/images/2400626.png" alt=""></span>
                 <h5 class="u-text u-text-3"> Safe and hygienic preparation</h5>
-                <a href="" class="u-active-none u-border-2 u-border-active-palette-2-dark-1 u-border-black u-border-hover-palette-2-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-hover-none u-none u-text-custom-color-2 u-text-hover-custom-color-1 u-btn-3"> Read more</a>
+                <a href="javascript:void(0)"   (click)="showSection('safe')" class="u-active-none u-border-2 u-border-active-palette-2-dark-1 u-border-black u-border-hover-palette-2-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-hover-none u-none u-text-custom-color-2 u-text-hover-custom-color-1 u-btn-3"> Read more</a>
               </div>
             </div>
           </div>
         </div>
+
+
+<!-- Section description affichée après clic -->
+<div class="restaurant-description-box" *ngIf="selectedSection">
+  <div *ngIf="selectedSection === 'fresh'">
+    <h3 class="u-none u-text-custom-color-2">Fresh and Local Ingredients</h3>
+    <p>
+      We prioritize fresh, locally sourced, and seasonal ingredients to deliver
+      flavorful and high-quality meals. By working with regional producers, we
+      support local communities while ensuring the best taste and freshness in every dish.
+    </p>
+  </div>
+
+  <div *ngIf="selectedSection === 'quick'">
+    <h3 class="u-none u-text-custom-color-2">Quick Ordering System</h3>
+    <p>
+      Our fast and easy ordering system allows you to place your order in just a few taps.
+      Whether you're at your campsite or on the go, enjoy a smooth, convenient,
+      and time-saving experience.
+    </p>
+  </div>
+
+  <div *ngIf="selectedSection === 'safe'">
+    <h3 class="u-none u-text-custom-color-2">Safe and Hygienic Preparation</h3>
+    <p>
+      Your safety is our top priority. All meals are prepared under strict hygiene
+      standards, following health and safety regulations to ensure a clean, safe,
+      and enjoyable dining experience.
+    </p>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         <a href="" class="u-btn u-btn-round u-button-style u-color-var u-hover-color-var u-radius u-btn-4"><span class="u-icon"><svg class="u-svg-content" viewBox="0 0 513.64 513.64" x="0px" y="0px" style="width: 1em; height: 1em;"><path d="M499.66,376.96l-71.68-71.68c-25.6-25.6-69.12-15.359-79.36,17.92c-7.68,23.041-33.28,35.841-56.32,30.72 c-51.2-12.8-120.32-79.36-133.12-133.12c-7.68-23.041,7.68-48.641,30.72-56.32c33.28-10.24,43.52-53.76,17.92-79.36l-71.68-71.68 c-20.48-17.92-51.2-17.92-69.12,0l-48.64,48.64c-48.64,51.2,5.12,186.88,125.44,307.2c120.32,120.32,256,176.641,307.2,125.44 l48.64-48.64C517.581,425.6,517.581,394.88,499.66,376.96z"></path></svg></span>&nbsp;​Order Now
         </a>
         <a href="" class="u-active-custom-color-1 u-border-2 u-border-grey-75 u-border-hover-grey-60 u-btn u-btn-round u-button-style u-color-var u-hover-color-var u-radius u-text-black u-btn-5"> Learn more</a>

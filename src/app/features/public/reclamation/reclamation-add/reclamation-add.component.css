@@ -1,0 +1,264 @@
+.reclamation-page {
+  min-height: 100vh;
+  background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.55)),
+              url('/assets/images/photo-1504280390367-361c6d9f38f4.jpeg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+}
+
+.reclamation-overlay {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  justify-content: center;
+}
+
+.reclamation-card {
+  width: 100%;
+  max-width: 700px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(6px);
+  border-radius: 24px;
+  padding: 40px 35px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  animation: fadeInUp 0.7s ease;
+}
+
+.reclamation-card form {
+  width: 100%;
+}
+
+.form-label {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f1f1f;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.form-control {
+  border: 1px solid #d8d8d8;
+  border-radius: 18px;
+  padding: 14px 18px;
+  font-size: 1rem;
+  color: #222;
+  background-color: #fff;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.form-control:focus {
+  border-color: #e67e22;
+  box-shadow: 0 0 0 0.2rem rgba(230, 126, 34, 0.18);
+  outline: none;
+}
+
+textarea.form-control {
+  resize: none;
+  min-height: 160px;
+}
+
+.form-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f8f8f8;
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid #ececec;
+}
+
+.form-check-input {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  color: #333;
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+
+.form-check-label a {
+  color: #e67e22;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.form-check-label a:hover {
+  text-decoration: underline;
+}
+
+.text-danger {
+  font-size: 0.92rem;
+  margin-top: 8px;
+  color: #dc3545;
+}
+
+.submit-btn,
+.btn.btn-primary {
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  border: none;
+  border-radius: 50px;
+  padding: 14px 30px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  min-width: 220px;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(230, 126, 34, 0.3);
+}
+
+.submit-btn:hover,
+.btn.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(230, 126, 34, 0.35);
+  background: linear-gradient(135deg, #d96d11, #e98b07);
+}
+
+/* ===== FIX MODAL SCROLL ===== */
+
+.modal-backdrop-custom {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+  padding: 20px;
+  overflow-y: auto; /* ✅ permet scroll si écran petit */
+}
+
+.modal-box-custom {
+  width: 100%;
+  max-width: 760px;
+  max-height: 90vh; /* ✅ limite hauteur */
+  background: #fff;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+  animation: fadeInScale 0.3s ease;
+
+  display: flex;            /* ✅ important */
+  flex-direction: column;   /* ✅ important */
+}
+
+.modal-header-custom {
+  background: linear-gradient(135deg, #1f2d3d, #2d4059);
+  color: white;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0; /* ✅ empêche de rétrécir */
+}
+
+.modal-header-custom h4 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.btn-close-custom {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.modal-body-custom {
+  padding: 28px 24px;
+  color: #333;
+  line-height: 1.8;
+  font-size: 0.98rem;
+
+  overflow-y: auto; /* ✅ scroll ici */
+  flex: 1;          /* ✅ prend espace restant */
+}
+
+.modal-body-custom ul {
+  padding-left: 20px;
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+
+.modal-body-custom li {
+  margin-bottom: 8px;
+}
+
+.modal-footer-custom {
+  padding: 18px 24px 24px;
+  display: flex;
+  justify-content: flex-end;
+  background: #fafafa;
+  flex-shrink: 0; /* ✅ reste visible */
+}
+
+.modal-close-btn,
+.btn.btn-secondary {
+  background: #f39c12;
+  border: none;
+  color: white;
+  border-radius: 40px;
+  padding: 10px 22px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.modal-close-btn:hover,
+.btn.btn-secondary:hover {
+  background: #e67e22;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(35px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (max-width: 768px) {
+  .reclamation-card {
+    padding: 28px 20px;
+    border-radius: 18px;
+  }
+
+  .submit-btn,
+  .btn.btn-primary {
+    width: 100%;
+  }
+
+  .modal-box-custom {
+    border-radius: 18px;
+  }
+
+  .modal-header-custom,
+  .modal-body-custom,
+  .modal-footer-custom {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}

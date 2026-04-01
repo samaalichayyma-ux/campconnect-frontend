@@ -42,7 +42,7 @@ export class DashboardComponent {
   modules = [
     { title: 'Users', subtitle: 'Manage all users', icon: '👤', link: '/admin/users' },
     { title: 'Assurances', subtitle: 'Manage assurances', icon: '🛡️', link: '/admin/assurances' },
-    { title: 'Restaurants', subtitle: 'Manage restaurants', icon: '🍴', link: '/admin/restaurants' },
+    { title: 'Restaurants', subtitle: 'Manage restaurants', icon: '🍴', link: '/admin/repas' },
     { title: 'Guides', subtitle: 'Manage guides', icon: '🧭', link: '/admin/guides' },
     { title: 'Events', subtitle: 'Manage events', icon: '🎉', link: '/admin/events' },
     { title: 'Formations', subtitle: 'Manage trainings', icon: '📘', link: '/admin/formations' }
