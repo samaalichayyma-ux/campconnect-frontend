@@ -3,13 +3,17 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   Event,
+  EventDuplicateRequestDTO,
   EventReservation,
   ReservationRequestDTO,
   ReservationResponseDTO,
   EventImageDTO,
   EventRequestDTO,
   EventResponseDTO,
+  PromotionOfferResponseDTO,
+  PromotionPreviewDTO,
   StripeCheckoutSessionResponseDTO,
+  UserNotificationResponseDTO,
   UserReservationStatsDTO
 } from '../models/event.model';
 
@@ -17,8 +21,10 @@ import {
   providedIn: 'root'
 })
 export class EventService {
-  private eventsBaseUrl = 'http://localhost:8080/api/events';
-  private reservationsBaseUrl = 'http://localhost:8080/api/reservations';
+  private readonly eventsBaseUrl = 'http://localhost:8082/api/events';
+  private readonly reservationsBaseUrl = 'http://localhost:8082/api/reservations';
+  private readonly promotionsBaseUrl = 'http://localhost:8082/api/promotions';
+  private readonly notificationsBaseUrl = 'http://localhost:8082/api/notifications';
 
   constructor(private http: HttpClient) {}
 
@@ -62,7 +68,7 @@ export class EventService {
   // GET events by location
   getEventsByLocation(location: string): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getByLocation`, {
-      params: { location }
+      params: { lieu: location }
     });
   }
 
@@ -137,6 +143,30 @@ export class EventService {
     return this.http.put<EventResponseDTO>(`${this.eventsBaseUrl}/updateEvent/${id}`, event);
   }
 
+  publishEvent(id: number): Observable<EventResponseDTO> {
+    return this.http.put<EventResponseDTO>(`${this.eventsBaseUrl}/${id}/publish`, {});
+  }
+
+  unpublishEvent(id: number): Observable<EventResponseDTO> {
+    return this.http.put<EventResponseDTO>(`${this.eventsBaseUrl}/${id}/unpublish`, {});
+  }
+
+  duplicateEvent(id: number, payload: EventDuplicateRequestDTO): Observable<EventResponseDTO[]> {
+    return this.http.post<EventResponseDTO[]>(`${this.eventsBaseUrl}/${id}/duplicate`, payload);
+  }
+
+  getFavoriteEvents(): Observable<EventResponseDTO[]> {
+    return this.http.get<EventResponseDTO[]>(`${this.eventsBaseUrl}/favorites/me`);
+  }
+
+  addFavorite(eventId: number): Observable<void> {
+    return this.http.post<void>(`${this.eventsBaseUrl}/${eventId}/favorite`, {});
+  }
+
+  removeFavorite(eventId: number): Observable<void> {
+    return this.http.delete<void>(`${this.eventsBaseUrl}/${eventId}/favorite`);
+  }
+
   // PUT start event
   startEvent(id: number): Observable<void> {
     return this.http.put<void>(`${this.eventsBaseUrl}/startEvent/${id}`, {});
@@ -179,6 +209,10 @@ export class EventService {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/getByUser/${userId}`);
   }
 
+  getMyReservations(): Observable<EventReservation[]> {
+    return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/me`);
+  }
+
   // GET event reservations
   getEventReservations(eventId: number): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/getByEvent/${eventId}`);
@@ -191,6 +225,26 @@ export class EventService {
 
   getMyReservationStats(): Observable<UserReservationStatsDTO> {
     return this.http.get<UserReservationStatsDTO>(`${this.reservationsBaseUrl}/me/stats`);
+  }
+
+  getPublicPromotions(): Observable<PromotionOfferResponseDTO[]> {
+    return this.http.get<PromotionOfferResponseDTO[]>(`${this.eventsBaseUrl}/promotions/active`);
+  }
+
+  previewReservationPricing(
+    eventId: number,
+    numberOfParticipants: number,
+    promoCode?: string
+  ): Observable<PromotionPreviewDTO> {
+    let params = new HttpParams()
+      .set('eventId', eventId)
+      .set('numberOfParticipants', numberOfParticipants);
+
+    if (promoCode?.trim()) {
+      params = params.set('promoCode', promoCode.trim());
+    }
+
+    return this.http.get<PromotionPreviewDTO>(`${this.eventsBaseUrl}/pricing/preview`, { params });
   }
 
   // GET pending reservations
@@ -292,6 +346,28 @@ export class EventService {
     return this.http.get(`${this.reservationsBaseUrl}/${reservationId}/receipt`, {
       responseType: 'blob'
     });
+  }
+
+  downloadReservationCalendarInvite(reservationId: number): Observable<Blob> {
+    return this.http.get(`${this.reservationsBaseUrl}/${reservationId}/calendar.ics`, {
+      responseType: 'blob'
+    });
+  }
+
+  getMyNotifications(): Observable<UserNotificationResponseDTO[]> {
+    return this.http.get<UserNotificationResponseDTO[]>(`${this.notificationsBaseUrl}/me`);
+  }
+
+  getMyUnreadNotificationCount(): Observable<{ unreadCount: number }> {
+    return this.http.get<{ unreadCount: number }>(`${this.notificationsBaseUrl}/me/unread-count`);
+  }
+
+  markNotificationAsRead(notificationId: number): Observable<UserNotificationResponseDTO> {
+    return this.http.put<UserNotificationResponseDTO>(`${this.notificationsBaseUrl}/${notificationId}/read`, {});
+  }
+
+  markAllNotificationsAsRead(): Observable<void> {
+    return this.http.put<void>(`${this.notificationsBaseUrl}/me/read-all`, {});
   }
 
   // PUT process waitlist
@@ -409,16 +485,16 @@ export class EventService {
 
     const normalizedUrl = trimmedUrl.replace(/\\/g, '/');
     if (normalizedUrl.startsWith('/api/')) {
-      return `http://localhost:8080${normalizedUrl}`;
+      return `http://localhost:8082${normalizedUrl}`;
     }
     if (normalizedUrl.startsWith('api/')) {
-      return `http://localhost:8080/${normalizedUrl}`;
+      return `http://localhost:8082/${normalizedUrl}`;
     }
     if (normalizedUrl.startsWith('/events/')) {
-      return `http://localhost:8080/api${normalizedUrl}`;
+      return `http://localhost:8082/api${normalizedUrl}`;
     }
     if (normalizedUrl.startsWith('events/')) {
-      return `http://localhost:8080/api/${normalizedUrl}`;
+      return `http://localhost:8082/api/${normalizedUrl}`;
     }
 
     return normalizedUrl;

@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
-import { Event } from '../../../public/events/models/event.model';
+import { Event, EventDuplicateRequestDTO, RecurrenceFrequency } from '../../../public/events/models/event.model';
 import { EventService } from '../../../public/events/services/event.service';
 
 @Component({
   selector: 'app-event-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, AdminIconComponent],
+  imports: [CommonModule, FormsModule, RouterModule, AdminIconComponent],
   templateUrl: './event-list.component.html',
   styleUrl: './event-list.component.css'
 })
@@ -18,7 +19,14 @@ export class EventListComponent implements OnInit {
   paginatedEvents: Event[] = [];
   isLoading = false;
   errorMessage = '';
+  successMessage = '';
   deleteConfirmId: number | null = null;
+  publishActionEventId: number | null = null;
+  duplicateDialogEvent: Event | null = null;
+  duplicateFrequency: RecurrenceFrequency = 'WEEKLY';
+  duplicateOccurrences = 4;
+  publishCopies = false;
+  isDuplicating = false;
   currentPage = 1;
   pageSize = 8;
   totalPages = 1;
@@ -62,11 +70,85 @@ export class EventListComponent implements OnInit {
       next: () => {
         this.events = this.events.filter(e => e.id !== id);
         this.deleteConfirmId = null;
+        this.successMessage = 'Event deleted successfully.';
         this.updatePagination();
       },
       error: (error: any) => {
         this.errorMessage = 'Failed to delete event.';
         console.error('Error deleting event:', error);
+      }
+    });
+  }
+
+  togglePublication(event: Event): void {
+    if (!event.id || this.publishActionEventId !== null) {
+      return;
+    }
+
+    this.publishActionEventId = event.id;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const request$ = event.published === false
+      ? this.eventService.publishEvent(event.id)
+      : this.eventService.unpublishEvent(event.id);
+
+    request$.subscribe({
+      next: (updatedEvent) => {
+        this.publishActionEventId = null;
+        this.applyUpdatedEvent(updatedEvent);
+        this.successMessage = updatedEvent.published === false
+          ? 'Event moved back to draft.'
+          : 'Event published successfully.';
+      },
+      error: (error: any) => {
+        this.publishActionEventId = null;
+        this.errorMessage = error?.error?.message || 'Failed to update event visibility.';
+        console.error('Error updating event visibility:', error);
+      }
+    });
+  }
+
+  openDuplicateDialog(event: Event): void {
+    this.duplicateDialogEvent = event;
+    this.duplicateFrequency = 'WEEKLY';
+    this.duplicateOccurrences = 4;
+    this.publishCopies = event.published !== false;
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  closeDuplicateDialog(): void {
+    this.duplicateDialogEvent = null;
+    this.isDuplicating = false;
+  }
+
+  submitDuplicate(): void {
+    if (!this.duplicateDialogEvent?.id || this.isDuplicating) {
+      return;
+    }
+
+    const payload: EventDuplicateRequestDTO = {
+      frequency: this.duplicateFrequency,
+      occurrences: Math.max(1, Math.min(24, this.duplicateOccurrences)),
+      publishCopies: this.publishCopies
+    };
+
+    this.isDuplicating = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.eventService.duplicateEvent(this.duplicateDialogEvent.id, payload).subscribe({
+      next: (createdEvents) => {
+        this.isDuplicating = false;
+        this.closeDuplicateDialog();
+        this.successMessage = `${createdEvents.length} recurring ${createdEvents.length === 1 ? 'copy' : 'copies'} created.`;
+        this.loadEvents();
+      },
+      error: (error: any) => {
+        this.isDuplicating = false;
+        this.errorMessage = error?.error?.message || 'Failed to create recurring event copies.';
+        console.error('Error duplicating event:', error);
       }
     });
   }
@@ -110,6 +192,22 @@ export class EventListComponent implements OnInit {
     };
 
     return labels[category] || category;
+  }
+
+  getVisibilityLabel(event: Event): string {
+    return event.published === false ? 'Draft' : 'Published';
+  }
+
+  getRecurrenceLabel(frequency?: RecurrenceFrequency): string {
+    switch (frequency) {
+      case 'MONTHLY':
+        return 'Monthly copy';
+      case 'YEARLY':
+        return 'Yearly copy';
+      case 'WEEKLY':
+      default:
+        return 'Weekly copy';
+    }
   }
 
   get paginationStart(): number {
@@ -157,6 +255,15 @@ export class EventListComponent implements OnInit {
     }
 
     this.currentPage = page;
+    this.updatePagination();
+  }
+
+  private applyUpdatedEvent(updatedEvent: Event): void {
+    this.events = this.events
+      .map((event) => event.id === updatedEvent.id ? updatedEvent : event)
+      .sort((a: Event, b: Event) =>
+        new Date(b.dateCreation || 0).getTime() - new Date(a.dateCreation || 0).getTime()
+      );
     this.updatePagination();
   }
 

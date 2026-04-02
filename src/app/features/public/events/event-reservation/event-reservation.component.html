@@ -202,6 +202,61 @@
             <span>{{ remarks.length }}/500</span>
           </div>
         </section>
+
+        <section class="section-card">
+          <div class="section-heading">
+            <div>
+              <span class="section-kicker">Promo Codes</span>
+              <h3>Campaign and group discounts</h3>
+            </div>
+          </div>
+
+          <div class="promo-entry">
+            <label class="remarks-label" for="reservation-promo-code">Promo code</label>
+            <div class="promo-input-row">
+              <input
+                id="reservation-promo-code"
+                [(ngModel)]="promoCodeInput"
+                placeholder="Enter a code like CAMP15"
+                class="promo-input"
+                maxlength="64"
+                type="text">
+
+              <button class="confirm-btn primary promo-btn" (click)="applyPromoCode()" type="button">
+                <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+                <span>Apply</span>
+              </button>
+
+              <button
+                *ngIf="hasPromoCodeValue()"
+                class="confirm-btn secondary promo-btn"
+                (click)="clearPromoCode()"
+                type="button">
+                <app-admin-icon name="close" [size]="16"></app-admin-icon>
+                <span>Clear</span>
+              </button>
+            </div>
+
+            <p *ngIf="getPromoFeedbackText()" [class]="getPromoFeedbackClass()">
+              {{ getPromoFeedbackText() }}
+            </p>
+          </div>
+
+          <div *ngIf="availablePromotions.length > 0" class="offer-grid">
+            <article *ngFor="let promotion of availablePromotions" class="offer-card">
+              <div class="offer-pill-row">
+                <span class="offer-pill">{{ getPromotionPillLabel(promotion) }}</span>
+                <span class="offer-value">
+                  {{ promotion.discountType === 'PERCENTAGE'
+                    ? (promotion.discountValue + '% off')
+                    : ((promotion.discountValue | currency:'USD':'code':'1.0-2') + ' off') }}
+                </span>
+              </div>
+              <h4>{{ promotion.name }}</h4>
+              <p>{{ promotion.description || getPromotionSupportCopy(promotion) }}</p>
+            </article>
+          </div>
+        </section>
       </div>
 
       <aside class="reservation-side">
@@ -213,7 +268,7 @@
 
           <div class="summary-total">
             <span>Total Amount</span>
-            <strong>{{ (totalPrice || getTotalPrice()) | currency:'USD':'code':'1.0-2' }}</strong>
+            <strong>{{ getFinalTotal() | currency:'USD':'code':'1.0-2' }}</strong>
           </div>
 
           <div class="summary-breakdown">
@@ -224,6 +279,14 @@
             <div class="summary-row">
               <span>Guests</span>
               <strong>{{ numberOfParticipants }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Base subtotal</span>
+              <strong>{{ getBasePriceTotal() | currency:'USD':'code':'1.0-2' }}</strong>
+            </div>
+            <div class="summary-row discount" *ngIf="hasDiscountApplied()">
+              <span>Discount</span>
+              <strong>-{{ getDiscountAmount() | currency:'USD':'code':'1.0-2' }}</strong>
             </div>
             <div class="summary-row muted">
               <span>Status</span>

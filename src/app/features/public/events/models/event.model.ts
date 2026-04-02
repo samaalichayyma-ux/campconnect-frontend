@@ -27,6 +27,8 @@ export type EventCategory =
   | 'ADVENTURE'
   | 'EDUCATIONAL';
 
+export type RecurrenceFrequency = 'WEEKLY' | 'MONTHLY' | 'YEARLY';
+
 export interface EventRequestDTO {
   titre: string;
   description: string;
@@ -42,6 +44,7 @@ export interface EventRequestDTO {
   reservationApprovalRequired?: boolean;
   prix: number;
   dureeMinutes: number;
+  published?: boolean;
   bannerImage?: string;
   thumbnailImage?: string;
   galleryImages?: string;
@@ -62,6 +65,14 @@ export type PaymentStatus =
   | 'PARTIALLY_REFUNDED'
   | 'FAILED'
   | 'REFUNDED';
+
+export type PromotionDiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
+
+export type NotificationType =
+  | 'BOOKING_CONFIRMED'
+  | 'WAITLIST_JOINED'
+  | 'WAITLIST_PROMOTED'
+  | 'REFUND_PROCESSED';
 
 export type CancellationPolicyTier =
   | 'FREE_CANCEL'
@@ -89,6 +100,10 @@ export interface EventResponseDTO {
   reservationApprovalRequired?: boolean;
   prix: number;
   dureeMinutes: number;
+  published?: boolean;
+  publishedAt?: string;
+  sourceEventId?: number;
+  recurrenceFrequency?: RecurrenceFrequency;
   bannerImage?: string;
   thumbnailImage?: string;
   galleryImages?: string;
@@ -104,9 +119,16 @@ export interface EventResponseDTO {
   isFullyBooked: boolean;
   isAlmostFull?: boolean;
   occupancyRate?: number;
+  favoriteCount?: number;
   dateCreation: string;
   dateModification: string;
   images?: EventImageDTO[]; // Event images gallery
+}
+
+export interface EventDuplicateRequestDTO {
+  frequency: RecurrenceFrequency;
+  occurrences: number;
+  publishCopies?: boolean;
 }
 
 export interface ReservationCancellationPolicyDTO {
@@ -134,6 +156,7 @@ export interface ReservationRequestDTO {
   eventId: number;
   nombreParticipants: number;
   remarques?: string;
+  promoCode?: string;
 }
 
 export interface ReservationResponseDTO {
@@ -148,6 +171,11 @@ export interface ReservationResponseDTO {
   eventLieu: string;
   statut: ReservationStatus;
   nombreParticipants: number;
+  basePriceTotal?: number;
+  discountAmount?: number;
+  promoCode?: string;
+  discountLabel?: string;
+  discountAutoApplied?: boolean;
   prixTotal: number;
   estEnAttente: boolean;
   statutPaiement: PaymentStatus;
@@ -168,6 +196,10 @@ export interface ReservationResponseDTO {
   cancellationReason?: string;
   receiptAvailable?: boolean;
   cancellationPolicy?: ReservationCancellationPolicyDTO;
+  calendarExportAvailable?: boolean;
+  googleCalendarUrl?: string;
+  calendarIcsDownloadUrl?: string;
+  calendarIcsFileName?: string;
 }
 
 export interface StripeCheckoutSessionResponseDTO {
@@ -187,6 +219,58 @@ export interface UserReservationStatsDTO {
   favoriteEventCategory: string;
   billedReservations: number;
   waitlistReservations: number;
+}
+
+export interface PromotionOfferResponseDTO {
+  id: number;
+  name: string;
+  code?: string;
+  description?: string;
+  discountType: PromotionDiscountType;
+  discountValue: number;
+  minimumSubtotal?: number;
+  minimumParticipants?: number;
+  autoApply: boolean;
+  discoverable: boolean;
+  active: boolean;
+  currentlyAvailable: boolean;
+  maxRedemptions?: number;
+  usageCount?: number;
+  remainingRedemptions?: number;
+  startsAt?: string;
+  endsAt?: string;
+  dateCreation?: string;
+  dateModification?: string;
+}
+
+export interface PromotionPreviewDTO {
+  eventId: number;
+  numberOfParticipants: number;
+  unitPrice: number;
+  basePriceTotal: number;
+  discountAmount: number;
+  totalPrice: number;
+  discountApplied: boolean;
+  autoApplied: boolean;
+  invalidPromoCode: boolean;
+  promoCode?: string;
+  promotionName?: string;
+  discountLabel?: string;
+  validationMessage?: string;
+}
+
+export interface UserNotificationResponseDTO {
+  id: number;
+  type: NotificationType;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+  readAt?: string;
+  reservationId?: number;
+  eventId?: number;
+  actionLabel?: string;
+  actionUrl?: string;
 }
 
 // ===== Backward Compatibility Aliases =====

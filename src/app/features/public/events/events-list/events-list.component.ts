@@ -1,7 +1,7 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -15,8 +15,9 @@ import { EventService } from '../services/event.service';
   templateUrl: './events-list.component.html',
   styleUrl: './events-list.component.css'
 })
-export class EventsListComponent implements OnInit {
+export class EventsListComponent implements OnInit, OnDestroy {
   readonly fallbackImageUrl = 'assets/images/default-image.jpg';
+  private readonly successMessageDurationMs = 5 * 1000;
 
   allEvents: EventResponseDTO[] = [];
   filteredEvents: EventResponseDTO[] = [];
@@ -26,6 +27,7 @@ export class EventsListComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   noResultsMessage = '';
+  showFavoritesOnly = false;
 
   searchQuery = '';
   selectedCategory = 'all';
@@ -63,7 +65,10 @@ export class EventsListComponent implements OnInit {
   isFilterSpotlightVisible = false;
   viewMode: 'grid' | 'list' = 'grid';
   isMobileView = false;
+  favoriteEventIds = new Set<number>();
+  favoriteActionEventIds = new Set<number>();
   private filterSpotlightTimeoutId: number | null = null;
+  private successMessageTimeoutId: number | null = null;
 
   get pageSize(): number {
     return this.viewMode === 'list' ? this.compactPageSize : this.gridPageSize;
@@ -71,6 +76,7 @@ export class EventsListComponent implements OnInit {
 
   constructor(
     private eventService: EventService,
+    private route: ActivatedRoute,
     private router: Router,
     public authService: AuthService
   ) {}
@@ -81,8 +87,17 @@ export class EventsListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.showFavoritesOnly = ['1', 'true'].includes(this.route.snapshot.queryParamMap.get('saved') ?? '');
+    this.searchQuery = this.route.snapshot.queryParamMap.get('search') ?? '';
     this.checkMobileView();
+    if (this.authService.isLoggedIn()) {
+      this.loadFavoriteEvents();
+    }
     this.loadEvents();
+  }
+
+  ngOnDestroy(): void {
+    this.clearSuccessMessageTimeout();
   }
 
   loadEvents(): void {
@@ -93,6 +108,10 @@ export class EventsListComponent implements OnInit {
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
         this.allEvents = data;
+        if (this.searchQuery.trim()) {
+          this.searchEvents();
+          return;
+        }
         this.applyFilters();
         this.isLoading = false;
       },
@@ -111,7 +130,7 @@ export class EventsListComponent implements OnInit {
 
   searchEvents(): void {
     if (!this.searchQuery.trim()) {
-      this.applyFilters();
+      this.loadEvents();
       return;
     }
 
@@ -170,14 +189,27 @@ export class EventsListComponent implements OnInit {
       filtered = filtered.filter((event) => new Date(event.dateFin) <= endDate);
     }
 
+    if (this.showFavoritesOnly) {
+      filtered = filtered.filter((event) => this.favoriteEventIds.has(event.id));
+    }
+
     this.sortEvents(filtered);
 
     this.filteredEvents = filtered;
     this.refreshPagination(true);
 
-    this.noResultsMessage = filtered.length === 0
-      ? 'No events found matching your criteria.'
-      : '';
+    if (filtered.length === 0) {
+      if (this.showFavoritesOnly && this.favoriteEventIds.size === 0) {
+        this.noResultsMessage = 'You have not saved any events yet.';
+      } else if (this.showFavoritesOnly) {
+        this.noResultsMessage = 'No saved events match your current filters.';
+      } else {
+        this.noResultsMessage = 'No events found matching your criteria.';
+      }
+      return;
+    }
+
+    this.noResultsMessage = '';
   }
 
   sortEvents(events: EventResponseDTO[]): void {
@@ -224,11 +256,14 @@ export class EventsListComponent implements OnInit {
   }
 
   viewEventDetails(eventId: number): void {
-    this.router.navigate(['/public/events', eventId]);
+    this.router.navigate(['/public/events', eventId], {
+      queryParams: this.showFavoritesOnly ? { saved: '1' } : undefined
+    });
   }
 
   resetFilters(): void {
     this.searchQuery = '';
+    this.showFavoritesOnly = false;
     this.selectedCategory = 'all';
     this.selectedStatus = 'all';
     this.selectedLocation = '';
@@ -237,6 +272,65 @@ export class EventsListComponent implements OnInit {
     this.sortBy = 'recent';
     this.currentPage = 1;
     this.applyFilters();
+  }
+
+  toggleFavoritesOnly(): void {
+    if (!this.authService.isLoggedIn()) {
+      this.authService.setReturnUrl(this.router.url);
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.showFavoritesOnly = !this.showFavoritesOnly;
+    this.currentPage = 1;
+    this.applyFilters();
+  }
+
+  isFavorite(eventId: number): boolean {
+    return this.favoriteEventIds.has(eventId);
+  }
+
+  isFavoriteActionPending(eventId: number): boolean {
+    return this.favoriteActionEventIds.has(eventId);
+  }
+
+  toggleFavorite(eventId: number, domEvent: globalThis.Event): void {
+    domEvent.stopPropagation();
+
+    if (!this.authService.isLoggedIn()) {
+      this.authService.setReturnUrl(this.router.url);
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    if (this.favoriteActionEventIds.has(eventId)) {
+      return;
+    }
+
+    this.favoriteActionEventIds.add(eventId);
+    const request$ = this.isFavorite(eventId)
+      ? this.eventService.removeFavorite(eventId)
+      : this.eventService.addFavorite(eventId);
+
+    request$.subscribe({
+      next: () => {
+        if (this.favoriteEventIds.has(eventId)) {
+          this.favoriteEventIds.delete(eventId);
+          this.showSuccessMessage('Event removed from your saved list.');
+        } else {
+          this.favoriteEventIds.add(eventId);
+          this.showSuccessMessage('Event saved to your favorites.');
+        }
+
+        this.favoriteActionEventIds.delete(eventId);
+        this.applyFilters();
+      },
+      error: (error) => {
+        this.favoriteActionEventIds.delete(eventId);
+        this.errorMessage = 'Could not update favorites right now.';
+        console.error('Error updating favorites:', error);
+      }
+    });
   }
 
   formatDate(date: string): string {
@@ -458,5 +552,38 @@ export class EventsListComponent implements OnInit {
     this.totalPages = Math.max(1, Math.ceil(this.filteredEvents.length / this.pageSize));
     this.currentPage = resetToFirstPage ? 1 : Math.min(this.currentPage, this.totalPages);
     this.updatePaginatedEvents();
+  }
+
+  private loadFavoriteEvents(): void {
+    this.eventService.getFavoriteEvents().subscribe({
+      next: (favorites) => {
+        this.favoriteEventIds = new Set(favorites.map((event) => event.id));
+        this.applyFilters();
+      },
+      error: (error) => {
+        console.error('Error loading favorite events:', error);
+      }
+    });
+  }
+
+  clearSuccessMessage(): void {
+    this.successMessage = '';
+    this.clearSuccessMessageTimeout();
+  }
+
+  private showSuccessMessage(message: string): void {
+    this.successMessage = message;
+    this.clearSuccessMessageTimeout();
+    this.successMessageTimeoutId = window.setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimeoutId = null;
+    }, this.successMessageDurationMs);
+  }
+
+  private clearSuccessMessageTimeout(): void {
+    if (this.successMessageTimeoutId !== null) {
+      window.clearTimeout(this.successMessageTimeoutId);
+      this.successMessageTimeoutId = null;
+    }
   }
 }

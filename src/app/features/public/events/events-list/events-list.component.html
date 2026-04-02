@@ -17,6 +17,11 @@
             <span>My Reservations</span>
           </a>
 
+          <button class="hero-quick-btn secondary" (click)="toggleFavoritesOnly()" type="button">
+            <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+            <span>{{ showFavoritesOnly ? 'All Events' : 'Saved Events' }}</span>
+          </button>
+
           <button class="hero-quick-btn ghost" (click)="toggleFilters()" type="button">
             <app-admin-icon name="filter" [size]="16"></app-admin-icon>
             <span>Browse With Filters</span>
@@ -195,15 +200,19 @@
         </select>
       </div>
 
-      <div class="filter-stats">
-        <div class="stat">
-          <span class="stat-label">Results</span>
-          <span class="stat-value">{{ filteredEvents.length }}</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Average Price</span>
-          <span class="stat-value">${{ getAveragePrice() }}</span>
-        </div>
+        <div class="filter-stats">
+          <div class="stat">
+            <span class="stat-label">Results</span>
+            <span class="stat-value">{{ filteredEvents.length }}</span>
+          </div>
+          <div *ngIf="authService.isLoggedIn()" class="stat">
+            <span class="stat-label">Saved</span>
+            <span class="stat-value">{{ favoriteEventIds.size }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Average Price</span>
+            <span class="stat-value">${{ getAveragePrice() }}</span>
+          </div>
       </div>
     </aside>
 
@@ -216,8 +225,10 @@
           </button>
 
           <div class="header-info">
-            <h2 class="section-title">Available Events</h2>
-            <span class="results-count">{{ filteredEvents.length }} amazing experiences</span>
+            <h2 class="section-title">{{ showFavoritesOnly ? 'Saved Events' : 'Available Events' }}</h2>
+            <span class="results-count">
+              {{ filteredEvents.length }} {{ showFavoritesOnly ? 'saved picks' : 'amazing experiences' }}
+            </span>
           </div>
         </div>
 
@@ -261,7 +272,7 @@
         <div class="message-content">
           {{ successMessage }}
         </div>
-        <button class="message-close" (click)="successMessage = ''" type="button" aria-label="Close message">
+        <button class="message-close" (click)="clearSuccessMessage()" type="button" aria-label="Close message">
           <app-admin-icon name="close" [size]="16"></app-admin-icon>
         </button>
       </div>
@@ -308,7 +319,14 @@
           <div class="event-content">
             <div class="event-header">
               <h3 class="event-title" [title]="event.titre">{{ event.titre }}</h3>
-              <button class="heart-btn" [class.liked]="false" title="Save to favorites" type="button">
+              <button
+                *ngIf="authService.isLoggedIn()"
+                class="heart-btn"
+                [class.liked]="isFavorite(event.id)"
+                [disabled]="isFavoriteActionPending(event.id)"
+                [title]="isFavorite(event.id) ? 'Remove from favorites' : 'Save to favorites'"
+                (click)="toggleFavorite(event.id, $event)"
+                type="button">
                 <app-admin-icon name="heart" [size]="16"></app-admin-icon>
               </button>
             </div>
@@ -397,10 +415,21 @@
           <div class="list-item-content">
             <div class="list-item-header">
               <h3 class="list-item-title">{{ event.titre }}</h3>
-              <span class="list-category-tag">
-                <app-admin-icon [name]="getCategoryIcon(event.categorie)" [size]="13"></app-admin-icon>
-                <span>{{ getCategoryLabel(event.categorie) }}</span>
-              </span>
+              <div class="list-header-actions">
+                <span class="list-category-tag">
+                  <app-admin-icon [name]="getCategoryIcon(event.categorie)" [size]="13"></app-admin-icon>
+                  <span>{{ getCategoryLabel(event.categorie) }}</span>
+                </span>
+                <button
+                  *ngIf="authService.isLoggedIn()"
+                  class="list-favorite-btn"
+                  [class.liked]="isFavorite(event.id)"
+                  [disabled]="isFavoriteActionPending(event.id)"
+                  (click)="toggleFavorite(event.id, $event)"
+                  type="button">
+                  <app-admin-icon name="heart" [size]="15"></app-admin-icon>
+                </button>
+              </div>
             </div>
 
             <p class="list-item-description">{{ event.description }}</p>

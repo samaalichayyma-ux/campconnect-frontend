@@ -73,6 +73,16 @@
           </div>
         </div>
 
+        <div class="stat-card">
+          <span class="stat-icon soft-blue">
+            <app-admin-icon name="sparkles" [size]="18"></app-admin-icon>
+          </span>
+          <div>
+            <span class="stat-label">Unread Alerts</span>
+            <strong>{{ getUnreadNotificationsCount() }}</strong>
+          </div>
+        </div>
+
         <div class="stat-card stat-card-wide">
           <span class="stat-icon shell-dark">
             <app-admin-icon name="wallet" [size]="18"></app-admin-icon>
@@ -153,6 +163,94 @@
             <span class="metric-kicker">Waitlist Requests</span>
             <strong>{{ getWaitlistReservationsCount() }}</strong>
             <span class="metric-copy">Requests still waiting for an open seat</span>
+          </article>
+        </div>
+      </section>
+
+      <section *ngIf="activeDashboardSection === 'notification-center'" class="notification-center-card">
+        <div class="toolbar-copy">
+          <span class="section-kicker">Notification Center</span>
+          <h2>Keep confirmation, waitlist, and refund updates in one feed.</h2>
+          <p>Every reservation milestone lands here so you can jump straight back to the booking that changed.</p>
+        </div>
+
+        <div class="notification-toolbar">
+          <div class="billing-metric">
+            <span class="metric-kicker">Unread</span>
+            <strong>{{ getUnreadNotificationsCount() }}</strong>
+            <span>Alerts still needing a glance</span>
+          </div>
+
+          <div class="toolbar-actions">
+            <button class="toolbar-btn secondary" (click)="refreshNotifications()" type="button">
+              Refresh Alerts
+            </button>
+
+            <button
+              class="toolbar-btn primary"
+              (click)="markAllNotificationsAsRead()"
+              [disabled]="getUnreadNotificationsCount() === 0"
+              type="button">
+              Mark All Read
+            </button>
+          </div>
+        </div>
+
+        <section *ngIf="isLoadingNotifications" class="state-card empty-card compact-state">
+          <span class="state-icon soft-blue">
+            <app-admin-icon name="clock" [size]="22"></app-admin-icon>
+          </span>
+          <h2>Loading notifications.</h2>
+          <p>CampConnect is checking for the latest reservation updates.</p>
+        </section>
+
+        <section *ngIf="!isLoadingNotifications && notifications.length === 0" class="state-card empty-card compact-state">
+          <span class="state-icon soft-green">
+            <app-admin-icon name="check" [size]="22"></app-admin-icon>
+          </span>
+          <h2>No notifications yet.</h2>
+          <p>Your confirmations, waitlist promotions, and refund updates will appear here automatically.</p>
+        </section>
+
+        <div *ngIf="!isLoadingNotifications && notifications.length > 0" class="notifications-stack">
+          <article
+            *ngFor="let notification of notifications"
+            class="notification-card"
+            [class.notification-unread]="!notification.read"
+            [ngClass]="getNotificationClass(notification)">
+            <span class="notification-icon-shell">
+              <app-admin-icon [name]="getNotificationIcon(notification)" [size]="18"></app-admin-icon>
+            </span>
+
+            <div class="notification-copy">
+              <div class="reservation-overline">
+                <span>{{ formatStatusLabel(notification.type) }}</span>
+                <span>{{ formatDate(notification.createdAt) }} - {{ formatTime(notification.createdAt) }}</span>
+              </div>
+              <h3>{{ notification.title }}</h3>
+              <p>{{ notification.message }}</p>
+            </div>
+
+            <div class="action-row notification-actions">
+              <button
+                *ngIf="notification.reservationId || notification.eventId"
+                class="action-btn secondary"
+                (click)="openNotification(notification)"
+                type="button">
+                <app-admin-icon name="eye" [size]="15"></app-admin-icon>
+                <span>{{ notification.actionLabel || 'Open' }}</span>
+              </button>
+
+              <button
+                *ngIf="!notification.read"
+                class="action-btn primary"
+                (click)="markNotificationAsRead(notification)"
+                [disabled]="markingNotificationId === notification.id"
+                type="button">
+                <app-admin-icon name="check" [size]="15"></app-admin-icon>
+                <span>{{ markingNotificationId === notification.id ? 'Saving...' : 'Mark Read' }}</span>
+              </button>
+            </div>
           </article>
         </div>
       </section>
@@ -427,6 +525,16 @@
             <p>{{ reservation.remarques }}</p>
           </div>
 
+          <div *ngIf="hasReservationDiscount(reservation)" class="discount-note">
+            <span class="waitlist-icon">
+              <app-admin-icon name="sparkles" [size]="18"></app-admin-icon>
+            </span>
+            <div>
+              <p class="waitlist-title">{{ reservation.discountLabel || 'Discount applied' }}</p>
+              <p class="waitlist-copy">{{ getReservationDiscountCopy(reservation) }}</p>
+            </div>
+          </div>
+
           <div *ngIf="reservation.estEnAttente" class="waitlist-note">
             <span class="waitlist-icon">
               <app-admin-icon name="warning" [size]="18"></app-admin-icon>
@@ -501,6 +609,16 @@
                 <app-admin-icon name="download" [size]="15"></app-admin-icon>
                 <span>{{ downloadingReceiptReservationId === reservation.id ? 'Preparing...' : 'Receipt' }}</span>
               </button>
+
+              <a
+                *ngIf="hasGoogleCalendarLink(reservation)"
+                class="action-btn secondary action-link"
+                [href]="reservation.googleCalendarUrl"
+                target="_blank"
+                rel="noopener">
+                <app-admin-icon name="calendar" [size]="15"></app-admin-icon>
+                <span>Add to Google</span>
+              </a>
 
               <button
                 *ngIf="canPay(reservation)"

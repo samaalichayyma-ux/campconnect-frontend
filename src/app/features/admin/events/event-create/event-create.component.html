@@ -171,6 +171,24 @@
                 </div>
               </label>
             </div>
+
+            <div class="policy-card full-span">
+              <div class="policy-header">
+                <h4>Visibility</h4>
+                <p>Keep the event as a draft until the team is ready to show it on the public events pages.</p>
+              </div>
+
+              <label class="policy-toggle" for="published">
+                <input
+                  type="checkbox"
+                  id="published"
+                  formControlName="published" />
+                <div class="policy-copy">
+                  <strong>Publish this event right away</strong>
+                  <span>When this is off, the event stays in the admin list as a draft and is hidden from public event browsing.</span>
+                </div>
+              </label>
+            </div>
           </div>
         </section>
 
@@ -345,6 +363,10 @@
           <div class="summary-row">
             <span>Reservation flow</span>
             <strong>{{ reservationApprovalSummary }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Visibility</span>
+            <strong>{{ publicationSummary }}</strong>
           </div>
         </section>
       </aside>

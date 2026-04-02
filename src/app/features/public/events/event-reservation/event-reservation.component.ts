@@ -5,7 +5,13 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { EventResponseDTO, ReservationRequestDTO, ReservationResponseDTO } from '../models/event.model';
+import {
+  EventResponseDTO,
+  PromotionOfferResponseDTO,
+  PromotionPreviewDTO,
+  ReservationRequestDTO,
+  ReservationResponseDTO
+} from '../models/event.model';
 import { EventService } from '../services/event.service';
 
 @Component({
@@ -36,9 +42,13 @@ export class EventReservationComponent implements OnInit {
   numberOfParticipants = 1;
   remarks = '';
   totalPrice = 0;
+  promoCodeInput = '';
+  promoFeedbackMessage = '';
+  pricingPreview: PromotionPreviewDTO | null = null;
+  availablePromotions: PromotionOfferResponseDTO[] = [];
+  isLoadingPricing = false;
 
   isLoggedIn = false;
-  currentUserId: number | null = null;
 
   constructor(
     private eventService: EventService,
@@ -52,6 +62,7 @@ export class EventReservationComponent implements OnInit {
     const eventId = this.route.snapshot.paramMap.get('id');
     const parsedEventId = eventId ? Number.parseInt(eventId, 10) : Number.NaN;
     const preferredParticipants = this.getInitialParticipants();
+    this.promoCodeInput = (this.route.snapshot.queryParamMap.get('promoCode') || '').trim().toUpperCase();
 
     if (!Number.isFinite(parsedEventId) || parsedEventId <= 0) {
       this.errorMessage = 'This reservation page could not find a valid event. Please go back and try again.';
@@ -63,19 +74,8 @@ export class EventReservationComponent implements OnInit {
 
   checkAuth(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
-    console.log('Auth check - isLoggedIn:', this.isLoggedIn);
-
-    if (this.isLoggedIn) {
-      this.currentUserId = this.authService.getUserId();
-      console.log('User ID from auth service:', this.currentUserId);
-
-      if (!this.currentUserId) {
-        console.warn('User ID is missing. User may not have logged in properly.');
-        this.errorMessage = 'Session issue: user ID not found. Please log in again.';
-      }
-    } else {
+    if (!this.isLoggedIn) {
       const currentUrl = this.router.url;
-      console.log('Not logged in, redirecting to login. Return URL:', currentUrl);
       this.authService.setReturnUrl(currentUrl);
       this.router.navigate(['/login']);
     }
@@ -93,6 +93,7 @@ export class EventReservationComponent implements OnInit {
         this.event = data;
         const maxParticipants = Math.max(1, Math.min(data.capaciteMax ?? 1, 100));
         this.numberOfParticipants = Math.max(1, Math.min(preferredParticipants, maxParticipants));
+        this.loadPublicPromotions();
         this.calculatePrice();
         this.isLoading = false;
       },
@@ -109,13 +110,27 @@ export class EventReservationComponent implements OnInit {
       return;
     }
 
-    this.eventService.calculateReservationPrice(this.event.id, this.numberOfParticipants).subscribe({
-      next: (price) => {
-        this.totalPrice = price;
+    this.isLoadingPricing = true;
+
+    this.eventService.previewReservationPricing(
+      this.event.id,
+      this.numberOfParticipants,
+      this.getNormalizedPromoCode() || undefined
+    ).subscribe({
+      next: (preview) => {
+        this.pricingPreview = preview;
+        this.totalPrice = preview.totalPrice;
+        this.promoFeedbackMessage = preview.validationMessage || '';
+        this.isLoadingPricing = false;
       },
       error: (error) => {
         console.error('Error calculating price:', error);
+        this.pricingPreview = null;
         this.totalPrice = this.event!.prix * this.numberOfParticipants;
+        this.promoFeedbackMessage = this.getNormalizedPromoCode()
+          ? this.getBackendMessage(error) || 'We could not validate that promo code right now.'
+          : '';
+        this.isLoadingPricing = false;
       }
     });
   }
@@ -135,14 +150,24 @@ export class EventReservationComponent implements OnInit {
     }
   }
 
+  applyPromoCode(): void {
+    this.promoCodeInput = this.getNormalizedPromoCode();
+    this.calculatePrice();
+  }
+
+  clearPromoCode(): void {
+    this.promoCodeInput = '';
+    this.promoFeedbackMessage = '';
+    this.calculatePrice();
+  }
+
   submitReservation(): void {
     if (!this.event || this.numberOfParticipants <= 0) {
       console.error('Invalid reservation data:', {
         event: this.event?.id || 'missing',
-        userId: this.currentUserId || 'missing',
         participants: this.numberOfParticipants || 'missing'
       });
-      this.errorMessage = 'Invalid reservation data. Please make sure you are logged in.';
+      this.errorMessage = 'Invalid reservation data. Please check the selected event and participant count.';
       return;
     }
 
@@ -151,32 +176,7 @@ export class EventReservationComponent implements OnInit {
     this.successMessage = '';
     this.hasReservationConflict = false;
     this.existingReservationConflict = null;
-
-    this.authService.fetchCurrentUser().subscribe({
-      next: (userInfo: unknown) => {
-        const resolvedUserId = this.extractUserId(userInfo) || this.currentUserId;
-        if (!resolvedUserId) {
-          this.isSubmitting = false;
-          this.errorMessage = 'Session issue: user ID not found. Please log in again.';
-          return;
-        }
-
-        this.currentUserId = resolvedUserId;
-        this.authService.saveUserId(resolvedUserId);
-        this.checkExistingReservationConflictBeforeSubmit(resolvedUserId);
-      },
-      error: (userError: unknown) => {
-        console.warn('Could not refresh current user before reservation submit:', userError);
-
-        if (!this.currentUserId) {
-          this.isSubmitting = false;
-          this.errorMessage = 'Session issue: user ID not found. Please log in again.';
-          return;
-        }
-
-        this.checkExistingReservationConflictBeforeSubmit(this.currentUserId);
-      }
-    });
+    this.checkExistingReservationConflictBeforeSubmit();
   }
 
   getTotalPrice(): number {
@@ -330,6 +330,70 @@ export class EventReservationComponent implements OnInit {
     });
   }
 
+  getBasePriceTotal(): number {
+    return this.pricingPreview?.basePriceTotal ?? this.getTotalPrice();
+  }
+
+  getDiscountAmount(): number {
+    return this.pricingPreview?.discountAmount ?? 0;
+  }
+
+  getFinalTotal(): number {
+    const previewTotal = this.pricingPreview?.totalPrice;
+    return typeof previewTotal === 'number' ? previewTotal : (this.totalPrice || this.getTotalPrice());
+  }
+
+  hasDiscountApplied(): boolean {
+    return this.getDiscountAmount() > 0;
+  }
+
+  hasPromoCodeValue(): boolean {
+    return Boolean(this.getNormalizedPromoCode());
+  }
+
+  getPromoFeedbackClass(): string {
+    if (this.pricingPreview?.invalidPromoCode) {
+      return 'promo-feedback warning';
+    }
+
+    if (this.hasDiscountApplied()) {
+      return 'promo-feedback success';
+    }
+
+    return 'promo-feedback';
+  }
+
+  getPromoFeedbackText(): string {
+    if (this.promoFeedbackMessage) {
+      return this.promoFeedbackMessage;
+    }
+
+    if (this.pricingPreview?.discountLabel) {
+      return this.pricingPreview.discountLabel;
+    }
+
+    return '';
+  }
+
+  getPromotionPillLabel(promotion: PromotionOfferResponseDTO): string {
+    if (promotion.autoApply) {
+      return 'Auto';
+    }
+
+    return promotion.code?.trim() || 'Code';
+  }
+
+  getPromotionSupportCopy(promotion: PromotionOfferResponseDTO): string {
+    const minimumParticipants = promotion.minimumParticipants
+      ? `${promotion.minimumParticipants}+ guests`
+      : 'any group size';
+    const minimumSubtotal = promotion.minimumSubtotal
+      ? ` from ${this.formatCurrency(promotion.minimumSubtotal)}`
+      : '';
+
+    return `${promotion.name} for ${minimumParticipants}${minimumSubtotal}.`;
+  }
+
   getErrorTitle(): string {
     return this.hasReservationConflict ? 'Reservation already exists' : 'Something went wrong';
   }
@@ -355,6 +419,22 @@ export class EventReservationComponent implements OnInit {
     }
 
     this.goBack();
+  }
+
+  private loadPublicPromotions(): void {
+    this.eventService.getPublicPromotions().subscribe({
+      next: (promotions) => {
+        this.availablePromotions = promotions;
+      },
+      error: (error) => {
+        console.warn('Could not load public promotions:', error);
+        this.availablePromotions = [];
+      }
+    });
+  }
+
+  private getNormalizedPromoCode(): string {
+    return this.promoCodeInput.trim().toUpperCase();
   }
 
   private getBackendMessage(error: unknown): string | null {
@@ -385,7 +465,7 @@ export class EventReservationComponent implements OnInit {
     return 'You already have another active reservation for this event. Cancel it from My Reservations, or finish the existing one first, before creating a new reservation.';
   }
 
-  private createReservationRequest(userId: number): void {
+  private createReservationRequest(): void {
     if (!this.event) {
       this.isSubmitting = false;
       this.errorMessage = 'Event details are unavailable. Please reload the page.';
@@ -393,11 +473,12 @@ export class EventReservationComponent implements OnInit {
     }
 
     const remarks = this.remarks.trim();
+    const promoCode = this.getNormalizedPromoCode();
     const reservationRequest: ReservationRequestDTO = {
-      utilisateurId: userId,
       eventId: this.event.id,
       nombreParticipants: this.numberOfParticipants,
-      ...(remarks ? { remarques: remarks } : {})
+      ...(remarks ? { remarques: remarks } : {}),
+      ...(promoCode ? { promoCode } : {})
     };
 
     console.log('Submitting reservation:', reservationRequest);
@@ -462,7 +543,7 @@ export class EventReservationComponent implements OnInit {
     });
   }
 
-  private checkExistingReservationConflictBeforeSubmit(userId: number): void {
+  private checkExistingReservationConflictBeforeSubmit(): void {
     if (!this.event) {
       this.isSubmitting = false;
       this.errorMessage = 'Event details are unavailable. Please reload the page.';
@@ -470,11 +551,11 @@ export class EventReservationComponent implements OnInit {
       return;
     }
 
-    this.eventService.getUserReservations(userId).subscribe({
+    this.eventService.getMyReservations().subscribe({
       next: (reservations) => {
         const existingReservation = this.findActiveReservationForCurrentEvent(reservations);
         if (!existingReservation) {
-          this.createReservationRequest(userId);
+          this.createReservationRequest();
           return;
         }
 
@@ -485,7 +566,7 @@ export class EventReservationComponent implements OnInit {
       },
       error: (lookupError: unknown) => {
         console.warn('Could not pre-check existing reservations before submit:', lookupError);
-        this.createReservationRequest(userId);
+        this.createReservationRequest();
       }
     });
   }
@@ -535,15 +616,6 @@ export class EventReservationComponent implements OnInit {
     return normalizedMessage.includes('active reservation')
       || (normalizedMessage.includes('already have') && normalizedMessage.includes('event'))
       || normalizedMessage.includes('waitlist entry');
-  }
-
-  private extractUserId(userInfo: unknown): number | null {
-    const candidate = (userInfo as { id?: unknown; utilisateurId?: unknown; userId?: unknown } | null);
-    const rawUserId = candidate?.id ?? candidate?.utilisateurId ?? candidate?.userId;
-    const resolvedUserId = typeof rawUserId === 'string' ? Number(rawUserId) : rawUserId;
-    return typeof resolvedUserId === 'number' && Number.isFinite(resolvedUserId) && resolvedUserId > 0
-      ? resolvedUserId
-      : null;
   }
 
   private formatCurrency(amount: number): string {

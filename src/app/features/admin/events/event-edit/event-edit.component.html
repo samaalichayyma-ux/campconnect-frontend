@@ -175,6 +175,24 @@
                 </div>
               </label>
             </div>
+
+            <div class="policy-card full-span">
+              <div class="policy-header">
+                <h4>Visibility</h4>
+                <p>Control whether this event is public right now or stays as an internal draft.</p>
+              </div>
+
+              <label class="policy-toggle" for="published">
+                <input
+                  type="checkbox"
+                  id="published"
+                  formControlName="published" />
+                <div class="policy-copy">
+                  <strong>Show this event on the public events page</strong>
+                  <span>Turning this off keeps the event in the admin area only, as long as there are no active bookings blocking the draft move.</span>
+                </div>
+              </label>
+            </div>
           </div>
         </section>
 
@@ -397,6 +415,10 @@
           <div class="summary-row">
             <span>Live gallery</span>
             <strong>{{ liveGalleryCount }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Visibility</span>
+            <strong>{{ publicationSummary }}</strong>
           </div>
           <div class="summary-row">
             <span>Queued uploads</span>

@@ -29,7 +29,7 @@
         <app-admin-icon name="check" [size]="20"></app-admin-icon>
       </span>
       <div class="message-copy">
-        <p class="message-title">Reservation updated</p>
+        <p class="message-title">Action complete</p>
         <p class="message-text">{{ successMessage }}</p>
       </div>
     </div>
@@ -42,6 +42,16 @@
           <button (click)="goBack()" class="back-btn" type="button">
             <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
             <span>Back to Events</span>
+          </button>
+
+          <button (click)="toggleFavorite()" class="ghost-btn" type="button" [disabled]="isFavoriteLoading">
+            <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+            <span>{{ isFavorite ? 'Saved' : 'Save Event' }}</span>
+          </button>
+
+          <button *ngIf="isLoggedIn" (click)="goToSavedEvents()" class="ghost-btn" type="button">
+            <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+            <span>Saved Events</span>
           </button>
 
           <button *ngIf="isLoggedIn" (click)="goToMyReservations()" class="ghost-btn" type="button">
@@ -78,6 +88,9 @@
             </span>
             <span *ngIf="event.waitlistCount" class="availability-pill waitlist-pill">
               {{ event.waitlistCount }} waiting
+            </span>
+            <span *ngIf="event.favoriteCount" class="availability-pill">
+              {{ event.favoriteCount }} saved
             </span>
           </div>
         </div>
@@ -305,7 +318,7 @@
 
             <div class="summary-total">
               <span>Estimated total</span>
-              <strong>{{ (totalPrice || getTotalPrice()) | currency:'USD':'code':'1.0-2' }}</strong>
+              <strong>{{ getFinalTotal() | currency:'USD':'code':'1.0-2' }}</strong>
             </div>
 
             <div class="guest-picker">
@@ -339,6 +352,40 @@
               <p class="helper-copy" [class.warning]="isWaitlistLikely()">{{ getReservationHelperText() }}</p>
             </div>
 
+            <div class="promo-card">
+              <div class="promo-card-header">
+                <span class="field-label">Promo code</span>
+                <span class="promo-loading" *ngIf="isLoadingPricing">Refreshing...</span>
+              </div>
+
+              <div class="promo-input-row">
+                <input
+                  [(ngModel)]="promoCodeInput"
+                  placeholder="Enter a code like CAMP15"
+                  class="promo-input"
+                  maxlength="64"
+                  type="text">
+
+                <button class="cta-btn primary promo-btn" (click)="applyPromoCode()" type="button">
+                  <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+                  <span>Apply</span>
+                </button>
+
+                <button
+                  *ngIf="hasPromoCodeValue()"
+                  class="cta-btn secondary promo-btn"
+                  (click)="clearPromoCode()"
+                  type="button">
+                  <app-admin-icon name="close" [size]="16"></app-admin-icon>
+                  <span>Clear</span>
+                </button>
+              </div>
+
+              <p *ngIf="getPromoFeedbackText()" [class]="getPromoFeedbackClass()">
+                {{ getPromoFeedbackText() }}
+              </p>
+            </div>
+
             <div class="summary-breakdown">
               <div class="summary-row">
                 <span>Price per guest</span>
@@ -347,6 +394,14 @@
               <div class="summary-row">
                 <span>Selected guests</span>
                 <strong>{{ numberOfParticipants }}</strong>
+              </div>
+              <div class="summary-row">
+                <span>Base subtotal</span>
+                <strong>{{ getBasePriceTotal() | currency:'USD':'code':'1.0-2' }}</strong>
+              </div>
+              <div class="summary-row discount" *ngIf="hasDiscountApplied()">
+                <span>Discount</span>
+                <strong>-{{ getDiscountAmount() | currency:'USD':'code':'1.0-2' }}</strong>
               </div>
               <div class="summary-row muted">
                 <span>Next state</span>
@@ -401,6 +456,21 @@
                 <app-admin-icon name="info" [size]="16"></app-admin-icon>
               </span>
               <p>You are already marked on this event waitlist.</p>
+            </div>
+
+            <div *ngIf="availablePromotions.length > 0" class="offer-grid">
+              <article *ngFor="let promotion of availablePromotions" class="offer-card">
+                <div class="offer-pill-row">
+                  <span class="offer-pill">{{ getPromotionPillLabel(promotion) }}</span>
+                  <span class="offer-value">
+                    {{ promotion.discountType === 'PERCENTAGE'
+                      ? (promotion.discountValue + '% off')
+                      : ((promotion.discountValue | currency:'USD':'code':'1.0-2') + ' off') }}
+                  </span>
+                </div>
+                <h4>{{ promotion.name }}</h4>
+                <p>{{ promotion.description || getPromotionSupportCopy(promotion) }}</p>
+              </article>
             </div>
           </section>
         </aside>

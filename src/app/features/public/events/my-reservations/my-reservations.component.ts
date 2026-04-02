@@ -7,6 +7,7 @@ import { AdminIconComponent } from '../../../../core/components/admin-icon/admin
 import { AuthService } from '../../../../core/services/auth.service';
 import {
   ReservationResponseDTO,
+  UserNotificationResponseDTO,
   UserReservationStatsDTO
 } from '../models/event.model';
 import { EventService } from '../services/event.service';
@@ -29,10 +30,12 @@ export class MyReservationsComponent implements OnInit {
   reservations: ReservationResponseDTO[] = [];
   filteredReservations: ReservationResponseDTO[] = [];
   billingReservations: ReservationResponseDTO[] = [];
+  notifications: UserNotificationResponseDTO[] = [];
   stats: UserReservationStatsDTO | null = null;
 
   isLoading = false;
   isLoadingStats = false;
+  isLoadingNotifications = false;
   isLoggedIn = false;
   errorMessage = '';
   successMessage = '';
@@ -46,8 +49,11 @@ export class MyReservationsComponent implements OnInit {
   totalPages = 1;
   processingPaymentReservationId: number | null = null;
   downloadingReceiptReservationId: number | null = null;
+  downloadingCalendarReservationId: number | null = null;
+  markingNotificationId: number | null = null;
   focusReservationId: number | null = null;
   activeDashboardSection = 'dashboard-overview';
+  unreadNotificationCount = 0;
 
   readonly statusFilters = [
     { value: 'all', label: 'All reservations' },
@@ -66,6 +72,7 @@ export class MyReservationsComponent implements OnInit {
 
   readonly dashboardSections = [
     { id: 'dashboard-overview', label: 'Summary', description: 'Live booking counts and the next actions that matter most' },
+    { id: 'notification-center', label: 'Notifications', description: 'Stay on top of confirmations, waitlist changes, and refunds' },
     { id: 'billing-center', label: 'Billing Center', description: 'View bill history, reopen Stripe invoices, and download receipts' },
     { id: 'reservation-history', label: 'History', description: 'Scan upcoming, past, cancelled, and paid reservations in one place' }
   ];
@@ -92,13 +99,8 @@ export class MyReservationsComponent implements OnInit {
   }
 
   loadReservations(options: { preserveMessages?: boolean } = {}): void {
-    const userId = this.authService.getUserId();
-    if (!userId) {
-      this.errorMessage = 'User ID not found. Please log in again.';
-      return;
-    }
-
     this.loadStats();
+    this.loadNotifications();
     this.isLoading = true;
     if (!options.preserveMessages) {
       this.errorMessage = '';
@@ -106,7 +108,7 @@ export class MyReservationsComponent implements OnInit {
     }
     this.noReservationsMessage = '';
 
-    this.eventService.getUserReservations(userId).subscribe({
+    this.eventService.getMyReservations().subscribe({
       next: (data) => {
         this.reservations = data;
         this.updateBillingReservations();
@@ -132,6 +134,12 @@ export class MyReservationsComponent implements OnInit {
     }
   }
 
+  refreshNotifications(): void {
+    if (this.isLoggedIn) {
+      this.loadNotifications();
+    }
+  }
+
   loadStats(): void {
     this.isLoadingStats = true;
 
@@ -143,6 +151,24 @@ export class MyReservationsComponent implements OnInit {
       error: (error) => {
         console.warn('Could not load reservation stats:', error);
         this.isLoadingStats = false;
+      }
+    });
+  }
+
+  loadNotifications(): void {
+    this.isLoadingNotifications = true;
+
+    this.eventService.getMyNotifications().subscribe({
+      next: (notifications) => {
+        this.notifications = notifications;
+        this.unreadNotificationCount = notifications.filter((notification) => !notification.read).length;
+        this.isLoadingNotifications = false;
+      },
+      error: (error) => {
+        console.warn('Could not load reservation notifications:', error);
+        this.notifications = [];
+        this.unreadNotificationCount = 0;
+        this.isLoadingNotifications = false;
       }
     });
   }
@@ -198,6 +224,34 @@ export class MyReservationsComponent implements OnInit {
         this.errorMessage = this.getBackendMessage(error)
           || 'We could not generate the reservation receipt right now. Please try again.';
         console.error('Error downloading reservation receipt:', error);
+      }
+    });
+  }
+
+  downloadCalendarInvite(reservation: ReservationResponseDTO): void {
+    if (!this.hasCalendarInviteDownload(reservation)
+      || this.downloadingCalendarReservationId === reservation.id) {
+      return;
+    }
+
+    this.downloadingCalendarReservationId = reservation.id;
+    this.errorMessage = '';
+
+    this.eventService.downloadReservationCalendarInvite(reservation.id).subscribe({
+      next: (calendarBlob) => {
+        const calendarUrl = window.URL.createObjectURL(calendarBlob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = calendarUrl;
+        downloadLink.download = this.getCalendarFilename(reservation);
+        downloadLink.click();
+        window.URL.revokeObjectURL(calendarUrl);
+        this.downloadingCalendarReservationId = null;
+      },
+      error: (error) => {
+        this.downloadingCalendarReservationId = null;
+        this.errorMessage = this.getBackendMessage(error)
+          || 'We could not prepare the calendar file right now. Please try again.';
+        console.error('Error downloading reservation calendar invite:', error);
       }
     });
   }
@@ -283,6 +337,67 @@ export class MyReservationsComponent implements OnInit {
     this.router.navigate(['/public/events', eventId]);
   }
 
+  openNotification(notification: UserNotificationResponseDTO): void {
+    if (!notification.read) {
+      this.markNotificationAsRead(notification, false);
+    }
+
+    if (notification.reservationId) {
+      this.goToReservationCard(notification.reservationId);
+      return;
+    }
+
+    if (notification.eventId) {
+      this.viewEventDetails(notification.eventId);
+    }
+  }
+
+  markNotificationAsRead(notification: UserNotificationResponseDTO, focusAfterRead = false): void {
+    if (notification.read || this.markingNotificationId === notification.id) {
+      return;
+    }
+
+    this.markingNotificationId = notification.id;
+    this.eventService.markNotificationAsRead(notification.id).subscribe({
+      next: (updatedNotification) => {
+        this.notifications = this.notifications.map((currentNotification) =>
+          currentNotification.id === updatedNotification.id ? updatedNotification : currentNotification
+        );
+        this.unreadNotificationCount = this.notifications.filter((currentNotification) => !currentNotification.read).length;
+        this.markingNotificationId = null;
+
+        if (focusAfterRead) {
+          this.openNotification(updatedNotification);
+        }
+      },
+      error: (error) => {
+        this.markingNotificationId = null;
+        console.error('Could not mark notification as read:', error);
+      }
+    });
+  }
+
+  markAllNotificationsAsRead(): void {
+    if (this.unreadNotificationCount === 0) {
+      return;
+    }
+
+    this.eventService.markAllNotificationsAsRead().subscribe({
+      next: () => {
+        const readAt = new Date().toISOString();
+        this.notifications = this.notifications.map((notification) => ({
+          ...notification,
+          read: true,
+          readAt
+        }));
+        this.unreadNotificationCount = 0;
+      },
+      error: (error) => {
+        console.error('Could not mark all notifications as read:', error);
+      }
+    });
+  }
+
   getStatusClass(status: string): string {
     switch (status) {
       case 'PENDING':
@@ -316,6 +431,32 @@ export class MyReservationsComponent implements OnInit {
         return 'payment-refunded';
       default:
         return 'payment-unpaid';
+    }
+  }
+
+  getNotificationClass(notification: UserNotificationResponseDTO): string {
+    switch (notification.type) {
+      case 'BOOKING_CONFIRMED':
+        return 'notification-confirmed';
+      case 'WAITLIST_PROMOTED':
+        return 'notification-promoted';
+      case 'REFUND_PROCESSED':
+        return 'notification-refund';
+      default:
+        return 'notification-default';
+    }
+  }
+
+  getNotificationIcon(notification: UserNotificationResponseDTO): string {
+    switch (notification.type) {
+      case 'BOOKING_CONFIRMED':
+        return 'check';
+      case 'WAITLIST_PROMOTED':
+        return 'sparkles';
+      case 'REFUND_PROCESSED':
+        return 'refund';
+      default:
+        return 'clock';
     }
   }
 
@@ -417,6 +558,19 @@ export class MyReservationsComponent implements OnInit {
       || ['PAID', 'PARTIALLY_REFUNDED', 'REFUNDED'].includes(reservation.statutPaiement);
   }
 
+  canExportCalendar(reservation: ReservationResponseDTO): boolean {
+    return Boolean(reservation.calendarExportAvailable)
+      && (this.hasGoogleCalendarLink(reservation) || this.hasCalendarInviteDownload(reservation));
+  }
+
+  hasGoogleCalendarLink(reservation: ReservationResponseDTO): boolean {
+    return Boolean(reservation.googleCalendarUrl);
+  }
+
+  hasCalendarInviteDownload(reservation: ReservationResponseDTO): boolean {
+    return Boolean(reservation.calendarIcsDownloadUrl || reservation.calendarExportAvailable);
+  }
+
   getPayableReservationsCount(): number {
     return this.reservations.filter((reservation) => this.canPay(reservation)).length;
   }
@@ -474,6 +628,20 @@ export class MyReservationsComponent implements OnInit {
       || `reservation-${reservation.id}`;
 
     return `campconnect-receipt-${reservation.id}-${normalizedTitle}.pdf`;
+  }
+
+  getCalendarFilename(reservation: ReservationResponseDTO): string {
+    if (reservation.calendarIcsFileName?.trim()) {
+      return reservation.calendarIcsFileName.trim();
+    }
+
+    const normalizedTitle = reservation.eventTitre
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      || `reservation-${reservation.id}`;
+
+    return `campconnect-calendar-${reservation.id}-${normalizedTitle}.ics`;
   }
 
   getPaymentHintClass(reservation: ReservationResponseDTO): string {
@@ -747,6 +915,10 @@ export class MyReservationsComponent implements OnInit {
     return this.stats?.waitlistReservations ?? this.reservations.filter((reservation) => reservation.estEnAttente).length;
   }
 
+  getUnreadNotificationsCount(): number {
+    return this.unreadNotificationCount;
+  }
+
   getEventsAttendedCount(): number {
     return this.stats?.eventsAttended ?? 0;
   }
@@ -767,6 +939,21 @@ export class MyReservationsComponent implements OnInit {
       (total, reservation) => total + Number(reservation.netPaidAmount || 0),
       0
     );
+  }
+
+  hasReservationDiscount(reservation: ReservationResponseDTO): boolean {
+    return Number(reservation.discountAmount || 0) > 0;
+  }
+
+  getReservationDiscountCopy(reservation: ReservationResponseDTO): string {
+    const discountLabel = reservation.discountLabel || 'Promotion applied';
+    const discountSource = reservation.discountAutoApplied
+      ? 'This offer was applied automatically.'
+      : reservation.promoCode
+        ? `Promo code ${reservation.promoCode} was used.`
+        : 'A booking discount was applied.';
+
+    return `${discountLabel}. You saved ${this.formatCurrency(reservation.discountAmount)} off a base subtotal of ${this.formatCurrency(reservation.basePriceTotal)}. ${discountSource}`;
   }
 
   goToLogin(): void {
@@ -829,7 +1016,7 @@ export class MyReservationsComponent implements OnInit {
     }
 
     if (createdState === 'pending') {
-      this.successMessage = 'Reservation created successfully. It is now waiting for admin confirmation, and the Stripe payment button will appear here as soon as it is confirmed.';
+      this.successMessage = 'Reservation created successfully. It is now waiting for admin confirmation.';
       this.normalizeHandledQueryParams();
       this.loadReservations({ preserveMessages: true });
       return;
@@ -843,7 +1030,7 @@ export class MyReservationsComponent implements OnInit {
     }
 
     if (createdState === 'waitlist') {
-      this.successMessage = 'Your reservation joined the waitlist. Stripe payment is ready now to hold your place in line, and CampConnect will refund it in full automatically if no seat opens by the event start.';
+      this.successMessage = 'Your reservation joined the waitlist. Stripe payment is ready now to hold your place in line.';
       this.normalizeHandledQueryParams();
       this.loadReservations({ preserveMessages: true });
       return;

@@ -1021,13 +1021,34 @@
 }
 
 .heart-btn {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(244, 247, 245, 0.92);
+  color: #7c8f84;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
 }
 
 .heart-btn:hover,
 .heart-btn.liked {
   transform: scale(1.25);
   color: #e74c3c;
+}
+
+.heart-btn.liked {
+  background: rgba(231, 76, 60, 0.12);
+}
+
+.heart-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  transform: none;
 }
 
 .event-description {
@@ -1324,6 +1345,13 @@
   justify-content: space-between;
 }
 
+.list-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .list-item-title {
   margin: 0;
   font-size: 0.95rem;
@@ -1344,6 +1372,33 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.list-favorite-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: #f5f7f5;
+  color: #7c8f84;
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.list-favorite-btn:hover,
+.list-favorite-btn.liked {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.12);
+  transform: translateY(-1px);
+}
+
+.list-favorite-btn:disabled {
+  opacity: 0.55;
+  cursor: wait;
+  transform: none;
 }
 
 .list-item-description {

@@ -160,6 +160,12 @@ export class EventEditComponent implements OnInit, OnDestroy {
       : 'Pending review first';
   }
 
+  get publicationSummary(): string {
+    return this.eventForm.get('published')?.value === true
+      ? 'Published to the public events page'
+      : 'Saved as draft';
+  }
+
   createForm(): FormGroup {
     return this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -171,6 +177,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       capacity: ['', [Validators.required, Validators.min(1), Validators.pattern(/^\d+$/)]],
       category: ['', Validators.required],
       reservationApprovalRequired: [true],
+      published: [false],
       price: ['', [Validators.required, Validators.min(0), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       imageUrl: ['', [Validators.maxLength(500)]]
     });
@@ -470,6 +477,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       capaciteMax: parseInt(this.eventForm.value.capacity, 10),
       capaciteWaitlist: Math.floor(parseInt(this.eventForm.value.capacity, 10) * 0.1),
       reservationApprovalRequired: this.eventForm.value.reservationApprovalRequired !== false,
+      published: this.eventForm.value.published === true,
       prix: parseFloat(this.eventForm.value.price),
       dureeMinutes: this.calculateDurationMinutes(this.eventForm.value.startTime, this.eventForm.value.endTime)
     };
@@ -494,6 +502,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       category: event.categorie,
       capacity: event.capaciteMax.toString(),
       reservationApprovalRequired: event.reservationApprovalRequired !== false,
+      published: event.published !== false,
       price: event.prix.toString(),
       imageUrl: ''
     });

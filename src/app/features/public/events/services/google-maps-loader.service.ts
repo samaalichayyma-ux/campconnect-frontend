@@ -29,7 +29,7 @@ type GoogleMapsWindow = Window & {
   providedIn: 'root'
 })
 export class GoogleMapsLoaderService {
-  private readonly configUrl = 'http://localhost:8080/api/config/google-maps/public';
+  private readonly configUrl = 'http://localhost:8082/api/config/google-maps/public';
   private readonly scriptId = 'campconnect-google-maps-script';
 
   private configRequest$?: Observable<GoogleMapsPublicConfig>;
