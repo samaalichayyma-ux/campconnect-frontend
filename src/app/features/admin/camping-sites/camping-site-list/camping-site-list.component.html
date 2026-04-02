@@ -1,0 +1,46 @@
+<section class="admin-sites-page">
+  <div class="container">
+    <div class="page-header">
+      <h2>Camping Sites Management</h2>
+      <a class="btn-primary" routerLink="/admin/camping-sites/new">Add New Site</a>
+    </div>
+
+    <div *ngIf="isLoading">Loading camping sites...</div>
+    <div *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <table *ngIf="!isLoading && sites.length > 0" class="sites-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Location</th>
+          <th>Capacity</th>
+          <th>Price / Night</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let site of sites">
+          <td>{{ site.nom }}</td>
+          <td>{{ site.localisation }}</td>
+          <td>{{ site.capacite }}</td>
+          <td>{{ site.prixParNuit }}</td>
+          <td>{{ site.statutDispo }}</td>
+          <td class="actions">
+            <a class="btn-edit" [routerLink]="['/admin/camping-sites', site.idSite, 'edit']">
+              Edit
+            </a>
+            <button class="btn-delete" (click)="deleteSite(site.idSite)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="!isLoading && sites.length === 0">
+      No camping sites found.
+    </div>
+  </div>
+</section>

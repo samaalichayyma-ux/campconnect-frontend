@@ -1,0 +1,135 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "newProjectRoot": "projects",
+  "projects": {
+    "campconnect-frontend": {
+      "projectType": "application",
+      "schematics": {},
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/campconnect-frontend",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": ["zone.js"],
+            "tsConfig": "tsconfig.app.json",
+
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              }
+            ],
+
+            "styles": [
+              
+              "src/assets/css/nicepage.css",
+              "src/assets/css/index.css",
+              "src/assets/css/Blog-Template.css",
+              "src/assets/css/intlTelInput.css",
+              "src/assets/css/Post-Template.css",
+              "src/assets/css/Search-Template.css",
+              "src/styles.css"
+            ],
+
+            "scripts": [
+              "src/assets/js/jquery.js",
+              "src/assets/js/nicepage.js"
+          
+            ]
+          },
+
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "campconnect-frontend:build:production"
+            },
+            "development": {
+              "buildTarget": "campconnect-frontend:build:development"
+            },
+            "options":
+            {
+              "proxyConfig": "proxy.conf.json"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n"
+        },
+
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "polyfills": ["zone.js", "zone.js/testing"],
+            "tsConfig": "tsconfig.spec.json",
+
+            "assets": [
+              "src/favicon.ico",
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "public",
+                "output": "/"
+              }
+            ],
+
+            "styles": [
+              
+              "src/assets/css/nicepage.css",
+              "src/assets/css/index.css",
+              "src/assets/css/Blog-Template.css",
+              "src/assets/css/intlTelInput.css",
+              "src/assets/css/Post-Template.css",
+              "src/assets/css/Search-Template.css",
+              "src/styles.css"
+            ],
+
+            "scripts": [
+              "src/assets/js/jquery.js",
+              "src/assets/js/nicepage.js"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": "397ec0ef-0c52-4f40-8f7a-d9401b9b490b"
+  }
+}

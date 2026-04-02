@@ -1,0 +1,60 @@
+<header class="cc-navbar">
+  <div class="cc-topbar">
+    <div class="cc-topbar-left">
+      <a href="https://facebook.com/name" target="_blank" class="cc-social">f</a>
+      <a href="https://twitter.com/name" target="_blank" class="cc-social">t</a>
+      <a href="https://instagram.com/name" target="_blank" class="cc-social">i</a>
+    </div>
+
+    <div class="cc-topbar-right">
+      <input type="text" placeholder="Search" class="cc-search-input" />
+    </div>
+  </div>
+
+  <div class="cc-mainbar">
+    <a routerLink="/public" class="cc-logo">
+      <img src="assets/images/logotranssansslo.png" alt="CampConnect" />
+    </a>
+
+    <nav class="cc-menu">
+      <a routerLink="/public">Home</a>
+      <a routerLink="/public/camping-sites">Destinations</a>
+      <a routerLink="/public/Accueil-Market">Shop</a>
+      <a href="#">Restaurant</a>
+      <a href="#">Events</a>
+      <a href="#">Formations</a>
+    </nav>
+
+    <div class="cc-actions">
+      <a routerLink="/public/panier" class="cc-cart-btn" aria-label="Cart">
+  🛒
+  <span class="cc-cart-count" *ngIf="(cartCount$ | async)! > 0">
+    {{ cartCount$ | async }}
+  </span>
+</a>
+
+      <ng-container *ngIf="!authService.isLoggedIn(); else loggedInBlock">
+        <a routerLink="/login" class="cc-login-btn">Login</a>
+      </ng-container>
+
+      <a *ngIf="authService.getRole() === 'ADMINISTRATEUR'" routerLink="/admin">
+  Admin
+</a>
+
+      <ng-template #loggedInBlock>
+        <div class="cc-user-box">
+          <span class="cc-user-name">
+            {{ authService.getUserName() }}
+          </span>
+
+          <a routerLink="/public/profile" class="cc-profile-btn">Profile</a>
+
+          <button type="button" class="cc-logout-btn" (click)="logout()">
+            Logout
+          </button>
+        </div>
+
+      </ng-template>
+    </div>
+  </div>
+</header>

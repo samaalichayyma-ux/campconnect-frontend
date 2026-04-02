@@ -1,0 +1,117 @@
+<div class="admin-layout">
+
+  <aside class="sidebar">
+
+    <div class="sidebar-brand">
+      <div class="brand-logo">CC</div>
+      <div>
+        <h2>CampConnect</h2>
+        <span>Admin Panel</span>
+      </div>
+    </div>
+
+    <!-- bouton retour public -->
+    <div class="sidebar-footer">
+      <a routerLink="/public" class="public-link">
+        🌍 Back to Public Site
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <a routerLink="/admin/dashboard"
+         routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }"
+         class="nav-item">
+        <span>🏠</span>
+        <span>Dashboard</span>
+      </a>
+
+      <a routerLink="/admin/users"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>👥</span>
+        <span>Users</span>
+      </a>
+
+      <a routerLink="/admin/assurances/new"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>🛡️</span>
+        <span>Assurances</span>
+      </a>
+
+      <a routerLink="/admin/Market/listProduct"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>🍽️</span>
+        <span>Market Place</span>
+      </a> 
+      
+      <a routerLink="/admin/restaurants"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>🍽️</span>
+        <span>Restaurants</span>
+      </a>
+
+      <a routerLink="/admin/events"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>🎉</span>
+        <span>Events</span>
+      </a>
+
+      <a routerLink="/admin/formations"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>📘</span>
+        <span>Formations</span>
+      </a>
+
+      <a routerLink="/admin/profile"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>👤</span>
+        <span>Profile</span>
+      </a>
+
+    </nav>
+
+  </aside>
+
+  <main class="layout-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>Administration</h1>
+        <p>Manage your platform with clarity and control.</p>
+      </div>
+
+      <div class="topbar-right">
+        <div class="admin-profile">
+
+          <div class="profile-avatar">
+            {{ adminName.charAt(0) || 'A' }}
+          </div>
+
+          <div class="profile-info">
+            <h4>{{ adminName }}</h4>
+            <span>{{ adminRole }}</span>
+          </div>
+
+          <button class="logout-btn" (click)="logout()">
+            Logout
+          </button>
+
+        </div>
+      </div>
+    </header>
+
+    <section class="page-container">
+      <router-outlet></router-outlet>
+    </section>
+
+  </main>
+
+</div>

@@ -1,0 +1,120 @@
+<section class="register-page">
+  <div class="register-card">
+    <div class="register-header">
+      <div class="register-icon">
+        <span>👤</span>
+      </div>
+      <h1>Create Account</h1>
+      <p>Join CampConnect and start your journey</p>
+    </div>
+
+    <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="nom">Name</label>
+        <input
+          id="nom"
+          type="text"
+          formControlName="nom"
+          placeholder="Enter your name"
+        />
+        <small *ngIf="registerForm.get('nom')?.invalid && registerForm.get('nom')?.touched" class="text-danger">
+          Name is required and must contain at least 2 characters
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="Enter your email"
+        />
+        <small *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" class="text-danger">
+          Invalid email address
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="telephone">Phone number</label>
+        <input
+          id="telephone"
+          type="text"
+          formControlName="telephone"
+          placeholder="Enter your phone number"
+        />
+        <small *ngIf="registerForm.get('telephone')?.invalid && registerForm.get('telephone')?.touched" class="text-danger">
+          Phone number must contain exactly 8 digits
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" formControlName="role">
+          <option value="" disabled>Select your role</option>
+          <option value="CLIENT">Client</option>
+          <option value="LIVREUR">Livreur</option>
+          <option value="GERANT_RESTAU">Gerant_Restau</option>
+          <option value="GUIDE">Guide</option>
+          <option value="AGENT_ASSURANCE">Agent_Assurance</option>
+        </select>
+        <small *ngIf="registerForm.get('role')?.invalid && registerForm.get('role')?.touched" class="text-danger">
+          Role is required
+        </small>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="motDePasse">Password</label>
+          <input
+            id="motDePasse"
+            type="password"
+            formControlName="motDePasse"
+            placeholder="Enter your password"
+          />
+          <small *ngIf="registerForm.get('motDePasse')?.invalid && registerForm.get('motDePasse')?.touched" class="text-danger">
+            Password must contain at least 6 characters
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm password</label>
+          <input
+            id="confirmPassword"
+            type="password"
+            formControlName="confirmPassword"
+            placeholder="Confirm your password"
+          />
+          <small *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.value.confirmPassword !== registerForm.value.motDePasse" class="text-danger">
+            Passwords do not match
+          </small>
+        </div>
+      </div>
+
+      <div class="checkbox-group">
+        <input id="terms" type="checkbox" formControlName="terms" />
+        <label for="terms">I accept the terms and conditions</label>
+      </div>
+      <small *ngIf="registerForm.get('terms')?.invalid && registerForm.get('terms')?.touched" class="text-danger">
+        You must accept the terms
+      </small>
+
+      <button type="submit" class="register-btn" [disabled]="isLoading">
+        {{ isLoading ? 'Loading...' : 'Sign Up' }}
+      </button>
+
+      <div *ngIf="errorMessage" class="text-danger">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="successMessage" class="text-success">
+        {{ successMessage }}
+      </div>
+
+      <div class="register-footer">
+        <span>Already have an account?</span>
+        <a routerLink="/login">Login</a>
+      </div>
+    </form>
+  </div>
+</section>

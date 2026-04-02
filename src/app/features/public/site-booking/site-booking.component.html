@@ -1,0 +1,137 @@
+<section class="booking-page" *ngIf="!isLoading && selectedSite; else loadingOrError">
+  <div class="container">
+    <div class="booking-wrapper">
+      <div class="booking-summary">
+        <img
+          [src]="selectedSite.image || 'assets/images/default-camp.jpg'"
+          [alt]="selectedSite.nom"
+        />
+
+        <div class="summary-content">
+          <span
+            class="badge"
+            [ngClass]="{
+              'available': selectedSite.statutDispo === 'AVAILABLE',
+              'full': selectedSite.statutDispo === 'FULL',
+              'closed': selectedSite.statutDispo === 'CLOSED'
+            }"
+          >
+            {{ selectedSite.statutDispo }}
+          </span>
+
+          <h2>{{ selectedSite.nom }}</h2>
+          <p class="location">{{ selectedSite.localisation }}</p>
+
+          <div class="summary-info">
+            <p><strong>Capacity:</strong> {{ selectedSite.capacite }} guests</p>
+            <p><strong>Price:</strong> {{ selectedSite.prixParNuit }} DT / night</p>
+            <p><strong>Status:</strong> {{ selectedSite.statutDispo }}</p>
+          </div>
+
+          <p class="summary-text">
+            {{ selectedSite.description || 'Complete your booking details to reserve this camping site.' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="booking-form-card">
+        <div class="form-header">
+          <span class="section-subtitle">Reservation</span>
+          <h2>Book This Site</h2>
+          <p>Fill in the form below to submit your booking request.</p>
+        </div>
+
+        <div *ngIf="successMessage" class="success-message">
+          {{ successMessage }}
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <form class="booking-form" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="dateDebut">Start Date</label>
+              <input
+                id="dateDebut"
+                type="date"
+                name="dateDebut"
+                [(ngModel)]="bookingForm.dateDebut"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="dateFin">End Date</label>
+              <input
+                id="dateFin"
+                type="date"
+                name="dateFin"
+                [(ngModel)]="bookingForm.dateFin"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="numberOfGuests">Number of Guests</label>
+            <input
+              id="numberOfGuests"
+              type="number"
+              name="numberOfGuests"
+              [(ngModel)]="bookingForm.numberOfGuests"
+              min="1"
+              [max]="selectedSite.capacite"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="siteName">Selected Camping Site</label>
+            <input
+              id="siteName"
+              type="text"
+              [value]="selectedSite.nom"
+              disabled
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="siteLocation">Location</label>
+            <input
+              id="siteLocation"
+              type="text"
+              [value]="selectedSite.localisation"
+              disabled
+            />
+          </div>
+
+          <button type="submit" class="btn-submit">
+            Confirm Booking
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<ng-template #loadingOrError>
+  <section class="booking-page">
+    <div class="container">
+      <div class="booking-form-card">
+        <div *ngIf="isLoading" class="info-message">
+          Loading camping site...
+        </div>
+
+        <div *ngIf="!isLoading && errorMessage" class="error-message">
+          {{ errorMessage }}
+        </div>
+
+        <div *ngIf="!isLoading && !errorMessage" class="error-message">
+          Camping site not found.
+        </div>
+      </div>
+    </div>
+  </section>
+</ng-template>

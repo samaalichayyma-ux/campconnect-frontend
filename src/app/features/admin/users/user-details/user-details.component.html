@@ -1,0 +1,37 @@
+<section class="details-page" *ngIf="!loading && user">
+  <div class="details-card">
+    <h1>User Details</h1>
+
+    <div class="detail-row"><strong>ID:</strong> {{ user.id }}</div>
+    <div class="detail-row"><strong>Nom:</strong> {{ user.nom }}</div>
+    <div class="detail-row"><strong>Email:</strong> {{ user.email }}</div>
+    <div class="detail-row"><strong>Téléphone:</strong> {{ user.telephone }}</div>
+    <div class="detail-row"><strong>Rôle:</strong> {{ user.role }}</div>
+    <div class="detail-row"><strong>Date création:</strong> {{ user.dateCreation || '-' }}</div>
+
+    <hr />
+
+    <h2>Profil</h2>
+
+    <div class="detail-row"><strong>Adresse:</strong> {{ user.profil?.adresse || '-' }}</div>
+    <div class="detail-row"><strong>Photo:</strong></div>
+
+    <div class="photo-preview" *ngIf="user.profil?.photo; else noPhoto">
+      <img [src]="user.profil?.photo" alt="Photo profil" />
+    </div>
+
+    <ng-template #noPhoto>
+      <p>-</p>
+    </ng-template>
+
+    <div class="detail-row"><strong>Biographie:</strong> {{ user.profil?.biographie || '-' }}</div>
+
+    <div class="actions">
+      <a routerLink="/admin/users" class="btn back">Back</a>
+      <a [routerLink]="['/admin/users/edit', user.id]" class="btn edit">Edit</a>
+    </div>
+  </div>
+</section>
+
+<div *ngIf="loading">Loading details...</div>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>

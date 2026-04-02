@@ -1,0 +1,79 @@
+<section class="products-section">
+  <div class="container">
+    <h2 class="section-title">Our Products</h2>
+
+    <p class="section-description">
+      Discover our selection of available products.
+    </p>
+
+    <div class="search-box">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Search by name, category or description"
+        class="search-input"
+        maxlength="50"
+        autocomplete="off"
+      />
+      <button class="search-btn" type="button">Search</button>
+    </div>
+
+    <div class="products-grid" *ngIf="paginatedProducts.length > 0; else noProducts">
+      <div class="product-card" *ngFor="let product of paginatedProducts">
+        <img
+          [src]="product.images?.length
+            ? 'http://localhost:8082/api/uploads/' + product.images[0]
+            : 'assets/images/photo-1491295079607-743739e45129.jpeg'"
+          [alt]="product.nom"
+          class="product-image"
+        />
+
+        <h4 class="product-title">{{ product.nom }}</h4>
+
+        <p class="product-description">
+          {{ product.description }}
+        </p>
+
+        <h5 class="product-price">
+          {{ product.prix }} TND
+        </h5>
+
+        <button class="view-btn" type="button" (click)="viewMore(product)">
+          View More
+        </button>
+      </div>
+    </div>
+
+    <ng-template #noProducts>
+      <p class="no-products-message">No products found.</p>
+    </ng-template>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="page-btn"
+        type="button"
+        (click)="previousPage()"
+        [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        class="page-btn"
+        type="button"
+        *ngFor="let page of pages"
+        (click)="changePage(page)"
+        [class.active]="currentPage === page">
+        {{ page }}
+      </button>
+
+      <button
+        class="page-btn"
+        type="button"
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+</section>

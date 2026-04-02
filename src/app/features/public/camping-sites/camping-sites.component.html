@@ -1,0 +1,57 @@
+<section class="sites-page">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-subtitle">CampConnect</span>
+      <h2>Camping Sites</h2>
+      <p>Explore the available camping sites and choose your next destination.</p>
+    </div>
+
+    <div *ngIf="isLoading" class="info-message">
+      Loading camping sites...
+    </div>
+
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+
+    <div class="sites-grid" *ngIf="!isLoading && !errorMessage">
+      <div class="site-card" *ngFor="let site of sites">
+        <img
+          [src]="site.image || 'assets/images/default-camp.jpg'"
+          [alt]="site.nom"
+        />
+
+        <div class="site-card-content">
+          <span
+            class="status"
+            [ngClass]="{
+              'available': site.statutDispo === 'AVAILABLE',
+              'full': site.statutDispo === 'FULL',
+              'closed': site.statutDispo === 'CLOSED'
+            }"
+          >
+            {{ site.statutDispo }}
+          </span>
+
+          <h3>{{ site.nom }}</h3>
+          <p class="location">{{ site.localisation }}</p>
+
+          <p class="description">
+            {{ site.description || 'A beautiful camping destination for your next trip.' }}
+          </p>
+
+          <div class="site-info">
+            <span>Capacity: {{ site.capacite }}</span>
+            <span>{{ site.prixParNuit }} DT / night</span>
+          </div>
+
+          <div class="site-actions">
+            <a class="btn-primary" [routerLink]="['/public/site-booking', site.idSite]">
+              Book Now
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
