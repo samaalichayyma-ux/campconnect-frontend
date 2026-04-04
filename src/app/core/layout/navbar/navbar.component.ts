@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { PanierService } from '../../services/panier.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -14,11 +16,15 @@ export class NavbarComponent implements OnInit {
   userName = '';
   userRole = '';
   isDropdownOpen = false;
+    cartCount$: Observable<number>;
+
 
   constructor(
     public authService: AuthService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private panierService: PanierService
+
+  ) {this.cartCount$ = this.panierService.cartCount$;}
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
@@ -27,6 +33,7 @@ export class NavbarComponent implements OnInit {
 
   logout(): void {
     this.authService.logout();
+    this.panierService.reset();
     this.router.navigate(['/public']);
   }
 

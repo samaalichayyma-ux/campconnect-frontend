@@ -1,0 +1,236 @@
+<section class="product-section">
+  <div class="background-band"></div>
+
+  <div class="product-wrapper">
+    <div class="image-box">
+      <img
+        [src]="imagePreview || 'assets/images/photo-1491295079607-743739e45129.jpeg'"
+        alt="Product preview"
+      />
+    </div>
+
+    <div class="form-card">
+      <h2>{{ isEditMode ? 'Edit Product' : 'Add Product' }}</h2>
+
+      <form (ngSubmit)="onSubmit()" #productForm="ngForm" class="product-form">
+
+        <!-- NAME -->
+        <div class="form-group">
+          <label for="nom">Product Name</label>
+          <input
+            type="text"
+            id="nom"
+            name="nom"
+            [(ngModel)]="produit.nom"
+            placeholder="Enter product name"
+            required
+            minlength="3"
+            maxlength="50"
+            #nom="ngModel"
+          />
+          <small class="error" *ngIf="nom.invalid && nom.touched">
+            Name must be between 3 and 50 characters
+          </small>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            [(ngModel)]="produit.description"
+            placeholder="Enter description"
+            rows="4"
+            required
+            minlength="5"
+            #description="ngModel"
+          ></textarea>
+          <small class="error" *ngIf="description.invalid && description.touched">
+            Description is required (min 5 characters)
+          </small>
+        </div>
+
+        <!-- PRICE -->
+        <div class="form-group">
+          <label for="prix">Price</label>
+          <input
+            type="number"
+            id="prix"
+            name="prix"
+            [(ngModel)]="produit.prix"
+            placeholder="Enter price"
+            min="1"
+            step="0.01"
+            required
+            #prix="ngModel"
+          />
+          <small class="error" *ngIf="prix.invalid && prix.touched">
+            Price must be greater than 0
+          </small>
+        </div>
+
+        <!-- CATEGORY -->
+        <div class="form-group">
+          <label for="categorie">Category</label>
+          <select
+            id="categorie"
+            name="categorie"
+            [(ngModel)]="produit.categorie"
+            (ngModelChange)="onCategorieChange()"
+            required
+            #categorie="ngModel"
+          >
+            <option [ngValue]="''" disabled>Select category</option>
+            <option *ngFor="let cat of categories" [ngValue]="cat">
+              {{ cat }}
+            </option>
+          </select>
+          <small class="error" *ngIf="categorie.invalid && categorie.touched">
+            Category is required
+          </small>
+        </div>
+
+        <!-- SIMPLE STOCK FOR OTHER CATEGORIES -->
+        <div class="form-group" *ngIf="produit.categorie !== 'VETEMENT' && produit.categorie !== 'CHAUSSURE'">
+          <label for="stock">Stock</label>
+          <input
+            type="number"
+            id="stock"
+            name="stock"
+            [(ngModel)]="produit.stock"
+            placeholder="Enter stock"
+            min="1"
+            required
+            #stock="ngModel"
+          />
+          <small class="error" *ngIf="stock.invalid && stock.touched">
+            Stock must be at least 1
+          </small>
+        </div>
+
+        <!-- CLOTHING DETAILS -->
+        <div class="form-group" *ngIf="produit.categorie === 'VETEMENT'">
+          <label>Clothing sizes and stock</label>
+
+          <select
+            name="selectedTaille"
+            [(ngModel)]="selectedTaille"
+          >
+            <option value="" disabled selected>Select size</option>
+            <option *ngFor="let taille of tailles" [value]="taille">
+              {{ taille }}
+            </option>
+          </select>
+
+          <input
+            type="number"
+            name="selectedStockVetement"
+            [(ngModel)]="selectedStock"
+            placeholder="Enter stock"
+            min="1"
+          />
+
+          <button type="button" class="submit-btn" (click)="ajouterDetail()">
+            Add size
+          </button>
+
+          <small class="error" *ngIf="produit.stocks.length === 0 && productForm.submitted">
+            At least one size with stock is required
+          </small>
+        </div>
+
+        <!-- SHOE DETAILS -->
+        <div class="form-group" *ngIf="produit.categorie === 'CHAUSSURE'">
+          <label>Shoe size and stock</label>
+
+          <input
+            type="number"
+            name="selectedPointure"
+            [(ngModel)]="selectedPointure"
+            placeholder="Enter shoe size"
+            min="36"
+            max="44"
+          />
+
+          <input
+            type="number"
+            name="selectedStockChaussure"
+            [(ngModel)]="selectedStock"
+            placeholder="Enter stock"
+            min="1"
+          />
+
+          <button type="button" class="submit-btn" (click)="ajouterDetail()">
+            Add shoe size
+          </button>
+
+          <small class="error" *ngIf="produit.stocks.length === 0 && productForm.submitted">
+            At least one shoe size with stock is required
+          </small>
+        </div>
+
+        <!-- ADDED DETAILS -->
+        <div
+          class="form-group"
+          *ngIf="(produit.categorie === 'VETEMENT' || produit.categorie === 'CHAUSSURE') && produit.stocks.length > 0"
+        >
+          <label>Added details</label>
+
+          <div *ngFor="let s of produit.stocks; let i = index" class="file-hint">
+            <span *ngIf="produit.categorie === 'VETEMENT'">
+              Size: {{ s.taille }} | Stock: {{ s.stock }}
+            </span>
+
+            <span *ngIf="produit.categorie === 'CHAUSSURE'">
+              Shoe size: {{ s.pointure }} | Stock: {{ s.stock }}
+            </span>
+
+            <button type="button" (click)="supprimerStock(i)">Remove</button>
+          </div>
+
+          <small class="file-hint">
+            Total stock: {{ getStockTotalLocal() }}
+          </small>
+        </div>
+
+        <!-- IMAGES -->
+        <div class="form-group">
+          <label for="imageUpload">Product Images</label>
+
+          <input
+            type="file"
+            id="imageUpload"
+            accept="image/*"
+            multiple
+            (change)="onFileSelected($event)"
+            class="file-input"
+            [required]="!isEditMode"
+          />
+
+          <small class="file-hint" *ngIf="selectedImageFiles.length > 0">
+            Selected files: {{ selectedFileNames.join(', ') }}
+          </small>
+
+          <small class="file-hint" *ngIf="isEditMode && selectedImageFiles.length === 0">
+            Leave empty to keep the current images
+          </small>
+
+          <small class="error" *ngIf="!isEditMode && selectedImageFiles.length === 0 && productForm.submitted">
+            At least one image is required
+          </small>
+        </div>
+
+        <!-- SUBMIT -->
+        <button
+          type="submit"
+          class="submit-btn"
+          [disabled]="productForm.invalid || (!isEditMode && selectedImageFiles.length === 0)"
+        >
+          {{ isEditMode ? 'Update Product' : 'Submit Product' }}
+        </button>
+
+      </form>
+    </div>
+  </div>
+</section>
