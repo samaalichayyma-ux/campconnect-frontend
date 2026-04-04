@@ -1,0 +1,165 @@
+<section class="users-page">
+  <div class="users-header">
+    <div>
+      <h1>Products Management</h1>
+      <p>Manage all marketplace products</p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/admin/Market/AddProduct" class="add-btn">+ Add Product</a>
+
+      <a class="delete-btn" (click)="openDeleteModal()">Delete Product</a>
+    </div>
+  </div>
+
+  <div *ngIf="loading">Loading products...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Image</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Price</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr
+          *ngFor="let product of pagedProducts"
+          [class.inactive-row]="product.active === false"
+        >
+          <td>{{ product.idProduit }}</td>
+
+          <td>
+            <img
+              [src]="product.images.length
+                ? 'http://localhost:8082/api/uploads/' + product.images[0]
+                : 'assets/images/default.jpg'"
+              class="table-image"
+              alt="product"
+            />
+          </td>
+
+          <td>{{ product.nom }}</td>
+          <td>{{ product.description }}</td>
+          <td>{{ product.prix }} TND</td>
+          <td>{{ product.categorie }}</td>
+
+          <td>
+            <span
+              class="status-badge"
+              [class.active-badge]="product.active !== false"
+              [class.inactive-badge]="product.active === false"
+            >
+              {{ product.active === false ? 'Inactive' : 'Active' }}
+            </span>
+          </td>
+
+          <td class="actions">
+            <ng-container *ngIf="product.active !== false; else inactiveActions">
+              <a
+                [routerLink]="['/public/detailP', product.idProduit]"
+                class="btn details"
+              >
+                Details
+              </a>
+
+              <a
+                [routerLink]="['/admin/Market/EditProduct', product.idProduit]"
+                class="btn edit"
+              >
+                Edit
+              </a>
+
+              <a
+                [routerLink]="['/admin/products/stock', product.idProduit]"
+                class="btn stock"
+              >
+                Stock
+              </a>
+
+              <button
+                class="btn deactivate"
+                (click)="deactivateProduit(product.idProduit!)"
+              >
+                Deactivate
+              </button>
+            </ng-container>
+
+            <ng-template #inactiveActions>
+              <a
+                [routerLink]="['/admin/products/stock', product.idProduit]"
+                class="btn stock"
+              >
+                Stock
+              </a>
+
+              <button
+                class="btn activate"
+                (click)="activateProduit(product.idProduit!)"
+              >
+                Activate
+              </button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="page-btn"
+        (click)="goToPreviousPage()"
+        [disabled]="currentPage === 1"
+      >
+        Previous
+      </button>
+
+      <span class="page-info">
+        Page {{ currentPage }} / {{ totalPages }}
+      </span>
+
+      <button
+        class="page-btn"
+        (click)="goToNextPage()"
+        [disabled]="currentPage === totalPages"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- DELETE MODAL -->
+<div class="modal-overlay" *ngIf="showDeleteModal">
+  <div class="modal">
+    <h3>Delete Product</h3>
+
+    <p>Enter Product ID to delete</p>
+
+    <input
+      type="number"
+      [(ngModel)]="deleteProductId"
+      placeholder="Product ID"
+      class="modal-input"
+    />
+
+    <div class="modal-actions">
+      <button class="btn cancel" (click)="closeDeleteModal()">
+        Cancel
+      </button>
+
+      <button class="btn delete" (click)="confirmDelete()">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>

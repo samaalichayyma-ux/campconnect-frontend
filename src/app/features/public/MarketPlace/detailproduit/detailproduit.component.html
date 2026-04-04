@@ -1,0 +1,113 @@
+<section class="product-details-section" *ngIf="produit">
+  <div class="container">
+    <div class="product-details-card">
+      <div class="gallery">
+        <div class="gallery-main">
+          <button class="nav-btn prev" (click)="previousImage()">‹</button>
+
+          <img
+            [src]="produit.images.length
+              ? 'http://localhost:8082/api/uploads/' + produit.images[selectedImageIndex]
+              : 'assets/images/default.jpg'"
+            [alt]="produit.nom"
+            class="main-image"
+          />
+
+          <button class="nav-btn next" (click)="nextImage()">›</button>
+        </div>
+
+        <div class="thumbnails" *ngIf="produit.images.length > 1">
+          <img
+            *ngFor="let image of produit.images; let i = index"
+            [src]="'http://localhost:8082/api/uploads/' + image"
+            [alt]="produit.nom"
+            [class.active]="i === selectedImageIndex"
+            (click)="selectImage(i)"
+            class="thumbnail"
+          />
+        </div>
+      </div>
+
+      <div class="product-info">
+        <div class="separator"></div>
+
+        <h2>{{ produit.nom }}</h2>
+
+        <div class="price-box">
+          <span class="price">{{ produit.prix }} TND</span>
+        </div>
+
+        <p class="category">Category: {{ produit.categorie }}</p>
+        <p class="description">{{ produit.description }}</p>
+
+        <div class="variant-box" *ngIf="isVetement()">
+          <label class="variant-label">Select Size</label>
+          <div class="variant-options">
+            <button
+              type="button"
+              class="variant-btn"
+              *ngFor="let taille of tailles"
+              [class.selected]="selectedTaille === taille"
+              (click)="selectedTaille = taille"
+            >
+              {{ taille }}
+            </button>
+          </div>
+        </div>
+
+        <div class="variant-box" *ngIf="isChaussure()">
+          <label class="variant-label">Select Shoe Size</label>
+          <div class="variant-options">
+            <button
+              type="button"
+              class="variant-btn"
+              *ngFor="let pointure of pointures"
+              [class.selected]="selectedPointure === pointure"
+              (click)="selectedPointure = pointure"
+            >
+              {{ pointure }}
+            </button>
+          </div>
+        </div>
+        <p class="stock-warning" *ngIf="produit.active === false || produit.stock === 0">
+  Out of stock
+</p>
+<button
+  class="buy-btn"
+  (click)="acheter()"
+  [disabled]="produit.active === false || produit.stock === 0 || !canBuy()"
+>
+  Buy Now
+</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="related-products-section" *ngIf="produitsSimilaires.length > 0">
+  <div class="container">
+    <h2 class="section-title">RELATED PRODUCTS</h2>
+
+    <div class="related-grid">
+      <div
+        class="related-card"
+        *ngFor="let item of produitsSimilaires"
+        (click)="voirProduit(item)"
+      >
+        <div
+          class="related-image"
+          [style.background-image]="
+            item.images.length
+              ? 'linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)), url(http://localhost:8082/api/uploads/' + item.images[0] + ')'
+              : 'linear-gradient(rgba(0,0,0,.35), rgba(0,0,0,.35)), url(assets/images/default.jpg)'
+          "
+        >
+          <div class="overlay-content">
+            <h3>{{ item.nom }}</h3>
+            <p>{{ item.prix }} TND</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

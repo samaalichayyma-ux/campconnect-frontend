@@ -56,6 +56,11 @@ import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.comp
 import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
 import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
 import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
+import { AccueilmarketComponent } from './features/public/MarketPlace/accueilmarket/accueilmarket.component';
+import { DetailproduitComponent } from './features/public/MarketPlace/detailproduit/detailproduit.component';
+import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
+import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
+import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -93,7 +98,14 @@ export const routes: Routes = [
 
       { path: 'reclamations', component: ReclamationAdminListComponent },
       { path: 'repas', component: RepasAdminComponent },
-      { path: 'commandes-repas', component: CommandesAdminComponent }
+      { path: 'commandes-repas', component: CommandesAdminComponent },
+      
+    { path: 'Market/AddProduct', component: AddProductComponent },
+    { path: 'Market/EditProduct/:id', component: AddProductComponent },
+    { path: 'Market/listProduct', component: ListProductComponent },
+
+
+
     ]
   },
   {
@@ -127,7 +139,11 @@ export const routes: Routes = [
       { path: 'reclamations/add', component: ReclamationAddComponent },
       { path: 'reclamations', component: ReclamationListComponent },
       { path: 'repas', component: RepasListComponent },
-      { path: 'commande-repas', component: CommandeRepasComponent }
+      { path: 'commande-repas', component: CommandeRepasComponent },
+      { path: 'Accueil-Market', component: AccueilmarketComponent },
+        {path: 'listP', component: ListeProduitComponent},
+  { path: 'detailP/:id', component: DetailproduitComponent }
+
     ]
   },
   { path: 'login', component: LoginComponent },
