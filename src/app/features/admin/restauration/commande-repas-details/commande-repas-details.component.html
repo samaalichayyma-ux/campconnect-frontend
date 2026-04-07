@@ -1,0 +1,86 @@
+<section class="details-page">
+  <div class="details-header">
+    <div>
+      <h1>Meal Order Details</h1>
+      <p>View complete information about a meal order</p>
+    </div>
+
+    <button class="back-btn" (click)="goBack()">← Back</button>
+  </div>
+
+  <div *ngIf="loading">Loading order details...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div *ngIf="!loading && commande" class="details-card">
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="label">Order ID</span>
+        <span class="value">{{ commande.id }}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Client</span>
+        <span class="value">{{ commande.clientNom || '-' }}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Date commande</span>
+        <span class="value">{{ commande.dateCommande }}</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Montant total</span>
+        <span class="value">{{ commande.montantTotal }} TND</span>
+      </div>
+
+      <div class="info-item">
+        <span class="label">Statut</span>
+        <span class="value">
+          <span class="status" [ngClass]="getStatusClass(commande.statut)">
+            {{ commande.statut }}
+          </span>
+        </span>
+      </div>
+    </div>
+
+    <div class="lines-section">
+      <h2>Order Lines</h2>
+
+      <div *ngIf="!commande.lignes || commande.lignes.length === 0" class="empty-state">
+        No order lines found.
+      </div>
+
+      <div class="table-wrapper" *ngIf="commande.lignes && commande.lignes.length > 0">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Repas</th>
+              <th>Quantité</th>
+              <th>Prix unitaire</th>
+              <th>Sous-total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let ligne of commande.lignes">
+              <td>{{ ligne.id }}</td>
+              <td>{{ ligne.repasNom || '-' }}</td>
+              <td>{{ ligne.quantite }}</td>
+              <td>{{ ligne.prixUnitaire }} TND</td>
+              <td>{{ ligne.quantite * ligne.prixUnitaire }} TND</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="total-box" *ngIf="commande.lignes && commande.lignes.length > 0">
+        <strong>Total calculé :</strong> {{ getTotalLignes(commande.lignes) }} TND
+      </div>
+    </div>
+
+    <div class="actions">
+      <a [routerLink]="['/admin/commande-repas/edit', commande.id]" class="btn edit">Edit</a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,119 @@
+.restaurants-page {
+  padding: 30px;
+  background: #f5f7fb;
+  min-height: 100vh;
+}
+
+.restaurants-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.restaurants-header h1 {
+  margin: 0;
+}
+
+.add-btn {
+  background: #2563eb;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+}
+
+.form-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.table-wrapper {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  overflow-x: auto;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+  background: #f9fafb;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-size: 13px;
+}
+
+.edit {
+  background: #f59e0b;
+}
+
+.delete {
+  background: #dc2626;
+}
+
+.toggle {
+  background: #0ea5e9;
+}
+
+.active-badge {
+  background: #22c55e;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.inactive-badge {
+  background: #ef4444;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.error-message {
+  color: #b91c1c;
+  background: #fee2e2;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 16px;
+}

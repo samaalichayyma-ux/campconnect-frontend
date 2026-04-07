@@ -37,17 +37,26 @@ export class DashboardComponent {
       value: 27,
       icon: 'assurances',
       colorClass: 'blue-card'
-    }
+    },
+      { title: 'Complaint', 
+        Value: '30', 
+        icon: '⚠️',
+      colorClass: 'olive-card'
+      }
+    
   ];
 
   modules = [
+
     { title: 'Users', subtitle: 'Manage all users', icon: 'users', link: '/admin/users' },
     { title: 'Assurances', subtitle: 'Manage assurances', icon: 'assurances', link: '/admin/assurances' },
     { title: 'Restaurants', subtitle: 'Manage restaurants', icon: 'restaurants', link: '/admin/repas' },
     { title: 'Guides', subtitle: 'Manage guides', icon: 'guides', link: '/admin/guides' },
     { title: 'Events', subtitle: 'Manage events', icon: 'events', link: '/admin/events' },
     { title: 'Reservations', subtitle: 'Manage reservations', icon: 'reservations', link: '/admin/reservations' },
-    { title: 'Formations', subtitle: 'Manage trainings', icon: 'formations', link: '/admin/formations' }
+    { title: 'Formations', subtitle: 'Manage trainings', icon: 'formations', link: '/admin/formations' },
+    { title: 'Complaint', subtitle: 'Manage complains', icon: '⚠️', link: '/admin/reclamations' }
+
   ];
 
   recentActivities = [

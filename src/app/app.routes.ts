@@ -34,17 +34,22 @@ import { CampingSiteEditComponent } from './features/admin/camping-sites/camping
 import { ReclamationListComponent } from './features/public/reclamation/reclamation-list/reclamation-list.component';
 import { ReclamationAddComponent } from './features/public/reclamation/reclamation-add/reclamation-add.component';
 import { RepasListComponent } from './features/public/restauration/repas-list/repas-list.component';
-import { CommandeRepasComponent } from './features/public/restauration/commande-repas/commande-repas.component';
-
 import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
+import { ReclamationDetailComponent } from './features/admin/reclamation/reclamation-detail/reclamation-detail.component';
+import { ReclamationEditComponent } from './features/admin/reclamation/reclamation-edit/reclamation-edit.component';
+
+import { CommandeRepasComponent } from './features/public/restauration/commande-repas/commande-repas.component';
 import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
 import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
+import { CommandeRepasEditComponent } from './features/admin/restauration/commande-repas-edit/commande-repas-edit.component';
+import { CommandeRepasDetailsComponent } from './features/admin/restauration/commande-repas-details/commande-repas-details.component';
 
 import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
 import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites/admin-camping-site-details/admin-camping-site-details.component';
 import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
 import { BookingSummaryComponent } from './features/public/booking-summary/booking-summary.component';
 import { MyBookingsComponent } from './features/public/my-bookings/my-bookings.component';
+
 
 import { EventsListComponent } from './features/public/events/events-list/events-list.component';
 import { EventDetailsComponent } from './features/public/events/event-details/event-details.component';
@@ -61,6 +66,7 @@ import { DetailproduitComponent } from './features/public/MarketPlace/detailprod
 import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
 import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
 import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
+
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -86,6 +92,16 @@ export const routes: Routes = [
       { path: 'camping-sites/:id', component: AdminCampingSiteDetailsComponent },
       { path: 'site-bookings', component: SiteBookingsComponent },
       { path: 'avis', component: AdminAvisListComponent },
+     
+       { path: 'reclamations', component: ReclamationAdminListComponent },
+      { path: 'reclamation/detail/:id', component:ReclamationDetailComponent},
+      { path: 'reclamations/edit/:id', component: ReclamationEditComponent },
+
+  { path: 'repas', component: RepasAdminComponent },
+  { path: 'commandes-repas', component: CommandesAdminComponent },
+  { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
+{ path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
+
 
       { path: 'events', component: EventListComponent },
       { path: 'events/new', component: EventCreateComponent },
@@ -103,8 +119,6 @@ export const routes: Routes = [
     { path: 'Market/AddProduct', component: AddProductComponent },
     { path: 'Market/EditProduct/:id', component: AddProductComponent },
     { path: 'Market/listProduct', component: ListProductComponent },
-
-
 
     ]
   },
