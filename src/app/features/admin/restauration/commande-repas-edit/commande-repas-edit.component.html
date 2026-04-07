@@ -1,0 +1,113 @@
+<section class="edit-page">
+  <div class="edit-header">
+    <div>
+      <h1>Edit Meal Order</h1>
+      <p>Update meal order information and status</p>
+    </div>
+
+    <button class="back-btn" (click)="goBack()">← Back</button>
+  </div>
+
+  <div *ngIf="loading">Loading order...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+  <div *ngIf="!loading" class="form-card">
+    <form (ngSubmit)="updateCommande()" #commandeForm="ngForm">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="id">Order ID</label>
+          <input
+            type="number"
+            id="id"
+            name="id"
+            [(ngModel)]="commande.id"
+            readonly
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="clientNom">Client</label>
+          <input
+            type="text"
+            id="clientNom"
+            name="clientNom"
+            [(ngModel)]="commande.clientNom"
+            readonly
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="dateCommande">Date commande</label>
+          <input
+            type="text"
+            id="dateCommande"
+            name="dateCommande"
+            [(ngModel)]="commande.dateCommande"
+            readonly
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="montantTotal">Montant total</label>
+          <input
+            type="number"
+            id="montantTotal"
+            name="montantTotal"
+            [(ngModel)]="commande.montantTotal"
+            readonly
+          />
+        </div>
+
+        <div class="form-group full-width">
+          <label for="statut">Statut</label>
+          <select
+            id="statut"
+            name="statut"
+            [(ngModel)]="commande.statut"
+            required
+          >
+            <option *ngFor="let statut of statuts" [value]="statut">
+              {{ statut }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="lines-section" *ngIf="commande.lignes && commande.lignes.length > 0">
+        <h2>Order Lines</h2>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Repas</th>
+                <th>Quantité</th>
+                <th>Prix unitaire</th>
+                <th>Sous-total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let ligne of commande.lignes">
+                <td>{{ ligne.id }}</td>
+                <td>{{ ligne.repasNom || '-' }}</td>
+                <td>{{ ligne.quantite }}</td>
+                <td>{{ ligne.prixUnitaire }} TND</td>
+                <td>{{ ligne.quantite * ligne.prixUnitaire }} TND</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn cancel" (click)="goBack()">Cancel</button>
+        <button type="submit" class="btn save" [disabled]="commandeForm.invalid || submitting">
+          {{ submitting ? 'Saving...' : 'Update Order' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</section>

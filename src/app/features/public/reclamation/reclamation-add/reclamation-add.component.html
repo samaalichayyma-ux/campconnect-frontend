@@ -2,9 +2,11 @@
   <div class="reclamation-overlay">
     <div class="reclamation-card">
       <form (ngSubmit)="save()" #reclamationForm="ngForm">
+
+        <!-- Description -->
         <div class="mb-3">
           <label for="description" class="form-label">Complaint Description</label>
-        <br>
+          <br>
           <textarea
             id="description"
             name="description"
@@ -20,6 +22,20 @@
           </div>
         </div>
 
+        <!-- Image Upload -->
+        <div class="form-group full-width mb-3">
+          <label for="description" class="form-label">
+         Image</label><br>
+          <input
+            id="image"
+            type="file"
+            name="image"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+          />
+        </div>
+
+        <!-- Acceptation -->
         <div class="form-check mb-3">
           <input
             class="form-check-input"
@@ -49,6 +65,7 @@
   </div>
 </section>
 
+<!-- Modal -->
 <div class="modal-backdrop-custom" *ngIf="showDeclaration">
   <div class="modal-box-custom">
     <div class="modal-header-custom">
@@ -57,29 +74,7 @@
     </div>
 
     <div class="modal-body-custom">
-      <p>
-        The <strong>CampConnect</strong> platform collects and processes the data provided in this form
-        solely for the purpose of managing and tracking your complaint.
-      </p>
-
-      <p>The collected data may include:</p>
-      <ul>
-        <li>your identification information;</li>
-        <li>your contact details;</li>
-        <li>the description of your complaint;</li>
-        <li>information related to the services used on the platform;</li>
-        <li>technical data related to the use of the application.</li>
-      </ul>
-
-      <p>
-        This data is processed confidentially and securely. It is used only
-        within the scope of handling your request and improving the services provided.
-      </p>
-
-      <p>
-        By checking the acceptance box, you confirm that you have read this declaration
-        and agree to the processing of your personal data in connection with your complaint.
-      </p>
+      <p>The <strong>CampConnect</strong> platform collects your data...</p>
     </div>
 
     <div class="modal-footer-custom">

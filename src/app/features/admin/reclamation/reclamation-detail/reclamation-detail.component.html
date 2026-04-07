@@ -1,0 +1,59 @@
+<section *ngIf="reclamation" class="reclamation-container">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Complaint Details #{{ reclamation.id }}</h2>
+    </div>
+
+    <div class="card-body">
+      <div class="info-row">
+        <span class="label">Description</span>
+        <p class="value">{{ reclamation.description }}</p>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Created At</span>
+        <p class="value">{{ reclamation.dateCreation }}</p>
+      </div>
+
+      <div class="info-row">
+        <span class="label">User</span>
+        <p class="value">{{ reclamation.utilisateurNom || 'N/A' }}</p>
+      </div>
+
+      <!-- Status Section -->
+      <div class="status-section">
+        <span class="label">Status</span>
+
+        <div class="status-actions">
+ <select [(ngModel)]="reclamation.statut" class="status-select">
+  <option value="REJETEE">Rejected</option>
+  <option value="EN_COURS">In Progress</option>
+  <option value="RESOLUE">Resolved</option>
+</select>
+
+          <button 
+            class="btn-update"
+            (click)="updateStatut(reclamation.statut)">
+            Update Status
+          </button>
+        </div>
+
+        <span *ngIf="!loading && !errorMessage" class="success-message">
+          Ready to update status
+        </span>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading">
+  Loading...
+</div>
+
+<!-- Error -->
+<div *ngIf="errorMessage" class="error">
+  {{ errorMessage }}
+</div>

@@ -18,10 +18,12 @@ export class ReclamationService {
   getById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
-
-  create(reclamation: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, reclamation);
-  }
+getByUser(userId: number): Observable<any[]> {
+  return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
+}
+create(reclamation: any): Observable<any> {
+  return this.http.post<any>(this.apiUrl, reclamation); // JSON classique
+}
 
   update(id: number, reclamation: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, reclamation);
