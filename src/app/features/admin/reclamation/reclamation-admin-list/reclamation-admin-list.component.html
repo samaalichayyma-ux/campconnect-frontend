@@ -1,24 +1,72 @@
-<h2>Administration des réclamations</h2>
+<section class="reclamations-page">
+  <div class="reclamations-header">
+    <div>
+      <h1>Complaint Management</h1>
+      <p>Manage all complaints and track their status</p>
+    </div>
+  </div>
 
-<table border="1" cellpadding="8">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Description</th>
-      <th>Statut</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let r of reclamations">
-      <td>{{ r.id }}</td>
-      <td>{{ r.description }}</td>
-      <td>{{ r.statut }}</td>
-      <td>
-        <button (click)="changerStatut(r.id, 'EN_COURS')">En cours</button>
-        <button (click)="changerStatut(r.id, 'RESOLUE')">Résolue</button>
-        <button (click)="changerStatut(r.id, 'REJETEE')">Rejetée</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+  <div *ngIf="loading">Loading complaints...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Description</th>
+          <th>Created At</th>
+          <th>Status</th>
+          <th>User</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let reclamation of reclamations">
+          <td>{{ reclamation.id }}</td>
+          <td>{{ reclamation.description }}</td>
+          <td>{{ reclamation.dateCreation }}</td>
+          
+          <!-- ✅ Improved Status -->
+          <td>
+            <span 
+              class="status-badge"
+              [ngClass]="reclamation.statut">
+
+              {{
+                reclamation.statut === 'RESOLUE' ? 'Resolved' :
+                reclamation.statut === 'EN_COURS' ? 'In Progress' :
+                reclamation.statut === 'REJETEE' ? 'Rejected' :
+                'Pending'
+              }}
+
+            </span>
+          </td>
+
+          <td>{{ reclamation.utilisateurNom || 'N/A' }}</td>
+
+          <td class="actions">
+            <a 
+              [routerLink]="['/admin/reclamation/detail', reclamation.id]" 
+              class="btn details">
+              View
+            </a>
+
+            <a 
+              [routerLink]="['/admin/reclamations/edit', reclamation.id]" 
+              class="btn edit">
+              Edit
+            </a>
+
+            <button 
+              class="btn delete" 
+              (click)="deleteReclamation(reclamation.id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

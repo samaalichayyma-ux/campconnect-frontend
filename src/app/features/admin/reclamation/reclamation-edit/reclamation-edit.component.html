@@ -1,0 +1,48 @@
+<section *ngIf="reclamation" class="reclamation-container">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Edit Complaint #{{ reclamation.id }}</h2>
+    </div>
+
+    <div class="card-body">
+
+      <!-- Description -->
+      <div class="form-group">
+        <label>Description</label>
+        <textarea 
+          [(ngModel)]="reclamation.description"
+          class="form-control"
+          rows="4">
+        </textarea>
+      </div>
+
+      <!-- Status -->
+      <div class="form-group">
+        <label>Status</label>
+        <select [(ngModel)]="reclamation.statut" class="status-select">
+          <option value="REJETEE">Rejected</option>
+          <option value="EN_COURS">In Progress</option>
+          <option value="RESOLUE">Resolved</option>
+        </select>
+      </div>
+
+      <!-- Buttons -->
+ <!-- Buttons -->
+<div class="actions">
+  <button class="btn-update" (click)="updateReclamation()">
+    Save Changes
+  </button>
+  <a class="btn-cancel" [routerLink]="['/admin/reclamations']">
+  Cancel
+</a>
+
+</div>
+
+    </div>
+  </div>
+
+</section>
+
+<div *ngIf="loading" class="loading">Loading...</div>
+<div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
