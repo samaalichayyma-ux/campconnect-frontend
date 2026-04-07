@@ -1,0 +1,178 @@
+.commentaire-section {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.comment-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #222;
+}
+
+.comment-input-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4caf50, #8bc34a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: white;
+}
+
+.avatar.small {
+  width: 34px;
+  height: 34px;
+  min-width: 34px;
+  font-size: 16px;
+}
+
+.input-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-input {
+  width: 100%;
+  border: none;
+  background: #f0f2f5;
+  border-radius: 20px;
+  padding: 12px 16px;
+  font-size: 14px;
+  outline: none;
+}
+
+.comment-input:focus {
+  background: #e8f5e9;
+}
+
+.send-btn {
+  align-self: flex-end;
+  border: none;
+  background: #1877f2;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.send-btn:hover {
+  background: #0f5ec9;
+}
+
+.commentaire-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.comment-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.bubble {
+  background: #f0f2f5;
+  border-radius: 18px;
+  padding: 10px 14px;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.comment-user {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 4px;
+}
+
+.bubble p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.comment-meta {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #777;
+  padding-left: 10px;
+}
+
+.empty-comment {
+  color: #888;
+  font-size: 13px;
+  margin-top: 8px;
+}
+.meta-btn {
+  background: none;
+  border: none;
+  color: #777;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.meta-btn:hover {
+  color: #111;
+}
+
+.like-btn {
+  color: #e53935;
+  font-weight: 600;
+}
+
+.edit-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.save-small-btn,
+.cancel-small-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.save-small-btn {
+  background: #1877f2;
+  color: white;
+}
+
+.cancel-small-btn {
+  background: #e0e0e0;
+  color: #333;
+}

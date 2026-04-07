@@ -61,6 +61,14 @@ import { DetailproduitComponent } from './features/public/MarketPlace/detailprod
 import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
 import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
 import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
+import { PublicationListComponent } from './features/public/publication/publication-list/publication-list.component';
+import { PublicationCreateComponent } from './features/public/publication/publication-create/publication-create.component';
+import { PublicationEditComponent } from './features/public/publication/publication-edit/publication-edit.component';
+import { ForumListComponent } from './features/public/forum/forum-list/forum-list.component';
+import { ForumCreateComponent } from './features/public/forum/forum-create/forum-create.component';
+import { ForumEditComponent } from './features/public/forum/forum-edit/forum-edit.component';
+import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
+import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -103,7 +111,12 @@ export const routes: Routes = [
     { path: 'Market/AddProduct', component: AddProductComponent },
     { path: 'Market/EditProduct/:id', component: AddProductComponent },
     { path: 'Market/listProduct', component: ListProductComponent },
-
+      { path: 'publication/list', component: PublicationAdminListComponent },
+      { path: 'publication/edit/:id', component: PublicationAdminEditComponent },
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+    
 
 
     ]
@@ -141,12 +154,20 @@ export const routes: Routes = [
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },
       { path: 'Accueil-Market', component: AccueilmarketComponent },
-        {path: 'listP', component: ListeProduitComponent},
-  { path: 'detailP/:id', component: DetailproduitComponent }
+      {path: 'listP', component: ListeProduitComponent},
+      { path: 'detailP/:id', component: DetailproduitComponent },
+       { path: 'publications', component: PublicationListComponent },
+    { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
+    { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
+
+    { path: 'forums', component: ForumListComponent },
+    { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+    { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
 
     ]
   },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: '**', component: NotFoundComponent }
+
 ];

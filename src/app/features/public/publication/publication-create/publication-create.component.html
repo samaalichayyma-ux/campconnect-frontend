@@ -1,0 +1,18 @@
+<div class="create-page">
+  <div class="create-card">
+    <h2>Nouvelle publication</h2>
+    <p>Partagez votre expérience camping avec la communauté.</p>
+
+    <textarea
+      [(ngModel)]="contenu"
+      placeholder="Écrivez votre publication ici..."
+    ></textarea>
+
+    <div class="form-actions">
+      <button class="save-btn" (click)="create()">Publier</button>
+    </div>
+
+    <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+  </div>
+</div>

@@ -1,0 +1,105 @@
+.publication-page {
+  max-width: 1000px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #faf8f3;
+}
+
+.hero-section {
+  background: linear-gradient(to right, #f4efe6, #f8f5ee);
+  border-radius: 18px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.hero-section h1 {
+  margin: 0 0 8px;
+  color: #2f6f57;
+  font-size: 30px;
+}
+
+.hero-section p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.publication-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.publication-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.publication-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #1f2937;
+}
+
+.publication-date {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.publication-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  border: none;
+  background: #f4efe6;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.icon-btn:hover {
+  background: #e9e1d3;
+}
+
+.danger-btn:hover {
+  background: #f7dede;
+}
+
+.publication-footer {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.like-btn,
+.details-btn {
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.like-btn {
+  background: #f4efe6;
+  color: #2f6f57;
+}
+
+.details-btn {
+  background: #2f6f57;
+  color: white;
+}
+
+.details-btn:hover {
+  background: #285c49;
+}
