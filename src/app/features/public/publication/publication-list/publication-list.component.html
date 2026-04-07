@@ -1,0 +1,36 @@
+<div class="publication-page">
+  <div class="hero-section">
+    <h1>Explorer la communauté camping</h1>
+    <p>Découvrez les expériences, conseils et publications des campeurs.</p>
+  </div>
+
+  <div class="publication-list">
+    <div class="publication-card" *ngFor="let publication of publications">
+      <div class="publication-header">
+        <div>
+          <h3 class="publication-title">{{ publication.contenu }}</h3>
+          <p class="publication-date">{{ publication.dateCreation }}</p>
+        </div>
+
+        <div class="publication-actions">
+          <button class="icon-btn" title="Modifier" (click)="goToEdit(publication.id)">
+            ✏️
+          </button>
+          <button class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <div class="publication-footer">
+        <button class="like-btn" (click)="like(publication.id)">
+          ❤️ {{ publication.likesCount || 0 }}
+        </button>
+
+        <button class="details-btn" (click)="goToDetails(publication.id)">
+          Voir détails
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

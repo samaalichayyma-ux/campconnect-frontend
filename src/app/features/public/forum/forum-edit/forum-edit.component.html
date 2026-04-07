@@ -1,0 +1,12 @@
+<div class="edit-page">
+  <div class="edit-card">
+    <h2>Modifier le forum</h2>
+
+    <input [(ngModel)]="forum.nom" type="text" placeholder="Nom du forum" />
+    <textarea [(ngModel)]="forum.description" placeholder="Description"></textarea>
+
+    <button class="save-btn" (click)="update()">Sauvegarder</button>
+
+    <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+  </div>
+</div>
