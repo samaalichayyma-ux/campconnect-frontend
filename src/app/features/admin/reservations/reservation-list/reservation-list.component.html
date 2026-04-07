@@ -1,0 +1,269 @@
+<div class="reservation-list-container">
+  <div class="list-header">
+    <h1>Reservation Management</h1>
+    <a routerLink="/admin/reservations/new" class="create-btn">+ Create New Reservation</a>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading reservations...</p>
+  </div>
+
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <div class="alert-icon">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="alert-copy">
+      <strong>Something went wrong</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+    <button type="button" (click)="loadReservations()" class="retry-btn">Retry</button>
+  </div>
+
+  <section *ngIf="!isLoading && reservations.length > 0" class="filters-panel">
+    <div class="filters-topline">
+      <div class="filters-heading">
+        <span class="filters-title">Filters</span>
+        <span class="filters-summary">{{ filteredCount }} of {{ reservations.length }} reservations shown</span>
+      </div>
+
+      <div class="filter-actions">
+        <button type="button" class="filter-btn secondary" (click)="clearFilters()" [disabled]="!hasActiveFilters()">
+          Clear
+        </button>
+        <button type="button" class="filter-btn primary" (click)="loadReservations()">
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-grid">
+      <label class="filter-field">
+        <span class="filter-label">Event Search</span>
+        <input
+          class="filter-input"
+          type="text"
+          [(ngModel)]="eventFilter"
+          (ngModelChange)="applyFilters()"
+          placeholder="Event title or place">
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-label">User Search</span>
+        <input
+          class="filter-input"
+          type="text"
+          [(ngModel)]="userFilter"
+          (ngModelChange)="applyFilters()"
+          placeholder="Guest name or email">
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-label">Workflow</span>
+        <select class="filter-select" [(ngModel)]="workflowFilter" (ngModelChange)="applyFilters()">
+          <option value="all">All reservations</option>
+          <option value="needs-approval">Needs approval</option>
+          <option value="refunded">Refunded</option>
+          <option value="waitlist">Waitlist only</option>
+          <option value="paid">Paid reservations</option>
+          <option value="cancelled">Cancelled only</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="quick-filter-row">
+      <button
+        type="button"
+        class="quick-filter-chip"
+        [class.active]="workflowFilter === 'all'"
+        (click)="setWorkflowFilter('all')">
+        <span>All</span>
+        <strong>{{ reservations.length }}</strong>
+      </button>
+
+      <button
+        type="button"
+        class="quick-filter-chip"
+        [class.active]="workflowFilter === 'needs-approval'"
+        (click)="setWorkflowFilter('needs-approval')">
+        <span>Pending approvals</span>
+        <strong>{{ pendingApprovalsCount }}</strong>
+      </button>
+
+      <button
+        type="button"
+        class="quick-filter-chip"
+        [class.active]="workflowFilter === 'refunded'"
+        (click)="setWorkflowFilter('refunded')">
+        <span>Refunded</span>
+        <strong>{{ refundableCount }}</strong>
+      </button>
+
+      <button
+        type="button"
+        class="quick-filter-chip"
+        [class.active]="workflowFilter === 'waitlist'"
+        (click)="setWorkflowFilter('waitlist')">
+        <span>Waitlist</span>
+        <strong>{{ waitlistCount }}</strong>
+      </button>
+    </div>
+  </section>
+
+  <div *ngIf="!isLoading && filteredReservations.length > 0" class="table-wrapper">
+    <table class="reservations-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Event</th>
+          <th>User</th>
+          <th>Total</th>
+          <th>Status</th>
+          <th>Payment</th>
+          <th>Waitlist</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let reservation of paginatedReservations" [class.deleting]="actionDialog?.id === reservation.id">
+          <td class="id-cell">#{{ reservation.id }}</td>
+          <td class="event-cell">
+            <span class="primary-text">{{ reservation.eventTitre }}</span>
+            <span class="secondary-text">{{ reservation.eventLieu }}</span>
+            <span class="secondary-text">{{ formatDateTime(reservation.eventDateDebut) }}</span>
+          </td>
+          <td class="user-cell">
+            <span class="primary-text">{{ reservation.utilisateurNom }}</span>
+            <span class="secondary-text">{{ reservation.utilisateurEmail }}</span>
+          </td>
+          <td class="total-cell">${{ reservation.prixTotal | number:'1.0-2' }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(reservation.statut)">
+              {{ formatStatusLabel(reservation.statut) }}
+            </span>
+          </td>
+          <td>
+            <span class="payment-badge" [ngClass]="getPaymentStatusClass(reservation.statutPaiement)">
+              {{ formatStatusLabel(reservation.statutPaiement) }}
+            </span>
+          </td>
+          <td>
+            <span class="waitlist-badge" [class.waitlisted]="reservation.estEnAttente">
+              {{ reservation.estEnAttente ? 'Waitlisted' : 'Open seats' }}
+            </span>
+          </td>
+          <td class="created-cell">{{ formatDateTime(reservation.dateCreation) }}</td>
+          <td class="actions-cell">
+            <div class="action-group">
+              <a
+                [routerLink]="['/admin/reservations', reservation.id, 'edit']"
+                class="row-action edit-action"
+                title="Edit"
+                aria-label="Edit reservation">
+                <app-admin-icon name="edit" [size]="18"></app-admin-icon>
+                <span>Edit</span>
+              </a>
+              <button
+                *ngIf="canConfirm(reservation)"
+                type="button"
+                class="row-action approve-action"
+                [disabled]="isActionPending(reservation.id)"
+                (click)="openActionDialog(reservation.id, 'confirm')"
+                title="Confirm"
+                aria-label="Confirm reservation">
+                <app-admin-icon name="check" [size]="18"></app-admin-icon>
+                <span>Approve</span>
+              </button>
+              <button
+                *ngIf="canMarkNoShow(reservation)"
+                type="button"
+                class="row-action no-show-action"
+                [disabled]="isActionPending(reservation.id)"
+                (click)="openActionDialog(reservation.id, 'no-show')"
+                title="Mark no-show"
+                aria-label="Mark reservation as no-show">
+                <app-admin-icon name="close" [size]="18"></app-admin-icon>
+                <span>No-show</span>
+              </button>
+              <button
+                *ngIf="canRefund(reservation)"
+                type="button"
+                class="row-action refund-action"
+                [disabled]="isActionPending(reservation.id)"
+                (click)="refundReservation(reservation.id)"
+                title="Refund"
+                aria-label="Refund reservation">
+                <app-admin-icon name="refund" [size]="18"></app-admin-icon>
+                <span>Refund</span>
+              </button>
+              <button
+                *ngIf="canCancel(reservation) && actionDialog?.id !== reservation.id"
+                type="button"
+                class="row-action cancel-action"
+                [disabled]="isActionPending(reservation.id)"
+                (click)="openActionDialog(reservation.id, 'cancel')"
+                title="Cancel"
+                aria-label="Cancel reservation">
+                <app-admin-icon name="delete" [size]="18"></app-admin-icon>
+                <span>Cancel</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!isLoading && reservations.length === 0" class="no-reservations">
+    <p>No reservations found. Create the first reservation to get started.</p>
+    <a routerLink="/admin/reservations/new" class="create-btn">+ Create Reservation</a>
+  </div>
+
+  <div *ngIf="!isLoading && reservations.length > 0 && filteredReservations.length === 0" class="no-reservations no-results">
+    <p>No reservations match the current event/user filters.</p>
+    <button type="button" class="filter-btn secondary" (click)="clearFilters()">Clear filters</button>
+  </div>
+
+  <div *ngIf="!isLoading && filteredReservations.length > 0" class="pagination-section">
+    <div class="pagination-summary">
+      {{ paginationSummaryLabel }}
+    </div>
+
+    <div class="pagination-controls" *ngIf="filteredReservations.length > pageSize">
+      <button type="button" class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        *ngFor="let page of visiblePageNumbers"
+        type="button"
+        class="page-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button type="button" class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="actionDialog" class="confirm-overlay" (click)="closeActionDialog()">
+    <div class="confirm-dialog" [ngClass]="dialogVariantClass" (click)="$event.stopPropagation()">
+      <div class="dialog-badge" [ngClass]="dialogVariantClass">
+        <app-admin-icon [name]="dialogIconName" [size]="18"></app-admin-icon>
+      </div>
+      <div class="dialog-copy">
+        <h3>{{ dialogTitle }}</h3>
+        <p>{{ dialogMessage }}</p>
+      </div>
+      <div class="confirm-buttons">
+        <button type="button" class="no-btn" (click)="closeActionDialog()">{{ dialogKeepLabel }}</button>
+        <button type="button" class="yes-btn" [ngClass]="dialogVariantClass" (click)="submitActionDialog()">
+          {{ dialogConfirmLabel }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

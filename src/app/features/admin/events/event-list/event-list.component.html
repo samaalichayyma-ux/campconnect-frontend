@@ -1,0 +1,207 @@
+<div class="event-list-container">
+  <div class="list-header">
+    <h1>Event Management</h1>
+    <a routerLink="/admin/events/new" class="create-btn">+ Create New Event</a>
+  </div>
+
+  <div *ngIf="isLoading" class="loading">
+    <p>Loading events...</p>
+  </div>
+
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <div class="alert-icon">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="alert-copy">
+      <strong>Something went wrong</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+    <button (click)="loadEvents()" class="retry-btn">Retry</button>
+  </div>
+
+  <div *ngIf="successMessage && !isLoading" class="success-message">
+    <div class="alert-icon success">
+      <app-admin-icon name="check" [size]="18"></app-admin-icon>
+    </div>
+    <div class="alert-copy">
+      <strong>Update saved</strong>
+      <p>{{ successMessage }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && events.length > 0" class="table-wrapper">
+    <table class="events-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Title</th>
+          <th>Date</th>
+          <th>Time</th>
+          <th>Location</th>
+          <th>Category</th>
+          <th>Visibility</th>
+          <th>Capacity</th>
+          <th>Registered</th>
+          <th>Price</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of paginatedEvents" [class.deleting]="deleteConfirmId === event.id">
+          <td class="image-cell">
+            <img [src]="getEventImageUrl(event)" [alt]="event.titre" class="event-thumbnail" (error)="onImageError($event)">
+          </td>
+          <td class="title-cell">
+            <span class="event-title">{{ event.titre }}</span>
+            <span class="organizer-meta">{{ event.organizerNom }}</span>
+          </td>
+          <td>{{ formatDate(event.dateDebut) }}</td>
+          <td>{{ event.dateDebut | date:'shortTime' }}</td>
+          <td>{{ event.lieu }}</td>
+          <td>
+            <span class="category-badge">{{ getCategoryLabel(event.categorie) }}</span>
+          </td>
+          <td>
+            <span class="visibility-badge" [class.draft]="event.published === false">
+              {{ getVisibilityLabel(event) }}
+            </span>
+            <span *ngIf="event.sourceEventId" class="recurrence-meta">
+              {{ getRecurrenceLabel(event.recurrenceFrequency) }} from #{{ event.sourceEventId }}
+            </span>
+          </td>
+          <td>{{ event.capaciteMax }}</td>
+          <td>
+            <span class="registered-badge">
+              {{ event.participantsCount || 0 }} / {{ event.capaciteMax }}
+            </span>
+          </td>
+          <td class="price">${{ event.prix | number:'1.0-2' }}</td>
+          <td class="actions-cell">
+            <div class="actions-stack">
+              <a
+                [routerLink]="['/admin/events', event.id, 'edit']"
+                class="table-action primary"
+                title="Edit"
+                aria-label="Edit event">
+                Edit
+              </a>
+              <button
+                (click)="togglePublication(event)"
+                class="table-action"
+                [class.success]="event.published === false"
+                [class.warning]="event.published !== false"
+                [disabled]="publishActionEventId === event.id"
+                type="button">
+                {{ publishActionEventId === event.id ? 'Saving...' : (event.published === false ? 'Publish' : 'Draft') }}
+              </button>
+              <button
+                (click)="openDuplicateDialog(event)"
+                class="table-action secondary"
+                type="button">
+                Repeat
+              </button>
+              <button
+                *ngIf="deleteConfirmId !== event.id"
+                (click)="confirmDelete(event.id!)"
+                class="table-action danger"
+                type="button"
+                title="Delete"
+                aria-label="Delete event">
+                Delete
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="!isLoading && events.length === 0" class="no-events">
+    <p>No events found. Create your first event!</p>
+    <a routerLink="/admin/events/new" class="create-btn">+ Create Event</a>
+  </div>
+
+  <div *ngIf="!isLoading && events.length > 0" class="pagination-section">
+    <div class="pagination-summary">
+      Showing {{ paginationStart }}-{{ paginationEnd }} of {{ events.length }} events
+    </div>
+
+    <div class="pagination-controls" *ngIf="events.length > pageSize">
+      <button type="button" class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        *ngFor="let page of visiblePageNumbers"
+        type="button"
+        class="page-number"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+
+      <button type="button" class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="deleteConfirmId as confirmId" class="confirm-overlay" (click)="cancelDelete()">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-badge">
+        <app-admin-icon name="warning" [size]="18"></app-admin-icon>
+      </div>
+      <div class="dialog-copy">
+        <h3>Delete this event?</h3>
+        <p>This will remove the event from the admin list and can affect upcoming reservations.</p>
+      </div>
+      <div class="confirm-buttons">
+        <button type="button" (click)="cancelDelete()" class="no-btn">Keep event</button>
+        <button type="button" (click)="deleteEvent(confirmId)" class="yes-btn">Delete event</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="duplicateDialogEvent" class="confirm-overlay" (click)="closeDuplicateDialog()">
+    <div class="confirm-dialog duplicate-dialog" (click)="$event.stopPropagation()">
+      <div class="dialog-badge success">
+        <app-admin-icon name="calendar" [size]="18"></app-admin-icon>
+      </div>
+      <div class="dialog-copy">
+        <h3>Create recurring copies</h3>
+        <p>
+          Create weekly, monthly, or yearly copies of
+          <strong>{{ duplicateDialogEvent.titre }}</strong>.
+        </p>
+      </div>
+
+      <div class="duplicate-form">
+        <label class="duplicate-field">
+          <span>Frequency</span>
+          <select [(ngModel)]="duplicateFrequency">
+            <option value="WEEKLY">Weekly</option>
+            <option value="MONTHLY">Monthly</option>
+            <option value="YEARLY">Yearly</option>
+          </select>
+        </label>
+
+        <label class="duplicate-field">
+          <span>Occurrences</span>
+          <input type="number" min="1" max="24" [(ngModel)]="duplicateOccurrences" />
+        </label>
+
+        <label class="duplicate-checkbox">
+          <input type="checkbox" [(ngModel)]="publishCopies" />
+          <span>Publish the new copies immediately</span>
+        </label>
+      </div>
+
+      <div class="confirm-buttons">
+        <button type="button" (click)="closeDuplicateDialog()" class="no-btn">Cancel</button>
+        <button type="button" (click)="submitDuplicate()" class="yes-btn" [disabled]="isDuplicating">
+          {{ isDuplicating ? 'Creating...' : 'Create copies' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

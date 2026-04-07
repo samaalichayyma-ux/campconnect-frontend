@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { catchError, map, of } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 export const adminGuard: CanActivateFn = () => {
@@ -7,16 +8,22 @@ export const adminGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (!authService.isLoggedIn()) {
-    router.navigate(['/login']);
-    return false;
+    return router.createUrlTree(['/login']);
   }
 
-  const role = authService.getRole();
+  return authService.fetchCurrentUser().pipe(
+    map(() => authService.canAccessAdminPanel()
+      ? true
+      : router.createUrlTree(['/public'])),
+    catchError((error) => {
+      if (error?.status === 401 || error?.status === 403) {
+        authService.logout();
+        return of(router.createUrlTree(['/login']));
+      }
 
- if (role === 'ADMINISTRATEUR' || role === 'GUIDE' || role === 'LIVREUR') {
-    return true;
-  }
-
-  router.navigate(['/public']);
-  return false;
+      return of(authService.canAccessAdminPanel()
+        ? true
+        : router.createUrlTree(['/public']));
+    })
+  );
 };

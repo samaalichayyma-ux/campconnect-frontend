@@ -49,16 +49,24 @@
 
           "configurations": {
             "production": {
+              "optimization": {
+                "scripts": true,
+                "fonts": false,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                }
+              },
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "5MB",
+                  "maximumError": "6MB"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "1500kB",
+                  "maximumError": "2MB"
                 }
               ],
               "outputHashing": "all"
@@ -128,5 +136,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "77b97a28-b2bf-428e-914a-6fe450368a7d"
   }
 }

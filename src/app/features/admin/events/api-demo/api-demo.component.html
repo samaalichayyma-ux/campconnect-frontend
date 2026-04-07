@@ -1,0 +1,218 @@
+<div class="api-demo-container">
+  <div class="demo-header">
+    <h1>🚀 Events & Reservations API Demo</h1>
+    <p>Test all backend API endpoints integrated with your frontend</p>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages-section">
+    <div *ngIf="successMessage" class="success-message">
+      {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <div class="demo-content">
+    <!-- Left Panel: Controls -->
+    <div class="controls-panel">
+      <h2>API Endpoints</h2>
+
+      <!-- Common Inputs -->
+      <div class="input-group">
+        <label>Event ID:</label>
+        <input type="number" [(ngModel)]="selectedEventId" placeholder="Enter event ID">
+      </div>
+
+      <div class="input-group">
+        <label>User ID:</label>
+        <input type="number" [(ngModel)]="selectedUserId" placeholder="Enter user ID" value="1">
+      </div>
+
+      <!-- Events Section -->
+      <div class="section">
+        <h3>📅 Events Endpoints</h3>
+        
+        <button class="api-btn" (click)="loadAllDemo()">
+          GET /getAllEvents
+        </button>
+
+        <button class="api-btn" (click)="getEventDemo()">
+          GET /getEvent/{{ '{' }}id{{ '}' }}
+        </button>
+
+        <button class="api-btn" (click)="loadUpcomingEvents()">
+          GET /getUpcoming
+        </button>
+
+        <button class="api-btn" (click)="loadAvailableEvents()">
+          GET /available
+        </button>
+
+        <div class="input-group">
+          <label>Category:</label>
+          <input type="text" [(ngModel)]="selectedCategory" placeholder="e.g., Workshop">
+        </div>
+        <button class="api-btn" (click)="getByCategory()">
+          GET /getByCategory
+        </button>
+
+        <div class="input-group">
+          <label>Search Query:</label>
+          <input type="text" [(ngModel)]="searchQuery" placeholder="Search events...">
+        </div>
+        <button class="api-btn" (click)="searchEvents()">
+          GET /search
+        </button>
+
+        <div class="input-group">
+          <label>Date Range:</label>
+          <input type="date" [(ngModel)]="selectedDateRange.start" placeholder="Start date">
+          <input type="date" [(ngModel)]="selectedDateRange.end" placeholder="End date">
+        </div>
+        <button class="api-btn" (click)="getByDateRange()">
+          GET /getByDateRange
+        </button>
+
+        <button class="api-btn" (click)="getAvailableSeatsDemo()">
+          GET /availableSeats/{{ '{' }}id{{ '}' }}
+        </button>
+
+        <button class="api-btn" (click)="getParticipantCountDemo()">
+          GET /participants/{{ '{' }}id{{ '}' }}/count
+        </button>
+
+        <button class="api-btn" (click)="loadWaitlistCount()">
+          GET /waitlist/{{ '{' }}id{{ '}' }}/count
+        </button>
+
+        <button class="api-btn" (click)="getEventRevenueDemo()">
+          GET /analytics/revenue/{{ '{' }}id{{ '}' }}
+        </button>
+      </div>
+
+      <!-- Reservations Section -->
+      <div class="section">
+        <h3>🎟️ Reservations Endpoints</h3>
+
+        <button class="api-btn" (click)="getAllReservationsDemo()">
+          GET /getAllReservations
+        </button>
+
+        <button class="api-btn" (click)="getUserReservationsDemo()">
+          GET /getByUser/{{ '{' }}userId{{ '}' }}
+        </button>
+
+        <button class="api-btn" (click)="getEventReservationsDemo()">
+          GET /getByEvent/{{ '{' }}eventId{{ '}' }}
+        </button>
+
+        <button class="api-btn" (click)="getPendingReservationsDemo()">
+          GET /pending
+        </button>
+
+        <button class="api-btn" (click)="loadUnpaidReservations()">
+          GET /unpaid
+        </button>
+
+        <div class="input-group">
+          <label>Participant Count:</label>
+          <input type="number" [(ngModel)]="participantCount" min="1" placeholder="Number of participants">
+        </div>
+        <button class="api-btn" (click)="calculatePriceDemo()">
+          GET /calculatePrice
+        </button>
+
+        <button class="api-btn" (click)="checkWaitlistDemo()">
+          GET /isOnWaitlist
+        </button>
+
+        <button class="api-btn" (click)="getConfirmedCountDemo()">
+          GET /analytics/confirmedCount
+        </button>
+      </div>
+
+      <button class="clear-btn" (click)="clearResults()">Clear Results</button>
+    </div>
+
+    <!-- Right Panel: Results -->
+    <div class="results-panel">
+      <h2>Results</h2>
+
+      <div *ngIf="!results" class="no-results">
+        <p>👈 Click an endpoint to see the results here</p>
+      </div>
+
+      <div *ngIf="results" class="results-content">
+        <div class="result-header">
+          <h3>{{ resultType }}</h3>
+          <p *ngIf="results.length >= 0" class="result-count">
+            {{ results.length ? results.length : 1 }} result(s)
+          </p>
+        </div>
+
+        <!-- Array Results -->
+        <div *ngIf="results.length >= 0" class="results-table">
+          <div *ngIf="results.length === 0" class="empty-message">
+            No results found
+          </div>
+
+          <div *ngIf="results.length > 0" class="json-result">
+            <pre>{{ getJsonString(results) }}</pre>
+          </div>
+        </div>
+
+        <!-- Object Results -->
+        <div *ngIf="results.length === undefined" class="json-result">
+          <pre>{{ getJsonString(results) }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Data Preview -->
+  <div class="live-preview">
+    <div class="preview-section" *ngIf="events.length > 0">
+      <h3>📊 Events Loaded: {{ events.length }}</h3>
+      <div class="event-preview">
+        <div *ngFor="let event of events | slice:0:3" class="event-card">
+          <h4>{{ event.titre }}</h4>
+          <p><strong>Date:</strong> {{ formatDate(event.dateDebut) }}</p>
+          <p><strong>Location:</strong> {{ event.lieu }}</p>
+          <p><strong>Capacity:</strong> {{ event.participantsCount || 0 }} / {{ event.capaciteMax }}</p>
+          <p><strong>Price:</strong> ${{ event.prix }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-section" *ngIf="upcomingEvents.length > 0">
+      <h3>⏰ Upcoming Events: {{ upcomingEvents.length }}</h3>
+      <div class="event-preview">
+        <div *ngFor="let event of upcomingEvents | slice:0:2" class="event-card">
+          <h4>{{ event.titre }}</h4>
+          <p><strong>Date:</strong> {{ formatDate(event.dateDebut) }}</p>
+          <p><strong>Time:</strong> {{ formatTime(event.dateDebut) }} - {{ formatTime(event.dateFin) }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-section" *ngIf="pendingReservations.length > 0">
+      <h3>⏳ Pending Reservations: {{ pendingReservations.length }}</h3>
+      <div class="reservation-preview">
+        <div *ngFor="let res of pendingReservations | slice:0:3" class="res-card">
+          <p><strong>Reservation ID:</strong> {{ res.id }}</p>
+          <p><strong>Event ID:</strong> {{ res.eventId }}</p>
+          <p><strong>Participants:</strong> {{ res.nombreParticipants }}</p>
+          <p><strong>Status:</strong> <span class="status-badge">{{ res.statut }}</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+</div>

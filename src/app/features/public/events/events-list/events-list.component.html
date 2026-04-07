@@ -1,0 +1,506 @@
+<div class="events-container">
+  <section class="hero-section">
+    <div class="hero-overlay">
+      <div class="hero-content-wrapper">
+        <span class="hero-badge">
+          <span class="hero-badge-icon">
+            <app-admin-icon name="sparkles" [size]="16" [strokeWidth]="1.9"></app-admin-icon>
+          </span>
+          <span>Book Your Next Adventure</span>
+        </span>
+        <h1 class="hero-title">Discover Amazing Events</h1>
+        <p class="hero-subtitle">Find and book unforgettable experiences curated for you</p>
+
+        <div *ngIf="authService.isLoggedIn()" class="hero-quick-actions">
+          <a routerLink="/public/events/my-reservations" class="hero-quick-btn secondary">
+            <app-admin-icon name="reservations" [size]="16"></app-admin-icon>
+            <span>My Reservations</span>
+          </a>
+
+          <button class="hero-quick-btn secondary" (click)="toggleFavoritesOnly()" type="button">
+            <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+            <span>{{ showFavoritesOnly ? 'All Events' : 'Saved Events' }}</span>
+          </button>
+
+          <button class="hero-quick-btn ghost" (click)="toggleFilters()" type="button">
+            <app-admin-icon name="filter" [size]="16"></app-admin-icon>
+            <span>Browse With Filters</span>
+          </button>
+        </div>
+
+        <div class="hero-search">
+          <div class="search-input-wrapper">
+            <span class="search-icon">
+              <app-admin-icon name="search" [size]="18"></app-admin-icon>
+            </span>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search events by title, category, or location..."
+              [(ngModel)]="searchQuery"
+              (input)="searchEvents()">
+            <button
+              class="search-btn"
+              (click)="searchQuery = ''; searchEvents()"
+              *ngIf="searchQuery.trim()"
+              title="Clear search"
+              type="button">
+              <app-admin-icon name="close" [size]="16"></app-admin-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="main-content" [class.filters-open]="showFilters">
+    <div *ngIf="showFilters" class="filters-overlay" (click)="closeFilters()"></div>
+
+    <aside
+      id="events-filters-panel"
+      class="filters-sidebar"
+      [class.active]="showFilters"
+      [class.spotlight]="isFilterSpotlightVisible">
+      <button class="sidebar-close-btn" (click)="closeFilters()" type="button" aria-label="Close filters">
+        <app-admin-icon name="close" [size]="18"></app-admin-icon>
+      </button>
+
+      <div class="filter-header">
+        <div class="filter-header-top">
+          <h2>
+            <span class="section-icon">
+              <app-admin-icon name="target" [size]="18"></app-admin-icon>
+            </span>
+            <span>Refine Your Search</span>
+          </h2>
+          <button class="reset-btn" (click)="resetFilters()" title="Clear all filters" type="button">
+            <app-admin-icon name="close" [size]="14"></app-admin-icon>
+            <span>Reset</span>
+          </button>
+        </div>
+        <div class="filter-header-divider"></div>
+      </div>
+
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <span class="filter-icon">
+            <app-admin-icon name="folder" [size]="16"></app-admin-icon>
+          </span>
+          <span>Category</span>
+        </h3>
+        <div class="filter-options">
+          <button
+            *ngFor="let cat of categories"
+            class="filter-option"
+            [class.active]="selectedCategory === cat.value"
+            (click)="onCategoryChange(cat.value)"
+            [title]="cat.label"
+            type="button">
+            <span class="option-emoji">
+              <app-admin-icon [name]="getCategoryIcon(cat.value)" [size]="16"></app-admin-icon>
+            </span>
+            <span class="option-text">{{ cat.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <span class="filter-icon">
+            <app-admin-icon name="clock" [size]="16"></app-admin-icon>
+          </span>
+          <span>Event Status</span>
+        </h3>
+        <select class="filter-select premium" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+          <option *ngFor="let status of statuses" [value]="status.value">
+            {{ status.label }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <span class="filter-icon">
+            <app-admin-icon name="location" [size]="16"></app-admin-icon>
+          </span>
+          <span>Location</span>
+        </h3>
+        <div class="location-input-wrapper">
+          <input
+            type="text"
+            class="filter-input premium"
+            placeholder="Search locations..."
+            [(ngModel)]="selectedLocation"
+            (keyup)="applyFilters()">
+          <span class="input-icon">
+            <app-admin-icon name="search" [size]="16"></app-admin-icon>
+          </span>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <span class="filter-icon">
+            <app-admin-icon name="wallet" [size]="16"></app-admin-icon>
+          </span>
+          <span>Price Range</span>
+        </h3>
+        <div class="price-range">
+          <input
+            type="range"
+            min="0"
+            max="10000"
+            [(ngModel)]="priceRange.max"
+            (change)="applyFilters()"
+            class="price-slider">
+          <div class="price-display">
+            <span class="price-min">${{ priceRange.min }}</span>
+            <span class="price-separator">to</span>
+            <span class="price-max">${{ priceRange.max }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <span class="filter-icon">
+            <app-admin-icon name="calendar" [size]="16"></app-admin-icon>
+          </span>
+          <span>Date Range</span>
+        </h3>
+        <div class="date-inputs">
+          <input
+            type="date"
+            class="filter-input premium"
+            [(ngModel)]="dateRange.start"
+            (change)="applyFilters()"
+            title="Start Date">
+          <input
+            type="date"
+            class="filter-input premium"
+            [(ngModel)]="dateRange.end"
+            (change)="applyFilters()"
+            title="End Date">
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <h3 class="filter-title">
+          <span class="filter-icon">
+            <app-admin-icon name="sort" [size]="16"></app-admin-icon>
+          </span>
+          <span>Sort By</span>
+        </h3>
+        <select class="filter-select premium" [(ngModel)]="sortBy" (change)="applyFilters()">
+          <option value="recent">Most Recent</option>
+          <option value="date">Earliest Date</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="availability">Most Available</option>
+        </select>
+      </div>
+
+        <div class="filter-stats">
+          <div class="stat">
+            <span class="stat-label">Results</span>
+            <span class="stat-value">{{ filteredEvents.length }}</span>
+          </div>
+          <div *ngIf="authService.isLoggedIn()" class="stat">
+            <span class="stat-label">Saved</span>
+            <span class="stat-value">{{ favoriteEventIds.size }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Average Price</span>
+            <span class="stat-value">${{ getAveragePrice() }}</span>
+          </div>
+      </div>
+    </aside>
+
+    <section class="events-section">
+      <div class="section-header">
+        <div class="header-left">
+          <button class="filter-toggle-btn" (click)="toggleFilters()" title="Toggle filters" type="button">
+            <app-admin-icon name="filter" [size]="16"></app-admin-icon>
+            <span class="filter-text">Filters</span>
+          </button>
+
+          <div class="header-info">
+            <h2 class="section-title">{{ showFavoritesOnly ? 'Saved Events' : 'Available Events' }}</h2>
+            <span class="results-count">
+              {{ filteredEvents.length }} {{ showFavoritesOnly ? 'saved picks' : 'amazing experiences' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="view-toggle" *ngIf="!isMobileView">
+          <button
+            class="toggle-btn"
+            [class.active]="viewMode === 'grid'"
+            (click)="switchToGridView()"
+            title="Grid view"
+            type="button">
+            <app-admin-icon name="dashboard" [size]="18"></app-admin-icon>
+          </button>
+          <button
+            class="toggle-btn"
+            [class.active]="viewMode === 'list'"
+            (click)="switchToListView()"
+            title="List view"
+            type="button">
+            <app-admin-icon name="list" [size]="18"></app-admin-icon>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="message error-message">
+        <span class="message-icon">
+          <app-admin-icon name="warning" [size]="18"></app-admin-icon>
+        </span>
+        <div class="message-content">
+          <strong>Oops!</strong>
+          {{ errorMessage }}
+        </div>
+        <button class="message-close" (click)="errorMessage = ''" type="button" aria-label="Close message">
+          <app-admin-icon name="close" [size]="16"></app-admin-icon>
+        </button>
+      </div>
+
+      <div *ngIf="successMessage" class="message success-message">
+        <span class="message-icon">
+          <app-admin-icon name="check" [size]="18"></app-admin-icon>
+        </span>
+        <div class="message-content">
+          {{ successMessage }}
+        </div>
+        <button class="message-close" (click)="clearSuccessMessage()" type="button" aria-label="Close message">
+          <app-admin-icon name="close" [size]="16"></app-admin-icon>
+        </button>
+      </div>
+
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="loading-container">
+          <div class="spinner"></div>
+          <p class="loading-text">Loading amazing events...</p>
+          <p class="loading-subtext">This won't take long</p>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedEvents.length > 0 && viewMode === 'grid'" class="events-grid">
+        <div
+          *ngFor="let event of paginatedEvents; let i = index"
+          class="event-card"
+          [style.animation-delay]="(i * 0.05) + 's'"
+          (click)="viewEventDetails(event.id)">
+          <div class="event-image-container">
+            <img
+              [src]="getEventImageUrl(event)"
+              alt="{{ event.titre }}"
+              (error)="onImageError($event)"
+              class="event-image">
+
+            <div class="image-overlay">
+              <button class="quick-view-btn" (click)="viewEventDetails(event.id); $event.stopPropagation()" type="button">
+                <app-admin-icon name="eye" [size]="16"></app-admin-icon>
+                <span>Quick View</span>
+              </button>
+            </div>
+
+            <span class="status-badge" [ngClass]="getStatusClass(event.statut)">
+              <app-admin-icon [name]="getStatusIcon(event.statut)" [size]="14"></app-admin-icon>
+              <span>{{ getStatusLabel(event.statut) }}</span>
+            </span>
+
+            <span class="category-tag">
+              <app-admin-icon [name]="getCategoryIcon(event.categorie)" [size]="14"></app-admin-icon>
+              <span>{{ getCategoryLabel(event.categorie) }}</span>
+            </span>
+          </div>
+
+          <div class="event-content">
+            <div class="event-header">
+              <h3 class="event-title" [title]="event.titre">{{ event.titre }}</h3>
+              <button
+                *ngIf="authService.isLoggedIn()"
+                class="heart-btn"
+                [class.liked]="isFavorite(event.id)"
+                [disabled]="isFavoriteActionPending(event.id)"
+                [title]="isFavorite(event.id) ? 'Remove from favorites' : 'Save to favorites'"
+                (click)="toggleFavorite(event.id, $event)"
+                type="button">
+                <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+              </button>
+            </div>
+
+            <p class="event-description">{{ event.description | slice:0:90 }}...</p>
+
+            <div class="event-details">
+              <div class="detail-item">
+                <span class="detail-icon">
+                  <app-admin-icon name="location" [size]="15"></app-admin-icon>
+                </span>
+                <span class="detail-text" [title]="event.lieu">
+                  {{ event.lieu.length > 20 ? (event.lieu | slice:0:20) + '...' : event.lieu }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">
+                  <app-admin-icon name="calendar" [size]="15"></app-admin-icon>
+                </span>
+                <span class="detail-text">{{ formatDate(event.dateDebut) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">
+                  <app-admin-icon name="clock" [size]="15"></app-admin-icon>
+                </span>
+                <span class="detail-text">{{ event.dureeMinutes }}m</span>
+              </div>
+            </div>
+
+            <div class="availability-stats">
+              <div class="stat">
+                <span class="stat-num">{{ event.participantsCount }}</span>
+                <span class="stat-label">Going</span>
+              </div>
+              <div class="divider"></div>
+              <div class="stat">
+                <span class="stat-num" [style.color]="event.availableSeats > 0 ? '#2ecc71' : '#e74c3c'">{{ event.availableSeats }}</span>
+                <span class="stat-label">Spots Left</span>
+              </div>
+              <div class="divider"></div>
+              <div class="stat">
+                <span class="stat-num">{{ event.capaciteMax }}</span>
+                <span class="stat-label">Capacity</span>
+              </div>
+            </div>
+
+            <div class="availability-bar" [class.booked]="event.isFullyBooked">
+              <div class="availability-fill" [style.width]="((event.capaciteMax - event.availableSeats) / event.capaciteMax) * 100 + '%'"></div>
+            </div>
+            <p class="availability-text" [class.booked]="event.isFullyBooked">
+              {{ getAvailabilityText(event) }}
+            </p>
+
+            <div class="event-footer">
+              <div class="price-section">
+                <span class="price-label">Starting at</span>
+                <span class="price">${{ event.prix | number:'1.0-2' }}</span>
+              </div>
+              <button class="cta-btn" type="button">
+                <span>Visit Event</span>
+                <app-admin-icon name="arrow-right" [size]="14"></app-admin-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedEvents.length > 0 && viewMode === 'list'" class="events-list-view">
+        <div
+          *ngFor="let event of paginatedEvents; let i = index"
+          class="event-list-item"
+          [style.animation-delay]="(i * 0.05) + 's'"
+          (click)="viewEventDetails(event.id)">
+          <div class="list-item-image">
+            <img
+              [src]="getEventImageUrl(event)"
+              alt="{{ event.titre }}"
+              (error)="onImageError($event)"
+              class="list-image">
+            <span class="list-status-badge" [ngClass]="getStatusClass(event.statut)">
+              <app-admin-icon [name]="getStatusIcon(event.statut)" [size]="13"></app-admin-icon>
+              <span>{{ getStatusLabel(event.statut) }}</span>
+            </span>
+          </div>
+
+          <div class="list-item-content">
+            <div class="list-item-header">
+              <h3 class="list-item-title">{{ event.titre }}</h3>
+              <div class="list-header-actions">
+                <span class="list-category-tag">
+                  <app-admin-icon [name]="getCategoryIcon(event.categorie)" [size]="13"></app-admin-icon>
+                  <span>{{ getCategoryLabel(event.categorie) }}</span>
+                </span>
+                <button
+                  *ngIf="authService.isLoggedIn()"
+                  class="list-favorite-btn"
+                  [class.liked]="isFavorite(event.id)"
+                  [disabled]="isFavoriteActionPending(event.id)"
+                  (click)="toggleFavorite(event.id, $event)"
+                  type="button">
+                  <app-admin-icon name="heart" [size]="15"></app-admin-icon>
+                </button>
+              </div>
+            </div>
+
+            <p class="list-item-description">{{ event.description }}</p>
+
+            <div class="list-item-meta">
+              <div class="meta-item">
+                <app-admin-icon name="location" [size]="14"></app-admin-icon>
+                <span>{{ event.lieu }}</span>
+              </div>
+              <div class="meta-item">
+                <app-admin-icon name="calendar" [size]="14"></app-admin-icon>
+                <span>{{ formatDate(event.dateDebut) }}</span>
+              </div>
+              <div class="meta-item">
+                <app-admin-icon name="clock" [size]="14"></app-admin-icon>
+                <span>{{ event.dureeMinutes }}m</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="list-item-stats">
+            <div class="stat-item">
+              <span class="stat-label">Participants</span>
+              <span class="stat-value">{{ event.participantsCount }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Available</span>
+              <span class="stat-value" [style.color]="event.availableSeats > 0 ? '#6ba371' : '#e74c3c'">{{ event.availableSeats }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Price</span>
+              <span class="stat-value">${{ event.prix | number:'1.0-2' }}</span>
+            </div>
+          </div>
+
+          <button class="list-cta-btn" type="button">
+            <span>Visit Event</span>
+            <app-admin-icon name="arrow-right" [size]="13"></app-admin-icon>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && paginatedEvents.length === 0 && noResultsMessage" class="no-results">
+        <div class="no-results-icon">
+          <app-admin-icon name="search" [size]="42"></app-admin-icon>
+        </div>
+        <h3 class="no-results-title">No events found</h3>
+        <p class="no-results-text">{{ noResultsMessage }}</p>
+        <button class="reset-btn large" (click)="resetFilters()" type="button">Clear All Filters</button>
+      </div>
+
+      <div *ngIf="!isLoading && filteredEvents.length > pageSize" class="pagination-section">
+        <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1" type="button">
+          <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+          <span>Previous</span>
+        </button>
+
+        <div class="pagination-info" aria-live="polite">
+          <div class="pagination-summary">
+            <span class="pagination-label">Page</span>
+            <span class="current-page">{{ currentPage }}</span>
+            <span class="summary-text">of {{ totalPages }}</span>
+          </div>
+          <span class="total-results">{{ filteredEvents.length }} events</span>
+        </div>
+
+        <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages" type="button">
+          <span>Next</span>
+          <app-admin-icon name="arrow-right" [size]="14"></app-admin-icon>
+        </button>
+      </div>
+    </section>
+  </div>
+</div>

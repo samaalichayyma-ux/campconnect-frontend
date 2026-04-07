@@ -1,6 +1,8 @@
 <section class="stats-grid">
   <div class="stat-card" *ngFor="let stat of stats" [ngClass]="stat.colorClass">
-    <div class="stat-icon">{{ stat.icon }}</div>
+    <div class="stat-icon">
+      <app-admin-icon [name]="stat.icon" [size]="24"></app-admin-icon>
+    </div>
     <div class="stat-text">
       <h3>{{ stat.value }}</h3>
       <p>{{ stat.title }}</p>
@@ -17,7 +19,9 @@
 
     <div class="modules-grid">
       <a class="module-card" *ngFor="let module of modules" [routerLink]="module.link">
-        <div class="module-icon">{{ module.icon }}</div>
+        <div class="module-icon">
+          <app-admin-icon [name]="module.icon" [size]="24"></app-admin-icon>
+        </div>
         <div class="module-content">
           <h3>{{ module.title }}</h3>
           <p>{{ module.subtitle }}</p>

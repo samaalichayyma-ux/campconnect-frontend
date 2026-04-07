@@ -1,0 +1,40 @@
+<section class="location-map-shell" [class.readonly]="!editable">
+  <div *ngIf="editable" class="map-toolbar">
+    <label for="google-map-location-search">Search Google Maps</label>
+    <div class="map-search-row">
+      <input
+        #searchInput
+        id="google-map-location-search"
+        type="text"
+        placeholder="Search a campsite, address, or landmark" />
+      <button type="button" class="search-btn" (click)="geocodeTypedAddress()">
+        Find
+      </button>
+    </div>
+    <p class="map-hint">Search here or click directly on the map to pin the exact camping location.</p>
+  </div>
+
+  <div *ngIf="isLoading" class="map-state loading">
+    <strong>Loading Google Maps...</strong>
+    <p>The interactive location picker will appear here in a moment.</p>
+  </div>
+
+  <div *ngIf="!isLoading && !googleMapsAvailable" class="map-state notice">
+    <strong>Interactive map unavailable</strong>
+    <p>{{ statusMessage }}</p>
+  </div>
+
+  <div #mapHost class="map-canvas" [class.hidden]="!googleMapsAvailable"></div>
+
+  <div class="selection-summary">
+    <div class="selection-copy">
+      <span class="summary-label">{{ editable ? 'Selected campsite location' : 'Camping location' }}</span>
+      <strong>{{ selectedAddress || address || 'No mapped location saved yet' }}</strong>
+      <small>{{ selectedCoordinates || 'Coordinates appear here after a pin is saved.' }}</small>
+    </div>
+
+    <a *ngIf="directionsUrl" [href]="directionsUrl" target="_blank" rel="noopener" class="maps-link">
+      Open in Google Maps
+    </a>
+  </div>
+</section>

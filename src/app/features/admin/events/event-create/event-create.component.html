@@ -1,0 +1,384 @@
+<div class="create-container">
+  <div class="form-header">
+    <h1>Create Event</h1>
+    <p>Create a new event and upload its gallery.</p>
+  </div>
+
+  <div *ngIf="successMessage" class="success-message">
+    <div class="message-icon success">
+      <app-admin-icon name="check" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Event created</strong>
+      <p>{{ successMessage }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    <div class="message-icon error">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Creation blocked</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+  </div>
+
+  <form [formGroup]="eventForm" (ngSubmit)="submitForm()" class="event-form">
+    <div class="form-layout">
+      <div class="form-main">
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Event Details</h3>
+            <p>Set the schedule, price, and capacity.</p>
+          </div>
+
+          <div class="input-grid">
+            <div class="form-group">
+              <label for="title">Event Title *</label>
+              <input
+                type="text"
+                id="title"
+                formControlName="title"
+                placeholder="Enter event title"
+                [class.error]="eventForm.get('title')?.invalid && eventForm.get('title')?.touched" />
+              <span *ngIf="eventForm.get('title')?.invalid && eventForm.get('title')?.touched" class="error-text">
+                {{ getErrorMessage('title') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="category">Category *</label>
+              <select
+                id="category"
+                formControlName="category"
+                [class.error]="eventForm.get('category')?.invalid && eventForm.get('category')?.touched">
+                <option value="">Select a category</option>
+                <option *ngFor="let cat of categories" [value]="cat.value">
+                  {{ cat.label }}
+                </option>
+              </select>
+              <span *ngIf="eventForm.get('category')?.invalid && eventForm.get('category')?.touched" class="error-text">
+                Category is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="date">Event Date *</label>
+              <div class="input-with-icon">
+                <input
+                  type="date"
+                  id="date"
+                  formControlName="date"
+                  [class.error]="eventForm.get('date')?.invalid && eventForm.get('date')?.touched" />
+                <span class="field-icon">
+                  <app-admin-icon name="calendar" [size]="16"></app-admin-icon>
+                </span>
+              </div>
+              <span *ngIf="eventForm.get('date')?.invalid && eventForm.get('date')?.touched" class="error-text">
+                Date is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="startTime">Start Time *</label>
+              <div class="input-with-icon">
+                <input
+                  type="time"
+                  id="startTime"
+                  formControlName="startTime"
+                  [class.error]="eventForm.get('startTime')?.invalid && eventForm.get('startTime')?.touched" />
+                <span class="field-icon">
+                  <app-admin-icon name="clock" [size]="16"></app-admin-icon>
+                </span>
+              </div>
+              <span *ngIf="eventForm.get('startTime')?.invalid && eventForm.get('startTime')?.touched" class="error-text">
+                Start time is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="endTime">End Time *</label>
+              <div class="input-with-icon">
+                <input
+                  type="time"
+                  id="endTime"
+                  formControlName="endTime"
+                  [class.error]="eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched" />
+                <span class="field-icon">
+                  <app-admin-icon name="clock" [size]="16"></app-admin-icon>
+                </span>
+              </div>
+              <span *ngIf="eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched" class="error-text">
+                End time is required
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="location">Location *</label>
+              <input
+                type="text"
+                id="location"
+                formControlName="location"
+                placeholder="Enter event location"
+                [class.error]="eventForm.get('location')?.invalid && eventForm.get('location')?.touched" />
+              <span *ngIf="eventForm.get('location')?.invalid && eventForm.get('location')?.touched" class="error-text">
+                {{ getErrorMessage('location') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="capacity">Capacity *</label>
+              <input
+                type="number"
+                id="capacity"
+                formControlName="capacity"
+                placeholder="Enter capacity"
+                [class.error]="eventForm.get('capacity')?.invalid && eventForm.get('capacity')?.touched" />
+              <span *ngIf="eventForm.get('capacity')?.invalid && eventForm.get('capacity')?.touched" class="error-text">
+                {{ getErrorMessage('capacity') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="price">Price per Person ($) *</label>
+              <input
+                type="number"
+                id="price"
+                formControlName="price"
+                placeholder="0"
+                step="0.01"
+                [class.error]="eventForm.get('price')?.invalid && eventForm.get('price')?.touched" />
+              <span *ngIf="eventForm.get('price')?.invalid && eventForm.get('price')?.touched" class="error-text">
+                {{ getErrorMessage('price') }}
+              </span>
+            </div>
+
+            <div class="policy-card full-span">
+              <div class="policy-header">
+                <h4>Reservation Approval</h4>
+                <p>Choose whether new reservations should wait for organizer approval or confirm immediately when seats are still open.</p>
+              </div>
+
+              <label class="policy-toggle" for="reservationApprovalRequired">
+                <input
+                  type="checkbox"
+                  id="reservationApprovalRequired"
+                  formControlName="reservationApprovalRequired" />
+                <div class="policy-copy">
+                  <strong>Require organizer approval before confirming reservations</strong>
+                  <span>When this is off, reservations go straight to confirmed status while seats are available. Waitlist requests still stay pending.</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="policy-card full-span">
+              <div class="policy-header">
+                <h4>Visibility</h4>
+                <p>Keep the event as a draft until the team is ready to show it on the public events pages.</p>
+              </div>
+
+              <label class="policy-toggle" for="published">
+                <input
+                  type="checkbox"
+                  id="published"
+                  formControlName="published" />
+                <div class="policy-copy">
+                  <strong>Publish this event right away</strong>
+                  <span>When this is off, the event stays in the admin list as a draft and is hidden from public event browsing.</span>
+                </div>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-card description-card">
+          <div class="section-header">
+            <h3>Description</h3>
+            <p>Add a short, clear event description.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="description">Event Description *</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              placeholder="Enter event description"
+              rows="6"
+              [class.error]="eventForm.get('description')?.invalid && eventForm.get('description')?.touched"></textarea>
+            <span *ngIf="eventForm.get('description')?.invalid && eventForm.get('description')?.touched" class="error-text">
+              {{ getErrorMessage('description') }}
+            </span>
+          </div>
+        </section>
+
+        <section class="panel-card location-card">
+          <div class="section-header">
+            <h3>Campsite Location</h3>
+            <p>Pick the location shown on the event page and receipt.</p>
+          </div>
+
+          <app-event-location-map
+            [editable]="true"
+            [address]="eventForm.get('location')?.value ?? ''"
+            [latitude]="selectedLatitude"
+            [longitude]="selectedLongitude"
+            [placeId]="selectedPlaceId"
+            (locationSelected)="onLocationSelected($event)">
+          </app-event-location-map>
+        </section>
+      </div>
+
+      <aside class="form-side">
+        <section class="panel-card image-card">
+          <div class="section-header">
+            <h3>Event Gallery</h3>
+            <p>Upload images and choose the cover.</p>
+          </div>
+
+          <div class="image-frame" [class.empty]="!leadPreviewUrl">
+            <ng-container *ngIf="leadPreviewUrl; else emptyImage">
+              <img [src]="leadPreviewUrl" alt="Event gallery preview" class="preview-image" />
+            </ng-container>
+
+            <ng-template #emptyImage>
+              <div class="image-placeholder">
+                <app-admin-icon name="events" [size]="28"></app-admin-icon>
+                <strong>No image selected</strong>
+                <span>Upload at least one image to preview it here.</span>
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="image-meta">
+            <span class="image-kicker">
+              {{ primaryPendingImage ? 'Cover preview' : 'Waiting for gallery images' }}
+            </span>
+            <button *ngIf="hasPendingImages" type="button" (click)="clearPendingImages()" class="clear-btn">
+              <app-admin-icon name="close" [size]="14"></app-admin-icon>
+              <span>Clear queued files</span>
+            </button>
+          </div>
+
+          <div class="form-group">
+            <label for="imageFiles">Upload Gallery Images</label>
+            <label class="file-input-wrapper" for="imageFiles">
+              <input
+                type="file"
+                id="imageFiles"
+                multiple
+                accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                (change)="onFileSelected($event)"
+                class="file-input" />
+              <span class="file-label">
+                <app-admin-icon name="upload" [size]="18"></app-admin-icon>
+                <span>{{ hasPendingImages ? 'Add more images' : 'Upload images' }}</span>
+              </span>
+            </label>
+            <p class="file-hint">JPG, PNG, GIF, or WebP. Max 10MB per image.</p>
+          </div>
+
+          <div *ngIf="hasPendingImages" class="gallery-block">
+            <div class="gallery-block-header">
+              <div>
+                <strong>Queued images</strong>
+                <span>{{ queuedImageCount }} ready to upload</span>
+              </div>
+              <span class="gallery-note">Choose the cover image.</span>
+            </div>
+
+            <div class="gallery-grid">
+              <article
+                *ngFor="let pendingImage of pendingImages; let index = index"
+                class="gallery-item"
+                [class.is-primary]="primaryPendingImageIndex === index">
+                <div class="gallery-thumb-wrap">
+                  <img [src]="pendingImage.previewUrl" [alt]="pendingImage.file.name" class="gallery-thumb" />
+                  <span *ngIf="primaryPendingImageIndex === index" class="gallery-badge">Cover</span>
+                </div>
+
+                <div class="gallery-item-body">
+                  <strong>{{ pendingImage.file.name }}</strong>
+                  <span>{{ formatFileSize(pendingImage.file.size) }}</span>
+                </div>
+
+                <div class="gallery-actions">
+                  <button
+                    type="button"
+                    class="mini-btn"
+                    [class.active]="primaryPendingImageIndex === index"
+                    (click)="setPendingPrimary(index)">
+                    <app-admin-icon name="star" [size]="14"></app-admin-icon>
+                    <span>{{ primaryPendingImageIndex === index ? 'Cover image' : 'Set as cover' }}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="icon-btn danger"
+                    (click)="removePendingImage(index)"
+                    aria-label="Remove queued image">
+                    <app-admin-icon name="delete" [size]="14"></app-admin-icon>
+                  </button>
+                </div>
+              </article>
+            </div>
+          </div>
+
+        </section>
+
+        <section class="panel-card summary-card">
+          <div class="section-header">
+            <h3>Quick Summary</h3>
+            <p>Review the main details before saving.</p>
+          </div>
+
+          <div class="summary-row">
+            <span>Date</span>
+            <strong>{{ eventForm.get('date')?.value ? (eventForm.get('date')?.value | date:'mediumDate') : 'Not set' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Time</span>
+            <strong>{{ eventForm.get('startTime')?.value || '--:--' }} - {{ eventForm.get('endTime')?.value || '--:--' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Capacity</span>
+            <strong>{{ eventForm.get('capacity')?.value || 'Not set' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Price</span>
+            <strong>{{ eventForm.get('price')?.value ? ('$' + (eventForm.get('price')?.value | number:'1.0-2')) : 'Not set' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Cover image</span>
+            <strong>{{ coverSourceLabel }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Gallery size</span>
+            <strong>{{ queuedImageCount }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Map pin</span>
+            <strong>{{ mappedLocationSummary }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Reservation flow</span>
+            <strong>{{ reservationApprovalSummary }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Visibility</span>
+            <strong>{{ publicationSummary }}</strong>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" (click)="cancel()" class="cancel-btn">
+        Cancel
+      </button>
+      <button type="submit" [disabled]="isSubmitting || !eventForm.valid || !canCreateEvents" class="submit-btn">
+        {{ isSubmitting ? 'Creating...' : 'Create Event' }}
+      </button>
+    </div>
+  </form>
+</div>

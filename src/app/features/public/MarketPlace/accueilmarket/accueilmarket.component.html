@@ -1,0 +1,304 @@
+
+<!-- CAMPING SERVICES SECTION -->
+<section class="camping-section">
+  <div class="camping-sheet">
+
+    <div class="camping-list">
+      <div class="camping-repeater">
+
+        <!-- CARD 1 -->
+        <div class="camping-card">
+          <div class="camping-card-inner">
+            <span class="camping-icon">
+              <img src="/assets/images/11.png" alt="Camping Products" />
+            </span>
+            <h4 class="camping-title">Camping Products</h4>
+            <a href="#" class="camping-link">more</a>
+          </div>
+        </div>
+
+        <!-- CARD 2 -->
+        <div class="camping-card">
+          <div class="camping-card-inner">
+            <span class="camping-icon">
+              <img src="/assets/images/22.png" alt="Camping Equipment" />
+            </span>
+            <h4 class="camping-title">Camping Equipment</h4>
+            <a href="#" class="camping-link">more</a>
+          </div>
+        </div>
+
+        <!-- CARD 3 -->
+        <div class="camping-card">
+          <div class="camping-card-inner">
+            <span class="camping-icon">
+              <img src="/assets/images/33.png" alt="Camping Accessories" />
+            </span>
+            <h4 class="camping-title">Camping Accessories</h4>
+            <a href="#" class="camping-link">more</a>
+          </div>
+        </div>
+
+        <!-- CARD 4 -->
+        <div class="camping-card">
+          <div class="camping-card-inner">
+            <span class="camping-icon">
+              <img src="/assets/images/44.png" alt="Camping Tents" />
+            </span>
+            <h4 class="camping-title">Camping Tents</h4>
+            <a href="#" class="camping-link">more</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PHONE -->
+    <a href="tel:+12345678910" class="camping-phone">
+      <span class="camping-phone-icon">☎</span>
+      +1 (234) 567-8910
+    </a>
+
+  </div>
+</section>
+
+<!-- DESCRIPTION SECTION -->
+<section class="equipment-section">
+  <div class="equipment-sheet">
+
+    <div class="equipment-card">
+      <div class="equipment-card-inner">
+
+        <h2 class="equipment-title">Camping Equipment</h2>
+
+        <p class="equipment-text">
+          Are you looking for a website to buy camping products?
+          Discover our complete selection with everything you need
+          to fully enjoy your outdoor adventures.
+        </p>
+
+        <a routerLink="/public/listP" class="equipment-button"> Learn More</a>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ANGULAR GALLERY SECTION -->
+<section class="camping-gallery-section">
+  <div class="container">
+    <h2 class="section-title">{{ sectionTitle }}</h2>
+    <p class="section-text">{{ sectionText }}</p>
+
+    <div class="carousel-wrapper">
+      <button
+        class="carousel-btn prev"
+        (click)="prev()"
+        [disabled]="currentIndex === 0"
+        aria-label="Previous"
+      >
+        ‹
+      </button>
+
+      <div class="carousel-viewport">
+        <div
+          class="carousel-track"
+          [style.transform]="translateX"
+        >
+          <article
+            class="gallery-card"
+            *ngFor="let item of campingItems"
+            [style.background-image]="
+              'linear-gradient(rgba(0,0,0,0.20), rgba(0,0,0,0.20)), url(' + item.image + ')'
+            "
+          >
+            <div class="card-overlay">
+              <h3>{{ item.title }}</h3>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <button
+        class="carousel-btn next"
+        (click)="next()"
+        [disabled]="currentIndex === maxIndex"
+        aria-label="Next"
+      >
+        ›
+      </button>
+    </div>
+  </div>
+</section>
+
+<section class="camping-info-section">
+  <div class="container">
+    <div class="info-grid">
+      <article class="info-card" *ngFor="let item of infoItems">
+        <div class="info-card-inner">
+          <h3 class="info-card-title">{{ item.title }}</h3>
+
+          <p class="info-card-text">
+            {{ item.description }}
+          </p>
+
+          <a [href]="item.link" class="info-card-link">
+            Learn More
+          </a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="camping-custom-section">
+  <div class="container">
+    <h2 class="custom-section-title">{{ customSectionTitle }}</h2>
+    <p class="custom-section-text">{{ customSectionText }}</p>
+
+    <div class="custom-layout">
+      <div
+        class="custom-image large-image"
+        [style.background-image]="'url(' + customImages.largeLeft + ')'"
+      ></div>
+
+      <div class="custom-right-column">
+        <div class="custom-top-row">
+          <div
+            class="custom-image small-image"
+            [style.background-image]="'url(' + customImages.topRight + ')'"
+          ></div>
+
+          <div class="custom-info-card accent-card">
+            <h4>{{ customCards[0].title }}</h4>
+            <p>{{ customCards[0].description }}</p>
+          </div>
+        </div>
+
+        <div class="custom-bottom-row">
+          <div class="custom-info-card button-card">
+            <h3>{{ customCta.title }}</h3>
+            <a [href]="customCta.link" class="custom-cta-btn">
+              {{ customCta.buttonText }}
+            </a>
+          </div>
+
+          <div
+            class="custom-image medium-image"
+            [style.background-image]="'url(' + customImages.bottomRight + ')'"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-bottom-layout">
+      <div class="custom-info-card accent-card">
+        <h4>{{ customCards[1].title }}</h4>
+        <p>{{ customCards[1].description }}</p>
+      </div>
+
+      <div
+        class="custom-image bottom-large-image"
+        [style.background-image]="'url(' + customImages.bottomWide + ')'"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<section class="camping-feature-section">
+  <div class="container">
+    <div class="feature-layout">
+      <div
+        class="feature-image"
+        [style.background-image]="'url(' + featureBlock.image + ')'"
+      ></div>
+
+      <div class="feature-content">
+        <h2 class="feature-title">{{ featureBlock.title }}</h2>
+
+        <p class="feature-text">
+          {{ featureBlock.description }}
+        </p>
+
+        <a [href]="featureBlock.link" class="feature-button">
+          {{ featureBlock.buttonText }}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="camping-products-section">
+  <div class="container">
+    <h2 class="products-section-title">{{ productsSectionTitle }}</h2>
+
+    <div class="products-grid">
+      <article class="product-card" *ngFor="let item of productItems">
+        <img
+          [src]="item.image"
+          [alt]="item.title"
+          class="product-card-image"
+        />
+
+        <h5 class="product-card-title">{{ item.title }}</h5>
+
+        <a [href]="item.link" class="product-card-link">
+          more
+        </a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="camping-board-section">
+  <div class="container">
+    <h2 class="board-title">{{ boardSection.title }}</h2>
+    <p class="board-subtitle">{{ boardSection.subtitle }}</p>
+
+    <div class="board-layout">
+      <div
+        class="board-image"
+        [style.background-image]="'url(' + boardSection.leftImage + ')'"
+      ></div>
+
+      <div class="board-center-card">
+        <div class="board-center-inner">
+          <h2 class="board-center-title">{{ boardSection.centerTitle }}</h2>
+
+          <p class="board-center-text">
+            {{ boardSection.centerText }}
+          </p>
+
+          <a [href]="boardSection.buttonLink" class="board-button">
+            {{ boardSection.buttonText }}
+          </a>
+        </div>
+      </div>
+
+      <div
+        class="board-image"
+        [style.background-image]="'url(' + boardSection.rightImage + ')'"
+      ></div>
+    </div>
+  </div>
+</section>
+
+<section
+  class="camping-hero-section"
+  [style.background-image]="
+    'linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url(' + heroSection.backgroundImage + ')'
+  "
+>
+  <div class="container hero-container">
+    <h2 class="hero-title">{{ heroSection.title }}</h2>
+
+    <p class="hero-text">
+      {{ heroSection.subtitle }}
+    </p>
+
+    <a [href]="heroSection.buttonLink" class="hero-button">
+      {{ heroSection.buttonText }}
+    </a>
+  </div>
+</section>
