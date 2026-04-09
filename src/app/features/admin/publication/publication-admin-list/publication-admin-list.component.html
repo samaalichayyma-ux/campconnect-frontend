@@ -1,0 +1,24 @@
+<div class="admin-page">
+  <h2>Gestion des publications</h2>
+
+  <p *ngIf="loading">Chargement...</p>
+  <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
+
+  <div class="publication-card" *ngFor="let publication of publications">
+    <div class="publication-header">
+      <div>
+        <h3>{{ publication.contenu }}</h3>
+        <p class="meta">{{ publication.dateCreation }}</p>
+      </div>
+
+      <div class="actions">
+        <button class="icon-btn" title="Modifier" (click)="goToEdit(publication.id)">✏️</button>
+        <button class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">🗑️</button>
+      </div>
+    </div>
+
+    <div class="publication-footer">
+      ❤️ {{ publication.likesCount || 0 }}
+    </div>
+  </div>
+</div>

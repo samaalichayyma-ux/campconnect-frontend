@@ -69,6 +69,17 @@ import { ListProductComponent } from './features/admin/MarketPlace/list-product/
 import { ForgotPasswordComponent } from './features/public/auth/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/public/auth/reset-password/reset-password.component';
 
+import { PublicationListComponent } from './features/public/publication/publication-list/publication-list.component';
+import { PublicationCreateComponent } from './features/public/publication/publication-create/publication-create.component';
+import { PublicationEditComponent } from './features/public/publication/publication-edit/publication-edit.component';
+import { ForumListComponent } from './features/public/forum/forum-list/forum-list.component';
+import { ForumCreateComponent } from './features/public/forum/forum-create/forum-create.component';
+import { ForumEditComponent } from './features/public/forum/forum-edit/forum-edit.component';
+import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
+import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
+import { CampingOwnerDashboardComponent } from './features/admin/camping-owner-dashboard/camping-owner-dashboard.component';
+import { BookingPaymentSuccessComponent } from './features/public/booking-payment/booking-payment-success/booking-payment-success.component';
+import { BookingPaymentCancelComponent } from './features/public/booking-payment/booking-payment-cancel/booking-payment-cancel.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -88,6 +99,7 @@ export const routes: Routes = [
       { path: 'assurances/new', component: AssuranceCreateComponent },
       { path: 'assurances/:id/edit', component: AssuranceEditComponent },
 
+      { path: 'owner-dashboard', component: CampingOwnerDashboardComponent },
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
@@ -121,6 +133,13 @@ export const routes: Routes = [
     { path: 'Market/AddProduct', component: AddProductComponent },
     { path: 'Market/EditProduct/:id', component: AddProductComponent },
     { path: 'Market/listProduct', component: ListProductComponent },
+      { path: 'publication/list', component: PublicationAdminListComponent },
+      { path: 'publication/edit/:id', component: PublicationAdminEditComponent },
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+    
+
 
     ]
   },
@@ -164,9 +183,24 @@ export const routes: Routes = [
     ]
   },
 
+      {path: 'listP', component: ListeProduitComponent},
+      { path: 'detailP/:id', component: DetailproduitComponent },
+       { path: 'publications', component: PublicationListComponent },
+    { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
+    { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
+
+    { path: 'forums', component: ForumListComponent },
+    { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+    { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+
+    ]
+  },
+  { path: 'booking-payment-success', component: BookingPaymentSuccessComponent },
+  { path: 'booking-payment-cancel', component: BookingPaymentCancelComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
    { path: 'forgot-password', component: ForgotPasswordComponent },
 { path: 'reset-password', component: ResetPasswordComponent },
   { path: '**', component: NotFoundComponent }
+
 ];

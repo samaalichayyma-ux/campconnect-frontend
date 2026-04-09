@@ -1,0 +1,53 @@
+<div class="forum-page">
+  <div class="hero-section">
+    <h1>Communauté camping</h1>
+    <p>Retrouvez les forums et les publications de la communauté.</p>
+    <button class="create-btn" (click)="goToCreate()">Créer un forum</button>
+  </div>
+
+  <section class="section-block">
+    <h2>Liste des forums</h2>
+
+    <div class="forum-list">
+      <div class="forum-card" *ngFor="let forum of forums">
+        <div class="forum-header">
+          <div>
+            <h3>{{ forum.nom }}</h3>
+            <p class="meta">{{ forum.dateCreation | date:'short' }}</p>
+          </div>
+
+          <div class="actions">
+            <button class="icon-btn" title="Modifier" (click)="goToEdit(forum.id)">✏️</button>
+            <button class="icon-btn danger-btn" title="Supprimer" (click)="deleteForum(forum.id)">🗑️</button>
+          </div>
+        </div>
+
+        <p class="description">{{ forum.description }}</p>
+      </div>
+    </div>
+
+    <p *ngIf="forums.length === 0">Aucun forum trouvé.</p>
+  </section>
+
+  <section class="section-block">
+    <h2>Liste des publications</h2>
+
+    <div class="forum-list">
+      <div class="forum-card" *ngFor="let publication of publications">
+        <div class="forum-header">
+          <div>
+            <h3>{{ publication.contenu }}</h3>
+            <p class="meta">{{ publication.dateCreation }}</p>
+          </div>
+
+          <div class="actions">
+            <button class="icon-btn" title="Modifier" (click)="goToPublicationEdit(publication.id)">✏️</button>
+            <button class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p *ngIf="publications.length === 0">Aucune publication trouvée.</p>
+  </section>
+</div>

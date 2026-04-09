@@ -159,9 +159,32 @@ export class AuthService {
     return this.eventManagementRoles.has(this.normalizeRole(role));
   }
 
-  redirectByRole(router: { navigate: (commands: string[]) => void }): void {
-    router.navigate([this.canAccessAdminPanel() ? '/admin' : '/public']);
+redirectByRole(router: { navigate: (commands: string[]) => void }): void {
+  const role = this.getRole();
+
+  switch (role) {
+    case 'ADMINISTRATEUR':
+      router.navigate(['/admin/dashboard']);
+      break;
+
+    case 'GUIDE':
+      router.navigate(['/admin/owner-dashboard']);
+      break;
+
+    case 'LIVREUR':
+      router.navigate(['/admin']);
+      break;
+
+    case 'GERANT_RESTAU':
+      router.navigate(['/admin']);
+      break;
+
+    case 'CLIENT':
+    default:
+      router.navigate(['/public']);
+      break;
   }
+}
 
   saveUserName(nom: string): void {
     localStorage.setItem('nom', nom);

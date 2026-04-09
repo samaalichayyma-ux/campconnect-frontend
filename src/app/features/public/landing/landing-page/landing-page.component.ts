@@ -44,7 +44,13 @@ export class LandingPageComponent implements OnInit {
       error: (error) => console.log('Backend KO', error)
     });
   }
+isAdmin(): boolean {
+  return this.authService.getRole() === 'ADMINISTRATEUR';
+}
 
+isLoggedIn(): boolean {
+  return this.authService.isLoggedIn();
+}
   showSection(section: string): void {
     this.selectedSection = section;
   }
@@ -54,20 +60,26 @@ export class LandingPageComponent implements OnInit {
     this.syncEventsCarouselLayout();
   }
 
-  loadLatestSites(): void {
-    this.isLoading = true;
+loadLatestSites(): void {
+  this.isLoading = true;
 
-    this.campingService.getAllCampingSites().subscribe({
-      next: (sites) => {
-        this.latestSites = sites.slice(-3).reverse();
-        this.isLoading = false;
-      },
-      error: (error) => {
-        console.error('Error loading latest sites', error);
-        this.isLoading = false;
-      }
-    });
-  }
+  this.campingService.getAllCampingSites().subscribe({
+    next: (sites) => {
+
+      const availableSites = sites.filter(
+        site => site.statutDispo !== 'CLOSED'
+      );
+
+      this.latestSites = availableSites.slice(-3).reverse();
+
+      this.isLoading = false;
+    },
+    error: (error) => {
+      console.error('Error loading latest sites', error);
+      this.isLoading = false;
+    }
+  });
+}
 
   loadUpcomingEvents(): void {
     this.isUpcomingEventsLoading = true;

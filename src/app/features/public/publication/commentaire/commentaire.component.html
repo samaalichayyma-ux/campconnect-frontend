@@ -1,0 +1,58 @@
+<div class="commentaire-section">
+  <h3 class="comment-title">💬 Commentaires</h3>
+
+  <div class="comment-input-box">
+    <div class="avatar">🙂</div>
+
+    <div class="input-area">
+      <input
+        type="text"
+        [(ngModel)]="nouveauCommentaire.contenu"
+        name="contenu"
+        placeholder="Écrire un commentaire..."
+        class="comment-input"
+      />
+
+      <button type="button" class="send-btn" (click)="ajouterCommentaire()">
+        Publier ✨
+      </button>
+    </div>
+  </div>
+
+  <div class="commentaire-list" *ngIf="commentaires.length > 0; else vide">
+    <div class="comment-card" *ngFor="let c of commentaires">
+      <div class="avatar small">😊</div>
+
+      <div class="comment-content">
+        <div class="bubble" *ngIf="editCommentId !== c.id">
+          <span class="comment-user">Camper</span>
+          <p>{{ c.contenu }}</p>
+        </div>
+
+        <div class="edit-box" *ngIf="editCommentId === c.id">
+          <input [(ngModel)]="editContenu" class="comment-input" />
+          <div class="edit-actions">
+            <button type="button" class="save-small-btn" (click)="saveEdit(c.id!)">Enregistrer</button>
+            <button type="button" class="cancel-small-btn" (click)="cancelEdit()">Annuler</button>
+          </div>
+        </div>
+
+        <div class="comment-meta">
+          <button type="button" class="meta-btn like-btn" (click)="likeCommentaire(c.id!)">
+            ❤️ {{ c.likesCount || 0 }}
+          </button>
+          <span>·</span>
+          <button type="button" class="meta-btn" (click)="startEdit(c)">Modifier</button>
+          <span>·</span>
+          <button type="button" class="meta-btn" (click)="supprimerCommentaire(c.id!)">Supprimer</button>
+          <span>·</span>
+          <span>{{ c.dateCreation }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #vide>
+    <p class="empty-comment">😶 Aucun commentaire pour le moment.</p>
+  </ng-template>
+</div>

@@ -1,0 +1,46 @@
+.edit-page {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #faf8f3;
+}
+
+.edit-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.edit-card h2 {
+  margin-top: 0;
+  color: #2f6f57;
+}
+
+textarea {
+  width: 100%;
+  min-height: 180px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+}
+
+.form-actions {
+  margin-top: 16px;
+}
+
+.save-btn {
+  background: #2f6f57;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.save-btn:hover {
+  background: #285c49;
+}

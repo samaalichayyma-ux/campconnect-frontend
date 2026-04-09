@@ -1,0 +1,12 @@
+<div class="create-page">
+  <div class="create-card">
+    <h2>Créer un forum</h2>
+
+    <input [(ngModel)]="nom" type="text" placeholder="Nom du forum" />
+    <textarea [(ngModel)]="description" placeholder="Description du forum"></textarea>
+
+    <button class="save-btn" (click)="create()">Créer</button>
+
+    <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+  </div>
+</div>

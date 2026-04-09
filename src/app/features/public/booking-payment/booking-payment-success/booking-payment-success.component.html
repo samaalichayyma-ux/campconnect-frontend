@@ -1,0 +1,54 @@
+<section class="payment-result-page success-page">
+  <div class="container">
+
+    <div class="top-bar">
+      <button class="btn-back" (click)="goToMyBookings()">
+        ← Back to My Bookings
+      </button>
+    </div>
+
+    <div class="result-card">
+      <div class="result-icon success">✓</div>
+
+      <span class="section-subtitle">CampConnect</span>
+      <h2>Booking Payment Successful</h2>
+
+      <p *ngIf="isConfirming">
+        We are confirming your booking and preparing your documents...
+      </p>
+
+      <p *ngIf="!isConfirming && confirmationSuccess">
+        Your payment has been completed successfully and your camping booking is now confirmed.
+      </p>
+
+      <p *ngIf="!isConfirming && !confirmationSuccess">
+        Your payment returned successfully, but we could not confirm the booking automatically.
+      </p>
+
+      <!-- Booking Info -->
+      <div class="booking-meta" *ngIf="inscriptionId">
+        <div class="meta-item">
+          <span>Booking ID</span>
+          <strong>#{{ inscriptionId }}</strong>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="result-actions" *ngIf="!isConfirming">
+
+        <button
+          type="button"
+          class="btn-outline"
+          [disabled]="!confirmationSuccess || !inscriptionId"
+          (click)="downloadTicket()"
+        >
+          Download Ticket
+        </button>
+
+        <a routerLink="/public/camping-sites" class="btn-secondary">
+          Explore More Sites
+        </a>
+      </div>
+    </div>
+  </div>
+</section>

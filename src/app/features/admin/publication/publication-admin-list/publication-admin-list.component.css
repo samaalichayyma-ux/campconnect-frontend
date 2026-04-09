@@ -1,0 +1,66 @@
+.admin-page {
+  max-width: 950px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #faf8f3;
+}
+
+.admin-page h2 {
+  color: #2f6f57;
+  margin-bottom: 20px;
+}
+
+.publication-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.publication-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.publication-header h3 {
+  margin: 0 0 8px;
+  color: #1f2937;
+}
+
+.meta {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  border: none;
+  background: #f4efe6;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.danger-btn:hover {
+  background: #f7dede;
+}
+
+.publication-footer {
+  margin-top: 14px;
+  color: #2f6f57;
+  font-weight: 600;
+}
+
+.error-msg {
+  color: #c85c5c;
+}

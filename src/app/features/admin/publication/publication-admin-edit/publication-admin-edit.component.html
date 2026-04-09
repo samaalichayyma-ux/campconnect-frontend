@@ -1,0 +1,14 @@
+<div class="edit-page">
+  <div class="edit-card">
+    <h2>Modifier la publication</h2>
+
+    <textarea
+      [(ngModel)]="publication.contenu"
+      placeholder="Modifier le contenu..."
+    ></textarea>
+
+    <div class="form-actions">
+      <button class="save-btn" (click)="update()">✔ Sauvegarder</button>
+    </div>
+  </div>
+</div>

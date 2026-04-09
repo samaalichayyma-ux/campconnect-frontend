@@ -1,6 +1,6 @@
 <div class="camping-navbar">
   <div class="camping-navbar__left">
-    <span class="camping-navbar__eyebrow">CampConnect Admin</span>
+    <span class="camping-navbar__eyebrow">CampConnect</span>
     <h2>Camping Sites Management</h2>
     <p>Manage sites, availability, pricing and updates.</p>
   </div>
@@ -16,18 +16,12 @@
     </a>
 
     <a
+    *ngIf="isGuide()"
       routerLink="/admin/camping-sites/new"
       routerLinkActive="active"
       class="camping-nav-link"
     >
       Add New Site
-    </a>
-        <a
-      routerLink="/admin/site-bookings"
-      routerLinkActive="active"
-      class="camping-nav-link"
-    >
-      Bookings
     </a>
   </div>
 </div>
