@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 export interface LoginRequest {
   email: string;
@@ -13,6 +13,19 @@ export interface RegisterRequest {
   motDePasse: string;
   telephone: string;
   role: string;
+}
+
+export interface GoogleLoginRequest {
+  credential: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
 }
 
 export interface AuthResponse {
@@ -41,7 +54,7 @@ export interface CurrentUserResponse {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/auth';
-  private readonly currentUserFallbackUrl = 'http://localhost:8080/api/utilisateurs/me';
+  private readonly currentUserFallbackUrl = 'http://localhost:8082/api/auth/me';
   private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'GUIDE', 'LIVREUR', 'GERANT_RESTAU']);
   private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
 
@@ -57,6 +70,26 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
       tap((response) => this.saveAuthData(response))
     );
+  }
+
+  googleLogin(credential: string): Observable<AuthResponse> {
+    const payload: GoogleLoginRequest = { credential };
+
+    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, payload).pipe(
+      tap((response) => this.saveAuthData(response))
+    );
+  }
+
+  forgotPassword(data: ForgotPasswordRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/forgot-password`, data, {
+      responseType: 'text'
+    });
+  }
+
+  resetPassword(data: ResetPasswordRequest): Observable<string> {
+    return this.http.post(`${this.apiUrl}/reset-password`, data, {
+      responseType: 'text'
+    });
   }
 
   private saveAuthData(response: AuthResponse): void {
@@ -199,16 +232,11 @@ redirectByRole(router: { navigate: (commands: string[]) => void }): void {
     }
   }
 
-  fetchCurrentUser(): Observable<CurrentUserResponse> {
-    return this.http.get<CurrentUserResponse>(`${this.apiUrl}/me`).pipe(
-      tap((userInfo) => this.syncCurrentUser(userInfo)),
-      catchError(() =>
-        this.http.get<CurrentUserResponse>(this.currentUserFallbackUrl).pipe(
-          tap((userInfo) => this.syncCurrentUser(userInfo))
-        )
-      )
-    );
-  }
+ fetchCurrentUser(): Observable<CurrentUserResponse> {
+  return this.http.get<CurrentUserResponse>(`${this.apiUrl}/me`).pipe(
+    tap((userInfo) => this.syncCurrentUser(userInfo))
+  );
+}
 
   getUserEmail(): string {
     return localStorage.getItem('email') || '';
@@ -255,9 +283,9 @@ redirectByRole(router: { navigate: (commands: string[]) => void }): void {
   private extractRole(source: unknown): string {
     const candidate = source as
       | {
-        role?: unknown;
-        authorities?: Array<{ authority?: unknown }>;
-      }
+          role?: unknown;
+          authorities?: Array<{ authority?: unknown }>;
+        }
       | null;
 
     const directRole = this.normalizeRole(candidate?.role);
@@ -272,11 +300,11 @@ redirectByRole(router: { navigate: (commands: string[]) => void }): void {
   private resolveDisplayName(source: unknown): string {
     const candidate = source as
       | {
-        nom?: unknown;
-        name?: unknown;
-        username?: unknown;
-        sub?: unknown;
-      }
+          nom?: unknown;
+          name?: unknown;
+          username?: unknown;
+          sub?: unknown;
+        }
       | null;
 
     const directName = [candidate?.nom, candidate?.name, candidate?.username]
@@ -296,9 +324,9 @@ redirectByRole(router: { navigate: (commands: string[]) => void }): void {
   private resolveEmail(source: unknown): string {
     const candidate = source as
       | {
-        email?: unknown;
-        sub?: unknown;
-      }
+          email?: unknown;
+          sub?: unknown;
+        }
       | null;
 
     if (typeof candidate?.email === 'string' && candidate.email.trim()) {

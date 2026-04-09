@@ -3,7 +3,7 @@
 This document outlines all available API endpoints integrated with the CampConnect frontend.
 
 ## Base Configuration
-- **Backend URL**: `http://localhost:8080/api`
+- **Backend URL**: `http://localhost:8082/api`
 - **Service**: `EventService` (`src/app/features/public/events/services/event.service.ts`)
 - **Models**: `Event` and `EventReservation` interfaces
 

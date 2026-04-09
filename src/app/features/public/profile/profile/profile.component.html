@@ -1,68 +1,118 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
   <div class="profile-card">
-    <div class="profile-avatar">
-      👤
-    </div>
 
-    <h1 class="profile-title">My Profile</h1>
+    <div class="profile-top">
+      <div class="profile-header">
+        <div class="avatar-wrapper">
+          <div class="profile-avatar" *ngIf="!imagePreview">👤</div>
+          <img
+            *ngIf="imagePreview"
+            [src]="imagePreview"
+            alt="Photo de profil"
+            class="profile-image"
+          />
+        </div>
 
-    <div class="profile-info" *ngIf="user">
-      <div class="profile-item">
-        <span class="label">Name:</span>
-        <span class="value">{{ user.nom }}</span>
-      </div>
-
-      <div class="profile-item">
-        <span class="label">Email:</span>
-        <span class="value">{{ user.email }}</span>
-      </div>
-
-      <div class="profile-item">
-        <span class="label">Phone:</span>
-        <span class="value">{{ user.telephone || 'Not available' }}</span>
-      </div>
-
-      <div class="profile-item">
-        <span class="label">Role:</span>
-        <span class="value">{{ user.role }}</span>
+        <div class="header-text">
+          <span class="profile-badge">Camper Account</span>
+          <h1 class="profile-title">My Profile</h1>
+          <p class="profile-subtitle">Manage your personal information</p>
+        </div>
       </div>
     </div>
 
-    <div class="profile-form">
-      <div class="form-group">
-        <label>Adresse</label>
-        <input type="text" [(ngModel)]="profile.adresse" />
+    <div class="profile-info-grid" *ngIf="user">
+      <div class="info-card">
+        <span class="info-label">Name</span>
+        <span class="info-value">{{ user.nom }}</span>
       </div>
 
-      <div class="form-group">
-        <label>Photo URL</label>
-        <input type="text" [(ngModel)]="profile.photo" />
+      <div class="info-card">
+        <span class="info-label">Email</span>
+        <span class="info-value">{{ user.email }}</span>
       </div>
 
-      <div class="form-group">
-        <label>Biographie</label>
-        <textarea rows="4" [(ngModel)]="profile.biographie"></textarea>
+      <div class="info-card">
+        <span class="info-label">Phone</span>
+        <span class="info-value">{{ user.telephone || 'Not available' }}</span>
+      </div>
+
+      <div class="info-card">
+        <span class="info-label">Role</span>
+        <span class="info-value">{{ user.role }}</span>
       </div>
     </div>
 
-    <div *ngIf="successMessage" class="success-message">
+    <div class="profile-content">
+      <div class="form-section">
+        <div class="section-title">
+          <h2>Edit Profile</h2>
+          <p>Update your account information</p>
+        </div>
+
+        <div class="profile-form">
+          <div class="form-group full-width">
+            <label>Adresse</label>
+            <input
+              type="text"
+              [(ngModel)]="profile.adresse"
+              placeholder="Enter your address"
+            />
+          </div>
+
+          <div class="form-group full-width">
+            <label>Change profile image</label>
+            <div class="photo-url-box">
+              <input
+                type="text"
+                [(ngModel)]="photoUrlInput"
+                placeholder="Paste image URL here"
+              />
+              <button type="button" class="btn primary-btn" (click)="applyPhotoUrl()">
+                Apply Image
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Biographie</label>
+            <textarea
+              rows="5"
+              [(ngModel)]="profile.biographie"
+              placeholder="Write a short biography..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="successMessage" class="alert success-alert">
       {{ successMessage }}
     </div>
 
-    <div *ngIf="errorMessage" class="error-message">
+    <div *ngIf="errorMessage" class="alert error-alert">
       {{ errorMessage }}
     </div>
 
     <div class="profile-actions">
-      <button class="btn back-btn" routerLink="/public">Back to Home</button>
-      <button class="btn save-btn" (click)="saveProfile()" [disabled]="saving">
+      <button class="btn secondary-btn" routerLink="/public">
+        Back to Home
+      </button>
+
+      <button class="btn primary-btn" (click)="saveProfile()" [disabled]="saving">
         {{ saving ? 'Saving...' : 'Save Profile' }}
       </button>
-      <button class="btn logout-btn" (click)="logout()">Logout</button>
+
+      <button class="btn danger-btn" (click)="logout()">
+        Logout
+      </button>
     </div>
   </div>
 </section>
 
 <ng-template #loadingTpl>
-  <p>Loading profile...</p>
+  <div class="loading-container">
+    <div class="loader"></div>
+    <p class="loading-text">Loading profile...</p>
+  </div>
 </ng-template>

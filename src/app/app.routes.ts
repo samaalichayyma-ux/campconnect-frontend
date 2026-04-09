@@ -66,6 +66,9 @@ import { DetailproduitComponent } from './features/public/MarketPlace/detailprod
 import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
 import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
 import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
+import { ForgotPasswordComponent } from './features/public/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/public/auth/reset-password/reset-password.component';
+
 import { PublicationListComponent } from './features/public/publication/publication-list/publication-list.component';
 import { PublicationCreateComponent } from './features/public/publication/publication-create/publication-create.component';
 import { PublicationEditComponent } from './features/public/publication/publication-edit/publication-edit.component';
@@ -173,6 +176,13 @@ export const routes: Routes = [
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },
       { path: 'Accueil-Market', component: AccueilmarketComponent },
+        {path: 'listP', component: ListeProduitComponent},
+  { path: 'detailP/:id', component: DetailproduitComponent },
+ 
+
+    ]
+  },
+
       {path: 'listP', component: ListeProduitComponent},
       { path: 'detailP/:id', component: DetailproduitComponent },
        { path: 'publications', component: PublicationListComponent },
@@ -189,6 +199,8 @@ export const routes: Routes = [
   { path: 'booking-payment-cancel', component: BookingPaymentCancelComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+   { path: 'forgot-password', component: ForgotPasswordComponent },
+{ path: 'reset-password', component: ResetPasswordComponent },
   { path: '**', component: NotFoundComponent }
 
 ];

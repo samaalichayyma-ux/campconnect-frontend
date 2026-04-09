@@ -8,7 +8,7 @@ import { AdminUser } from '../../features/admin/users/models/user.model';
 })
 export class AdminUserService {
   private readonly primaryApiUrl = 'http://localhost:8082/api/user';
-  private readonly fallbackApiUrl = 'http://localhost:8080/api/utilisateurs';
+  private readonly fallbackApiUrl = 'http://localhost:8082/api/utilisateurs';
 
   constructor(private http: HttpClient) {}
 
