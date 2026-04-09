@@ -74,6 +74,9 @@ import { ForumCreateComponent } from './features/public/forum/forum-create/forum
 import { ForumEditComponent } from './features/public/forum/forum-edit/forum-edit.component';
 import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
 import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
+import { CampingOwnerDashboardComponent } from './features/admin/camping-owner-dashboard/camping-owner-dashboard.component';
+import { BookingPaymentSuccessComponent } from './features/public/booking-payment/booking-payment-success/booking-payment-success.component';
+import { BookingPaymentCancelComponent } from './features/public/booking-payment/booking-payment-cancel/booking-payment-cancel.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -93,6 +96,7 @@ export const routes: Routes = [
       { path: 'assurances/new', component: AssuranceCreateComponent },
       { path: 'assurances/:id/edit', component: AssuranceEditComponent },
 
+      { path: 'owner-dashboard', component: CampingOwnerDashboardComponent },
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
@@ -181,6 +185,8 @@ export const routes: Routes = [
 
     ]
   },
+  { path: 'booking-payment-success', component: BookingPaymentSuccessComponent },
+  { path: 'booking-payment-cancel', component: BookingPaymentCancelComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: '**', component: NotFoundComponent }

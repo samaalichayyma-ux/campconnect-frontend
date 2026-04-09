@@ -31,6 +31,10 @@ export class NavbarComponent implements OnInit {
     this.userRole = this.authService.getRole();
   }
 
+    isAdmin(): boolean {
+    return this.userRole === 'ADMINISTRATEUR';
+  }
+
   logout(): void {
     this.authService.logout();
     this.panierService.reset();

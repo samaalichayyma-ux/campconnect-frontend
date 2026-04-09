@@ -1,54 +1,94 @@
 .avis-form {
-  background: #f3efe8;
-  padding: 20px;
-  border-radius: 16px;
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid #e7dfd4;
+  box-shadow: 0 12px 30px rgba(23, 43, 68, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.stars {
-  font-size: 22px;
-  cursor: pointer;
-  margin-bottom: 10px;
+
+.avis-form h3 {
+  margin: 0;
+  color: #172b44;
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
-.stars span {
-  color: #ccc;
-}
-
-.stars span.active {
-  color: #96952f;
-}
-
-textarea {
-  width: 100%;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.stars.error span {
-  border-bottom: 2px solid #b64141;
-}
 
 .stars {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   font-size: 28px;
   cursor: pointer;
   user-select: none;
-  margin-bottom: 12px;
+  padding: 6px 0;
 }
 
 .stars span {
-  color: #d1d5db; /* light gray */
+  color: #d1d5db;
   transition: all 0.2s ease;
 }
 
 .stars span.active {
-  color: #fbbf24; /* gold */
-  text-shadow: 0 0 6px rgba(251, 191, 36, 0.6);
+  color: #96952f;
+  text-shadow: 0 0 8px rgba(150, 149, 47, 0.4);
 }
 
 .stars span:hover {
-  transform: scale(1.2);
-  color: #fbbf24;
+  transform: scale(1.25);
+  color: #96952f;
 }
+
+.stars.error {
+  padding-bottom: 6px;
+  border-bottom: 2px solid #b64141;
+}
+
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #ddd6c8;
+  background: #f9f8f4;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  transition: all 0.2s ease;
+}
+
+textarea:focus {
+  border-color: #96952f;
+  background: #ffffff;
+}
+
+.btn-primary {
+  border: none;
+  border-radius: 999px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #1f5c36, #96952f);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 10px 22px rgba(31, 92, 54, 0.18);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(31, 92, 54, 0.25);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-primary:disabled {
+  background: #b8b8b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+

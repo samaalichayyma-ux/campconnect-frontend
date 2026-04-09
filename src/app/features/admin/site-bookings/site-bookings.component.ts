@@ -24,22 +24,45 @@ export class SiteBookingsComponent implements OnInit {
     this.loadBookings();
   }
 
-  loadBookings(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+  
+getUserRole(): string | null {
+  const token = localStorage.getItem('token');
+  if (!token) return null;
 
-    this.campingService.getAllBookings().subscribe({
-      next: (res) => {
-        this.bookings = res as UpdateSiteBooking[];
-        this.isLoading = false;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role || payload.authorities?.[0]?.replace('ROLE_', '');
+  } catch {
+    return null;
+  }
+}
+
+loadBookings(): void {
+  const role = this.getUserRole();
+
+  if (role === 'GUIDE') {
+    this.campingService.getMyCampBookingList().subscribe({
+      next: (data) => {
+        this.bookings = data;
       },
-      error: (error: unknown) => {
+      error: (error) => {
         console.error(error);
-        this.errorMessage = 'Failed to load bookings.';
-        this.isLoading = false;
+      }
+    });
+  } else {
+    this.campingService.getAllBookings().subscribe({
+      next: (data) => {
+        this.bookings = data;
+      },
+      error: (error) => {
+        console.error(error);
       }
     });
   }
+}
+isCancelable(booking: any): boolean {
+  return booking.statut === 'PENDING';
+}
 
   updateStatus(
     booking: UpdateSiteBooking,

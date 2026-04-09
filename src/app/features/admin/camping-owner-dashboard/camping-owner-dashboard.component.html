@@ -1,0 +1,116 @@
+<section class="owner-dashboard-page">
+  <div class="container">
+    <app-camping-navbar></app-camping-navbar>
+
+    <div class="dashboard-header">
+      <div>
+        <span class="section-tag">Camp Host Panel</span>
+        <h2>Camping Owner Dashboard</h2>
+        <p>Track your camping sites, bookings, and guest feedback in one place.</p>
+      </div>
+
+      <a routerLink="/admin/camping-sites/new" class="btn-primary">
+        + Add New Site
+      </a>
+    </div>
+
+    <div *ngIf="isLoading" class="state-message">
+      Loading dashboard...
+    </div>
+
+    <div *ngIf="errorMessage" class="state-message error">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage" class="dashboard-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">My Sites</span>
+          <h3>{{ totalSites }}</h3>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Active Sites</span>
+          <h3>{{ activeSites }}</h3>
+        </div>
+
+        <div class="stat-card">
+          <span class="stat-label">Total Bookings</span>
+          <h3>{{ totalBookings }}</h3>
+        </div>
+
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Recent Sites</h3>
+            <a routerLink="/admin/camping-sites">View all</a>
+          </div>
+
+          <div *ngIf="recentSites.length > 0; else noSites">
+            <div class="list-item" *ngFor="let site of recentSites">
+              <div>
+                <h4>{{ site.nom }}</h4>
+                <p>{{ site.localisation }}</p>
+              </div>
+              <span class="status-badge" [ngClass]="site.statutDispo.toLowerCase()">
+                {{ site.statutDispo }}
+              </span>
+            </div>
+          </div>
+
+          <ng-template #noSites>
+            <p class="empty-text">No camping sites found.</p>
+          </ng-template>
+        </div>
+
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Latest Bookings</h3>
+            <a routerLink="/admin/site-bookings">View all</a>
+          </div>
+
+          <div *ngIf="recentBookings.length > 0; else noBookings">
+            <div class="list-item" *ngFor="let booking of recentBookings">
+              <div>
+                <h4>{{ booking.siteCamping?.nom || 'Camping Site' }}</h4>
+                <p>{{ booking.dateDebut }} → {{ booking.dateFin }}</p>
+              </div>
+              <span class="status-badge" [ngClass]="booking.statut.toLowerCase()">
+                {{ booking.statut }}
+              </span>
+            </div>
+          </div>
+
+          <ng-template #noBookings>
+            <p class="empty-text">No bookings yet.</p>
+          </ng-template>
+        </div>
+
+        <div class="dashboard-card full-width">
+          <div class="card-header">
+            <h3>Latest Reviews</h3>
+            <a routerLink="/admin/avis">View all</a>
+          </div>
+
+          <div *ngIf="recentReviews.length > 0; else noReviews">
+            <div class="review-item" *ngFor="let review of recentReviews">
+              <div>
+                <h4>{{ review.siteNom || 'Camping Site' }}</h4>
+                <p>{{ review.commentaire || 'No comment provided.' }}</p>
+              </div>
+              <span class="review-note" *ngIf="review.note !== null && review.note !== undefined">
+                {{ review.note }}/5
+              </span>
+            </div>
+          </div>
+
+          <ng-template #noReviews>
+            <p class="empty-text">No reviews yet.</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

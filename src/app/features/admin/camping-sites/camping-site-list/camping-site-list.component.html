@@ -10,7 +10,7 @@
           <p>{{ pageDescription }}</p>
         </div>
 
-        <a class="btn-primary" routerLink="/admin/camping-sites/new">
+        <a *ngIf="isGuide()" class="btn-primary" routerLink="/admin/camping-sites/new">
           + Add New Site
         </a>
       </div>
@@ -71,13 +71,6 @@
                   Edit
                 </a>
 
-                <button
-                  class="btn-delete"
-                  *ngIf="site.statutDispo !== 'CLOSED'"
-                  (click)="closeSite(site.idSite)"
-                >
-                  Close
-                </button>
               </td>
             </tr>
           </tbody>

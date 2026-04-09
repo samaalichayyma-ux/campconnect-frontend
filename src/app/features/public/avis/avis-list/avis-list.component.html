@@ -1,21 +1,26 @@
 <div class="avis-list">
   <div class="avis-card" *ngFor="let avis of avisList">
-
     <div class="avis-header">
       <div class="avis-user">
-        <img
-          src="assets/images/default-avatar.png"
-          alt="User Avatar"
-          class="avatar"
-        />
+        <div
+          class="avatar avatar-fallback"
+          [ngStyle]="{ background: getAvatarColor(avis) }"
+        >
+          {{ getUserInitial(avis) }}
+        </div>
 
         <div class="user-details">
-          <span class="user-name">Guest User</span>
-          <span class="date">{{ avis.dateCreation | date }}</span>
+          <span class="user-name">{{ getDisplayName(avis) }}</span>
+          <span class="date">{{ avis.dateCreation | date:'mediumDate' }}</span>
         </div>
       </div>
 
-      <button class="btn-edit-icon" (click)="openEditPopup(avis)" title="Update review">
+      <button
+      *ngIf="isOwner(avis)"
+        class="btn-edit-icon"
+        (click)="openEditPopup(avis)"
+        title="Update review"
+      >
         ✏️
       </button>
     </div>
@@ -33,6 +38,5 @@
     <p class="comment" *ngIf="avis.commentaire">
       {{ avis.commentaire }}
     </p>
-
   </div>
 </div>
