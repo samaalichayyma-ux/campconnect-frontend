@@ -66,6 +66,8 @@ import { DetailproduitComponent } from './features/public/MarketPlace/detailprod
 import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
 import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
 import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
+import { ForgotPasswordComponent } from './features/public/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/public/auth/reset-password/reset-password.component';
 
 
 export const routes: Routes = [
@@ -156,11 +158,15 @@ export const routes: Routes = [
       { path: 'commande-repas', component: CommandeRepasComponent },
       { path: 'Accueil-Market', component: AccueilmarketComponent },
         {path: 'listP', component: ListeProduitComponent},
-  { path: 'detailP/:id', component: DetailproduitComponent }
+  { path: 'detailP/:id', component: DetailproduitComponent },
+ 
 
     ]
   },
+
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+   { path: 'forgot-password', component: ForgotPasswordComponent },
+{ path: 'reset-password', component: ResetPasswordComponent },
   { path: '**', component: NotFoundComponent }
 ];
