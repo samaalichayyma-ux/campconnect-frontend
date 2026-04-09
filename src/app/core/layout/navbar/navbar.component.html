@@ -45,7 +45,9 @@
             class="cc-dropdown"
             *ngIf="isDropdownOpen"
             (click)="$event.stopPropagation()">
-            <a routerLink="/public/my-bookings" (click)="closeDropdown()">
+            <a
+            [class.disabled]="isAdmin()"
+             routerLink="/public/my-bookings" (click)="closeDropdown()">
               My Bookings
             </a>
 

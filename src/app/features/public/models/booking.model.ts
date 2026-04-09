@@ -17,3 +17,9 @@ export interface SiteBooking {
   siteId: number;
 }
 
+export interface InscriptionCheckoutResponse {
+  inscription: SiteBooking;
+  checkoutUrl: string;
+  sessionId: string;
+}
+

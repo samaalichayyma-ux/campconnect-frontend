@@ -27,6 +27,9 @@ export class CampingSiteListComponent implements OnInit {
     private authService: AuthService
   ) {}
 
+  isGuide(): boolean {
+    return this.authService.getRole() === 'GUIDE';
+  }
   ngOnInit(): void {
     this.userRole = this.authService.getRole();
     this.loadSitesByRole();
@@ -42,7 +45,7 @@ export class CampingSiteListComponent implements OnInit {
 
       this.campingService.getMyCampingSites().subscribe({
         next: (data) => {
-          this.sites = data;
+          this.sites = data.reverse();
           this.isLoading = false;
         },
         error: (error) => {
@@ -60,7 +63,7 @@ export class CampingSiteListComponent implements OnInit {
 
     this.campingService.getAllCampingSites().subscribe({
       next: (data) => {
-        this.sites = data;
+        this.sites = data.reverse();
         this.isLoading = false;
       },
       error: (error) => {
