@@ -1,0 +1,436 @@
+<div class="dashboard-shell">
+  <div *ngIf="isLoading" class="loading-card">
+    <div class="spinner"></div>
+    <p>Loading the event BI dashboard...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <div class="hero-actions">
+          <a [routerLink]="backLink" class="ghost-btn">
+            <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+            <span>{{ backLabel }}</span>
+          </a>
+
+          <a [routerLink]="contextLink" class="ghost-btn accent">
+            <app-admin-icon name="events" [size]="14"></app-admin-icon>
+            <span>{{ contextLabel }}</span>
+          </a>
+        </div>
+
+        <span class="hero-kicker">Events Intelligence</span>
+        <h1>Portfolio momentum, revenue quality, and launch pressure</h1>
+        <p>
+          Read the business story behind the event pipeline: where demand is building, which categories are earning,
+          and which launches need action before they miss target.
+        </p>
+
+        <div class="hero-chip-row">
+          <span class="hero-chip">{{ events.length }} total events</span>
+          <span class="hero-chip">{{ publishedEvents.length }} published</span>
+          <span class="hero-chip">{{ reservations.length }} reservations tracked</span>
+          <span class="hero-chip">{{ formatPercent(paidConversionRate) }}% paid conversion</span>
+        </div>
+      </div>
+
+      <article class="spotlight-card" *ngIf="featuredEvent as spotlight; else emptySpotlight">
+        <span class="spotlight-kicker">{{ focusEventId ? 'Focused event' : 'Portfolio spotlight' }}</span>
+        <h2>{{ spotlight.title }}</h2>
+        <p>{{ spotlight.location }} | {{ formatDateTime(spotlight.dateLabel) }}</p>
+
+        <div class="spotlight-metrics">
+          <div>
+            <span>Revenue</span>
+            <strong>{{ formatCurrency(spotlight.revenue) }}</strong>
+          </div>
+          <div>
+            <span>Reservations</span>
+            <strong>{{ spotlight.reservations }}</strong>
+          </div>
+          <div>
+            <span>Occupancy</span>
+            <strong>{{ formatPercent(spotlight.occupancyRate) }}%</strong>
+          </div>
+          <div>
+            <span>Waitlist</span>
+            <strong>{{ spotlight.waitlistCount }}</strong>
+          </div>
+        </div>
+
+        <div class="spotlight-actions">
+          <button
+            class="spotlight-btn"
+            (click)="downloadFeaturedGuestList()"
+            [disabled]="downloadingGuestList"
+            type="button">
+            {{ downloadingGuestList ? 'Preparing guest list...' : 'Guest List CSV' }}
+          </button>
+
+          <button
+            class="spotlight-btn secondary"
+            (click)="downloadFeaturedAttendanceSheet()"
+            [disabled]="downloadingAttendanceSheet"
+            type="button">
+            {{ downloadingAttendanceSheet ? 'Preparing attendance sheet...' : 'Attendance PDF' }}
+          </button>
+        </div>
+      </article>
+
+      <ng-template #emptySpotlight>
+        <article class="spotlight-card empty">
+          <span class="spotlight-kicker">Portfolio spotlight</span>
+          <h2>No events yet</h2>
+          <p>Create the first event to unlock business performance tracking here.</p>
+        </article>
+      </ng-template>
+    </section>
+
+    <section class="metrics-grid" *ngIf="events.length > 0; else emptyState">
+      <article *ngFor="let metric of metricCards" class="metric-card" [ngClass]="metric.toneClass">
+        <div class="metric-icon">
+          <app-admin-icon [name]="metric.icon" [size]="18"></app-admin-icon>
+        </div>
+        <div>
+          <span class="metric-label">{{ metric.label }}</span>
+          <strong class="metric-value">{{ metric.value }}</strong>
+          <p class="metric-note">{{ metric.note }}</p>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="message-card neutral">
+        <app-admin-icon name="info" [size]="18"></app-admin-icon>
+        <div>
+          <strong>No event data yet</strong>
+          <p>Create an event first, then this dashboard will start showing real business signals.</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <section class="dashboard-grid" *ngIf="events.length > 0">
+      <article class="panel-card wide chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Demand Trend</span>
+            <h2>Bookings and guest volume over the last 6 months</h2>
+          </div>
+        </div>
+
+        <div class="chart-shell chart-shell-tall">
+          <canvas
+            baseChart
+            [data]="demandChartData"
+            [options]="demandChartOptions"
+            [type]="'bar'">
+          </canvas>
+        </div>
+
+        <div class="insight-strip">
+          <div class="insight-pill">
+            <span>Top revenue event</span>
+            <strong>{{ topRevenueEvent?.title || 'No leader yet' }}</strong>
+          </div>
+          <div class="insight-pill">
+            <span>Top occupancy</span>
+            <strong>{{ topOccupancyEvent?.title || 'No leader yet' }}</strong>
+          </div>
+          <div class="insight-pill">
+            <span>Upcoming avg fill</span>
+            <strong>{{ formatPercent(upcomingAverageFillRate) }}%</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel-card chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Status Mix</span>
+            <h2>Calendar health at a glance</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="statusMix.length > 0; else emptyStatusChart">
+          <div class="chart-shell">
+            <canvas
+              baseChart
+              [data]="statusMixChartData"
+              [options]="doughnutChartOptions"
+              [type]="'doughnut'">
+            </canvas>
+          </div>
+
+          <div class="summary-list">
+            <div *ngFor="let item of statusMix" class="summary-row">
+              <div class="summary-main">
+                <span class="legend-dot" [ngClass]="item.toneClass"></span>
+                <strong>{{ item.label }}</strong>
+              </div>
+              <span>{{ item.count }} events</span>
+              <strong>{{ formatPercent(item.share) }}%</strong>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyStatusChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="info" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No status mix yet</strong>
+              <p>Event statuses will appear here as soon as data is available.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Category Revenue</span>
+            <h2>Where the event business earns best</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="categoryRows.length > 0; else emptyCategoryChart">
+          <div class="chart-shell" [style.height.px]="categoryRevenueChartHeight">
+            <canvas
+              baseChart
+              [data]="categoryRevenueChartData"
+              [options]="horizontalBarChartOptions"
+              [type]="'bar'">
+            </canvas>
+          </div>
+
+          <div class="summary-list">
+            <div *ngFor="let row of categoryRows | slice:0:4" class="summary-row">
+              <div class="summary-main">
+                <strong>{{ row.label }}</strong>
+              </div>
+              <span>{{ row.events }} events</span>
+              <strong>{{ formatCurrency(row.revenue) }}</strong>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyCategoryChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="target" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No category signals yet</strong>
+              <p>Revenue by category will appear once bookings start landing.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card wide chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Top Performers</span>
+            <h2>The events currently carrying the portfolio</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="leaderboardRows.length > 0; else emptyLeaderboardChart">
+          <div class="split-panel">
+            <div class="chart-shell chart-shell-wide" [style.height.px]="leaderboardChartHeight">
+              <canvas
+                baseChart
+                [data]="leaderboardChartData"
+                [options]="horizontalBarChartOptions"
+                [type]="'bar'">
+              </canvas>
+            </div>
+
+            <div class="scoreboard">
+              <div *ngFor="let row of leaderboardRows | slice:0:5" class="scoreboard-row" [class.focused]="row.id === focusEventId">
+                <div>
+                  <strong>{{ row.title }}</strong>
+                  <span>{{ row.location }} | {{ formatDateTime(row.dateLabel) }}</span>
+                </div>
+                <div class="scoreboard-metrics">
+                  <span>{{ row.participants }} guests</span>
+                  <strong>{{ formatCurrency(row.revenue) }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyLeaderboardChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="events" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No leaders yet</strong>
+              <p>Top event ranking will populate once reservations are recorded.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card wide chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Guest Satisfaction</span>
+            <h2>How completed events are landing with attendees</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="feedbackReservations.length > 0; else emptyFeedbackChart">
+          <div class="split-panel">
+            <div class="chart-shell chart-shell-wide">
+              <canvas
+                baseChart
+                [data]="feedbackMixChartData"
+                [options]="doughnutChartOptions"
+                [type]="'doughnut'">
+              </canvas>
+            </div>
+
+            <div class="feedback-side">
+              <div class="summary-list">
+                <div class="summary-row">
+                  <div class="summary-main">
+                    <strong>Average rating</strong>
+                  </div>
+                  <span>{{ feedbackReservations.length }} responses</span>
+                  <strong>{{ averageFeedbackRating | number:'1.1-1' }}/5</strong>
+                </div>
+
+                <div class="summary-row">
+                  <div class="summary-main">
+                    <strong>Response rate</strong>
+                  </div>
+                  <span>{{ attendedReservations.length }} attended bookings</span>
+                  <strong>{{ formatPercent(feedbackResponseRate) }}%</strong>
+                </div>
+
+                <div class="summary-row">
+                  <div class="summary-main">
+                    <strong>4-5 star share</strong>
+                  </div>
+                  <span>Positive experience signal</span>
+                  <strong>{{ formatPercent(highRatingShare) }}%</strong>
+                </div>
+              </div>
+
+              <div class="scoreboard" *ngIf="feedbackEventRows.length > 0">
+                <div *ngFor="let row of feedbackEventRows" class="scoreboard-row">
+                  <div>
+                    <strong>{{ row.title }}</strong>
+                    <span>{{ row.responses }} responses</span>
+                  </div>
+                  <div class="scoreboard-metrics">
+                    <span>{{ formatPercent(row.responseRate) }}% response</span>
+                    <strong>{{ row.averageRating | number:'1.1-1' }}/5</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyFeedbackChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="sparkles" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No feedback yet</strong>
+              <p>Once attended guests start rating their experience, the satisfaction story will appear here.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card visual-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Launch Board</span>
+            <h2>Next launches and commercial readiness</h2>
+          </div>
+        </div>
+
+        <div class="snapshot-grid">
+          <div class="snapshot-card">
+            <span>Avg revenue / event</span>
+            <strong>{{ formatCurrency(averageRevenuePerEvent) }}</strong>
+          </div>
+          <div class="snapshot-card">
+            <span>Avg bookings / event</span>
+            <strong>{{ averageReservationsPerEvent | number:'1.0-1' }}</strong>
+          </div>
+          <div class="snapshot-card">
+            <span>Upcoming avg fill</span>
+            <strong>{{ formatPercent(upcomingAverageFillRate) }}%</strong>
+          </div>
+          <div class="snapshot-card">
+            <span>Waitlist pressure</span>
+            <strong>{{ waitlistGuests }} guests</strong>
+          </div>
+        </div>
+
+        <div class="launch-list" *ngIf="launchBoardRows.length > 0; else noLaunches">
+          <div *ngFor="let item of launchBoardRows" class="launch-row">
+            <div class="launch-copy">
+              <strong>{{ item.title }}</strong>
+              <span>{{ formatDateTime(item.dateLabel) }}</span>
+            </div>
+
+            <div class="launch-meters">
+              <div class="launch-meter">
+                <div class="launch-bar">
+                  <div class="launch-fill" [style.width.%]="item.occupancyRate"></div>
+                </div>
+                <small>{{ formatPercent(item.occupancyRate) }}% filled</small>
+              </div>
+
+              <div class="launch-meta">
+                <span>{{ formatCurrency(item.revenue) }}</span>
+                <small>{{ item.waitlistCount }} waitlist</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noLaunches>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="calendar" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No upcoming launches</strong>
+              <p>Schedule the next event to start filling this launch board.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Attention Board</span>
+            <h2>Where the team should act next</h2>
+          </div>
+        </div>
+
+        <div class="attention-list" *ngIf="attentionEvents.length > 0; else healthyState">
+          <div *ngFor="let item of attentionEvents" class="attention-row" [ngClass]="item.severityClass">
+            <div>
+              <strong>{{ item.title }}</strong>
+              <p>{{ item.note }}</p>
+            </div>
+            <a [routerLink]="['/admin/events', item.id, 'edit']" class="attention-link">Review</a>
+          </div>
+        </div>
+
+        <ng-template #healthyState>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="check" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No urgent launch risks</strong>
+              <p>The event portfolio looks stable based on current demand and waitlist signals.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+    </section>
+  </ng-container>
+</div>

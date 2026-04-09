@@ -528,6 +528,16 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
                     <h3>{{ event.titre }}</h3>
                     <p>{{ getShortDescription(event.description, 88) }}</p>
 
+                    <div class="cc-events-slide__rating" [class.is-empty]="!hasFeedback(event)">
+                      <div class="cc-events-slide__stars" [attr.aria-label]="hasFeedback(event) ? ('Rated ' + getAverageRatingLabel(event) + ' out of 5') : 'No ratings yet'">
+                        <span
+                          *ngFor="let star of ratingStars"
+                          [class.filled]="hasFeedback(event) && star <= getRoundedAverageRating(event)">★</span>
+                      </div>
+                      <span *ngIf="hasFeedback(event)" class="cc-events-slide__rating-value">{{ getAverageRatingLabel(event) }}</span>
+                      <span class="cc-events-slide__rating-count">{{ hasFeedback(event) ? getFeedbackCountLabel(event) : 'No ratings yet' }}</span>
+                    </div>
+
                     <div class="cc-events-slide__meta">
                       <span>{{ formatEventDate(event.dateDebut) }}</span>
                       <span>{{ formatEventTimeRange(event.dateDebut, event.dateFin) }}</span>

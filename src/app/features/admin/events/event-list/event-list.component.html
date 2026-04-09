@@ -1,32 +1,15 @@
 <div class="event-list-container">
   <div class="list-header">
     <h1>Event Management</h1>
-    <a routerLink="/admin/events/new" class="create-btn">+ Create New Event</a>
+    <div class="header-actions">
+      <a routerLink="/admin/events/stats" [queryParams]="{ from: 'events' }" class="secondary-btn">View Event Stats</a>
+      <a routerLink="/admin/promotions" [queryParams]="{ from: 'events' }" class="secondary-btn">Manage Promotions</a>
+      <a routerLink="/admin/events/new" class="create-btn">+ Create New Event</a>
+    </div>
   </div>
 
   <div *ngIf="isLoading" class="loading">
     <p>Loading events...</p>
-  </div>
-
-  <div *ngIf="errorMessage && !isLoading" class="error-message">
-    <div class="alert-icon">
-      <app-admin-icon name="error" [size]="18"></app-admin-icon>
-    </div>
-    <div class="alert-copy">
-      <strong>Something went wrong</strong>
-      <p>{{ errorMessage }}</p>
-    </div>
-    <button (click)="loadEvents()" class="retry-btn">Retry</button>
-  </div>
-
-  <div *ngIf="successMessage && !isLoading" class="success-message">
-    <div class="alert-icon success">
-      <app-admin-icon name="check" [size]="18"></app-admin-icon>
-    </div>
-    <div class="alert-copy">
-      <strong>Update saved</strong>
-      <p>{{ successMessage }}</p>
-    </div>
   </div>
 
   <div *ngIf="!isLoading && events.length > 0" class="table-wrapper">
@@ -35,19 +18,17 @@
         <tr>
           <th>Image</th>
           <th>Title</th>
-          <th>Date</th>
-          <th>Time</th>
+          <th>Schedule</th>
           <th>Location</th>
           <th>Category</th>
           <th>Visibility</th>
-          <th>Capacity</th>
-          <th>Registered</th>
+          <th>Attendance</th>
           <th>Price</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let event of paginatedEvents" [class.deleting]="deleteConfirmId === event.id">
+        <tr *ngFor="let event of paginatedEvents; trackBy: trackByEventId" [class.deleting]="deleteConfirmId === event.id">
           <td class="image-cell">
             <img [src]="getEventImageUrl(event)" [alt]="event.titre" class="event-thumbnail" (error)="onImageError($event)">
           </td>
@@ -55,9 +36,11 @@
             <span class="event-title">{{ event.titre }}</span>
             <span class="organizer-meta">{{ event.organizerNom }}</span>
           </td>
-          <td>{{ formatDate(event.dateDebut) }}</td>
-          <td>{{ event.dateDebut | date:'shortTime' }}</td>
-          <td>{{ event.lieu }}</td>
+          <td class="schedule-cell">
+            <span class="schedule-date">{{ formatDate(event.dateDebut) }}</span>
+            <span class="schedule-time">{{ event.dateDebut | date:'shortTime' }}</span>
+          </td>
+          <td class="location-cell">{{ event.lieu }}</td>
           <td>
             <span class="category-badge">{{ getCategoryLabel(event.categorie) }}</span>
           </td>
@@ -69,11 +52,11 @@
               {{ getRecurrenceLabel(event.recurrenceFrequency) }} from #{{ event.sourceEventId }}
             </span>
           </td>
-          <td>{{ event.capaciteMax }}</td>
-          <td>
+          <td class="attendance-cell">
             <span class="registered-badge">
               {{ event.participantsCount || 0 }} / {{ event.capaciteMax }}
             </span>
+            <span class="attendance-meta">{{ getAvailableSeats(event) }} left</span>
           </td>
           <td class="price">${{ event.prix | number:'1.0-2' }}</td>
           <td class="actions-cell">
@@ -84,6 +67,14 @@
                 title="Edit"
                 aria-label="Edit event">
                 Edit
+              </a>
+              <a
+                [routerLink]="['/admin/promotions']"
+                [queryParams]="{ eventId: event.id, from: 'events' }"
+                class="table-action secondary"
+                title="Manage promo codes"
+                aria-label="Manage promo codes for event">
+                Promos
               </a>
               <button
                 (click)="togglePublication(event)"
@@ -132,7 +123,7 @@
       </button>
 
       <button
-        *ngFor="let page of visiblePageNumbers"
+        *ngFor="let page of visiblePageNumbers; trackBy: trackByPageNumber"
         type="button"
         class="page-number"
         [class.active]="page === currentPage"

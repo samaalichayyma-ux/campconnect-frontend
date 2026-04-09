@@ -24,6 +24,25 @@
   line-height: 1.6;
 }
 
+.insight-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #eaf4ff;
+  color: #2d76b5;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.insight-link:hover {
+  transform: translateY(-1px);
+  background: #dcecff;
+}
+
 .loading {
   padding: 64px 24px;
   border: 1px solid #e9e5dc;
@@ -364,6 +383,10 @@
   border-bottom: 0;
 }
 
+.summary-row.discount-row strong {
+  color: #1f8f5f;
+}
+
 .event-overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -388,6 +411,26 @@
   margin-top: 8px;
   color: #6b7280;
   font-size: 0.84rem;
+}
+
+.summary-note {
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f4f7f4;
+  color: #546170;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.summary-note.success {
+  background: #eefbf3;
+  color: #1f8f5f;
+}
+
+.summary-note.warning {
+  background: #fff4e8;
+  color: #a75c00;
 }
 
 .form-actions {

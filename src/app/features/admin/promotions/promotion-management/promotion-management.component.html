@@ -1,0 +1,345 @@
+<div class="promotion-page">
+  <section class="page-header">
+    <div class="header-copy">
+      <span class="header-kicker">Admin Promotions</span>
+      <h1>Manage global and event-specific promo codes</h1>
+      <p>Build offers for every event or narrow them to selected experiences without leaving the admin panel.</p>
+    </div>
+
+    <div class="header-actions">
+      <a [routerLink]="backLink" class="ghost-btn">
+        <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
+        <span>{{ backLabel }}</span>
+      </a>
+
+      <button type="button" class="primary-btn" (click)="openCreateForm()">
+        <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+        <span>Create Promo</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="toolbar-card">
+    <div class="toolbar-group">
+      <label class="filter-field" for="promotion-event-filter">
+        <span>Event filter</span>
+        <select id="promotion-event-filter" [(ngModel)]="selectedEventFilter" (change)="onEventFilterChange()">
+          <option value="all">All events</option>
+          <option *ngFor="let event of events" [value]="event.id">{{ event.titre }}</option>
+        </select>
+      </label>
+
+      <label class="filter-field" for="promotion-scope-filter">
+        <span>Scope</span>
+        <select id="promotion-scope-filter" [(ngModel)]="selectedScopeFilter">
+          <option value="all">All scopes</option>
+          <option value="GLOBAL">Global only</option>
+          <option value="EVENTS">Event-specific only</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="toolbar-summary">
+      <strong>{{ visiblePromotions.length }}</strong>
+      <span>matching promotions</span>
+      <p *ngIf="currentFilterEvent">Showing promos relevant to {{ currentFilterEvent.titre }}.</p>
+      <p *ngIf="!currentFilterEvent">Global offers and event-targeted codes appear together here.</p>
+    </div>
+  </section>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading promotions and events...</p>
+  </div>
+
+  <section *ngIf="!isLoading && visiblePromotions.length > 0" class="promotion-grid">
+    <article *ngFor="let promotion of visiblePromotions" class="promotion-card">
+      <div class="card-top">
+        <div class="pill-row">
+          <span class="scope-pill" [class.global]="isGlobalPromotion(promotion)">
+            {{ getPromotionScopeLabel(promotion) }}
+          </span>
+          <span class="status-pill" [class.active]="promotion.active" [class.live]="promotion.currentlyAvailable">
+            {{ getPromotionAvailabilityLabel(promotion) }}
+          </span>
+        </div>
+
+        <div class="card-actions">
+          <button type="button" class="icon-btn" (click)="openEditForm(promotion.id)" title="Edit promotion">
+            <app-admin-icon name="edit" [size]="15"></app-admin-icon>
+          </button>
+          <button type="button" class="icon-btn danger" (click)="confirmDelete(promotion)" title="Delete promotion">
+            <app-admin-icon name="delete" [size]="15"></app-admin-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-copy">
+        <h2>{{ promotion.name }}</h2>
+        <p>{{ promotion.description || 'No description provided yet for this promotion.' }}</p>
+      </div>
+
+      <div class="discount-banner">
+        <span class="discount-value">{{ getPromotionDiscountLabel(promotion) }}</span>
+        <span class="discount-code">{{ getPromotionCodeLabel(promotion) }}</span>
+      </div>
+
+      <div class="meta-list">
+        <div class="meta-row">
+          <span>Booking window</span>
+          <strong>{{ getPromotionWindowLabel(promotion) }}</strong>
+        </div>
+        <div class="meta-row">
+          <span>Rules</span>
+          <strong>
+            {{ promotion.minimumParticipants || 1 }}+ guests
+            <ng-container *ngIf="promotion.minimumSubtotal">, {{ formatCurrency(promotion.minimumSubtotal) }} minimum</ng-container>
+          </strong>
+        </div>
+        <div class="meta-row">
+          <span>Usage</span>
+          <strong>
+            {{ promotion.usageCount || 0 }} used
+            <ng-container *ngIf="promotion.maxRedemptions"> / {{ promotion.maxRedemptions }} max</ng-container>
+          </strong>
+        </div>
+        <div class="meta-row">
+          <span>Discoverability</span>
+          <strong>{{ promotion.discoverable ? 'Shown to users' : 'Hidden unless code is known' }}</strong>
+        </div>
+      </div>
+
+      <div *ngIf="!isGlobalPromotion(promotion) && getPromotionTargetEvents(promotion).length" class="target-list">
+        <span *ngFor="let targetEvent of getPromotionTargetEvents(promotion)" class="target-chip">
+          {{ targetEvent.titre }}
+        </span>
+      </div>
+    </article>
+  </section>
+
+  <section *ngIf="!isLoading && visiblePromotions.length === 0" class="empty-state">
+    <span class="empty-icon">
+      <app-admin-icon name="sparkles" [size]="24"></app-admin-icon>
+    </span>
+    <h2>No promotions match this filter</h2>
+    <p>Create a new code or switch filters to review offers for another event.</p>
+    <button type="button" class="primary-btn" (click)="openCreateForm()">Create Promo</button>
+  </section>
+
+  <div *ngIf="isFormOpen" class="dialog-overlay" (click)="closeForm()">
+    <section class="dialog-panel" (click)="$event.stopPropagation()">
+      <header class="dialog-header">
+        <div>
+          <span class="header-kicker">{{ editingPromotionId ? 'Edit Promotion' : 'New Promotion' }}</span>
+          <h2>{{ editingPromotionId ? 'Update this promo code' : 'Create a new promo code' }}</h2>
+        </div>
+
+        <button type="button" class="icon-btn" (click)="closeForm()" [disabled]="isSaving">
+          <app-admin-icon name="close" [size]="16"></app-admin-icon>
+        </button>
+      </header>
+
+      <div *ngIf="isLoadingPromotion" class="loading-state compact">
+        <div class="spinner"></div>
+        <p>Loading promotion details...</p>
+      </div>
+
+      <form *ngIf="!isLoadingPromotion" [formGroup]="promotionForm" (ngSubmit)="submitForm()" class="promotion-form">
+        <div class="form-grid">
+          <div class="form-main">
+            <section class="form-card">
+              <div class="section-heading">
+                <h3>Offer Identity</h3>
+                <p>Give the promotion a clear label, set the code, and choose the discount guests receive.</p>
+              </div>
+
+              <div class="input-grid">
+                <label class="form-field">
+                  <span>Promotion name *</span>
+                  <input type="text" formControlName="name" placeholder="Spring launch offer">
+                  <small *ngIf="getFieldError('name')" class="error-text">{{ getFieldError('name') }}</small>
+                </label>
+
+                <label class="form-field">
+                  <span>Promo code</span>
+                  <input type="text" formControlName="code" placeholder="CAMP15">
+                  <small class="helper-text">Required when auto-apply is off.</small>
+                  <small *ngIf="getFieldError('code')" class="error-text">{{ getFieldError('code') }}</small>
+                </label>
+
+                <label class="form-field">
+                  <span>Discount type *</span>
+                  <select formControlName="discountType">
+                    <option value="PERCENTAGE">Percentage</option>
+                    <option value="FIXED_AMOUNT">Fixed amount</option>
+                  </select>
+                </label>
+
+                <label class="form-field">
+                  <span>Discount value *</span>
+                  <input type="number" min="0.01" step="0.01" formControlName="discountValue">
+                  <small *ngIf="getFieldError('discountValue')" class="error-text">{{ getFieldError('discountValue') }}</small>
+                </label>
+              </div>
+
+              <label class="form-field">
+                <span>Description</span>
+                <textarea
+                  rows="4"
+                  formControlName="description"
+                  placeholder="Explain what this promotion is for and how guests should use it."></textarea>
+                <small *ngIf="getFieldError('description')" class="error-text">{{ getFieldError('description') }}</small>
+              </label>
+            </section>
+
+            <section class="form-card">
+              <div class="section-heading">
+                <h3>Availability</h3>
+                <p>Schedule the offer and decide how visible it should be to guests.</p>
+              </div>
+
+              <div class="input-grid">
+                <label class="form-field">
+                  <span>Starts at</span>
+                  <input type="datetime-local" formControlName="startsAt">
+                </label>
+
+                <label class="form-field">
+                  <span>Ends at</span>
+                  <input type="datetime-local" formControlName="endsAt">
+                </label>
+              </div>
+
+              <div class="toggle-grid">
+                <label class="toggle-card">
+                  <input type="checkbox" formControlName="autoApply">
+                  <div>
+                    <strong>Auto-apply</strong>
+                    <p>Apply automatically when a booking matches the rules.</p>
+                  </div>
+                </label>
+
+                <label class="toggle-card">
+                  <input type="checkbox" formControlName="active">
+                  <div>
+                    <strong>Active</strong>
+                    <p>Keep the promotion available for matching bookings.</p>
+                  </div>
+                </label>
+              </div>
+            </section>
+          </div>
+
+          <aside class="form-side">
+            <section class="form-card">
+              <div class="section-heading">
+                <h3>Targeting</h3>
+                <p>Choose whether the promo works everywhere or only for specific events.</p>
+              </div>
+
+              <div class="scope-switcher">
+                <button
+                  type="button"
+                  class="scope-btn"
+                  [class.active]="promotionForm.get('scope')?.value === 'GLOBAL'"
+                  (click)="promotionForm.get('scope')?.setValue('GLOBAL')">
+                  Global
+                </button>
+                <button
+                  type="button"
+                  class="scope-btn"
+                  [class.active]="promotionForm.get('scope')?.value === 'EVENTS'"
+                  (click)="promotionForm.get('scope')?.setValue('EVENTS')">
+                  Specific events
+                </button>
+              </div>
+
+              <div *ngIf="promotionForm.get('scope')?.value === 'GLOBAL'" class="scope-helper">
+                <app-admin-icon name="target" [size]="16"></app-admin-icon>
+                <p>This promo will be available across all eligible events.</p>
+              </div>
+
+              <div *ngIf="promotionForm.get('scope')?.value === 'EVENTS'" class="event-picker">
+                <div class="picker-header">
+                  <strong>Select target events</strong>
+                  <span>{{ selectedTargetEventIds.size }} selected</span>
+                </div>
+
+                <div *ngIf="events.length === 0" class="scope-helper empty">
+                  <app-admin-icon name="events" [size]="16"></app-admin-icon>
+                  <p>Create events first before building event-specific promotions.</p>
+                </div>
+
+                <label *ngFor="let event of events" class="event-option">
+                  <input
+                    type="checkbox"
+                    [checked]="isTargetEventSelected(event.id)"
+                    (change)="toggleTargetEvent(event.id, $any($event.target).checked)">
+                  <div>
+                    <strong>{{ event.titre }}</strong>
+                    <p>{{ formatDateTime(event.dateDebut) }} | {{ event.lieu }}</p>
+                  </div>
+                </label>
+              </div>
+            </section>
+
+            <section class="form-card">
+              <div class="section-heading">
+                <h3>Summary</h3>
+                <p>Quick review before you save.</p>
+              </div>
+
+              <div class="summary-row">
+                <span>Offer</span>
+                <strong>{{ promotionForm.get('name')?.value || 'New promotion' }}</strong>
+              </div>
+              <div class="summary-row">
+                <span>Scope</span>
+                <strong>{{ promotionForm.get('scope')?.value === 'GLOBAL' ? 'Global' : (selectedTargetEventIds.size + ' selected') }}</strong>
+              </div>
+              <div class="summary-row">
+                <span>Discount</span>
+                <strong>
+                  {{ promotionForm.get('discountType')?.value === 'PERCENTAGE'
+                    ? ((promotionForm.get('discountValue')?.value || 0) + '% off')
+                    : (formatCurrency(promotionForm.get('discountValue')?.value) + ' off') }}
+                </strong>
+              </div>
+              <div class="summary-row">
+                <span>Code mode</span>
+                <strong>{{ promotionForm.get('autoApply')?.value ? 'Auto-applied' : (promotionForm.get('code')?.value || 'Manual code') }}</strong>
+              </div>
+              <div class="summary-row">
+                <span>Status</span>
+                <strong>{{ promotionForm.get('active')?.value ? 'Active' : 'Inactive' }}</strong>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <footer class="dialog-footer">
+          <button type="button" class="ghost-btn" (click)="closeForm()" [disabled]="isSaving">Cancel</button>
+          <button type="submit" class="primary-btn" [disabled]="isSaving">
+            <app-admin-icon *ngIf="!isSaving" name="check" [size]="16"></app-admin-icon>
+            <span>{{ isSaving ? 'Saving...' : (editingPromotionId ? 'Update Promotion' : 'Create Promotion') }}</span>
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+
+  <div *ngIf="deleteCandidate" class="dialog-overlay" (click)="cancelDelete()">
+    <section class="delete-dialog" (click)="$event.stopPropagation()">
+      <span class="dialog-badge danger">
+        <app-admin-icon name="warning" [size]="18"></app-admin-icon>
+      </span>
+      <h2>Delete this promotion?</h2>
+      <p>{{ deleteCandidate.name }} will be removed and can no longer be used in reservations or pricing previews.</p>
+
+      <div class="dialog-footer">
+        <button type="button" class="ghost-btn" (click)="cancelDelete()">Keep promotion</button>
+        <button type="button" class="danger-btn" (click)="deletePromotion()">Delete promotion</button>
+      </div>
+    </section>
+  </div>
+</div>

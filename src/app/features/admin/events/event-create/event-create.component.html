@@ -4,26 +4,6 @@
     <p>Create a new event and upload its gallery.</p>
   </div>
 
-  <div *ngIf="successMessage" class="success-message">
-    <div class="message-icon success">
-      <app-admin-icon name="check" [size]="18"></app-admin-icon>
-    </div>
-    <div class="message-copy">
-      <strong>Event created</strong>
-      <p>{{ successMessage }}</p>
-    </div>
-  </div>
-
-  <div *ngIf="errorMessage" class="error-message">
-    <div class="message-icon error">
-      <app-admin-icon name="error" [size]="18"></app-admin-icon>
-    </div>
-    <div class="message-copy">
-      <strong>Creation blocked</strong>
-      <p>{{ errorMessage }}</p>
-    </div>
-  </div>
-
   <form [formGroup]="eventForm" (ngSubmit)="submitForm()" class="event-form">
     <div class="form-layout">
       <div class="form-main">
@@ -87,7 +67,7 @@
                   type="time"
                   id="startTime"
                   formControlName="startTime"
-                  [class.error]="eventForm.get('startTime')?.invalid && eventForm.get('startTime')?.touched" />
+                  [class.error]="(eventForm.get('startTime')?.invalid && eventForm.get('startTime')?.touched) || hasScheduleError" />
                 <span class="field-icon">
                   <app-admin-icon name="clock" [size]="16"></app-admin-icon>
                 </span>
@@ -104,13 +84,19 @@
                   type="time"
                   id="endTime"
                   formControlName="endTime"
-                  [class.error]="eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched" />
+                  [class.error]="(eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched) || hasScheduleError" />
                 <span class="field-icon">
                   <app-admin-icon name="clock" [size]="16"></app-admin-icon>
                 </span>
               </div>
               <span *ngIf="eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched" class="error-text">
                 End time is required
+              </span>
+              <span *ngIf="showScheduleFeedback && hasScheduleError" class="error-text">
+                {{ scheduleFeedbackMessage }}
+              </span>
+              <span *ngIf="showScheduleFeedback && !hasScheduleError" class="helper-text">
+                {{ scheduleFeedbackMessage }}
               </span>
             </div>
 
@@ -339,6 +325,10 @@
           <div class="summary-row">
             <span>Time</span>
             <strong>{{ eventForm.get('startTime')?.value || '--:--' }} - {{ eventForm.get('endTime')?.value || '--:--' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Duration</span>
+            <strong [class.summary-error]="hasScheduleError">{{ durationSummary }}</strong>
           </div>
           <div class="summary-row">
             <span>Capacity</span>

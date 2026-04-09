@@ -4,42 +4,26 @@
     <p>Preparing your reservation details...</p>
   </div>
 
-  <div *ngIf="errorMessage && !isLoading" class="error-banner">
-    <div class="message-shell">
-      <span class="message-icon danger">
-        <app-admin-icon name="warning" [size]="20"></app-admin-icon>
-      </span>
-      <div class="message-copy">
-        <p class="message-title">{{ getErrorTitle() }}</p>
-        <p class="message-text">{{ errorMessage }}</p>
-      </div>
-      <button (click)="handleErrorAction()" class="message-action" type="button">{{ getErrorActionLabel() }}</button>
-    </div>
-  </div>
-
-  <div *ngIf="successMessage" class="success-banner">
-    <div class="message-shell">
-      <span class="message-icon success">
-        <app-admin-icon name="check" [size]="20"></app-admin-icon>
-      </span>
-      <div class="message-copy">
-        <p class="message-title">Reservation received</p>
-        <p class="message-text">{{ successMessage }}</p>
-      </div>
-    </div>
-  </div>
-
   <div *ngIf="!isLoading" class="reservation-shell">
     <section class="reservation-header">
-      <button (click)="goBack()" class="back-btn" type="button">
-        <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
-        <span>Back to Events</span>
-      </button>
-
       <div class="header-copy">
         <span class="header-kicker">Reservation Checkout</span>
-        <h1>Complete Your Reservation</h1>
-        <p>Review the event details, choose your group size, and send your reservation in one clean step.</p>
+        <h1>Review your booking, then continue securely.</h1>
+        <p>Choose your group, apply a private code if you have one, and move forward with a clearer payment-focused summary.</p>
+      </div>
+
+      <div class="header-command-card">
+        <div class="header-action-grid">
+          <button (click)="goBack()" class="back-btn" type="button">
+            <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
+            <span>Back to Events</span>
+          </button>
+
+          <button *ngIf="event" (click)="goToEventDetails()" class="ghost-btn" type="button">
+            <app-admin-icon name="events" [size]="16"></app-admin-icon>
+            <span>Event Details</span>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -56,19 +40,15 @@
       <div class="hero-content">
         <div class="hero-top">
           <span class="category-pill">{{ getCategoryLabel(event.categorie) }}</span>
-          <span class="status-pill" [class.full]="isEventFull()">
-            {{ isEventFull() ? 'Waitlist likely' : getStatusLabel(event.statut) }}
-          </span>
-          <span *ngIf="isAlmostFull()" class="status-pill full">
-            Almost full
-          </span>
-          <span *ngIf="event.waitlistCount" class="status-pill waitlist-pill">
-            {{ event.waitlistCount }} waiting
+          <span class="status-pill">{{ getHeroSupportLabel() }}</span>
+          <span class="status-pill" [class.full]="getAvailableSeats() <= 10 || isEventFull()">
+            {{ getUrgencyBadgeLabel() }}
           </span>
         </div>
 
         <h2>{{ event.titre }}</h2>
         <p class="hero-description">{{ event.description }}</p>
+        <p class="hero-support-copy">{{ getHeroSupportMeta() }} Â· {{ getDurationLabel() }} experience</p>
 
         <div class="hero-meta">
           <div class="meta-item">
@@ -92,268 +72,192 @@
               <small>Arrival and meetup point</small>
             </div>
           </div>
-
-          <div class="meta-item">
-            <span class="meta-icon">
-              <app-admin-icon name="users" [size]="17"></app-admin-icon>
-            </span>
-            <div>
-              <span class="meta-label">Availability</span>
-              <strong>{{ getAvailableSeats() }} seats left</strong>
-              <small>{{ event.capaciteMax }} total capacity</small>
-            </div>
-          </div>
-
-          <div class="meta-item">
-            <span class="meta-icon">
-              <app-admin-icon name="wallet" [size]="17"></app-admin-icon>
-            </span>
-            <div>
-              <span class="meta-label">Price</span>
-              <strong>{{ event.prix | currency:'USD':'code':'1.0-2' }}</strong>
-              <small>Per guest</small>
-            </div>
-          </div>
         </div>
       </div>
     </section>
 
     <div class="reservation-grid">
       <div class="reservation-main">
-        <section class="section-card">
-          <div class="section-heading">
+        <section class="section-card promo-section-card">
+          <div class="section-heading compact">
             <div>
-              <span class="section-kicker">Reservation Details</span>
-              <h3>Number of Participants</h3>
+              <span class="section-kicker">Promo Code</span>
+              <h3>Have a private code?</h3>
             </div>
-            <span class="section-badge">{{ getAvailableSeats() }} available</span>
           </div>
 
-          <div class="participant-panel">
-            <div class="counter-control">
-              <button
-                (click)="decreaseParticipants()"
-                [disabled]="numberOfParticipants <= 1"
-                class="counter-btn"
-                type="button"
-                aria-label="Decrease participants">
-                <app-admin-icon name="minus" [size]="16"></app-admin-icon>
-              </button>
+          <p class="section-copy">Enter a VIP or campaign code here before you continue. Your total updates instantly.</p>
 
-              <div class="counter-display">
-                <span class="counter-value">{{ numberOfParticipants }}</span>
-                <span class="counter-label">guest{{ numberOfParticipants > 1 ? 's' : '' }}</span>
-              </div>
+          <div class="promo-input-row summary-promo-row">
+            <input
+              id="reservation-promo-code"
+              [(ngModel)]="promoCodeInput"
+              class="promo-input"
+              maxlength="64"
+              type="text"
+              placeholder="Enter code">
 
-              <button
-                (click)="increaseParticipants()"
-                [disabled]="numberOfParticipants >= getParticipantLimit()"
-                class="counter-btn"
-                type="button"
-                aria-label="Increase participants">
-                <app-admin-icon name="plus" [size]="16"></app-admin-icon>
-              </button>
-            </div>
+            <button
+              class="confirm-btn secondary promo-btn"
+              (click)="applyPromoCode()"
+              [disabled]="isLoadingPricing"
+              type="button">
+              <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+              <span>Apply</span>
+            </button>
 
-            <div class="participant-note-list">
-              <div class="note-row">
-                <span class="note-icon">
-                  <app-admin-icon name="check" [size]="16"></app-admin-icon>
-                </span>
-                <span>The price estimate updates automatically when you change the number of guests.</span>
-              </div>
+            <button
+              *ngIf="hasPromoCodeValue()"
+              class="confirm-btn secondary promo-btn"
+              (click)="clearPromoCode()"
+              [disabled]="isLoadingPricing"
+              type="button">
+              <app-admin-icon name="close" [size]="16"></app-admin-icon>
+              <span>Clear</span>
+            </button>
+          </div>
 
-              <div class="note-row" *ngIf="!isWaitlistLikely()">
-                <span class="note-icon">
-                  <app-admin-icon name="info" [size]="16"></app-admin-icon>
-                </span>
-                <span>{{ getReservationReviewCopy() }}</span>
-              </div>
-
-              <div class="note-row warning" *ngIf="isWaitlistLikely()">
-                <span class="note-icon">
-                  <app-admin-icon name="warning" [size]="16"></app-admin-icon>
-                </span>
-                <span>{{ getWaitlistNoticeCopy() }}</span>
-              </div>
-            </div>
+          <div *ngIf="shouldShowPromoFeedback()" [class]="getPromoFeedbackClass()">
+            <app-admin-icon [name]="pricingPreview?.invalidPromoCode ? 'warning' : 'check'" [size]="16"></app-admin-icon>
+            <span>{{ getPromoFeedbackText() }}</span>
           </div>
         </section>
 
-        <section class="section-card">
-          <div class="section-heading">
-            <div>
+        <section class="section-card remarks-section-card">
+          <div class="remarks-head">
+            <div class="remarks-toggle-copy">
               <span class="section-kicker">Optional Note</span>
-              <h3>Special Remarks</h3>
+              <h3>Add a note for the organizer</h3>
+              <p>Keep this light unless there is something important the organizer should know.</p>
             </div>
+            <button class="remarks-toggle-btn" (click)="toggleRemarks()" type="button">
+              <app-admin-icon [name]="remarksExpanded ? 'minus' : 'plus'" [size]="14"></app-admin-icon>
+              <span>{{ remarksExpanded ? 'Hide note' : 'Add note' }}</span>
+            </button>
           </div>
 
-          <label class="remarks-label" for="reservation-remarks">Add a note for the organizer</label>
-          <textarea
-            id="reservation-remarks"
-            [(ngModel)]="remarks"
-            placeholder="Share accessibility needs, timing notes, or anything helpful before the reservation is processed."
-            class="remarks-textarea"
-            rows="6"
-            maxlength="500"></textarea>
+          <div *ngIf="remarksExpanded" class="remarks-panel">
+            <label class="remarks-label" for="reservation-remarks">Special remarks</label>
+            <textarea
+              id="reservation-remarks"
+              [(ngModel)]="remarks"
+              placeholder="Share accessibility needs, timing notes, or anything helpful before the reservation is processed."
+              class="remarks-textarea"
+              rows="5"
+              maxlength="500"></textarea>
 
-          <div class="remarks-footer">
-            <span>This field is optional.</span>
-            <span>{{ remarks.length }}/500</span>
-          </div>
-        </section>
-
-        <section class="section-card">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker">Promo Codes</span>
-              <h3>Campaign and group discounts</h3>
+            <div class="remarks-footer">
+              <span>This field is optional.</span>
+              <span>{{ remarks.length }}/500</span>
             </div>
-          </div>
-
-          <div class="promo-entry">
-            <label class="remarks-label" for="reservation-promo-code">Promo code</label>
-            <div class="promo-input-row">
-              <input
-                id="reservation-promo-code"
-                [(ngModel)]="promoCodeInput"
-                placeholder="Enter a code like CAMP15"
-                class="promo-input"
-                maxlength="64"
-                type="text">
-
-              <button class="confirm-btn primary promo-btn" (click)="applyPromoCode()" type="button">
-                <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
-                <span>Apply</span>
-              </button>
-
-              <button
-                *ngIf="hasPromoCodeValue()"
-                class="confirm-btn secondary promo-btn"
-                (click)="clearPromoCode()"
-                type="button">
-                <app-admin-icon name="close" [size]="16"></app-admin-icon>
-                <span>Clear</span>
-              </button>
-            </div>
-
-            <p *ngIf="getPromoFeedbackText()" [class]="getPromoFeedbackClass()">
-              {{ getPromoFeedbackText() }}
-            </p>
-          </div>
-
-          <div *ngIf="availablePromotions.length > 0" class="offer-grid">
-            <article *ngFor="let promotion of availablePromotions" class="offer-card">
-              <div class="offer-pill-row">
-                <span class="offer-pill">{{ getPromotionPillLabel(promotion) }}</span>
-                <span class="offer-value">
-                  {{ promotion.discountType === 'PERCENTAGE'
-                    ? (promotion.discountValue + '% off')
-                    : ((promotion.discountValue | currency:'USD':'code':'1.0-2') + ' off') }}
-                </span>
-              </div>
-              <h4>{{ promotion.name }}</h4>
-              <p>{{ promotion.description || getPromotionSupportCopy(promotion) }}</p>
-            </article>
           </div>
         </section>
       </div>
 
       <aside class="reservation-side">
         <section class="summary-card">
-          <div class="summary-header">
-            <span class="section-kicker">Price Summary</span>
-            <h3>Confirm Reservation</h3>
+          <div class="summary-topbar">
+            <div class="summary-header">
+              <span class="section-kicker">Secure Summary</span>
+              <h3>Review and<br>continue</h3>
+            </div>
+            <span class="live-pill" [class.loading]="isLoadingPricing">
+              {{ isLoadingPricing ? 'Updating total' : 'Updates live' }}
+            </span>
           </div>
 
-          <div class="summary-total">
-            <span>Total Amount</span>
-            <strong>{{ getFinalTotal() | currency:'USD':'code':'1.0-2' }}</strong>
+          <div class="summary-top-card">
+            <div class="summary-guest-card">
+              <div class="summary-guest-head">
+                <div>
+                  <span class="summary-guest-label">Attendance</span>
+                  <strong>{{ getGuestCountLabel() }}</strong>
+                </div>
+              </div>
+
+              <div class="summary-counter-control">
+                <button
+                  (click)="decreaseParticipants()"
+                  [disabled]="numberOfParticipants <= 1"
+                  class="counter-btn summary-counter-btn"
+                  type="button"
+                  aria-label="Decrease participants">
+                  <app-admin-icon name="minus" [size]="16"></app-admin-icon>
+                </button>
+
+                <div class="summary-counter-display">
+                  <span class="summary-counter-value">{{ numberOfParticipants }}</span>
+                  <span class="summary-counter-label">guest{{ numberOfParticipants > 1 ? 's' : '' }}</span>
+                </div>
+
+                <button
+                  (click)="increaseParticipants()"
+                  [disabled]="numberOfParticipants >= getParticipantLimit()"
+                  class="counter-btn summary-counter-btn"
+                  type="button"
+                  aria-label="Increase participants">
+                  <app-admin-icon name="plus" [size]="16"></app-admin-icon>
+                </button>
+              </div>
+            </div>
+
+            <div class="summary-top-divider"></div>
+
+            <div class="summary-total">
+              <span>{{ getSummaryTotalLabel() }}</span>
+              <strong>{{ getFinalTotal() | currency:'USD':'code':'1.0-2' }}</strong>
+            </div>
           </div>
 
           <div class="summary-breakdown">
             <div class="summary-row">
-              <span>Price per guest</span>
-              <strong>{{ event.prix | currency:'USD':'code':'1.0-2' }}</strong>
-            </div>
-            <div class="summary-row">
-              <span>Guests</span>
-              <strong>{{ numberOfParticipants }}</strong>
-            </div>
-            <div class="summary-row">
-              <span>Base subtotal</span>
+              <span>{{ getSummaryLineItemLabel() }}</span>
               <strong>{{ getBasePriceTotal() | currency:'USD':'code':'1.0-2' }}</strong>
             </div>
             <div class="summary-row discount" *ngIf="hasDiscountApplied()">
-              <span>Discount</span>
+              <span>{{ getPromoLineItemLabel() }}</span>
               <strong>-{{ getDiscountAmount() | currency:'USD':'code':'1.0-2' }}</strong>
             </div>
-            <div class="summary-row muted">
-              <span>Status</span>
-              <strong>{{ getReservationNextStateLabel() }}</strong>
+            <div class="summary-row total">
+              <span>Total</span>
+              <strong>{{ getFinalTotal() | currency:'USD':'code':'1.0-2' }}</strong>
             </div>
           </div>
 
-          <button (click)="submitReservation()" [disabled]="isSubmitting" class="confirm-btn primary" type="button">
-            <app-admin-icon *ngIf="!isSubmitting" name="reservations" [size]="16"></app-admin-icon>
-            <span>{{ isSubmitting ? 'Processing...' : 'Confirm Reservation' }}</span>
-          </button>
+          <div class="trust-list">
+            <div class="trust-item">
+              <span class="trust-icon">
+                <app-admin-icon name="wallet" [size]="16"></app-admin-icon>
+              </span>
+              <div class="trust-copy">
+                <strong>Secure Stripe checkout</strong>
+                <small>Major cards are accepted in the next step.</small>
+              </div>
+            </div>
 
-          <button (click)="goBack()" class="confirm-btn secondary" type="button">
-            <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
-            <span>Cancel</span>
+            <div class="trust-item">
+              <span class="trust-icon">
+                <app-admin-icon name="check" [size]="16"></app-admin-icon>
+              </span>
+              <div class="trust-copy">
+                <strong>{{ isWaitlistLikely() ? 'Waitlist place protected' : requiresReservationApproval() ? 'Approval happens first' : 'Instant confirmation available' }}</strong>
+                <small>{{ isWaitlistLikely() ? 'Your payment holds your place in line.' : requiresReservationApproval() ? 'You pay only after the organizer confirms.' : 'You can continue straight to Stripe after this step.' }}</small>
+              </div>
+            </div>
+          </div>
+
+          <button
+            (click)="submitReservation()"
+            [disabled]="isSubmitting || isLoadingPricing"
+            class="confirm-btn primary"
+            type="button">
+            <app-admin-icon *ngIf="!isSubmitting" name="wallet" [size]="16"></app-admin-icon>
+            <span>{{ isSubmitting ? 'Preparing secure checkout...' : getPrimaryActionLabel() }}</span>
           </button>
 
           <p class="summary-help">
             <app-admin-icon name="info" [size]="16"></app-admin-icon>
-            <span>{{ getReservationPaymentCopy() }}</span>
-          </p>
-        </section>
-
-        <section class="availability-card">
-          <div class="section-heading compact">
-            <div>
-              <span class="section-kicker">Seat Status</span>
-              <h3>Availability</h3>
-            </div>
-          </div>
-
-          <div class="availability-bar" [class.full]="isEventFull()">
-            <div class="availability-fill" [style.width]="((event.capaciteMax - event.availableSeats) / event.capaciteMax) * 100 + '%'"></div>
-          </div>
-
-          <div class="availability-stats">
-            <div class="availability-stat">
-              <span>Booked</span>
-              <strong>{{ event.capaciteMax - event.availableSeats }}</strong>
-            </div>
-            <div class="availability-stat">
-              <span>Open</span>
-              <strong>{{ getAvailableSeats() }}</strong>
-            </div>
-            <div class="availability-stat">
-              <span>Capacity</span>
-              <strong>{{ event.capaciteMax }}</strong>
-            </div>
-          </div>
-
-          <div class="capacity-badges">
-            <span class="capacity-pill" [class.full]="isEventFull()" [class.almost]="isAlmostFull() && !isEventFull()">
-              {{ isEventFull() ? 'Waitlist pressure is high' : (isAlmostFull() ? 'Almost full' : 'Seats available') }}
-            </span>
-            <span *ngIf="event.waitlistCount" class="capacity-pill waitlist">
-              {{ event.waitlistCount }} guests waiting
-            </span>
-          </div>
-
-          <p class="availability-message" *ngIf="!isWaitlistLikely()">
-            Seats are still available for your group right now.
-          </p>
-          <p class="availability-message warning" *ngIf="isWaitlistLikely()">
-            Your group is larger than the seats currently open, so this request may stay pending on the waitlist until space opens.
-          </p>
-          <p class="availability-message emphasis">
-            {{ getCapacitySupportCopy() }}
+            <span>{{ getPrimaryActionHelperCopy() }}</span>
           </p>
         </section>
       </aside>
