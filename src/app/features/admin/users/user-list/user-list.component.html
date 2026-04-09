@@ -9,7 +9,7 @@
   </div>
 
   <div *ngIf="loading">Loading users...</div>
-  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage" data-auto-dismiss="5000" class="error-message">{{ errorMessage }}</div>
 
   <div class="table-wrapper" *ngIf="!loading">
     <table>
@@ -18,11 +18,11 @@
           <th>ID</th>
           <th>Nom</th>
           <th>Email</th>
-          <th>Téléphone</th>
-          <th>Rôle</th>
+          <th>TÃ©lÃ©phone</th>
+          <th>RÃ´le</th>
           <th>Adresse</th>
           <th>Biographie</th>
-          <th>Date création</th>
+          <th>Date crÃ©ation</th>
           <th>Actions</th>
         </tr>
       </thead>

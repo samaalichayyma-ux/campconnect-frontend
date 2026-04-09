@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
+import { withAutoCloseAlert } from '../../../core/utils/auto-close-alert.util';
 import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking } from '../models/booking.model';
 import { CampingService } from '../services/camping.service';
@@ -45,28 +46,28 @@ export class BookingSummaryComponent implements OnInit {
 
     this.campingService.createBooking(this.bookingData).subscribe({
       next: () => {
-        Swal.fire({
+        void Swal.fire(withAutoCloseAlert({
           icon: 'success',
           title: 'Payment Successful',
           text: 'Your booking has been confirmed successfully.',
           confirmButtonColor: '#96952f',
           background: '#f5f5f3',
           color: '#172b44'
-        }).then(() => {
+        })).then(() => {
           this.router.navigate(['/public/camping-sites']);
         });
       },
       error: (error) => {
         console.error(error);
 
-        Swal.fire({
+        void Swal.fire(withAutoCloseAlert({
           icon: 'error',
           title: 'Payment Failed',
           text: 'Something went wrong while confirming your booking.',
           confirmButtonColor: '#96952f',
           background: '#f5f5f3',
           color: '#172b44'
-        });
+        }));
       }
     });
   }

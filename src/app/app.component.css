@@ -1,0 +1,13 @@
+[data-auto-dismiss] {
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+[data-auto-dismiss].app-auto-dismissing {
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+}
+
+[data-auto-dismiss].app-auto-dismissed {
+  display: none !important;
+}

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 
+import { withAutoCloseAlert } from '../../../core/utils/auto-close-alert.util';
 import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking } from '../models/booking.model';
 import { CampingService } from '../services/camping.service';
@@ -143,13 +144,13 @@ export class SiteBookingComponent implements OnInit {
   private showError(msg: string) {
     this.errorMessage = msg;
 
-    Swal.fire({
+    void Swal.fire(withAutoCloseAlert({
       icon: 'warning',
       title: 'Error',
       text: msg,
       confirmButtonColor: '#96952f',
       background: '#f5f5f3',
       color: '#172b44'
-    });
+    }));
   }
 }

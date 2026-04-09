@@ -3,13 +3,11 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CampingSite } from '../models/camping-site.model';
 import { CampingService } from '../services/camping.service';
-import { AddAvisComponent } from '../avis/add-avis/add-avis.component';
-import { AvisListComponent } from '../avis/avis-list/avis-list.component';
 
 @Component({
   selector: 'app-camping-sites',
   standalone: true,
-  imports: [CommonModule, RouterModule, AvisListComponent, AddAvisComponent],
+  imports: [CommonModule, RouterModule],
   templateUrl: './camping-sites.component.html',
   styleUrl: './camping-sites.component.css'
 })
@@ -32,7 +30,6 @@ export class CampingSitesComponent implements OnInit {
       next: (data) => {
         this.sites = data;
         this.isLoading = false;
-        console.log('Camping sites loaded:', data);
       },
       error: (error) => {
         this.errorMessage = 'Failed to load camping sites.';

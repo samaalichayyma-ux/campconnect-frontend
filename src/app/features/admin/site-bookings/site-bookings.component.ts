@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+
+import { withAutoCloseAlert } from '../../../core/utils/auto-close-alert.util';
 import { CampingService } from '../../public/services/camping.service';
 import { UpdateSiteBooking } from '../../public/models/booking.model';
 import { CampingNavbarComponent } from '../camping-sites/camping-navbar/camping-navbar.component';
@@ -58,7 +60,7 @@ export class SiteBookingsComponent implements OnInit {
       next: () => {
         booking.statut = newStatus;
 
-        Swal.fire({
+        void Swal.fire(withAutoCloseAlert({
           icon: 'success',
           title: 'Updated',
           text: `Booking status changed to ${newStatus}.`,
@@ -68,12 +70,12 @@ export class SiteBookingsComponent implements OnInit {
           customClass: {
             popup: 'custom-swal-popup'
           }
-        });
+        }));
       },
       error: (error: unknown) => {
         console.error(error);
 
-        Swal.fire({
+        void Swal.fire(withAutoCloseAlert({
           icon: 'error',
           title: 'Update Failed',
           text: 'Could not update booking status.',
@@ -83,7 +85,7 @@ export class SiteBookingsComponent implements OnInit {
           customClass: {
             popup: 'custom-swal-popup'
           }
-        });
+        }));
       }
     });
   }

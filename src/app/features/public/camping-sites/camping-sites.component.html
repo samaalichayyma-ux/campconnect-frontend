@@ -10,7 +10,7 @@
       Loading camping sites...
     </div>
 
-    <div *ngIf="errorMessage" class="error-message">
+    <div *ngIf="errorMessage" data-auto-dismiss="5000" class="error-message">
       {{ errorMessage }}
     </div>
 
@@ -44,7 +44,7 @@
           <div class="site-info">
             <div class="info-row">
               <span class="info-label">Capacity:</span>
-              <span class="info-value">{{ site.capacite ?? 0 }}</span>
+              <span class="info-value">{{ site.capacite }}</span>
             </div>
 
             <div class="info-row">

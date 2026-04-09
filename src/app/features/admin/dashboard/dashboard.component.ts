@@ -1,7 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
+
 import { AdminIconComponent } from '../../../core/components/admin-icon/admin-icon.component';
+
+interface DashboardModuleCard {
+  title: string;
+  subtitle: string;
+  icon: string;
+  link: string;
+  queryParams?: Record<string, string | number>;
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -13,47 +22,32 @@ export class DashboardComponent {
   adminName = 'Admin CampConnect';
   adminRole = 'ADMINISTRATEUR';
 
-  stats = [
-    {
-      title: 'Users',
-      value: 124,
-      icon: 'users',
-      colorClass: 'blue-card'
-    },
-    {
-      title: 'Reservations',
-      value: 58,
-      icon: 'reservations',
-      colorClass: 'green-card'
-    },
-    {
-      title: 'Restaurants',
-      value: 16,
-      icon: 'restaurants',
-      colorClass: 'olive-card'
-    },
-    {
-      title: 'Assurances',
-      value: 27,
-      icon: 'assurances',
-      colorClass: 'blue-card'
-    }
-  ];
-
-  modules = [
+  readonly modules: DashboardModuleCard[] = [
     { title: 'Users', subtitle: 'Manage all users', icon: 'users', link: '/admin/users' },
-    { title: 'Assurances', subtitle: 'Manage assurances', icon: 'assurances', link: '/admin/assurances' },
+    { title: 'Assurances', subtitle: 'Manage assurances', icon: 'assurances', link: '/admin/assurances/new' },
     { title: 'Restaurants', subtitle: 'Manage restaurants', icon: 'restaurants', link: '/admin/repas' },
     { title: 'Guides', subtitle: 'Manage guides', icon: 'guides', link: '/admin/guides' },
-    { title: 'Events', subtitle: 'Manage events', icon: 'events', link: '/admin/events' },
-    { title: 'Reservations', subtitle: 'Manage reservations', icon: 'reservations', link: '/admin/reservations' },
+    {
+      title: 'Event Statistiques',
+      subtitle: 'Track demand and occupancy',
+      icon: 'events',
+      link: '/admin/events/stats',
+      queryParams: { from: 'dashboard' }
+    },
+    {
+      title: 'Promotions',
+      subtitle: 'Manage promo codes',
+      icon: 'sparkles',
+      link: '/admin/promotions',
+      queryParams: { from: 'dashboard' }
+    },
+    {
+      title: 'Reservation Statistiques',
+      subtitle: 'Follow approvals and check-ins',
+      icon: 'reservations',
+      link: '/admin/reservations/stats',
+      queryParams: { from: 'dashboard' }
+    },
     { title: 'Formations', subtitle: 'Manage trainings', icon: 'formations', link: '/admin/formations' }
-  ];
-
-  recentActivities = [
-    { action: 'New user created', user: 'Chayma Ben Ali', date: 'Today - 10:30' },
-    { action: 'Restaurant updated', user: 'Admin', date: 'Today - 09:15' },
-    { action: 'Insurance added', user: 'Molka', date: 'Yesterday - 17:20' },
-    { action: 'Guide account approved', user: 'Admin', date: 'Yesterday - 14:05' }
   ];
 }

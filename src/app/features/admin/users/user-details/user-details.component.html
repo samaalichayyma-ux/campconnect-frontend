@@ -5,9 +5,9 @@
     <div class="detail-row"><strong>ID:</strong> {{ user.id }}</div>
     <div class="detail-row"><strong>Nom:</strong> {{ user.nom }}</div>
     <div class="detail-row"><strong>Email:</strong> {{ user.email }}</div>
-    <div class="detail-row"><strong>Téléphone:</strong> {{ user.telephone }}</div>
-    <div class="detail-row"><strong>Rôle:</strong> {{ user.role }}</div>
-    <div class="detail-row"><strong>Date création:</strong> {{ user.dateCreation || '-' }}</div>
+    <div class="detail-row"><strong>TÃ©lÃ©phone:</strong> {{ user.telephone }}</div>
+    <div class="detail-row"><strong>RÃ´le:</strong> {{ user.role }}</div>
+    <div class="detail-row"><strong>Date crÃ©ation:</strong> {{ user.dateCreation || '-' }}</div>
 
     <hr />
 
@@ -34,4 +34,4 @@
 </section>
 
 <div *ngIf="loading">Loading details...</div>
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+<div *ngIf="errorMessage" data-auto-dismiss="5000" class="error-message">{{ errorMessage }}</div>

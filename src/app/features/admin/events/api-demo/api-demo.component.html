@@ -1,17 +1,7 @@
 <div class="api-demo-container">
   <div class="demo-header">
-    <h1>🚀 Events & Reservations API Demo</h1>
+    <h1>ðŸš€ Events & Reservations API Demo</h1>
     <p>Test all backend API endpoints integrated with your frontend</p>
-  </div>
-
-  <!-- Messages -->
-  <div class="messages-section">
-    <div *ngIf="successMessage" class="success-message">
-      {{ successMessage }}
-    </div>
-    <div *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
-    </div>
   </div>
 
   <div class="demo-content">
@@ -32,7 +22,7 @@
 
       <!-- Events Section -->
       <div class="section">
-        <h3>📅 Events Endpoints</h3>
+        <h3>ðŸ“… Events Endpoints</h3>
         
         <button class="api-btn" (click)="loadAllDemo()">
           GET /getAllEvents
@@ -94,7 +84,7 @@
 
       <!-- Reservations Section -->
       <div class="section">
-        <h3>🎟️ Reservations Endpoints</h3>
+        <h3>ðŸŽŸï¸ Reservations Endpoints</h3>
 
         <button class="api-btn" (click)="getAllReservationsDemo()">
           GET /getAllReservations
@@ -141,7 +131,7 @@
       <h2>Results</h2>
 
       <div *ngIf="!results" class="no-results">
-        <p>👈 Click an endpoint to see the results here</p>
+        <p>ðŸ‘ˆ Click an endpoint to see the results here</p>
       </div>
 
       <div *ngIf="results" class="results-content">
@@ -174,7 +164,7 @@
   <!-- Live Data Preview -->
   <div class="live-preview">
     <div class="preview-section" *ngIf="events.length > 0">
-      <h3>📊 Events Loaded: {{ events.length }}</h3>
+      <h3>ðŸ“Š Events Loaded: {{ events.length }}</h3>
       <div class="event-preview">
         <div *ngFor="let event of events | slice:0:3" class="event-card">
           <h4>{{ event.titre }}</h4>
@@ -187,7 +177,7 @@
     </div>
 
     <div class="preview-section" *ngIf="upcomingEvents.length > 0">
-      <h3>⏰ Upcoming Events: {{ upcomingEvents.length }}</h3>
+      <h3>â° Upcoming Events: {{ upcomingEvents.length }}</h3>
       <div class="event-preview">
         <div *ngFor="let event of upcomingEvents | slice:0:2" class="event-card">
           <h4>{{ event.titre }}</h4>
@@ -198,7 +188,7 @@
     </div>
 
     <div class="preview-section" *ngIf="pendingReservations.length > 0">
-      <h3>⏳ Pending Reservations: {{ pendingReservations.length }}</h3>
+      <h3>â³ Pending Reservations: {{ pendingReservations.length }}</h3>
       <div class="reservation-preview">
         <div *ngFor="let res of pendingReservations | slice:0:3" class="res-card">
           <p><strong>Reservation ID:</strong> {{ res.id }}</p>

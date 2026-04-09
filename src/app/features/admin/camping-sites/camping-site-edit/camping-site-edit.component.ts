@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
 
+import { buildAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
 import { CampingService } from '../../../public/services/camping.service';
 import { CampingNavbarComponent } from '../camping-navbar/camping-navbar.component';
 import { CampingSite } from '../../../public/models/camping-site.model';
@@ -94,20 +95,16 @@ export class CampingSiteEditComponent implements OnInit {
 
     this.campingService.updateCampingSite(this.siteId, formData).subscribe({
       next: () => {
-        Swal.fire(
-          'Updated!',
-          'Camping site updated successfully.',
-          'success'
-        );
-        this.router.navigate(['/admin/camping-sites']);
+        void Swal.fire(buildAutoCloseAlert('success', 'Updated!', 'Camping site updated successfully.'))
+          .then(() => {
+            this.router.navigate(['/admin/camping-sites']);
+          });
       },
       error: (error) => {
         console.error('Update error:', error);
 
-        Swal.fire(
-          'Error',
-          error?.error?.message || 'Failed to update camping site.',
-          'error'
+        void Swal.fire(
+          buildAutoCloseAlert('error', 'Error', error?.error?.message || 'Failed to update camping site.')
         );
       }
     });

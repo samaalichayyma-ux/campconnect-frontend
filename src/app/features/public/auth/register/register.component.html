@@ -2,7 +2,7 @@
   <div class="register-card">
     <div class="register-header">
       <div class="register-icon">
-        <span>👤</span>
+        <span>ðŸ‘¤</span>
       </div>
       <h1>Create Account</h1>
       <p>Join CampConnect and start your journey</p>
@@ -103,11 +103,11 @@
         {{ isLoading ? 'Loading...' : 'Sign Up' }}
       </button>
 
-      <div *ngIf="errorMessage" class="text-danger">
+      <div *ngIf="errorMessage" data-auto-dismiss="5000" class="text-danger">
         {{ errorMessage }}
       </div>
 
-      <div *ngIf="successMessage" class="text-success">
+      <div *ngIf="successMessage" data-auto-dismiss="5000" class="text-success">
         {{ successMessage }}
       </div>
 

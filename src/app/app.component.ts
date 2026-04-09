@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { LandingPageComponent } from "./features/public/landing/landing-page/landing-page.component";
+
+import { AutoDismissAlertsService } from './core/services/auto-dismiss-alerts.service';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,8 @@ import { LandingPageComponent } from "./features/public/landing/landing-page/lan
 })
 export class AppComponent {
   title = 'campconnect-frontend';
+
+  constructor(private readonly autoDismissAlertsService: AutoDismissAlertsService) {
+    this.autoDismissAlertsService.init();
+  }
 }

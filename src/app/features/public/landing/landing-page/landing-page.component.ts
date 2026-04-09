@@ -2,7 +2,6 @@ import { Component, HostListener, OnInit, ViewEncapsulation } from '@angular/cor
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
-import { TestApiService } from '../../../../core/services/test-api.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CampingService } from '../../services/camping.service';
 import { CampingSite } from '../../models/camping-site.model';
@@ -18,6 +17,8 @@ import { EventService } from '../../events/services/event.service';
 })
 export class LandingPageComponent implements OnInit {
   readonly fallbackEventImageUrl = 'assets/images/default-image.jpg';
+  readonly ratingStars = [1, 2, 3, 4, 5];
+  readonly landingEventsLimit = 6;
 
   latestSites: CampingSite[] = [];
   upcomingEvents: EventResponseDTO[] = [];
@@ -28,21 +29,15 @@ export class LandingPageComponent implements OnInit {
   currentEventsPage = 0;
 
   constructor(
-    private testApi: TestApiService,
     public authService: AuthService,
     private campingService: CampingService,
     private eventService: EventService
   ) {}
 
   ngOnInit(): void {
-    this.syncEventsCarouselLayout();
+    this.syncEventsGridLayout();
     this.loadLatestSites();
     this.loadUpcomingEvents();
-
-    this.testApi.testDocs().subscribe({
-      next: (response) => console.log('Backend OK', response),
-      error: (error) => console.log('Backend KO', error)
-    });
   }
 
   showSection(section: string): void {
@@ -51,7 +46,7 @@ export class LandingPageComponent implements OnInit {
 
   @HostListener('window:resize')
   onWindowResize(): void {
-    this.syncEventsCarouselLayout();
+    this.syncEventsGridLayout();
   }
 
   loadLatestSites(): void {
@@ -72,13 +67,9 @@ export class LandingPageComponent implements OnInit {
   loadUpcomingEvents(): void {
     this.isUpcomingEventsLoading = true;
 
-    this.eventService.getUpcomingEvents().subscribe({
+    this.eventService.getAllEvents().subscribe({
       next: (events) => {
-        this.upcomingEvents = [...events].sort(
-          (firstEvent, secondEvent) =>
-            new Date(firstEvent.dateDebut).getTime() - new Date(secondEvent.dateDebut).getTime()
-        );
-        this.currentEventsPage = 0;
+        this.upcomingEvents = this.extractUpcomingEvents(events);
         this.isUpcomingEventsLoading = false;
       },
       error: (error) => {
@@ -90,17 +81,15 @@ export class LandingPageComponent implements OnInit {
   }
 
   get visibleEventSkeletons(): number[] {
-    return Array.from({ length: this.cardsPerView }, (_, index) => index);
+    return Array.from({ length: this.landingEventsLimit }, (_, index) => index);
+  }
+
+  get visibleLandingEvents(): EventResponseDTO[] {
+    return this.upcomingEvents.slice(0, this.landingEventsLimit);
   }
 
   get pagedUpcomingEvents(): EventResponseDTO[][] {
-    const pages: EventResponseDTO[][] = [];
-
-    for (let index = 0; index < this.upcomingEvents.length; index += this.cardsPerView) {
-      pages.push(this.upcomingEvents.slice(index, index + this.cardsPerView));
-    }
-
-    return pages;
+    return this.visibleLandingEvents.length ? [this.visibleLandingEvents] : [];
   }
 
   get totalEventsPages(): number {
@@ -233,6 +222,24 @@ export class LandingPageComponent implements OnInit {
     return `${event.availableSeats} spots open`;
   }
 
+  hasFeedback(event: EventResponseDTO): boolean {
+    return Number(event.feedbackCount || 0) > 0;
+  }
+
+  getRoundedAverageRating(event: EventResponseDTO): number {
+    return Math.max(0, Math.min(5, Math.round(Number(event.averageRating || 0))));
+  }
+
+  getAverageRatingLabel(event: EventResponseDTO): string {
+    const averageRating = Number(event.averageRating || 0);
+    return averageRating > 0 ? averageRating.toFixed(1) : '0.0';
+  }
+
+  getFeedbackCountLabel(event: EventResponseDTO): string {
+    const feedbackCount = Number(event.feedbackCount || 0);
+    return feedbackCount === 1 ? '1 review' : `${feedbackCount} reviews`;
+  }
+
   getShortDescription(description?: string | null, limit = 120): string {
     if (!description?.trim()) {
       return 'Fresh-air moments, practical skills, and good company are waiting in this CampConnect experience.';
@@ -246,7 +253,34 @@ export class LandingPageComponent implements OnInit {
     return `${normalizedDescription.slice(0, limit).trimEnd()}...`;
   }
 
-  private syncEventsCarouselLayout(): void {
+  private extractUpcomingEvents(events: EventResponseDTO[]): EventResponseDTO[] {
+    const today = new Date();
+
+    return [...events]
+      .filter((event) => this.isUpcomingEvent(event, today))
+      .sort(
+        (firstEvent, secondEvent) =>
+          new Date(firstEvent.dateDebut).getTime() - new Date(secondEvent.dateDebut).getTime()
+      );
+  }
+
+  private isUpcomingEvent(event: EventResponseDTO, referenceDate: Date): boolean {
+    const startDate = new Date(event.dateDebut);
+    const endDate = event.dateFin ? new Date(event.dateFin) : startDate;
+    const status = (event.statut || '').toUpperCase();
+
+    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+      return false;
+    }
+
+    if (['CANCELLED', 'COMPLETED', 'DRAFT'].includes(status)) {
+      return false;
+    }
+
+    return endDate.getTime() >= referenceDate.getTime();
+  }
+
+  private syncEventsGridLayout(): void {
     const viewportWidth = typeof window === 'undefined' ? 1280 : window.innerWidth;
 
     if (viewportWidth >= 1180) {
@@ -257,7 +291,6 @@ export class LandingPageComponent implements OnInit {
       this.cardsPerView = 1;
     }
 
-    const maxPageIndex = Math.max(this.totalEventsPages - 1, 0);
-    this.currentEventsPage = Math.min(this.currentEventsPage, maxPageIndex);
+    this.currentEventsPage = 0;
   }
 }

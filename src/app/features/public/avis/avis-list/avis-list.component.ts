@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+
+import { withAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
 import { Avis, SiteCampingAvisService } from '../../services/site-camping-avis.service';
 
 @Component({
@@ -83,7 +85,7 @@ export class AvisListComponent implements OnInit {
       if (result.isConfirmed && result.value) {
         this.avisService.updateAvis(avis.id, result.value).subscribe({
           next: () => {
-            Swal.fire({
+            void Swal.fire(withAutoCloseAlert({
               icon: 'success',
               title: 'Updated!',
               text: 'Your review has been updated successfully.',
@@ -93,14 +95,14 @@ export class AvisListComponent implements OnInit {
               customClass: {
                 popup: 'custom-swal-popup'
               }
-            });
+            }));
 
             this.loadAvis();
           },
           error: (error) => {
             console.error(error);
 
-            Swal.fire({
+            void Swal.fire(withAutoCloseAlert({
               icon: 'error',
               title: 'Update Failed',
               text: 'Could not update your review.',
@@ -110,7 +112,7 @@ export class AvisListComponent implements OnInit {
               customClass: {
                 popup: 'custom-swal-popup'
               }
-            });
+            }));
           }
         });
       }

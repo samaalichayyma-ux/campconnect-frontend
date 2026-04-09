@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
+
+import { withAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
 import { Avis, SiteCampingAvisService } from '../../../public/services/site-camping-avis.service';
 
 @Component({
@@ -59,7 +61,7 @@ deleteAvis(id: number) {
       this.avisService.deleteAvis(id).subscribe(() => {
         this.loadAvis();
 
-        Swal.fire({
+        void Swal.fire(withAutoCloseAlert({
           title: 'Deleted!',
           text: 'Review has been removed.',
           icon: 'success',
@@ -69,7 +71,7 @@ deleteAvis(id: number) {
           customClass: {
             popup: 'custom-swal-popup'
           }
-        });
+        }));
       });
     }
   });

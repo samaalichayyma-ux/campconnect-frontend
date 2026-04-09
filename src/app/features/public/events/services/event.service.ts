@@ -1,16 +1,20 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import {
   Event,
   EventDuplicateRequestDTO,
   EventReservation,
+  ReservationFeedbackRequestDTO,
   ReservationRequestDTO,
   ReservationResponseDTO,
   EventImageDTO,
   EventRequestDTO,
   EventResponseDTO,
+  PromotionOfferRequestDTO,
   PromotionOfferResponseDTO,
+  PromotionScope,
+  PromotionTargetEventSummaryDTO,
   PromotionPreviewDTO,
   StripeCheckoutSessionResponseDTO,
   UserNotificationResponseDTO,
@@ -27,103 +31,79 @@ export class EventService {
   private readonly notificationsBaseUrl = 'http://localhost:8082/api/notifications';
 
   constructor(private http: HttpClient) {}
-
-  // ========== EVENTS ENDPOINTS ==========
-
-  // GET all events
   getAllEvents(): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getAllEvents`);
   }
 
-  // GET event by ID
   getEventById(id: number): Observable<Event> {
     return this.http.get<Event>(`${this.eventsBaseUrl}/getEvent/${id}`);
   }
 
-  // GET upcoming events
   getUpcomingEvents(): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getUpcoming`);
   }
 
-  // GET available events (not full capacity)
   getAvailableEvents(): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/available`);
   }
 
-  // GET events by category
   getEventsByCategory(category: string): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getByCategory/${category}`);
   }
 
-  // GET events by status
   getEventsByStatus(status: string): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getByStatus/${status}`);
   }
 
-  // GET events by organizer
   getEventsByOrganizer(organizerId: number): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getByOrganizer/${organizerId}`);
   }
 
-  // GET events by location
   getEventsByLocation(location: string): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getByLocation`, {
       params: { lieu: location }
     });
   }
 
-  // GET events by date range
   getEventsByDateRange(startDate: string, endDate: string): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/getByDateRange`, {
       params: { startDate, endDate }
     });
   }
 
-  // GET available seats for event
   getAvailableSeats(eventId: number): Observable<number> {
     return this.http.get<number>(`${this.eventsBaseUrl}/availableSeats/${eventId}`);
   }
 
-  // GET participant count
   getParticipantCount(eventId: number): Observable<number> {
     return this.http.get<number>(`${this.eventsBaseUrl}/participants/${eventId}/count`);
   }
 
-  // GET waitlist count
   getWaitlistCount(eventId: number): Observable<number> {
     return this.http.get<number>(`${this.eventsBaseUrl}/waitlist/${eventId}/count`);
   }
 
-  // GET event revenue (analytics)
   getEventRevenue(eventId: number): Observable<number> {
     return this.http.get<number>(`${this.eventsBaseUrl}/analytics/revenue/${eventId}`);
   }
 
-  // GET organizer total participants (analytics)
   getOrganizerTotalParticipants(organizerId: number): Observable<number> {
     return this.http.get<number>(`${this.eventsBaseUrl}/analytics/organizer/${organizerId}/totalParticipants`);
   }
 
-  // Search events
   searchEvents(keyword: string): Observable<Event[]> {
     return this.http.get<Event[]>(`${this.eventsBaseUrl}/search`, {
       params: { keyword }
     });
   }
-
-  // ========== EVENT ADMIN OPERATIONS ==========
-
-  // POST create new event (JSON format)
   createEvent(eventRequest: EventRequestDTO): Observable<EventResponseDTO> {
     return this.http.post<EventResponseDTO>(`${this.eventsBaseUrl}/createEvent`, eventRequest);
   }
 
-  // POST create new event with image file
   createEventWithFile(formData: FormData): Observable<EventResponseDTO> {
     return this.http.post<EventResponseDTO>(`${this.eventsBaseUrl}/createEventWithImages`, formData);
   }
 
-  // POST create new event with gallery images
   createEventWithImages(eventRequest: EventRequestDTO, imageFiles: File[]): Observable<EventResponseDTO> {
     const formData = new FormData();
     formData.append(
@@ -138,7 +118,6 @@ export class EventService {
     return this.http.post<EventResponseDTO>(`${this.eventsBaseUrl}/createEventWithImages`, formData);
   }
 
-  // PUT update event
   updateEvent(id: number, event: EventRequestDTO): Observable<EventResponseDTO> {
     return this.http.put<EventResponseDTO>(`${this.eventsBaseUrl}/updateEvent/${id}`, event);
   }
@@ -167,44 +146,33 @@ export class EventService {
     return this.http.delete<void>(`${this.eventsBaseUrl}/${eventId}/favorite`);
   }
 
-  // PUT start event
   startEvent(id: number): Observable<void> {
     return this.http.put<void>(`${this.eventsBaseUrl}/startEvent/${id}`, {});
   }
 
-  // PUT postpone event
   postponeEvent(id: number, newDate: string): Observable<void> {
     return this.http.put<void>(`${this.eventsBaseUrl}/postponeEvent/${id}`, { newDate });
   }
 
-  // PUT complete event
   completeEvent(id: number): Observable<void> {
     return this.http.put<void>(`${this.eventsBaseUrl}/completeEvent/${id}`, {});
   }
 
-  // PUT cancel event
   cancelEvent(id: number): Observable<void> {
     return this.http.put<void>(`${this.eventsBaseUrl}/cancelEvent/${id}`, {});
   }
 
-  // DELETE event
   deleteEvent(id: number): Observable<void> {
     return this.http.delete<void>(`${this.eventsBaseUrl}/deleteEvent/${id}`);
   }
-
-  // ========== RESERVATIONS ENDPOINTS ==========
-
-  // GET all reservations
   getAllReservations(): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/getAllReservations`);
   }
 
-  // GET reservation by ID
   getReservationById(id: number): Observable<EventReservation> {
     return this.http.get<EventReservation>(`${this.reservationsBaseUrl}/getReservation/${id}`);
   }
 
-  // GET user reservations
   getUserReservations(userId: number): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/getByUser/${userId}`);
   }
@@ -213,12 +181,10 @@ export class EventService {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/me`);
   }
 
-  // GET event reservations
   getEventReservations(eventId: number): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/getByEvent/${eventId}`);
   }
 
-  // GET user cancelled reservations
   getUserCancelledReservations(userId: number): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/cancelled/${userId}`);
   }
@@ -227,8 +193,66 @@ export class EventService {
     return this.http.get<UserReservationStatsDTO>(`${this.reservationsBaseUrl}/me/stats`);
   }
 
-  getPublicPromotions(): Observable<PromotionOfferResponseDTO[]> {
-    return this.http.get<PromotionOfferResponseDTO[]>(`${this.eventsBaseUrl}/promotions/active`);
+  getPublicPromotions(eventId?: number): Observable<PromotionOfferResponseDTO[]> {
+    if (Number.isFinite(eventId) && Number(eventId) > 0) {
+      return this.getEventPromotions(Number(eventId));
+    }
+
+    return this.http.get<unknown>(`${this.eventsBaseUrl}/promotions/active`).pipe(
+      map((response) => this.normalizePromotions(response))
+    );
+  }
+
+  getEventPromotions(eventId: number): Observable<PromotionOfferResponseDTO[]> {
+    return this.http.get<unknown>(`${this.eventsBaseUrl}/${eventId}/promotions/active`).pipe(
+      map((response) => this.normalizePromotions(response)),
+      catchError(() =>
+        this.http.get<unknown>(`${this.eventsBaseUrl}/${eventId}/promotions`).pipe(
+          map((response) => this.normalizePromotions(response)),
+          catchError(() => this.getPublicPromotions())
+        )
+      )
+    );
+  }
+
+  getAdminPromotions(eventId?: number): Observable<PromotionOfferResponseDTO[]> {
+    let params = new HttpParams();
+
+    if (Number.isFinite(eventId) && Number(eventId) > 0) {
+      params = params.set('eventId', Number(eventId));
+    }
+
+    return this.http.get<unknown>(`${this.promotionsBaseUrl}/admin`, { params }).pipe(
+      map((response) => this.normalizePromotions(response))
+    );
+  }
+
+  getAdminPromotionById(promotionId: number): Observable<PromotionOfferResponseDTO> {
+    return this.http.get<unknown>(`${this.promotionsBaseUrl}/admin/${promotionId}`).pipe(
+      map((response) => this.normalizePromotion(response))
+    );
+  }
+
+  createAdminPromotion(promotion: PromotionOfferRequestDTO): Observable<PromotionOfferResponseDTO> {
+    return this.http.post<unknown>(
+      `${this.promotionsBaseUrl}/admin`,
+      this.serializePromotionRequest(promotion)
+    ).pipe(
+      map((response) => this.normalizePromotion(response))
+    );
+  }
+
+  updateAdminPromotion(promotionId: number, promotion: PromotionOfferRequestDTO): Observable<PromotionOfferResponseDTO> {
+    return this.http.put<unknown>(
+      `${this.promotionsBaseUrl}/admin/${promotionId}`,
+      this.serializePromotionRequest(promotion)
+    ).pipe(
+      map((response) => this.normalizePromotion(response))
+    );
+  }
+
+  deleteAdminPromotion(promotionId: number): Observable<void> {
+    return this.http.delete<void>(`${this.promotionsBaseUrl}/admin/${promotionId}`);
   }
 
   previewReservationPricing(
@@ -247,83 +271,69 @@ export class EventService {
     return this.http.get<PromotionPreviewDTO>(`${this.eventsBaseUrl}/pricing/preview`, { params });
   }
 
-  // GET pending reservations
   getPendingReservations(): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/pending`);
   }
 
-  // GET unpaid reservations
   getUnpaidReservations(): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/unpaid`);
   }
 
-  // GET refundable reservations
   getRefundableReservations(): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/refundable`);
   }
 
-  // GET event waitlist
   getEventWaitlist(eventId: number): Observable<EventReservation[]> {
     return this.http.get<EventReservation[]>(`${this.reservationsBaseUrl}/getWaitlist/${eventId}`);
   }
 
-  // GET check if user on waitlist
   isUserOnWaitlist(userId: number, eventId: number): Observable<boolean> {
     return this.http.get<boolean>(`${this.reservationsBaseUrl}/isOnWaitlist/${userId}/${eventId}`);
   }
 
-  // GET calculate reservation price
   calculateReservationPrice(eventId: number, numberOfParticipants: number): Observable<number> {
     return this.http.get<number>(`${this.reservationsBaseUrl}/calculatePrice/${eventId}`, {
       params: { numberOfParticipants }
     });
   }
 
-  // GET confirmed reservations count
   getConfirmedReservationsCount(eventId: number): Observable<number> {
     return this.http.get<number>(`${this.reservationsBaseUrl}/analytics/confirmedCount/${eventId}`);
   }
 
-  // GET event revenue (from reservations)
   getReservationRevenue(eventId: number): Observable<number> {
     return this.http.get<number>(`${this.reservationsBaseUrl}/analytics/revenue/${eventId}`);
   }
-
-  // ========== RESERVATION ADMIN OPERATIONS ==========
-
-  // POST create reservation
   createReservation(reservation: ReservationRequestDTO): Observable<ReservationResponseDTO> {
     return this.http.post<ReservationResponseDTO>(`${this.reservationsBaseUrl}/createReservation`, reservation);
   }
 
-  // PUT update reservation
   updateReservation(id: number, reservation: ReservationRequestDTO): Observable<ReservationResponseDTO> {
     return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/updateReservation/${id}`, reservation);
   }
 
-  // PUT confirm reservation
   confirmReservation(id: number): Observable<ReservationResponseDTO> {
     return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/confirmReservation/${id}`, {});
   }
 
-  // PUT reject reservation
+  markAsAttended(id: number): Observable<ReservationResponseDTO> {
+    return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/markAttended/${id}`, {});
+  }
+
   rejectReservation(id: number, reason = ''): Observable<ReservationResponseDTO> {
     const params = reason ? new HttpParams().set('reason', reason) : undefined;
     return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/rejectReservation/${id}`, {}, { params });
   }
 
-  // PUT mark no-show
   markAsNoShow(id: number): Observable<ReservationResponseDTO> {
     return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/markNoShow/${id}`, {});
   }
 
-  // POST refund reservation
   refundReservation(id: number, reason = ''): Observable<void> {
     const params = reason ? new HttpParams().set('reason', reason) : undefined;
     return this.http.post<void>(`${this.reservationsBaseUrl}/refundReservation/${id}`, {}, { params });
   }
 
-  // POST process payment
   processPayment(paymentData: any): Observable<void> {
     return this.http.post<void>(`${this.reservationsBaseUrl}/processPayment`, paymentData);
   }
@@ -354,6 +364,44 @@ export class EventService {
     });
   }
 
+  submitReservationFeedback(
+    reservationId: number,
+    payload: ReservationFeedbackRequestDTO
+  ): Observable<ReservationResponseDTO> {
+    return this.http.post<ReservationResponseDTO>(
+      `${this.reservationsBaseUrl}/${reservationId}/feedback`,
+      payload
+    );
+  }
+
+  downloadGuestList(eventId: number, format: 'csv' | 'pdf' = 'csv'): Observable<Blob> {
+    return this.http.get(`${this.reservationsBaseUrl}/exports/guest-list/${eventId}`, {
+      params: { format },
+      responseType: 'blob'
+    });
+  }
+
+  downloadAttendanceSheet(eventId: number, format: 'csv' | 'pdf' = 'pdf'): Observable<Blob> {
+    return this.http.get(`${this.reservationsBaseUrl}/exports/attendance-sheet/${eventId}`, {
+      params: { format },
+      responseType: 'blob'
+    });
+  }
+
+  downloadReservationReport(format: 'csv' | 'pdf' = 'csv'): Observable<Blob> {
+    return this.http.get(`${this.reservationsBaseUrl}/exports/reservation-report`, {
+      params: { format },
+      responseType: 'blob'
+    });
+  }
+
+  downloadRevenueReport(format: 'csv' | 'pdf' = 'pdf'): Observable<Blob> {
+    return this.http.get(`${this.reservationsBaseUrl}/exports/revenue-report`, {
+      params: { format },
+      responseType: 'blob'
+    });
+  }
+
   getMyNotifications(): Observable<UserNotificationResponseDTO[]> {
     return this.http.get<UserNotificationResponseDTO[]>(`${this.notificationsBaseUrl}/me`);
   }
@@ -370,30 +418,22 @@ export class EventService {
     return this.http.put<void>(`${this.notificationsBaseUrl}/me/read-all`, {});
   }
 
-  // PUT process waitlist
   processWaitlist(eventId: number): Observable<void> {
     return this.http.put<void>(`${this.reservationsBaseUrl}/processWaitlist/${eventId}`, {});
   }
 
-  // DELETE cancel reservation
   cancelReservation(id: number, reason = ''): Observable<void> {
     const params = reason ? new HttpParams().set('reason', reason) : undefined;
     return this.http.delete<void>(`${this.reservationsBaseUrl}/cancelReservation/${id}`, { params });
   }
-
-  // ========== EVENT IMAGE ENDPOINTS ==========
-
-  // GET all images for an event
   getEventImages(eventId: number): Observable<EventImageDTO[]> {
     return this.http.get<EventImageDTO[]>(`${this.eventsBaseUrl}/${eventId}/images`);
   }
 
-  // GET a specific image by ID
   getEventImage(imageId: number): Observable<EventImageDTO> {
     return this.http.get<EventImageDTO>(`${this.eventsBaseUrl}/images/${imageId}`);
   }
 
-  // POST add image to event
   addImageToEvent(eventId: number, imageFile: File, makePrimary = false): Observable<EventResponseDTO> {
     const formData = new FormData();
     formData.append('image', imageFile);
@@ -401,7 +441,6 @@ export class EventService {
     return this.http.post<EventResponseDTO>(`${this.eventsBaseUrl}/${eventId}/addImage`, formData);
   }
 
-  // POST add multiple images to event
   addImagesToEvent(eventId: number, imageFiles: File[], makePrimary = false): Observable<EventResponseDTO> {
     const formData = new FormData();
     imageFiles.forEach((imageFile) => {
@@ -412,12 +451,10 @@ export class EventService {
     return this.http.post<EventResponseDTO>(`${this.eventsBaseUrl}/${eventId}/images`, formData);
   }
 
-  // DELETE an image
   deleteEventImage(eventId: number, imageId: number): Observable<void> {
     return this.http.delete<void>(`${this.eventsBaseUrl}/${eventId}/images/${imageId}`);
   }
 
-  // PUT set image as primary
   setImageAsPrimary(eventId: number, imageId: number): Observable<EventResponseDTO> {
     return this.http.put<EventResponseDTO>(`${this.eventsBaseUrl}/${eventId}/images/${imageId}/setAsPrimary`, {});
   }
@@ -526,5 +563,200 @@ export class EventService {
 
   private isNonEmptyString(value: unknown): value is string {
     return typeof value === 'string' && value.trim().length > 0;
+  }
+
+  private normalizePromotions(response: unknown): PromotionOfferResponseDTO[] {
+    const promotions = this.extractArray(response);
+    return promotions.map((promotion) => this.normalizePromotion(promotion));
+  }
+
+  private normalizePromotion(response: unknown): PromotionOfferResponseDTO {
+    const promotion = typeof response === 'object' && response !== null
+      ? response as Record<string, unknown>
+      : {};
+    const targetedEvents = this.normalizeTargetedEvents(
+      promotion['targetedEvents']
+      ?? promotion['events']
+      ?? promotion['applicableEvents']
+      ?? promotion['targetEvents']
+    );
+    const eventIds = this.extractEventIds(
+      promotion['eventIds']
+      ?? promotion['targetEventIds']
+      ?? promotion['applicableEventIds']
+      ?? targetedEvents
+    );
+    const appliesToAllEvents = this.getBoolean(
+      promotion['appliesToAllEvents'],
+      promotion['global'],
+      promotion['isGlobal'],
+      promotion['allEvents']
+    );
+    const scope: PromotionScope = appliesToAllEvents === false || eventIds.length > 0 ? 'EVENTS' : 'GLOBAL';
+
+    return {
+      id: this.getNumber(promotion['id']) ?? 0,
+      name: this.getString(promotion['name'], promotion['titre']) ?? 'Promotion',
+      code: this.getString(promotion['code'], promotion['promoCode']) ?? undefined,
+      description: this.getString(promotion['description']),
+      discountType: (this.getString(promotion['discountType']) as PromotionOfferResponseDTO['discountType']) ?? 'PERCENTAGE',
+      discountValue: this.getNumber(promotion['discountValue'], promotion['value']) ?? 0,
+      minimumSubtotal: this.getNumber(promotion['minimumSubtotal']),
+      minimumParticipants: this.getNumber(promotion['minimumParticipants']),
+      autoApply: this.getBoolean(promotion['autoApply'], promotion['automatic']) ?? false,
+      discoverable: this.getBoolean(promotion['discoverable'], promotion['visible']) ?? false,
+      active: this.getBoolean(promotion['active']) ?? false,
+      currentlyAvailable: this.getBoolean(
+        promotion['currentlyAvailable'],
+        promotion['availableNow'],
+        promotion['active']
+      ) ?? false,
+      maxRedemptions: this.getNumber(promotion['maxRedemptions']),
+      usageCount: this.getNumber(promotion['usageCount']),
+      remainingRedemptions: this.getNumber(promotion['remainingRedemptions']),
+      startsAt: this.getString(promotion['startsAt'], promotion['startDate']),
+      endsAt: this.getString(promotion['endsAt'], promotion['endDate']),
+      dateCreation: this.getString(promotion['dateCreation'], promotion['createdAt']),
+      dateModification: this.getString(promotion['dateModification'], promotion['updatedAt']),
+      appliesToAllEvents: appliesToAllEvents ?? eventIds.length === 0,
+      scope,
+      eventIds,
+      targetedEvents
+    };
+  }
+
+  private serializePromotionRequest(promotion: PromotionOfferRequestDTO): Record<string, unknown> {
+    const sanitizedEventIds = Array.from(
+      new Set(
+        (promotion.eventIds ?? [])
+          .map((eventId) => Number(eventId))
+          .filter((eventId) => Number.isFinite(eventId) && eventId > 0)
+      )
+    );
+    const appliesToAllEvents = promotion.appliesToAllEvents !== false;
+
+    return {
+      name: promotion.name.trim(),
+      code: promotion.code?.trim().toUpperCase() || undefined,
+      description: promotion.description?.trim() || undefined,
+      discountType: promotion.discountType,
+      discountValue: Number(promotion.discountValue),
+      minimumSubtotal: this.toOptionalNumber(promotion.minimumSubtotal),
+      minimumParticipants: this.toOptionalNumber(promotion.minimumParticipants),
+      autoApply: promotion.autoApply,
+      discoverable: promotion.discoverable,
+      active: promotion.active,
+      maxRedemptions: this.toOptionalNumber(promotion.maxRedemptions),
+      startsAt: promotion.startsAt || undefined,
+      endsAt: promotion.endsAt || undefined,
+      appliesToAllEvents,
+      scope: appliesToAllEvents ? 'GLOBAL' : 'EVENTS',
+      eventIds: appliesToAllEvents ? [] : sanitizedEventIds,
+      global: appliesToAllEvents,
+      targetEventIds: appliesToAllEvents ? [] : sanitizedEventIds,
+      applicableEventIds: appliesToAllEvents ? [] : sanitizedEventIds
+    };
+  }
+
+  private normalizeTargetedEvents(value: unknown): PromotionTargetEventSummaryDTO[] {
+    return this.extractArray(value).reduce<PromotionTargetEventSummaryDTO[]>((targetEvents, item) => {
+      if (typeof item !== 'object' || item === null) {
+        return targetEvents;
+      }
+
+      const event = item as Record<string, unknown>;
+      const id = this.getNumber(event['id']);
+      const titre = this.getString(event['titre'], event['title']);
+      if (!id || !titre) {
+        return targetEvents;
+      }
+
+      targetEvents.push({
+        id,
+        titre,
+        dateDebut: this.getString(event['dateDebut'], event['startsAt']) ?? undefined,
+        dateFin: this.getString(event['dateFin'], event['endsAt']) ?? undefined,
+        lieu: this.getString(event['lieu'], event['location']) ?? undefined
+      });
+
+      return targetEvents;
+    }, []);
+  }
+
+  private extractEventIds(value: unknown): number[] {
+    const sourceArray = Array.isArray(value) ? value : [];
+    const ids = sourceArray
+      .map((item) => {
+        if (typeof item === 'number') {
+          return item;
+        }
+
+        if (typeof item === 'string') {
+          return Number(item);
+        }
+
+        if (typeof item === 'object' && item !== null) {
+          return this.getNumber((item as Record<string, unknown>)['id']);
+        }
+
+        return undefined;
+      })
+      .filter((eventId): eventId is number => Number.isFinite(eventId) && Number(eventId) > 0);
+
+    return Array.from(new Set(ids));
+  }
+
+  private extractArray(value: unknown): unknown[] {
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    if (typeof value === 'object' && value !== null) {
+      const content = (value as { content?: unknown }).content;
+      if (Array.isArray(content)) {
+        return content;
+      }
+    }
+
+    return [];
+  }
+
+  private getString(...values: unknown[]): string | undefined {
+    const match = values.find((value) => typeof value === 'string' && value.trim().length > 0);
+    return typeof match === 'string' ? match.trim() : undefined;
+  }
+
+  private getNumber(...values: unknown[]): number | undefined {
+    for (const value of values) {
+      const numericValue = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : Number.NaN;
+      if (Number.isFinite(numericValue)) {
+        return numericValue;
+      }
+    }
+
+    return undefined;
+  }
+
+  private getBoolean(...values: unknown[]): boolean | undefined {
+    for (const value of values) {
+      if (typeof value === 'boolean') {
+        return value;
+      }
+
+      if (typeof value === 'string') {
+        if (value.toLowerCase() === 'true') {
+          return true;
+        }
+        if (value.toLowerCase() === 'false') {
+          return false;
+        }
+      }
+    }
+
+    return undefined;
+  }
+
+  private toOptionalNumber(value: number | undefined): number | undefined {
+    return Number.isFinite(value) ? Number(value) : undefined;
   }
 }

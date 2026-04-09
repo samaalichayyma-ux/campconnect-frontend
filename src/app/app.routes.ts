@@ -52,10 +52,13 @@ import { EventReservationComponent } from './features/public/events/event-reserv
 import { EventListComponent } from './features/admin/events/event-list/event-list.component';
 import { EventCreateComponent } from './features/admin/events/event-create/event-create.component';
 import { EventEditComponent } from './features/admin/events/event-edit/event-edit.component';
+import { EventInsightsComponent } from './features/admin/events/event-insights/event-insights.component';
 import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.component';
+import { PromotionManagementComponent } from './features/admin/promotions/promotion-management/promotion-management.component';
 import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
 import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
 import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
+import { ReservationInsightsComponent } from './features/admin/reservations/reservation-insights/reservation-insights.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -83,13 +86,18 @@ export const routes: Routes = [
       { path: 'avis', component: AdminAvisListComponent },
 
       { path: 'events', component: EventListComponent },
+      { path: 'events/stats', component: EventInsightsComponent },
       { path: 'events/new', component: EventCreateComponent },
       { path: 'events/:id/edit', component: EventEditComponent },
+      { path: 'events/:id/insights', component: EventInsightsComponent },
       { path: 'events/api-demo', component: ApiDemoComponent },
+      { path: 'promotions', component: PromotionManagementComponent },
 
       { path: 'reservations', component: ReservationListComponent },
+      { path: 'reservations/stats', component: ReservationInsightsComponent },
       { path: 'reservations/new', component: ReservationCreateComponent },
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
+      { path: 'reservations/:id/insights', component: ReservationInsightsComponent },
 
       { path: 'reclamations', component: ReclamationAdminListComponent },
       { path: 'repas', component: RepasAdminComponent },

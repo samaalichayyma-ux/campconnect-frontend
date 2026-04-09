@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, catchError, tap } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 export interface LoginRequest {
   email: string;
@@ -41,7 +41,6 @@ export interface CurrentUserResponse {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/auth';
-  private readonly currentUserFallbackUrl = 'http://localhost:8080/api/utilisateurs/me';
   private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'GUIDE', 'LIVREUR', 'GERANT_RESTAU']);
   private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
 
@@ -178,12 +177,7 @@ export class AuthService {
 
   fetchCurrentUser(): Observable<CurrentUserResponse> {
     return this.http.get<CurrentUserResponse>(`${this.apiUrl}/me`).pipe(
-      tap((userInfo) => this.syncCurrentUser(userInfo)),
-      catchError(() =>
-        this.http.get<CurrentUserResponse>(this.currentUserFallbackUrl).pipe(
-          tap((userInfo) => this.syncCurrentUser(userInfo))
-        )
-      )
+      tap((userInfo) => this.syncCurrentUser(userInfo))
     );
   }
 

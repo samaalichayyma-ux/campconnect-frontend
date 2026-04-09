@@ -41,11 +41,11 @@
           <p>Fill in the form below to submit your booking request.</p>
         </div>
 
-        <div *ngIf="successMessage" class="success-message">
+        <div *ngIf="successMessage" data-auto-dismiss="5000" class="success-message">
           {{ successMessage }}
         </div>
 
-        <div *ngIf="errorMessage" class="error-message">
+        <div *ngIf="errorMessage" data-auto-dismiss="5000" class="error-message">
           {{ errorMessage }}
         </div>
 
@@ -186,7 +186,7 @@
           Loading camping site...
         </div>
 
-        <div *ngIf="!isLoading && errorMessage" class="error-message">
+        <div *ngIf="!isLoading && errorMessage" data-auto-dismiss="5000" class="error-message">
           {{ errorMessage }}
         </div>
 

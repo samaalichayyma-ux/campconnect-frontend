@@ -2,6 +2,8 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
+
+import { withAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
 import { SiteCampingAvisService } from '../../services/site-camping-avis.service';
 
 @Component({
@@ -40,7 +42,7 @@ onSubmit(): void {
 
 
   if (note == null) {
-    Swal.fire({
+    void Swal.fire(withAutoCloseAlert({
       icon: 'warning',
       title: 'Rating Required',
       text: 'Please select a rating before submitting your review.',
@@ -50,19 +52,19 @@ onSubmit(): void {
       customClass: {
         popup: 'custom-swal-popup'
       }
-    });
+    }));
     return;
   }
 
   if (note < 1 || note > 5) {
-    Swal.fire({
+    void Swal.fire(withAutoCloseAlert({
       icon: 'error',
       title: 'Invalid Rating',
       text: 'Rating must be between 1 and 5.',
       confirmButtonColor: '#96952f',
       background: '#f5f5f3',
       color: '#172b44'
-    });
+    }));
     return;
   }
 
@@ -76,14 +78,14 @@ onSubmit(): void {
 
   this.avisService.createAvis(this.siteId, payload).subscribe({
     next: () => {
-      Swal.fire({
+      void Swal.fire(withAutoCloseAlert({
         icon: 'success',
         title: 'Review Submitted',
         text: 'Thank you for your feedback!',
         confirmButtonColor: '#96952f',
         background: '#f5f5f3',
         color: '#172b44'
-      });
+      }));
 
       this.form.reset({
         note: null,
@@ -95,14 +97,14 @@ onSubmit(): void {
     error: (error) => {
       console.error(error);
 
-      Swal.fire({
+      void Swal.fire(withAutoCloseAlert({
         icon: 'error',
         title: 'Submission Failed',
         text: 'Could not submit your review. Please try again.',
         confirmButtonColor: '#96952f',
         background: '#f5f5f3',
         color: '#172b44'
-      });
+      }));
     }
   });
 }

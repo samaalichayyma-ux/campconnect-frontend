@@ -1,7 +1,7 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
   <div class="profile-card">
     <div class="profile-avatar">
-      👤
+      ðŸ‘¤
     </div>
 
     <h1 class="profile-title">My Profile</h1>
@@ -45,11 +45,11 @@
       </div>
     </div>
 
-    <div *ngIf="successMessage" class="success-message">
+    <div *ngIf="successMessage" data-auto-dismiss="5000" class="success-message">
       {{ successMessage }}
     </div>
 
-    <div *ngIf="errorMessage" class="error-message">
+    <div *ngIf="errorMessage" data-auto-dismiss="5000" class="error-message">
       {{ errorMessage }}
     </div>
 

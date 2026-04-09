@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import Swal from 'sweetalert2';
+
+import { buildAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
 import { CampingService } from '../../../public/services/camping.service';
 import { CampingNavbarComponent } from '../camping-navbar/camping-navbar.component';
 import { CampingSiteCreatePayload } from '../models/camping-site-create.model';
@@ -40,7 +42,7 @@ export class CampingSiteCreateComponent {
 
   onSubmit(): void {
     if (!this.selectedFile) {
-      Swal.fire('Error', 'Please select an image.', 'error');
+      void Swal.fire(buildAutoCloseAlert('error', 'Error', 'Please select an image.'));
       return;
     }
 
@@ -55,15 +57,15 @@ export class CampingSiteCreateComponent {
 
     this.campingService.addCampingSite(formData).subscribe({
       next: () => {
-        Swal.fire('Success', 'Camping site added successfully.', 'success');
-        this.router.navigate(['/admin/camping-sites']);
+        void Swal.fire(buildAutoCloseAlert('success', 'Success', 'Camping site added successfully.'))
+          .then(() => {
+            this.router.navigate(['/admin/camping-sites']);
+          });
       },
       error: (error) => {
         console.error('Error:', error);
-        Swal.fire(
-          'Error',
-          error?.error?.message || 'Failed to add camping site.',
-          'error'
+        void Swal.fire(
+          buildAutoCloseAlert('error', 'Error', error?.error?.message || 'Failed to add camping site.')
         );
       }
     });

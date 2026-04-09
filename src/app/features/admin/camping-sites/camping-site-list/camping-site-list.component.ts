@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import Swal from 'sweetalert2';
+
+import { buildAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
 import { CampingService } from '../../../public/services/camping.service';
 import { CampingSite } from '../../../public/models/camping-site.model';
 import { CampingNavbarComponent } from '../camping-navbar/camping-navbar.component';
@@ -83,12 +85,12 @@ export class CampingSiteListComponent implements OnInit {
       if (result.isConfirmed) {
         this.campingService.closeCampingSite(idSite).subscribe({
           next: () => {
-            Swal.fire('Closed!', 'Camping site closed successfully.', 'success');
+            void Swal.fire(buildAutoCloseAlert('success', 'Closed!', 'Camping site closed successfully.'));
             this.loadSitesByRole();
           },
           error: (error) => {
             console.error(error);
-            Swal.fire('Error', 'Failed to close camping site.', 'error');
+            void Swal.fire(buildAutoCloseAlert('error', 'Error', 'Failed to close camping site.'));
           }
         });
       }

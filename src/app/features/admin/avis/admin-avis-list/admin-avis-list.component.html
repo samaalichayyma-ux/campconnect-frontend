@@ -23,7 +23,7 @@
       <div class="stars" *ngIf="avis.note !== null && avis.note !== undefined; else noNote">
         <span
           *ngFor="let star of [1,2,3,4,5]"
-          [ngClass]="{ 'filled': star <= (avis.note ?? 0) }"
+          [ngClass]="{ 'filled': star <= avis.note }"
         >
           ★
         </span>

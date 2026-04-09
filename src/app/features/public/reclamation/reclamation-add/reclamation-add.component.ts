@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
-import { ReclamationService } from '../reclamation.service';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import Swal from 'sweetalert2';
+
+import { buildAutoCloseAlert } from '../../../../core/utils/auto-close-alert.util';
+import { ReclamationService } from '../reclamation.service';
 
 @Component({
   selector: 'app-reclamation-add',
@@ -23,16 +26,20 @@ export class ReclamationAddComponent {
 
   constructor(private reclamationService: ReclamationService) {}
 
-  save() {
+  save(): void {
     this.submitted = true;
 
     if (!this.reclamation.description.trim()) {
-      alert('Veuillez saisir la description de la réclamation.');
+      void Swal.fire(
+        buildAutoCloseAlert('warning', 'Attention', 'Veuillez saisir la description de la reclamation.')
+      );
       return;
     }
 
     if (!this.reclamation.acceptationDeclaration) {
-      alert('Vous devez accepter le traitement des données personnelles.');
+      void Swal.fire(
+        buildAutoCloseAlert('warning', 'Attention', 'Vous devez accepter le traitement des donnees personnelles.')
+      );
       return;
     }
 
@@ -40,8 +47,10 @@ export class ReclamationAddComponent {
 
     this.reclamationService.create(this.reclamation).subscribe({
       next: (res) => {
-        console.log('Réclamation ajoutée', res);
-        alert('Réclamation ajoutée avec succès');
+        console.log('Reclamation ajoutee', res);
+        void Swal.fire(
+          buildAutoCloseAlert('success', 'Reclamation envoyee', 'Reclamation ajoutee avec succes.')
+        );
 
         this.reclamation = {
           description: '',
@@ -54,16 +63,16 @@ export class ReclamationAddComponent {
       },
       error: (err) => {
         console.error(err);
-        alert('Erreur lors de l’ajout');
+        void Swal.fire(buildAutoCloseAlert('error', 'Erreur', 'Erreur lors de l ajout.'));
       }
     });
   }
 
-  ouvrirDeclaration() {
+  ouvrirDeclaration(): void {
     this.showDeclaration = true;
   }
 
-  fermerDeclaration() {
+  fermerDeclaration(): void {
     this.showDeclaration = false;
   }
 }
