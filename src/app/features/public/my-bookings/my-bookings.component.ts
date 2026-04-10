@@ -36,8 +36,9 @@ export class MyBookingsComponent implements OnInit {
 
     this.campingService.getMyBookings().subscribe({
       next: (data) => {
-        this.bookings = [...data].sort(
-          (a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime()
+        this.bookings = [...data].filter((booking) => booking.statut !== 'PENDING')
+        .sort(
+            (a, b) => new Date(b.dateDebut).getTime() - new Date(a.dateDebut).getTime()
         ).reverse();
         this.applyFilters();
         this.isLoading = false;

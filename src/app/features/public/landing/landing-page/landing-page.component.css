@@ -52720,3 +52720,151 @@ a.u-link.u-text-hover-color-var:hover {
     height: 172px;
   }
 }
+
+.u-section-featured-camps,
+.u-section-recommended-camps {
+  padding: 60px 0;
+  background: #f7f3ed;
+}
+
+.u-section-recommended-camps {
+  background: #ede7de;
+}
+
+.section-heading-block {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.section-heading-block h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #1f3a2e;
+}
+
+.section-heading-block p {
+  max-width: 760px;
+  margin: 0 auto;
+  color: #6b6b6b;
+}
+
+.landing-info-box {
+  text-align: center;
+  padding: 32px 20px;
+}
+
+.recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.recommendation-card {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.recommendation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
+}
+
+.featured-card {
+  border: 2px solid #6a8f3b;
+}
+
+.recommendation-image {
+  height: 220px;
+  position: relative;
+}
+
+.recommendation-badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.featured-badge {
+  background: #6a8f3b;
+}
+
+.score-badge {
+  background: #244735;
+}
+
+.recommendation-content {
+  padding: 20px;
+}
+
+.recommendation-content h3 {
+  margin: 0 0 8px;
+  color: #1c1c1c;
+}
+
+.recommendation-location {
+  margin: 0 0 10px;
+  color: #6b6b6b;
+}
+
+.recommendation-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 14px;
+  color: #244735;
+  margin-bottom: 12px;
+}
+
+.recommendation-reason {
+  margin: 0 0 14px;
+  color: #4f4f4f;
+  line-height: 1.5;
+  min-height: 48px;
+}
+
+.recommendation-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.recommendation-tag {
+  background: #e3dcd2;
+  color: #244735;
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 991px) {
+  .recommendation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .recommendation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendation-image {
+    height: 200px;
+  }
+}
