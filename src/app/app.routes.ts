@@ -109,16 +109,15 @@ export const routes: Routes = [
       { path: 'camping-sites/:id', component: AdminCampingSiteDetailsComponent },
       { path: 'site-bookings', component: SiteBookingsComponent },
       { path: 'avis', component: AdminAvisListComponent },
-     
-       { path: 'reclamations', component: ReclamationAdminListComponent },
-      { path: 'reclamation/detail/:id', component:ReclamationDetailComponent},
+
+      { path: 'reclamations', component: ReclamationAdminListComponent },
+      { path: 'reclamation/detail/:id', component: ReclamationDetailComponent },
       { path: 'reclamations/edit/:id', component: ReclamationEditComponent },
 
-  { path: 'repas', component: RepasAdminComponent },
-  { path: 'commandes-repas', component: CommandesAdminComponent },
-  { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
-{ path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
-
+      { path: 'repas', component: RepasAdminComponent },
+      { path: 'commandes-repas', component: CommandesAdminComponent },
+      { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
+      { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
 
       { path: 'events', component: EventListComponent },
       { path: 'events/stats', component: EventInsightsComponent },
@@ -134,21 +133,14 @@ export const routes: Routes = [
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
       { path: 'reservations/:id/insights', component: ReservationInsightsComponent },
 
-      { path: 'reclamations', component: ReclamationAdminListComponent },
-      { path: 'repas', component: RepasAdminComponent },
-      { path: 'commandes-repas', component: CommandesAdminComponent },
-      
-    { path: 'Market/AddProduct', component: AddProductComponent },
-    { path: 'Market/EditProduct/:id', component: AddProductComponent },
-    { path: 'Market/listProduct', component: ListProductComponent },
+      { path: 'Market/AddProduct', component: AddProductComponent },
+      { path: 'Market/EditProduct/:id', component: AddProductComponent },
+      { path: 'Market/listProduct', component: ListProductComponent },
       { path: 'publication/list', component: PublicationAdminListComponent },
       { path: 'publication/edit/:id', component: PublicationAdminEditComponent },
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
-    
-
-
     ]
   },
   {
@@ -184,31 +176,21 @@ export const routes: Routes = [
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },
       { path: 'Accueil-Market', component: AccueilmarketComponent },
-        {path: 'listP', component: ListeProduitComponent},
-  { path: 'detailP/:id', component: DetailproduitComponent },
- 
-
-    ]
-  },
-
-      {path: 'listP', component: ListeProduitComponent},
+      { path: 'listP', component: ListeProduitComponent },
       { path: 'detailP/:id', component: DetailproduitComponent },
-       { path: 'publications', component: PublicationListComponent },
-    { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
-    { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
-
-    { path: 'forums', component: ForumListComponent },
-    { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
-    { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
-
+      { path: 'publications', component: PublicationListComponent },
+      { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
+      { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] }
     ]
   },
   { path: 'booking-payment-success', component: BookingPaymentSuccessComponent },
   { path: 'booking-payment-cancel', component: BookingPaymentCancelComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-   { path: 'forgot-password', component: ForgotPasswordComponent },
-{ path: 'reset-password', component: ResetPasswordComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   { path: '**', component: NotFoundComponent }
-
 ];
