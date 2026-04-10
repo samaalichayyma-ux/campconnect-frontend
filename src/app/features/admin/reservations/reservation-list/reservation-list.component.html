@@ -172,6 +172,16 @@
                 <span>Approve</span>
               </button>
               <button
+                *ngIf="canMarkAttended(reservation)"
+                type="button"
+                class="table-action success"
+                [disabled]="isActionPending(reservation.id)"
+                (click)="openActionDialog(reservation.id, 'attended')"
+                title="Mark attended"
+                aria-label="Mark reservation as attended">
+                <span>Attended</span>
+              </button>
+              <button
                 *ngIf="canMarkNoShow(reservation)"
                 type="button"
                 class="table-action warning"

@@ -225,6 +225,7 @@ export interface ReservationResponseDTO {
   googleCalendarUrl?: string;
   calendarIcsDownloadUrl?: string;
   calendarIcsFileName?: string;
+  attendanceRecordable?: boolean;
   feedbackRating?: number;
   feedbackComment?: string;
   feedbackSubmittedAt?: string;

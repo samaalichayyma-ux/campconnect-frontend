@@ -74,6 +74,19 @@
             type="button">
             {{ downloadingAttendanceSheet ? 'Preparing attendance sheet...' : 'Attendance PDF' }}
           </button>
+
+          <button
+            *ngIf="getEligibleAttendanceCount(spotlight.id) > 0"
+            class="spotlight-btn accent"
+            (click)="backfillFeaturedAttendance()"
+            [disabled]="backfillingAttendance"
+            type="button">
+            {{
+              backfillingAttendance
+                ? 'Marking attendance...'
+                : 'Mark attended (' + getEligibleAttendanceCount(spotlight.id) + ')'
+            }}
+          </button>
         </div>
       </article>
 

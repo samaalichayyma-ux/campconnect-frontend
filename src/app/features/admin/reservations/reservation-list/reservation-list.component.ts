@@ -13,7 +13,7 @@ import { AdminIconComponent } from '../../../../core/components/admin-icon/admin
 import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { catchError, forkJoin, of } from 'rxjs';
 
-type ReservationActionDialogType = 'cancel' | 'confirm' | 'no-show';
+type ReservationActionDialogType = 'attended' | 'cancel' | 'confirm' | 'no-show';
 type ReservationWorkflowFilter = 'all' | 'needs-approval' | 'refunded' | 'waitlist' | 'paid' | 'cancelled';
 
 interface ReservationActionDialog {
@@ -114,6 +114,23 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
       },
       error: (error: any) => {
         this.handleActionError('confirm reservation', error);
+      }
+    });
+  }
+
+  markReservationAsAttended(id: number): void {
+    this.actionReservationId = id;
+    this.errorMessage = '';
+
+    this.eventService.markAsAttended(id).subscribe({
+      next: (reservation: ReservationResponseDTO) => {
+        this.replaceReservation(reservation);
+        this.actionDialog = null;
+        this.actionReservationId = null;
+        this.showSuccessToast('Reservation marked as attended. Feedback is now open for finished events.', 'Reservation updated');
+      },
+      error: (error: any) => {
+        this.handleActionError('mark reservation as attended', error);
       }
     });
   }
@@ -235,6 +252,14 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
     return reservation.statut === 'PENDING';
   }
 
+  canMarkAttended(reservation: ReservationResponseDTO): boolean {
+    if (typeof reservation.attendanceRecordable === 'boolean') {
+      return reservation.attendanceRecordable;
+    }
+
+    return reservation.statut === 'CONFIRMED' || reservation.statut === 'PAID';
+  }
+
   canMarkNoShow(reservation: ReservationResponseDTO): boolean {
     return reservation.statut === 'CONFIRMED' || reservation.statut === 'PAID';
   }
@@ -257,6 +282,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
 
   get dialogTitle(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'Mark this reservation as attended?';
       case 'confirm':
         return 'Confirm this reservation?';
       case 'no-show':
@@ -268,6 +295,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
 
   get dialogMessage(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'This records the guest as present. For events that already ended, the satisfaction form will open immediately after this update.';
       case 'confirm':
         return 'This will confirm the booking and re-check capacity before the status is updated.';
       case 'no-show':
@@ -279,6 +308,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
 
   get dialogConfirmLabel(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'Mark attended';
       case 'confirm':
         return 'Confirm reservation';
       case 'no-show':
@@ -290,6 +321,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
 
   get dialogKeepLabel(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'Keep pending';
       case 'confirm':
         return 'Review first';
       case 'no-show':
@@ -301,6 +334,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
 
   get dialogIconName(): 'warning' | 'check' | 'close' {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'check';
       case 'confirm':
         return 'check';
       case 'no-show':
@@ -312,6 +347,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
 
   get dialogVariantClass(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'confirm-variant';
       case 'confirm':
         return 'confirm-variant';
       case 'no-show':
@@ -327,6 +364,11 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
     }
 
     const { id, type } = this.actionDialog;
+
+    if (type === 'attended') {
+      this.markReservationAsAttended(id);
+      return;
+    }
 
     if (type === 'confirm') {
       this.confirmReservation(id);

@@ -320,6 +320,10 @@ export class EventService {
     return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/markAttended/${id}`, {});
   }
 
+  markEligibleReservationsAsAttended(eventId: number): Observable<ReservationResponseDTO[]> {
+    return this.http.put<ReservationResponseDTO[]>(`${this.reservationsBaseUrl}/events/${eventId}/markAttended`, {});
+  }
+
   rejectReservation(id: number, reason = ''): Observable<ReservationResponseDTO> {
     const params = reason ? new HttpParams().set('reason', reason) : undefined;
     return this.http.put<ReservationResponseDTO>(`${this.reservationsBaseUrl}/rejectReservation/${id}`, {}, { params });

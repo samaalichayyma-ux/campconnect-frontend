@@ -103,6 +103,7 @@ export class EventInsightsComponent extends ToastMessageHost implements OnInit {
   feedbackMixChartData: DoughnutChartData = { labels: [], datasets: [] };
   downloadingGuestList = false;
   downloadingAttendanceSheet = false;
+  backfillingAttendance = false;
 
   readonly demandChartOptions: ChartOptions<'bar'> = {
     responsive: true,
@@ -648,6 +649,47 @@ export class EventInsightsComponent extends ToastMessageHost implements OnInit {
         this.downloadingAttendanceSheet = false;
         this.errorMessage = 'We could not export the attendance sheet right now.';
         console.error('Error downloading attendance sheet:', error);
+      }
+    });
+  }
+
+  getEligibleAttendanceCount(eventId: number): number {
+    return this.getReservationsForEvent(eventId)
+      .filter((reservation) => Boolean(reservation.attendanceRecordable))
+      .length;
+  }
+
+  backfillFeaturedAttendance(): void {
+    const spotlight = this.featuredEvent;
+    if (!spotlight || this.backfillingAttendance) {
+      return;
+    }
+
+    const eligibleCount = this.getEligibleAttendanceCount(spotlight.id);
+    if (eligibleCount <= 0) {
+      this.showInfoToast('There are no eligible reservations left to mark as attended for this event.', 'Attendance is up to date');
+      return;
+    }
+
+    this.backfillingAttendance = true;
+    this.errorMessage = '';
+
+    this.eventService.markEligibleReservationsAsAttended(spotlight.id).subscribe({
+      next: (reservations) => {
+        const updatedCount = reservations.length;
+        this.backfillingAttendance = false;
+        this.showSuccessToast(
+          updatedCount === 1
+            ? '1 reservation was marked as attended and feedback is now unlocked.'
+            : `${updatedCount} reservations were marked as attended and feedback is now unlocked.`,
+          'Attendance updated'
+        );
+        this.loadDashboard();
+      },
+      error: (error) => {
+        this.backfillingAttendance = false;
+        this.errorMessage = 'We could not mark the eligible reservations as attended right now.';
+        console.error('Error backfilling attendance:', error);
       }
     });
   }

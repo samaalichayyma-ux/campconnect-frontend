@@ -210,6 +210,11 @@
   color: #173128;
 }
 
+.spotlight-btn.accent {
+  background: #2f7a55;
+  color: #fffdf8;
+}
+
 .spotlight-btn:disabled {
   cursor: wait;
   opacity: 0.7;
