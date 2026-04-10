@@ -19,11 +19,12 @@ export class LandingPageComponent implements OnInit {
   readonly fallbackEventImageUrl = 'assets/images/default-image.jpg';
   readonly ratingStars = [1, 2, 3, 4, 5];
   readonly landingEventsLimit = 6;
+  readonly landingPriorityLiveSlots = 4;
 
   latestSites: CampingSite[] = [];
-  upcomingEvents: EventResponseDTO[] = [];
+  landingEvents: EventResponseDTO[] = [];
   isLoading = false;
-  isUpcomingEventsLoading = false;
+  isLandingEventsLoading = false;
   selectedSection = '';
   cardsPerView = 3;
   currentEventsPage = 0;
@@ -40,7 +41,7 @@ export class LandingPageComponent implements OnInit {
   ngOnInit(): void {
     this.syncEventsGridLayout();
     this.loadLatestSites();
-    this.loadUpcomingEvents();
+    this.loadLandingEvents();
     this.loadRecommendedSites();
   }
 
@@ -120,18 +121,18 @@ export class LandingPageComponent implements OnInit {
     });
   }
 
-  loadUpcomingEvents(): void {
-    this.isUpcomingEventsLoading = true;
+  loadLandingEvents(): void {
+    this.isLandingEventsLoading = true;
 
     this.eventService.getAllEvents().subscribe({
       next: (events) => {
-        this.upcomingEvents = this.extractUpcomingEvents(events);
-        this.isUpcomingEventsLoading = false;
+        this.landingEvents = this.extractLandingEvents(events);
+        this.isLandingEventsLoading = false;
       },
       error: (error) => {
-        console.error('Error loading upcoming events', error);
-        this.upcomingEvents = [];
-        this.isUpcomingEventsLoading = false;
+        console.error('Error loading landing events', error);
+        this.landingEvents = [];
+        this.isLandingEventsLoading = false;
       }
     });
   }
@@ -141,15 +142,15 @@ export class LandingPageComponent implements OnInit {
   }
 
   get visibleLandingEvents(): EventResponseDTO[] {
-    return this.upcomingEvents.slice(0, this.landingEventsLimit);
+    return this.landingEvents.slice(0, this.landingEventsLimit);
   }
 
-  get pagedUpcomingEvents(): EventResponseDTO[][] {
+  get pagedLandingEvents(): EventResponseDTO[][] {
     return this.visibleLandingEvents.length ? [this.visibleLandingEvents] : [];
   }
 
   get totalEventsPages(): number {
-    return this.pagedUpcomingEvents.length;
+    return this.pagedLandingEvents.length;
   }
 
   get hasMultipleEventPages(): boolean {
@@ -240,7 +241,7 @@ export class LandingPageComponent implements OnInit {
     return this.eventService.getEventPrimaryImageUrl(event, this.fallbackEventImageUrl);
   }
 
-  onUpcomingImageError(event: globalThis.Event): void {
+  onLandingImageError(event: globalThis.Event): void {
     const imageElement = event.target as HTMLImageElement | null;
 
     if (!imageElement || imageElement.dataset['fallbackApplied'] === 'true') {
@@ -264,6 +265,34 @@ export class LandingPageComponent implements OnInit {
     };
 
     return categoryLabels[category ?? ''] || 'Outdoor Experience';
+  }
+
+  getEventStatusLabel(event: EventResponseDTO): string {
+    const statusLabels: Record<string, string> = {
+      SCHEDULED: 'Scheduled',
+      ONGOING: 'Ongoing',
+      COMPLETED: 'Completed',
+      POSTPONED: 'Postponed',
+      CANCELLED: 'Cancelled'
+    };
+
+    const normalizedStatus = this.getNormalizedEventStatus(event);
+    return statusLabels[normalizedStatus] || 'Scheduled';
+  }
+
+  getEventStatusClass(event: EventResponseDTO): string {
+    switch (this.getNormalizedEventStatus(event)) {
+      case 'ONGOING':
+        return 'is-ongoing';
+      case 'COMPLETED':
+        return 'is-completed';
+      case 'POSTPONED':
+        return 'is-postponed';
+      case 'CANCELLED':
+        return 'is-cancelled';
+      default:
+        return 'is-scheduled';
+    }
   }
 
   getAvailabilityLabel(event: EventResponseDTO): string {
@@ -309,31 +338,144 @@ export class LandingPageComponent implements OnInit {
     return `${normalizedDescription.slice(0, limit).trimEnd()}...`;
   }
 
-  private extractUpcomingEvents(events: EventResponseDTO[]): EventResponseDTO[] {
-    const today = new Date();
-
-    return [...events]
-      .filter((event) => this.isUpcomingEvent(event, today))
-      .sort(
-        (firstEvent, secondEvent) =>
-          new Date(firstEvent.dateDebut).getTime() - new Date(secondEvent.dateDebut).getTime()
+  private extractLandingEvents(events: EventResponseDTO[]): EventResponseDTO[] {
+    const referenceDate = new Date();
+    const visibleEvents = events.filter((event) => this.canDisplayLandingEvent(event, referenceDate));
+    const liveAndScheduledEvents = visibleEvents
+      .filter((event) => !this.isCompletedLandingEvent(event, referenceDate))
+      .sort((firstEvent, secondEvent) =>
+        this.compareLiveAndScheduledLandingEvents(firstEvent, secondEvent)
       );
+    const completedEvents = visibleEvents
+      .filter((event) => this.isCompletedLandingEvent(event, referenceDate))
+      .sort((firstEvent, secondEvent) =>
+        this.compareCompletedLandingEvents(firstEvent, secondEvent)
+      );
+
+    // Keep upcoming visibility on the landing page while still surfacing finished events
+    // so visitors can browse ratings and reviews without leaving the homepage.
+    const featuredLandingEvents: EventResponseDTO[] = [];
+    const addUniqueEvents = (items: EventResponseDTO[], limit: number): void => {
+      for (const event of items) {
+        if (featuredLandingEvents.length >= limit) {
+          return;
+        }
+
+        if (!featuredLandingEvents.some((featuredEvent) => featuredEvent.id === event.id)) {
+          featuredLandingEvents.push(event);
+        }
+      }
+    };
+
+    addUniqueEvents(
+      liveAndScheduledEvents,
+      Math.min(this.landingPriorityLiveSlots, this.landingEventsLimit)
+    );
+    addUniqueEvents(completedEvents, this.landingEventsLimit);
+    addUniqueEvents(liveAndScheduledEvents, this.landingEventsLimit);
+
+    return featuredLandingEvents;
   }
 
-  private isUpcomingEvent(event: EventResponseDTO, referenceDate: Date): boolean {
-    const startDate = new Date(event.dateDebut);
-    const endDate = event.dateFin ? new Date(event.dateFin) : startDate;
-    const status = (event.statut || '').toUpperCase();
+  private canDisplayLandingEvent(event: EventResponseDTO, referenceDate: Date): boolean {
+    const startDate = this.getSafeEventDate(event.dateDebut);
+    const endDate = this.getEventEndDate(event);
+    const status = this.getNormalizedEventStatus(event);
 
-    if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
+    if (!startDate || !endDate) {
       return false;
     }
 
-    if (['CANCELLED', 'COMPLETED', 'DRAFT'].includes(status)) {
+    if (event.published === false) {
       return false;
     }
 
-    return endDate.getTime() >= referenceDate.getTime();
+    if (['CANCELLED', 'DRAFT'].includes(status)) {
+      return false;
+    }
+
+    return status === 'COMPLETED' || endDate.getTime() >= referenceDate.getTime();
+  }
+
+  private isCompletedLandingEvent(event: EventResponseDTO, referenceDate: Date): boolean {
+    const status = this.getNormalizedEventStatus(event);
+    if (status === 'COMPLETED') {
+      return true;
+    }
+
+    const endDate = this.getEventEndDate(event);
+    return Boolean(endDate && endDate.getTime() < referenceDate.getTime());
+  }
+
+  private compareLiveAndScheduledLandingEvents(
+    firstEvent: EventResponseDTO,
+    secondEvent: EventResponseDTO
+  ): number {
+    const statusOrder = (status: string): number => {
+      switch (status) {
+        case 'ONGOING':
+          return 0;
+        case 'SCHEDULED':
+          return 1;
+        case 'POSTPONED':
+          return 2;
+        default:
+          return 3;
+      }
+    };
+
+    const statusDifference =
+      statusOrder(this.getNormalizedEventStatus(firstEvent))
+      - statusOrder(this.getNormalizedEventStatus(secondEvent));
+
+    if (statusDifference !== 0) {
+      return statusDifference;
+    }
+
+    return this.getEventTimestamp(firstEvent.dateDebut) - this.getEventTimestamp(secondEvent.dateDebut);
+  }
+
+  private compareCompletedLandingEvents(
+    firstEvent: EventResponseDTO,
+    secondEvent: EventResponseDTO
+  ): number {
+    const feedbackDifference =
+      Number(secondEvent.feedbackCount || 0) - Number(firstEvent.feedbackCount || 0);
+
+    if (feedbackDifference !== 0) {
+      return feedbackDifference;
+    }
+
+    const ratingDifference =
+      Number(secondEvent.averageRating || 0) - Number(firstEvent.averageRating || 0);
+
+    if (ratingDifference !== 0) {
+      return ratingDifference;
+    }
+
+    return this.getEventTimestamp(secondEvent.dateFin || secondEvent.dateDebut)
+      - this.getEventTimestamp(firstEvent.dateFin || firstEvent.dateDebut);
+  }
+
+  private getNormalizedEventStatus(event: EventResponseDTO): string {
+    return String(event.statut || '').toUpperCase();
+  }
+
+  private getEventEndDate(event: EventResponseDTO): Date | null {
+    return this.getSafeEventDate(event.dateFin || event.dateDebut);
+  }
+
+  private getSafeEventDate(value?: string | null): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const parsedDate = new Date(value);
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+  }
+
+  private getEventTimestamp(value?: string | null): number {
+    return this.getSafeEventDate(value)?.getTime() ?? Number.MAX_SAFE_INTEGER;
   }
 
   private syncEventsGridLayout(): void {

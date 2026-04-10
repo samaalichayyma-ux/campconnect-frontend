@@ -298,6 +298,11 @@
   color: var(--warning);
 }
 
+.status-pill.closed {
+  background: rgba(236, 239, 242, 0.98);
+  color: #55616c;
+}
+
 .hero-content h2 {
   margin: 0 0 10px;
   font-family: Georgia, 'Times New Roman', serif;
@@ -583,6 +588,12 @@
 .remarks-toggle-btn:hover {
   transform: translateY(-1px);
   background: #fff;
+}
+
+.remarks-toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .remarks-panel {
@@ -886,6 +897,17 @@
   font-size: 0.98rem;
 }
 
+.confirm-btn.primary.is-disabled-closed,
+.confirm-btn:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.confirm-btn.primary.is-disabled-closed {
+  background: linear-gradient(135deg, #c8ced4 0%, #9aa4ae 100%);
+  color: #f7f9fb;
+}
+
 .confirm-btn.primary:hover:not(:disabled) {
   transform: translateY(-1px);
 }
@@ -902,8 +924,6 @@
 
 .confirm-btn:disabled {
   opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
 }
 
 .summary-help {

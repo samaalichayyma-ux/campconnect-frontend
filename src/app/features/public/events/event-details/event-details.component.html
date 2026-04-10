@@ -43,8 +43,12 @@
 
           <div class="hero-chip-row">
             <span class="category-pill">{{ getCategoryLabel(event.categorie) }}</span>
-            <span class="status-pill" [class.live]="event.statut === 'ONGOING'" [class.full]="isEventFull()">
-              {{ isEventFull() ? 'Waitlist likely' : getStatusLabel(event.statut) }}
+            <span
+              class="status-pill"
+              [class.live]="event.statut === 'ONGOING' && !isReservationClosed()"
+              [class.closed]="isReservationClosed()"
+              [class.full]="isEventFull() && !isReservationClosed()">
+              {{ getHeroStatusLabel() }}
             </span>
             <span *ngIf="isAlmostFull()" class="availability-pill warning">
               Almost full
@@ -217,8 +221,8 @@
 
           <section class="summary-card">
             <div class="summary-header">
-              <span class="section-kicker">Ready To Book</span>
-              <h3>Continue to checkout</h3>
+              <span class="section-kicker">{{ isReservationClosed() ? 'Reservations Closed' : 'Ready To Book' }}</span>
+              <h3>{{ isReservationClosed() ? 'Booking unavailable' : 'Continue to checkout' }}</h3>
             </div>
 
             <div class="summary-total">
@@ -230,10 +234,19 @@
               <span class="summary-context-pill">{{ getCheckoutStateLabel() }}</span>
             </div>
 
-            <button (click)="openBookingModal()" class="cta-btn primary" type="button">
-              <app-admin-icon [name]="isEventFull() ? 'warning' : 'reservations'" [size]="16"></app-admin-icon>
+            <button
+              (click)="openBookingModal()"
+              class="cta-btn primary"
+              [class.is-disabled-closed]="isReservationClosed()"
+              [disabled]="isReservationClosed()"
+              type="button">
+              <app-admin-icon [name]="isReservationClosed() ? 'info' : (isEventFull() ? 'warning' : 'reservations')" [size]="16"></app-admin-icon>
               <span>{{ getCheckoutCtaLabel() }}</span>
             </button>
+
+            <p class="summary-note" [class.is-closed]="isReservationClosed()">
+              {{ getCheckoutSupportCopy() }}
+            </p>
           </section>
         </aside>
       </div>

@@ -453,9 +453,9 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
       <div class="u-clearfix u-sheet cc-events-slider__shell">
         <div class="cc-events-slider__header">
           <div class="cc-events-slider__intro">
-            <h2 class="cc-events-slider__title">Upcoming Events</h2>
+            <h2 class="cc-events-slider__title">Events To Explore</h2>
             <p class="cc-events-slider__text">
-              Discover the next outdoor workshops, guided escapes, and community gatherings waiting on CampConnect.
+              Discover what is coming next on CampConnect and revisit completed events to check their ratings, reviews, and details.
             </p>
           </div>
 
@@ -484,7 +484,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
           </div>
         </div>
 
-        <div *ngIf="isUpcomingEventsLoading" class="cc-events-slider__loading">
+        <div *ngIf="isLandingEventsLoading" class="cc-events-slider__loading">
           <div *ngFor="let item of visibleEventSkeletons" class="cc-events-slide cc-events-slide--skeleton">
             <div class="cc-events-slide__skeleton-media"></div>
             <div class="cc-events-slide__skeleton-line cc-events-slide__skeleton-line--short"></div>
@@ -493,13 +493,13 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
           </div>
         </div>
 
-        <div *ngIf="!isUpcomingEventsLoading && pagedUpcomingEvents.length" class="cc-events-slider">
+        <div *ngIf="!isLandingEventsLoading && pagedLandingEvents.length" class="cc-events-slider">
           <div class="cc-events-slider__viewport">
             <div
               class="cc-events-slider__track"
               [style.transform]="'translateX(-' + (currentEventsPage * 100) + '%)'">
               <div
-                *ngFor="let eventsPage of pagedUpcomingEvents"
+                *ngFor="let eventsPage of pagedLandingEvents"
                 class="cc-events-slider__page"
                 [style.gridTemplateColumns]="'repeat(' + cardsPerView + ', minmax(0, 1fr))'">
                 <a
@@ -511,7 +511,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
                       [src]="getEventImageUrl(event)"
                       [alt]="event.titre"
                       class="cc-events-slide__image"
-                      (error)="onUpcomingImageError($event)">
+                      (error)="onLandingImageError($event)">
 
                     <div class="cc-events-slide__date">
                       <span>{{ getEventDay(event.dateDebut) }}</span>
@@ -521,7 +521,12 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
 
                   <div class="cc-events-slide__body">
                     <div class="cc-events-slide__topline">
-                      <span class="cc-events-slide__category">{{ getCategoryLabel(event.categorie) }}</span>
+                      <div class="cc-events-slide__labels">
+                        <span class="cc-events-slide__category">{{ getCategoryLabel(event.categorie) }}</span>
+                        <span class="cc-events-slide__status" [ngClass]="getEventStatusClass(event)">
+                          {{ getEventStatusLabel(event) }}
+                        </span>
+                      </div>
                       <span class="cc-events-slide__price">{{ formatPrice(event.prix) }}</span>
                     </div>
 
@@ -555,7 +560,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
 
           <div *ngIf="hasMultipleEventPages" class="cc-events-slider__dots">
             <button
-              *ngFor="let eventsPage of pagedUpcomingEvents; let pageIndex = index"
+              *ngFor="let eventsPage of pagedLandingEvents; let pageIndex = index"
               type="button"
               class="cc-events-slider__dot"
               [class.is-active]="pageIndex === currentEventsPage"
@@ -565,10 +570,10 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
           </div>
         </div>
 
-        <div *ngIf="!isUpcomingEventsLoading && !pagedUpcomingEvents.length" class="cc-events-slider__empty">
-          <span class="cc-events-slider__empty-tag">Calendar refresh in progress</span>
-          <h3>New outdoor experiences are being prepared.</h3>
-          <p>Check the events page for the latest CampConnect releases and newly published activities.</p>
+        <div *ngIf="!isLandingEventsLoading && !pagedLandingEvents.length" class="cc-events-slider__empty">
+          <span class="cc-events-slider__empty-tag">Event lineup refresh in progress</span>
+          <h3>Fresh events and recent highlights will appear here soon.</h3>
+          <p>Check the events page for live listings, completed experiences, and the latest reviews.</p>
           <a routerLink="/public/events" class="cc-events-slider__link">Open events page</a>
         </div>
       </div>

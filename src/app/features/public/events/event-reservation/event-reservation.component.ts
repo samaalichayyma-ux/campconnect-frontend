@@ -93,7 +93,14 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
         this.event = data;
         const maxParticipants = Math.max(1, Math.min(data.capaciteMax ?? 1, 100));
         this.numberOfParticipants = Math.max(1, Math.min(preferredParticipants, maxParticipants));
-        this.calculatePrice();
+        this.totalPrice = data.prix * this.numberOfParticipants;
+        this.pricingPreview = null;
+        this.promoFeedbackMessage = '';
+
+        if (!this.isReservationClosed()) {
+          this.calculatePrice();
+        }
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -136,6 +143,10 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   increaseParticipants(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     const maxParticipants = this.getParticipantLimit();
     if (this.numberOfParticipants < maxParticipants) {
       this.numberOfParticipants++;
@@ -144,6 +155,10 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   decreaseParticipants(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     if (this.numberOfParticipants > 1) {
       this.numberOfParticipants--;
       this.calculatePrice();
@@ -151,21 +166,40 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   applyPromoCode(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     this.promoCodeInput = this.getNormalizedPromoCode();
     this.calculatePrice();
   }
 
   clearPromoCode(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     this.promoCodeInput = '';
     this.promoFeedbackMessage = '';
     this.calculatePrice();
   }
 
   toggleRemarks(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     this.remarksExpanded = !this.remarksExpanded;
   }
 
   submitReservation(): void {
+    if (this.isReservationClosed()) {
+      this.errorMessage = this.getReservationClosedMessage();
+      this.hasReservationConflict = false;
+      this.existingReservationConflict = null;
+      return;
+    }
+
     if (!this.event || this.numberOfParticipants <= 0) {
       console.error('Invalid reservation data:', {
         event: this.event?.id || 'missing',
@@ -197,11 +231,16 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   isWaitlistLikely(): boolean {
-    return this.numberOfParticipants > this.getAvailableSeats();
+    return !this.isReservationClosed() && this.numberOfParticipants > this.getAvailableSeats();
   }
 
   isEventFull(): boolean {
     return (this.event?.availableSeats || 0) === 0;
+  }
+
+  isReservationClosed(): boolean {
+    const status = this.getNormalizedEventStatus();
+    return status === 'COMPLETED' || status === 'CANCELLED';
   }
 
   isAlmostFull(): boolean {
@@ -211,6 +250,10 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   getCapacitySupportCopy(): string {
     if (!this.event) {
       return 'Capacity details will appear here once the event loads.';
+    }
+
+    if (this.isReservationClosed()) {
+      return this.getReservationClosedMessage();
     }
 
     if (this.isEventFull()) {
@@ -231,6 +274,10 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   getReservationNextStateLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations closed';
+    }
+
     if (this.isWaitlistLikely()) {
       return 'Waitlist + payment required';
     }
@@ -239,12 +286,20 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   getReservationReviewCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getReservationClosedMessage();
+    }
+
     return this.requiresReservationApproval()
       ? 'Your reservation will be created as pending and confirmed by the admin team.'
       : 'Your reservation will be confirmed immediately while seats are still available.';
   }
 
   getUrgencyBadgeLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations closed';
+    }
+
     const availableSeats = this.getAvailableSeats();
 
     if (availableSeats <= 0) {
@@ -263,6 +318,10 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   getHeroSupportLabel(): string {
+    if (this.isReservationClosed()) {
+      return this.getStatusLabel(this.event?.statut || 'COMPLETED');
+    }
+
     if ((this.event?.favoriteCount ?? 0) >= 10) {
       return 'Popular pick';
     }
@@ -275,6 +334,12 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   getHeroSupportMeta(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedEventStatus() === 'COMPLETED'
+        ? 'Finished experience'
+        : 'Booking unavailable';
+    }
+
     if ((this.event?.favoriteCount ?? 0) > 0) {
       return `Saved by ${this.event?.favoriteCount} guest${this.event?.favoriteCount === 1 ? '' : 's'}`;
     }
@@ -480,6 +545,10 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   getSummaryTotalLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reference price';
+    }
+
     return this.isImmediatePaymentFlow() ? 'Total due today' : 'Estimated total';
   }
 
@@ -493,10 +562,20 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   getPrimaryActionLabel(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedEventStatus() === 'COMPLETED'
+        ? 'Event Completed - Reservations Closed'
+        : 'Reservations Closed';
+    }
+
     return this.isImmediatePaymentFlow() ? 'Proceed to Secure Payment' : 'Submit Reservation Request';
   }
 
   getPrimaryActionHelperCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getReservationClosedMessage();
+    }
+
     if (this.isWaitlistLikely()) {
       return 'You will be taken to Stripe next to secure your waitlist position.';
     }
@@ -507,7 +586,33 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
   }
 
   isImmediatePaymentFlow(): boolean {
-    return this.isWaitlistLikely() || !this.requiresReservationApproval();
+    return !this.isReservationClosed() && (this.isWaitlistLikely() || !this.requiresReservationApproval());
+  }
+
+  getReservationFlowTitle(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations are closed';
+    }
+
+    return this.isWaitlistLikely()
+      ? 'Waitlist place protected'
+      : this.requiresReservationApproval()
+        ? 'Approval happens first'
+        : 'Instant confirmation available';
+  }
+
+  getReservationFlowCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedEventStatus() === 'COMPLETED'
+        ? 'This event is completed, so we no longer accept reservations or waitlist entries.'
+        : 'This event is not accepting new reservations or waitlist entries.';
+    }
+
+    return this.isWaitlistLikely()
+      ? 'Your payment holds your place in line.'
+      : this.requiresReservationApproval()
+        ? 'You pay only after the organizer confirms.'
+        : 'You can continue straight to Stripe after this step.';
   }
 
   private getBackendMessage(error: unknown): string | null {
@@ -527,6 +632,16 @@ export class EventReservationComponent extends ToastMessageHost implements OnIni
       || (apiError as { message?: string; error?: string; details?: string; title?: string })?.title;
 
     return typeof message === 'string' && message.trim() ? message.trim() : null;
+  }
+
+  private getReservationClosedMessage(): string {
+    return this.getNormalizedEventStatus() === 'COMPLETED'
+      ? 'This event is completed, so we do not accept reservations or waitlist entries anymore.'
+      : 'This event is not open for new reservations or waitlist entries anymore.';
+  }
+
+  private getNormalizedEventStatus(): string {
+    return String(this.event?.statut || '').toUpperCase();
   }
 
   private getForbiddenReservationMessage(): string {

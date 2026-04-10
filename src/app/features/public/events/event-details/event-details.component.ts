@@ -101,6 +101,11 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
     return this.getAvailableSeats() === 0;
   }
 
+  isReservationClosed(): boolean {
+    const status = this.getNormalizedStatus();
+    return status === 'COMPLETED' || status === 'CANCELLED';
+  }
+
   isAlmostFull(): boolean {
     return Boolean(this.event?.isAlmostFull);
   }
@@ -110,6 +115,12 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
   }
 
   getCapacityHeadline(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'Event completed'
+        : 'Reservations closed';
+    }
+
     if (this.isEventFull()) {
       return 'Fully booked right now';
     }
@@ -126,6 +137,12 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
       return 'Live capacity details will appear here once the event finishes loading.';
     }
 
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'This event has already finished. Ratings and reviews stay available here, but we no longer accept reservations or waitlist requests.'
+        : 'This event is no longer accepting reservations or waitlist requests.';
+    }
+
     if (this.isEventFull()) {
       return this.event.waitlistCount > 0
         ? `${this.event.waitlistCount} guest${this.event.waitlistCount === 1 ? '' : 's'} are already waiting for an opening.`
@@ -140,6 +157,10 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
   }
 
   getCheckoutStateLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations closed';
+    }
+
     if (this.isEventFull()) {
       return 'Waitlist flow';
     }
@@ -148,7 +169,37 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
   }
 
   getCheckoutCtaLabel(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'Event Completed - Reservations Closed'
+        : 'Reservations Closed';
+    }
+
     return this.isEventFull() ? 'Continue to Waitlist' : 'Continue to Checkout';
+  }
+
+  getCheckoutSupportCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'This event is completed, so we do not accept new reservations or waitlist entries anymore.'
+        : 'This event is no longer open for new reservations or waitlist entries.';
+    }
+
+    return this.isEventFull()
+      ? 'You can still join the waitlist while this event remains active.'
+      : 'Reservations are open while seats are still available.';
+  }
+
+  getHeroStatusLabel(): string {
+    if (!this.event) {
+      return 'Scheduled';
+    }
+
+    if (this.isReservationClosed()) {
+      return this.getStatusLabel(this.event.statut);
+    }
+
+    return this.isEventFull() ? 'Waitlist likely' : this.getStatusLabel(this.event.statut);
   }
 
   hasFeedback(): boolean {
@@ -298,6 +349,11 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
       return;
     }
 
+    if (this.isReservationClosed()) {
+      this.errorMessage = this.getCheckoutSupportCopy();
+      return;
+    }
+
     const reservationPath = `/public/events/${this.event.id}/reservation`;
     if (!this.isLoggedIn) {
       this.authService.setReturnUrl(reservationPath);
@@ -379,5 +435,9 @@ export class EventDetailsComponent extends ToastMessageHost implements OnInit, O
       || (apiError as { message?: string; error?: string; details?: string; title?: string })?.title;
 
     return typeof message === 'string' && message.trim() ? message.trim() : null;
+  }
+
+  private getNormalizedStatus(): string {
+    return String(this.event?.statut || '').toUpperCase();
   }
 }

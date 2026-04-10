@@ -334,6 +334,11 @@
   color: var(--success);
 }
 
+.status-pill.closed {
+  background: rgba(236, 239, 242, 0.98);
+  color: #55616c;
+}
+
 .status-pill.full,
 .availability-pill.warning {
   background: rgba(255, 243, 223, 0.98);
@@ -812,8 +817,20 @@
   box-shadow: 0 16px 28px rgba(41, 71, 54, 0.2);
 }
 
+.cta-btn.primary.is-disabled-closed,
+.cta-btn:disabled {
+  background: linear-gradient(135deg, #c8ced4 0%, #9aa4ae 100%);
+  color: #f7f9fb;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
 .cta-btn:hover:not(:disabled) {
   transform: translateY(-1px);
+}
+
+.summary-note.is-closed {
+  color: #58636e;
 }
 
 .empty-state-card {

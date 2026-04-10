@@ -52412,6 +52412,13 @@ a.u-link.u-text-hover-color-var:hover {
   flex-wrap: wrap;
 }
 
+.cc-events-slide__labels {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .cc-events-slide__category,
 .cc-events-slide__price {
   font-size: 0.76rem;
@@ -52422,6 +52429,40 @@ a.u-link.u-text-hover-color-var:hover {
 
 .cc-events-slide__category {
   color: #295b41;
+}
+
+.cc-events-slide__status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #eef3ee;
+  color: #2f5541;
+}
+
+.cc-events-slide__status.is-ongoing {
+  background: #e3f5ea;
+  color: #1f7a4c;
+}
+
+.cc-events-slide__status.is-completed {
+  background: #eef1f4;
+  color: #4d5c68;
+}
+
+.cc-events-slide__status.is-postponed {
+  background: #fff3df;
+  color: #b1731f;
+}
+
+.cc-events-slide__status.is-cancelled {
+  background: #fde7e7;
+  color: #b33b3b;
 }
 
 .cc-events-slide__price {
