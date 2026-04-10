@@ -27,6 +27,10 @@ export class LandingPageComponent implements OnInit {
   cardsPerView = 3;
   currentEventsPage = 0;
 
+  recommendedSites: any[] = [];
+
+  isRecommendedLoading = false;
+
   constructor(
     private testApi: TestApiService,
     public authService: AuthService,
@@ -39,11 +43,57 @@ export class LandingPageComponent implements OnInit {
     this.loadLatestSites();
     this.loadUpcomingEvents();
 
+  this.loadRecommendedSites();
+
     this.testApi.testDocs().subscribe({
       next: (response) => console.log('Backend OK', response),
       error: (error) => console.log('Backend KO', error)
     });
+
+    
   }
+
+  getSiteImage(site: any): string {
+  return site?.imageUrl || 'assets/images/default-camp.jpg';
+}
+
+hasTags(site: any): boolean {
+  return Array.isArray(site?.smartTags) && site.smartTags.length > 0;
+}
+
+getSiteLink(siteId: number): string[] | null {
+  if (this.isAdmin()) return null;
+
+  return this.isLoggedIn()
+    ? ['/public/site-booking', String(siteId)]
+    : ['/login'];
+}
+
+getSiteButtonLabel(): string {
+  if (this.isAdmin()) return 'ADMIN ACCESS';
+
+  return this.isLoggedIn()
+    ? 'LEARN MORE'
+    : 'LOGIN TO BOOK';
+}
+
+
+
+loadRecommendedSites(): void {
+  this.isRecommendedLoading = true;
+
+  this.campingService.getRecommendedSites().subscribe({
+    next: (data) => {
+      this.recommendedSites = data || [];
+      this.isRecommendedLoading = false;
+    },
+    error: (err) => {
+      console.error(err);
+      this.isRecommendedLoading = false;
+    }
+  });
+}
+
 isAdmin(): boolean {
   return this.authService.getRole() === 'ADMINISTRATEUR';
 }

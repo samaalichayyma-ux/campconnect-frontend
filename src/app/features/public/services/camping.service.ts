@@ -76,6 +76,13 @@ export class CampingService {
     return this.http.patch<UpdateSiteBooking>(`${this.apiUrl}/inscriptionsite/update/${idInscription}`, booking);
   }
 
+cancelBooking(idInscription: number): Observable<UpdateSiteBooking> {
+  return this.http.patch<UpdateSiteBooking>(
+    `${this.apiUrl}/inscriptionsite/cancel/${idInscription}`,
+    {}
+  );
+}
+
   getMyCampingSites(): Observable<CampingSite[]> {
     return this.http.get<CampingSite[]>(`${this.apiUrl}/site-camping/my-sites`);
   }
@@ -100,4 +107,14 @@ getMyCampBookingList(): Observable<UpdateSiteBooking[]> {
     `${this.apiUrl}/inscriptionsite/my-camp-booking-list`
   );
 }
+
+  
+  getRecommendedSites() {
+  return this.http.get<any[]>(`http://localhost:8082/api/site-camping/recommendations/recommended`);
+}
+
+getFeaturedSites() {
+  return this.http.get<any[]>(`http://localhost:8082/api/site-camping/recommendations/featured`);
+}
+
 }

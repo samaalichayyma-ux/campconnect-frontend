@@ -216,23 +216,32 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
         </p>
       </div>
     </section>
+    
 <section class="u-clearfix u-section-7" id="block-16">
   <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xs u-sheet-1">
 
+    <!-- Section title -->
+    <div style="text-align:center; margin-bottom: 30px;">
+      <h2 class="u-text u-text-default u-text-1">Recommended Camping Sites</h2>
+      <p class="u-text u-text-2">
+        Explore smart campsite recommendations based on ratings, popularity, availability, and overall quality.
+      </p>
+    </div>
+
     <!-- Loading State -->
-    <div *ngIf="isLoading" style="text-align:center; padding:40px;">
-      <h3>Loading camping sites...</h3>
+    <div *ngIf="isRecommendedLoading" style="text-align:center; padding:40px;">
+      <h3>Loading recommended camping sites...</h3>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!isLoading && latestSites.length === 0" style="text-align:center; padding:40px;">
-      <h3>No camping sites available yet</h3>
-      <p>We are preparing amazing destinations for you. Please check back soon.</p>
+    <div *ngIf="!isRecommendedLoading && recommendedSites.length === 0" style="text-align:center; padding:40px;">
+      <h3>No recommended camping sites available yet</h3>
+      <p>Please check back soon.</p>
     </div>
 
-    <!-- Sites List -->
+    <!-- Recommended Sites List -->
     <div
-      *ngFor="let site of latestSites"
+      *ngFor="let site of recommendedSites"
       class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1"
     >
       <div class="u-layout">
@@ -263,8 +272,31 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
               </p>
 
               <p class="u-align-left u-text u-text-3">
-                {{ site.description || 'Discover this beautiful camping destination and enjoy nature.' }}
+                {{ site.recommendationReason || site.description || 'A recommended camping destination for your next adventure.' }}
               </p>
+
+              <p class="u-align-left u-text u-text-3" style="margin-top: 10px; font-weight: 600;">
+                ⭐ {{ (site.averageRating ?? 0) | number:'1.1-1' }} • {{ site.totalRatings || 0 }} reviews • {{ site.prixParNuit | number:'1.0-2' }} DT / night
+              </p>
+
+              <div *ngIf="site.smartTags?.length" style="margin: 12px 0 18px 0;">
+                <span
+                  *ngFor="let tag of site.smartTags"
+                  style="
+                    display:inline-block;
+                    background:#e3dcd2;
+                    color:#244735;
+                    padding:6px 10px;
+                    margin-right:8px;
+                    margin-bottom:8px;
+                    border-radius:16px;
+                    font-size:12px;
+                    font-weight:600;
+                  "
+                >
+                  {{ tag }}
+                </span>
+              </div>
 
               <a
                 class="u-btn u-button-style u-none u-text-custom-color-1 u-text-hover-custom-color-1 u-btn-1"
@@ -273,7 +305,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
                   isAdmin()
                     ? null
                     : isLoggedIn()
-                      ? ['/public/site-booking', site.idSite]
+                      ? ['/public/site-booking', site.siteId]
                       : ['/login']
                 "
               >

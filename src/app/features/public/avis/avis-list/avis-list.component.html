@@ -1,7 +1,10 @@
-<div class="avis-list">
+<div class="avis-list" *ngIf="avisList.length > 0; else emptyState">
+
   <div class="avis-card" *ngFor="let avis of avisList">
+    
     <div class="avis-header">
       <div class="avis-user">
+        
         <div
           class="avatar avatar-fallback"
           [ngStyle]="{ background: getAvatarColor(avis) }"
@@ -16,7 +19,7 @@
       </div>
 
       <button
-      *ngIf="isOwner(avis)"
+        *ngIf="isOwner(avis)"
         class="btn-edit-icon"
         (click)="openEditPopup(avis)"
         title="Update review"
@@ -38,5 +41,14 @@
     <p class="comment" *ngIf="avis.commentaire">
       {{ avis.commentaire }}
     </p>
+
   </div>
 </div>
+
+<!-- EMPTY STATE -->
+<ng-template #emptyState>
+  <div class="empty-state">
+    <h3>No reviews yet</h3>
+    <p>Be the first to share your experience!</p>
+  </div>
+</ng-template>
