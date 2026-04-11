@@ -12,6 +12,8 @@
       <a routerLink="/public/events" routerLinkActive="active">Events</a>
       <a routerLink="/public/forums">Forums</a>
       <a href="#">Formations</a>
+      <a routerLink="/public/reclamations" routerLinkActive="active">Complains</a>
+     
     </nav>
 
     <div class="cc-actions">
@@ -33,6 +35,9 @@
         <a *ngIf="userRole === 'GUIDE'" routerLink="/admin" class="cc-role-btn">
           Camp Host
         </a>
+
+        <!-- ═══ Cloche notifications réclamation ═══ -->
+        <app-notification-bell></app-notification-bell>
 
         <div class="cc-user-box" (click)="toggleDropdown()">
           <div

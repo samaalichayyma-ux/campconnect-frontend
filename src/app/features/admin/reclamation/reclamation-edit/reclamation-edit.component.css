@@ -1,42 +1,211 @@
+/* ===== Page ===== */
+.edit-page {
+  min-height: 100vh;
+  background: #f4f6fb;
+  padding: 36px 24px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== Loading & Error ===== */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 80px;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #e67e22;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.error-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* ===== Edit Card ===== */
+.edit-card {
+  width: 100%;
+  max-width: 640px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.09);
+  overflow: hidden;
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Card Header ===== */
+.card-header {
+  background: linear-gradient(135deg, #1a2b3c, #2d4059);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(230, 126, 34, 0.22);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f39c12;
+  flex-shrink: 0;
+}
+
+.card-title {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.card-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* ===== Card Body ===== */
+.card-body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
 .form-group {
-  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6b7280;
 }
 
 .form-control {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  padding: 12px 16px;
+  border: 1.5px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: #1f2937;
+  background: #fff;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  box-sizing: border-box;
+  resize: vertical;
 }
 
-.actions {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
+.form-control:focus {
+  border-color: #e67e22;
+  box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.15);
+  outline: none;
 }
 
-.btn-update {
-  background-color: #4f46e5;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: none;
+.status-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e67e22' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 18px;
+  padding-right: 42px;
   cursor: pointer;
+  resize: none;
+}
+
+/* ===== Card Footer ===== */
+.card-footer {
+  padding: 18px 28px;
+  background: #f9fafb;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
 }
 
 .btn-cancel {
-  background-color: #6b7280;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background 0.2s ease;
   border: none;
   cursor: pointer;
 }
 
-.btn-update:hover {
-  background-color: #4338ca;
+.btn-cancel:hover { background: #e5e7eb; }
+
+.btn-update {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 22px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  color: #fff;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(230, 126, 34, 0.3);
 }
 
-.btn-cancel:hover {
-  background-color: #4b5563;
+.btn-update:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 20px rgba(230, 126, 34, 0.4);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .edit-page { padding: 20px 14px 40px; }
+  .card-header { padding: 20px; }
+  .card-body { padding: 20px; }
+  .card-footer { padding: 16px 20px; justify-content: stretch; }
+  .btn-cancel, .btn-update { flex: 1; justify-content: center; }
 }

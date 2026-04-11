@@ -1,5 +1,27 @@
+
 * {
   box-sizing: border-box;
+}
+
+
+.reclamation-btn {
+  position: fixed;
+  right: 20px;   /* collé à droite */
+  bottom: 20px;  /* en bas (tu peux changer) */
+  
+  background-color: #ff9800;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.reclamation-btn:hover {
+  background-color: #e68900;
 }
 
 .profile-page {

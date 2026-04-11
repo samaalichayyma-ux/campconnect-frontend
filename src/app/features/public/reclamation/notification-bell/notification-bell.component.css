@@ -1,0 +1,266 @@
+/* ── Wrapper positionné ─────────────────────────────────────────────── */
+.nb-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Bouton cloche ──────────────────────────────────────────────────── */
+.nb-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(23, 43, 68, 0.12);
+  background: #ffffff;
+  color: #172b44;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s, transform 0.2s;
+  box-shadow: 0 4px 12px rgba(23, 43, 68, 0.08);
+  padding: 0;
+}
+
+.nb-btn:hover {
+  background: #172b44;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ── Badge rouge ────────────────────────────────────────────────────── */
+.nb-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #f5f1ea;
+  animation: nb-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes nb-pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.18); }
+}
+
+/* ── Panneau dropdown ───────────────────────────────────────────────── */
+.nb-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 360px;
+  max-height: 480px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(23, 43, 68, 0.07);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: nb-slide-down 0.2s ease;
+}
+
+@keyframes nb-slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Panel Header ───────────────────────────────────────────────────── */
+.nb-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid #f3f4f6;
+  flex-shrink: 0;
+}
+
+.nb-panel-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #172b44;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nb-chip {
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+}
+
+.nb-mark-all {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.nb-mark-all:hover { background: #f3f4f6; color: #172b44; }
+
+/* ── Loading ────────────────────────────────────────────────────────── */
+.nb-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  color: #9ca3af;
+  font-size: 0.87rem;
+}
+
+.nb-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e5e7eb;
+  border-top-color: #e67e22;
+  border-radius: 50%;
+  animation: nb-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes nb-spin { to { transform: rotate(360deg); } }
+
+/* ── Empty ──────────────────────────────────────────────────────────── */
+.nb-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px 20px;
+  color: #9ca3af;
+}
+.nb-empty svg { color: #d1d5db; }
+.nb-empty p { margin: 0; font-size: 0.88rem; }
+
+/* ── Liste scrollable ───────────────────────────────────────────────── */
+.nb-list {
+  overflow-y: auto;
+  flex: 1;
+  max-height: 340px;
+}
+
+/* ── Item ───────────────────────────────────────────────────────────── */
+.nb-item {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 13px 18px;
+  border: none;
+  background: transparent;
+  border-bottom: 1px solid #f9fafb;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.18s ease;
+}
+
+.nb-item:hover { background: #fafafa; }
+
+.nb-item:last-child { border-bottom: none; }
+
+.nb-unread {
+  background: #fff8f2;
+  border-left: 3px solid #e67e22;
+}
+
+/* ── Point non-lu ───────────────────────────────────────────────────── */
+.nb-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e67e22;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.nb-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.nb-message {
+  margin: 0 0 6px;
+  font-size: 0.87rem;
+  color: #1f2937;
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: normal;
+}
+
+.nb-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── Statut badge ───────────────────────────────────────────────────── */
+.nb-statut {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+}
+
+.nb-pending  { background: #fef3c7; color: #92400e; }
+.nb-progress { background: #dbeafe; color: #1d4ed8; }
+.nb-resolved { background: #dcfce7; color: #166534; }
+.nb-rejected { background: #fee2e2; color: #991b1b; }
+
+.nb-date {
+  font-size: 0.74rem;
+  color: #9ca3af;
+}
+
+/* ── Flèche ─────────────────────────────────────────────────────────── */
+.nb-arrow {
+  color: #d1d5db;
+  flex-shrink: 0;
+  margin-top: 5px;
+  transition: color 0.2s;
+}
+.nb-item:hover .nb-arrow { color: #e67e22; }
+
+/* ── Footer ─────────────────────────────────────────────────────────── */
+.nb-footer {
+  padding: 12px 18px;
+  border-top: 1px solid #f3f4f6;
+  text-align: center;
+  flex-shrink: 0;
+}
+.nb-footer a {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e67e22;
+  text-decoration: none;
+}
+.nb-footer a:hover { text-decoration: underline; }
+
+/* ── Responsive ─────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .nb-panel {
+    width: 300px;
+    right: -50px;
+  }
+}
+
