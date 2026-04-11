@@ -1,0 +1,44 @@
+<div class="notifications-card">
+  <div class="notifications-header">
+    <h3>Mes notifications</h3>
+    <div class="notifications-actions">
+      <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }} non lue(s)</span>
+      <button type="button" class="btn-mark-all" (click)="markAllAsRead()" [disabled]="unreadCount === 0">
+        Tout marquer comme lu
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="info-message">
+    Chargement des notifications...
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="!loading && notifications.length === 0" class="info-message">
+    Aucune notification.
+  </div>
+
+  <div class="notifications-list" *ngIf="!loading && notifications.length > 0">
+    <div
+      class="notification-item"
+      *ngFor="let notification of notifications; trackBy: trackByNotificationId"
+      [class.unread]="!notification.read"
+      (click)="markAsRead(notification)"
+    >
+      <div class="notification-top">
+        <h4>{{ notification.titre }}</h4>
+        <span class="notification-type">{{ getTypeLabel(notification.type) }}</span>
+      </div>
+
+      <p>{{ notification.message }}</p>
+
+      <div class="notification-bottom">
+        <small>{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+        <span class="status" *ngIf="!notification.read">Non lue</span>
+      </div>
+    </div>
+  </div>
+</div>

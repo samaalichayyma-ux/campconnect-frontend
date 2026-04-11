@@ -1,9 +1,10 @@
 <section class="u-clearfix u-image u-block-3eee-1">
   <div class="u-clearfix u-sheet u-block-3eee-2">
-    <div class="u-align-center u-color-var u-container-align-center u-container-style u-group u-radius-50 u-shape-round u-block-3eee-3">
-      <div class="u-container-layout u-valign-bottom-xl u-valign-top-lg u-valign-top-md u-valign-top-sm u-valign-top-xs u-block-3eee-4">
+    <div class="u-align-center u-container-align-center u-container-style u-group u-shape-round u-block-3eee-3">
+      <div class="u-container-layout u-block-3eee-4">
+        <div class="login-badge">CampConnect</div>
 
-        <span class="u-icon u-icon-circle u-text-custom-color-1 u-block-3eee-5">
+        <span class="u-icon u-icon-circle u-block-3eee-5">
           <svg class="u-svg-content" viewBox="0 0 45.532 45.532" xmlns="http://www.w3.org/2000/svg">
             <g>
               <path d="M22.766,0.001C10.194,0.001,0,10.193,0,22.766s10.193,22.765,22.766,22.765c12.574,0,22.766-10.192,22.766-22.765S35.34,0.001,22.766,0.001z M22.766,6.808c4.16,0,7.531,3.372,7.531,7.53c0,4.159-3.371,7.53-7.531,7.53c-4.158,0-7.529-3.371-7.529-7.53C15.237,10.18,18.608,6.808,22.766,6.808z M22.761,39.579c-4.149,0-7.949-1.511-10.88-4.012c-0.714-0.609-1.126-1.502-1.126-2.439c0-4.217,3.413-7.592,7.631-7.592h8.762c4.219,0,7.619,3.375,7.619,7.592c0,0.938-0.41,1.829-1.125,2.438C30.712,38.068,26.911,39.579,22.761,39.579z"></path>
@@ -11,102 +12,150 @@
           </svg>
         </span>
 
-        <h3 class="u-text u-text-default u-block-3eee-6">Welcome to CampConnect</h3>
+        <h3 class="u-text u-text-default u-block-3eee-6">Welcome back</h3>
+        <p class="login-subtitle">Sign in to continue your camping journey</p>
 
         <div class="u-expanded-width u-form u-login-control u-block-3eee-7">
           <form
             [formGroup]="loginForm"
             (ngSubmit)="onSubmit()"
             class="u-clearfix u-form-spacing-30 u-form-vertical u-inner-form"
-            style="padding: 10px;"
+            novalidate
           >
             <div class="u-form-group u-form-name u-block-3eee-8">
-              <label for="email" class="u-form-control-hidden u-label u-block-3eee-9"></label>
+              <label for="email" class="u-form-control-hidden">Email</label>
               <input
                 type="email"
                 id="email"
                 formControlName="email"
-                placeholder="Enter your Email"
-                class="u-border-2 u-border-white u-input u-input-rectangle u-radius-43 u-block-3eee-10"
+                placeholder="Enter your email"
+                class="u-input-field u-block-3eee-10"
               />
               <small
                 *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched"
                 class="text-danger"
               >
-                Email invalide
+                Please enter a valid email address
               </small>
             </div>
 
             <div class="u-form-group u-form-password u-block-3eee-11">
-              <label for="motDePasse" class="u-form-control-hidden u-label u-block-3eee-12"></label>
-              <input
-                type="password"
-                id="motDePasse"
-                formControlName="motDePasse"
-                placeholder="Enter your Password"
-                class="u-border-2 u-border-white u-input u-input-rectangle u-radius-43 u-block-3eee-13"
-              />
+              <label for="motDePasse" class="u-form-control-hidden">Password</label>
+              <div class="password-wrapper">
+                <input
+                  [type]="showPassword ? 'text' : 'password'"
+                  id="motDePasse"
+                  formControlName="motDePasse"
+                  placeholder="Enter your password"
+                  class="u-input-field u-block-3eee-13"
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  (click)="togglePassword()"
+                  aria-label="Toggle password visibility"
+                >
+                  {{ showPassword ? 'Hide' : 'Show' }}
+                </button>
+              </div>
               <small
                 *ngIf="loginForm.get('motDePasse')?.invalid && loginForm.get('motDePasse')?.touched"
                 class="text-danger"
               >
-                Mot de passe invalide
+                Password is required
+              </small>
+            </div>
+
+            <div class="u-form-group u-block-otp" *ngIf="requires2FA">
+              <label for="otpCode" class="u-form-control-hidden">OTP Code</label>
+              <input
+                type="text"
+                id="otpCode"
+                formControlName="otpCode"
+                placeholder="Enter 6-digit authenticator code"
+                class="u-input-field"
+                maxlength="6"
+                inputmode="numeric"
+              />
+              <small
+                *ngIf="loginForm.get('otpCode')?.invalid && loginForm.get('otpCode')?.touched"
+                class="text-danger"
+              >
+                Please enter a valid 6-digit OTP code
               </small>
             </div>
 
             <div class="u-form-checkbox u-form-group u-block-3eee-14">
               <input
                 type="checkbox"
-                id="checkbox-5b0a"
+                id="rememberMe"
                 class="u-field-input"
+                formControlName="rememberMe"
               />
-              <label for="checkbox-5b0a" class="u-block-3eee-15 u-field-label">
+              <label for="rememberMe" class="u-block-3eee-15 u-field-label">
                 Remember me
               </label>
             </div>
 
-            <div class="u-align-left u-form-group u-form-submit u-block-3eee-16">
+            <div class="u-align-left u-form-group u-form-submit u-block-3eee-16" *ngIf="!requires2FA">
               <button
                 type="submit"
-                class="u-border-none u-btn u-btn-round u-btn-submit u-button-style u-custom-color-1 u-radius-50 u-block-3eee-17"
+                class="u-btn-submit u-block-3eee-17"
                 [disabled]="isLoading"
               >
                 {{ isLoading ? 'Loading...' : 'Login' }}
               </button>
             </div>
 
-            <div *ngIf="errorMessage" class="text-danger" style="margin-top: 10px;">
+            <div class="u-align-left u-form-group u-form-submit u-block-3eee-16" *ngIf="requires2FA">
+              <button
+                type="button"
+                class="u-btn-submit u-block-3eee-17"
+                [disabled]="isLoading"
+                (click)="verify2FALogin()"
+              >
+                {{ isLoading ? 'Verifying...' : 'Verify OTP' }}
+              </button>
+            </div>
+
+            <div *ngIf="errorMessage" class="message-box error-box">
               {{ errorMessage }}
             </div>
 
-            <div *ngIf="successMessage" class="text-success" style="margin-top: 10px;">
+            <div *ngIf="successMessage" class="message-box success-box">
               {{ successMessage }}
             </div>
           </form>
         </div>
 
-        <div class="or-separator" style="margin: 18px 0; text-align: center; color: #777;">
-          — or continue with —
+        <div class="or-separator">
+          <span>or continue with</span>
         </div>
 
-        <div class="google-login-wrapper" style="display: flex; justify-content: center; margin-bottom: 15px;">
+        <div class="google-login-wrapper">
           <div id="googleButton"></div>
         </div>
 
         <a
           routerLink="/forgot-password"
-          class="u-border-1 u-border-active-palette-2-base u-border-hover-custom-color-1 u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-login-control u-login-forgot-password u-none u-text-custom-color-1 u-block-3eee-18"
+          class="u-login-link u-block-3eee-18"
         >
           Forgot password?
         </a>
 
         <a
+          routerLink="/public"
+          class="back-home-btn"
+        >
+          Back to Home
+        </a>
+
+        <a
           routerLink="/register"
-          class="u-border-2 u-border-active-palette-2-base u-border-grey-75 u-border-hover-palette-1-base u-border-no-left u-border-no-right u-border-no-top u-btn u-button-style u-login-control u-login-forgot-password u-none u-text-custom-color-1 u-block-3eee-19"
+          class="u-login-link u-block-3eee-19"
         >
           Create new account
         </a>
-
       </div>
     </div>
   </div>

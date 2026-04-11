@@ -1,20 +1,29 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
+  standalone: true,
   imports: [CommonModule, RouterLink, ReactiveFormsModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css'
+  styleUrls: ['./register.component.css']
 })
 export class RegisterComponent {
   registerForm: FormGroup;
   errorMessage = '';
   successMessage = '';
   isLoading = false;
+
+  showPassword = false;
+  showConfirmPassword = false;
 
   constructor(
     private fb: FormBuilder,
@@ -32,20 +41,32 @@ export class RegisterComponent {
     });
   }
 
+  togglePassword(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPassword(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
   onSubmit(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
     }
 
-    if (this.registerForm.value.motDePasse !== this.registerForm.value.confirmPassword) {
+    if (
+      this.registerForm.value.motDePasse !==
+      this.registerForm.value.confirmPassword
+    ) {
       this.errorMessage = 'Passwords do not match';
       return;
     }
 
     this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const payload = {
       nom: this.registerForm.value.nom,
@@ -56,19 +77,20 @@ export class RegisterComponent {
     };
 
     this.authService.register(payload).subscribe({
-      next: (response) => {
-        this.successMessage = response.message;
-        this.authService.redirectByRole(this.router);
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message || 'Registration failed. Please check your information.';
+      next: (response: any) => {
+        this.successMessage = response?.message || 'Registration successful';
         this.isLoading = false;
+
+        setTimeout(() => {
+          this.authService.redirectByRole(this.router);
+        }, 800);
       },
-      complete: () => {
+      error: (error: any) => {
+        this.errorMessage =
+          error?.error?.message ||
+          'Registration failed. Please check your information.';
         this.isLoading = false;
       }
     });
   }
-
 }

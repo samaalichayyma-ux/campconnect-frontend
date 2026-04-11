@@ -1,107 +1,59 @@
-import { Component, AfterViewInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { Router } from '@angular/router';
+
+import { LoginComponent } from './login.component';
 import { AuthService } from '../../../../core/services/auth.service';
 
-declare const google: any;
+describe('LoginComponent', () => {
+  let component: LoginComponent;
+  let fixture: ComponentFixture<LoginComponent>;
 
-@Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
-})
-export class LoginComponent implements AfterViewInit {
-  loginForm!: FormGroup;
-  isLoading = false;
-  errorMessage = '';
-  successMessage = '';
+  const authServiceMock = {
+    login: jasmine.createSpy('login').and.returnValue(
+      of({
+        message: 'Connexion réussie',
+        token: 'fake-token',
+        role: 'CLIENT',
+        requires2FA: false
+      })
+    ),
+    verifyLogin2FA: jasmine.createSpy('verifyLogin2FA').and.returnValue(
+      of({
+        message: 'Connexion réussie',
+        token: 'fake-token',
+        role: 'CLIENT'
+      })
+    ),
+    googleLogin: jasmine.createSpy('googleLogin').and.returnValue(
+      of({
+        message: 'Connexion Google réussie',
+        token: 'fake-token',
+        role: 'CLIENT'
+      })
+    ),
+    redirectByRole: jasmine.createSpy('redirectByRole')
+  };
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      motDePasse: ['', [Validators.required]]
-    });
-  }
+  const routerMock = {
+    navigate: jasmine.createSpy('navigate')
+  };
 
-  ngAfterViewInit(): void {
-    const googleBtn = document.getElementById('googleButton');
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [LoginComponent],
+      providers: [
+        { provide: AuthService, useValue: authServiceMock },
+        { provide: Router, useValue: routerMock }
+      ]
+    }).compileComponents();
 
-    if (!googleBtn) {
-      console.error('googleButton introuvable');
-      return;
-    }
+    fixture = TestBed.createComponent(LoginComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
 
-    if (typeof google === 'undefined') {
-      console.error('Google script non chargé');
-      return;
-    }
-
-    google.accounts.id.initialize({
-      client_id: '912989049454-mg2qd294ahem05m4j5mrjma89ksbip85.apps.googleusercontent.com',
-      callback: (response: any) => this.handleGoogleLogin(response)
-    });
-
-    google.accounts.id.renderButton(googleBtn, {
-      theme: 'outline',
-      size: 'large',
-      text: 'signin_with',
-      shape: 'pill',
-      width: 260
-    });
-  }
-
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        this.successMessage = response.message || 'Connexion réussie';
-        this.isLoading = false;
-
-        if (response.role === 'ADMINISTRATEUR') {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/public/profile']);
-        }
-      },
-      error: () => {
-        this.errorMessage = 'Email ou mot de passe incorrect';
-        this.isLoading = false;
-      }
-    });
-  }
-
-  handleGoogleLogin(response: any): void {
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.authService.googleLogin(response.credential).subscribe({
-      next: (res) => {
-        this.successMessage = res.message || 'Connexion Google réussie';
-
-        if (res.role === 'ADMINISTRATEUR') {
-          this.router.navigate(['/admin/dashboard']);
-        } else {
-          this.router.navigate(['/public/profile']);
-        }
-      },
-      error: () => {
-        this.errorMessage = 'Erreur lors de la connexion Google';
-      }
-    });
-  }
-}
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});
