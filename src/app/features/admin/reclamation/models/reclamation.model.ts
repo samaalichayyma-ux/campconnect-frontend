@@ -1,5 +1,5 @@
 export enum StatutReclamation {
-  EN_ATTENTE = 'EN_ATTENTE',
+  
   EN_COURS = 'EN_COURS',
   RESOLUE = 'RESOLUE',
   REJETEE = 'REJETEE'

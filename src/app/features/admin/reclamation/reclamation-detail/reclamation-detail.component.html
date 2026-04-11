@@ -32,7 +32,7 @@
       </div>
       <span class="status-badge-header"
         [ngClass]="{
-          'status-pending':  reclamation.statut === 'EN_ATTENTE',
+         
           'status-progress': reclamation.statut === 'EN_COURS',
           'status-resolved': reclamation.statut === 'RESOLUE',
           'status-rejected': reclamation.statut === 'REJETEE'
@@ -93,7 +93,7 @@
         </span>
         <div class="status-actions">
           <select [(ngModel)]="reclamation.statut" class="status-select">
-            <option value="EN_ATTENTE">⏳ Pending</option>
+            
             <option value="EN_COURS">🔵 In Progress</option>
             <option value="RESOLUE">✅ Resolved</option>
             <option value="REJETEE">❌ Rejected</option>

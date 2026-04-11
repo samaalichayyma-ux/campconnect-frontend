@@ -1,5 +1,5 @@
 export type StatutReclamation =
-  | 'EN_ATTENTE'
+
   | 'EN_COURS'
   | 'RESOLUE'
   | 'REJETEE';

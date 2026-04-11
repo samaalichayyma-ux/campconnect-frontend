@@ -35,10 +35,10 @@
         <div class="complaint-id">#{{ r.id }}</div>
         <span class="status-badge"
           [ngClass]="{
-            'status-en-cours': r.statut === 'EN_COURS',
+            
             'status-resolue': r.statut === 'RESOLUE',
             'status-rejetee': r.statut === 'REJETEE',
-            'status-en-attente': r.statut === 'EN_ATTENTE' || !r.statut
+            'status-en-cours': r.statut === 'EN_COURS' || !r.statut
           }">
           <span class="status-dot"></span>
           {{ r.statut === 'RESOLUE' ? 'Resolved' :

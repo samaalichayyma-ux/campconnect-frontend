@@ -19,7 +19,7 @@ export class ReclamationAddComponent {
   reclamation = {
     type: 'Destination',
     description: '',
-    statut: 'EN_ATTENTE',
+    statut: 'EN_COURS',
     acceptationDeclaration: false,
     dateAcceptation: null as string | null,
     image: ''
@@ -41,53 +41,57 @@ export class ReclamationAddComponent {
     }
   }
 
-  save() {
-    this.submitted = true;
+save() {
+  this.submitted = true;
 
-    if (!this.reclamation.description?.trim()) {
-      alert('Please enter a description.');
-      return;
-    }
-
-    if (!this.reclamation.acceptationDeclaration) {
-      alert('You must accept the personal data policy.');
-      return;
-    }
-
-    if (this.isSubmitting) return;
-    this.isSubmitting = true;
-
-    this.reclamation.dateAcceptation = new Date().toISOString();
-
-    const payload = {
-      description: `${this.reclamation.type}: ${this.reclamation.description}`,
-      statut: this.reclamation.statut,
-      acceptationDeclaration: this.reclamation.acceptationDeclaration,
-      dateAcceptation: this.reclamation.dateAcceptation,
-      image: this.reclamation.image
-    };
-
-    this.reclamationService.create(payload).subscribe({
-      next: () => {
-        alert('Complaint submitted successfully!');
-
-        this.resetForm();
-        this.isSubmitting = false;
-        this.submitted = false;
-      },
-      error: (err) => {
-        console.error('Error submitting reclamation:', err);
-        alert('Error submitting complaint. Please try again.');
-        this.isSubmitting = false;
-      }
-    });
+  if (!this.reclamation.description?.trim()) {
+    alert('Please enter a description.');
+    return;
   }
 
-  private resetForm() {
+  if (!this.reclamation.acceptationDeclaration) {
+    alert('You must accept the personal data policy.');
+    return;
+  }
+
+  if (this.isSubmitting) return;
+  this.isSubmitting = true;
+
+  this.reclamation.dateAcceptation = new Date().toISOString();
+
+  const userId = this.authService.getUserId();
+
+
+const payload = {
+  utilisateur: {
+    id: this.authService.getUserId()
+  },
+  description: `${this.reclamation.type}: ${this.reclamation.description}`,
+  statut: 'EN_COURS',
+  acceptationDeclaration: this.reclamation.acceptationDeclaration,
+  dateAcceptation: new Date().toISOString(),
+  image: this.reclamation.image
+};
+
+  this.reclamationService.create(payload).subscribe({
+    next: () => {
+      alert('Complaint submitted successfully!');
+      this.resetForm();
+      this.isSubmitting = false;
+      this.submitted = false;
+    },
+    error: (err) => {
+      console.error('Error submitting reclamation:', err);
+      alert('Error submitting complaint. Please try again.');
+      this.isSubmitting = false;
+    }
+  });
+}
+ private resetForm() {
     this.reclamation = {
       type: 'Destination',
       description: '',
-      statut: 'EN_ATTENTE',
+      statut: 'EN_COURS',
       acceptationDeclaration: false,
       dateAcceptation: null,
       image: ''

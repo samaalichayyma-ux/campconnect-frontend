@@ -83,7 +83,7 @@ import { CampingOwnerDashboardComponent } from './features/admin/camping-owner-d
 import { BookingPaymentSuccessComponent } from './features/public/booking-payment/booking-payment-success/booking-payment-success.component';
 import { BookingPaymentCancelComponent } from './features/public/booking-payment/booking-payment-cancel/booking-payment-cancel.component';
 import { ReservationInsightsComponent } from './features/admin/reservations/reservation-insights/reservation-insights.component';
-
+import {NotificationBellComponent} from './features/public/reclamation/notification-bell/notification-bell.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
   {
@@ -172,7 +172,7 @@ export const routes: Routes = [
       { path: 'events/:id', component: EventDetailsComponent },
 
       { path: 'profile/reclamation/add', component: ReclamationAddComponent },
-      { path: 'reclamations', component: ReclamationListComponent },
+      { path: 'reclamation', component: ReclamationListComponent },
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },
       { path: 'Accueil-Market', component: AccueilmarketComponent },
