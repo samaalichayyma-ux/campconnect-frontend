@@ -1,0 +1,236 @@
+/* ===== Page Layout ===== */
+.complaints-page {
+  min-height: 100vh;
+  background: #f4f6fb;
+  padding: 40px 24px 60px;
+}
+
+/* ===== Page Header ===== */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-icon {
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #e67e22, #f39c12);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(230, 126, 34, 0.3);
+}
+
+.page-title {
+  margin: 0 0 4px;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #1a2b3c;
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 0.93rem;
+  color: #6b7280;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+  text-align: center;
+  padding: 80px 20px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  background: #f3f4f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #9ca3af;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a2b3c;
+  margin: 0 0 8px;
+}
+
+.empty-state p {
+  font-size: 0.95rem;
+  color: #6b7280;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ===== Grid ===== */
+.complaints-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+/* ===== Complaint Card ===== */
+.complaint-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 22px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1.5px solid transparent;
+}
+
+.complaint-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  border-color: #fde8d0;
+}
+
+/* ===== Card Top ===== */
+.complaint-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.complaint-id {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #9ca3af;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Status Badge ===== */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-en-cours {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.status-en-cours .status-dot { background: #3b82f6; }
+
+.status-resolue {
+  background: #dcfce7;
+  color: #166534;
+}
+.status-resolue .status-dot { background: #22c55e; }
+
+.status-rejetee {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.status-rejetee .status-dot { background: #ef4444; }
+
+.status-en-attente {
+  background: #fef3c7;
+  color: #92400e;
+}
+.status-en-attente .status-dot { background: #f59e0b; }
+
+/* ===== Description ===== */
+.complaint-description {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #374151;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== Meta ===== */
+.complaint-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.82rem;
+  color: #9ca3af;
+}
+
+/* ===== Actions ===== */
+.complaint-actions {
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #f3f4f6;
+  margin-top: auto;
+}
+
+.btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: #fee2e2;
+  color: #b91c1c;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.btn-delete:hover {
+  background: #fca5a5;
+  transform: scale(1.03);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .complaints-page {
+    padding: 24px 14px;
+  }
+
+  .page-title {
+    font-size: 1.35rem;
+  }
+
+  .complaints-grid {
+    grid-template-columns: 1fr;
+  }
+}

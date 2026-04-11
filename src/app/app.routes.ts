@@ -171,7 +171,7 @@ export const routes: Routes = [
       { path: 'events/:id/book', component: EventReservationComponent },
       { path: 'events/:id', component: EventDetailsComponent },
 
-      { path: 'reclamations/add', component: ReclamationAddComponent },
+      { path: 'profile/reclamation/add', component: ReclamationAddComponent },
       { path: 'reclamations', component: ReclamationListComponent },
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },

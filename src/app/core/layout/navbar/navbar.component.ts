@@ -4,11 +4,12 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { PanierService } from '../../services/panier.service';
 import { Observable } from 'rxjs';
+import { NotificationBellComponent } from '../../../features/public/reclamation/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, CommonModule, RouterModule],
+  imports: [RouterLink, CommonModule, RouterModule, NotificationBellComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })

@@ -76,4 +76,8 @@ export class ReclamationAdminListComponent implements OnInit {
         return '';
     }
   }
+
+  countByStatus(status: string): number {
+    return this.reclamations.filter(r => r.statut === status).length;
+  }
 }

@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ReclamationService {
 
-  private apiUrl = 'http://localhost:8082/api/reclamations';
+  private readonly apiUrl = 'http://localhost:8082/api/reclamations';
 
   constructor(private http: HttpClient) {}
 
@@ -18,12 +18,14 @@ export class ReclamationService {
   getById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
-getByUser(userId: number): Observable<any[]> {
-  return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
-}
-create(reclamation: any): Observable<any> {
-  return this.http.post<any>(this.apiUrl, reclamation); // JSON classique
-}
+
+  getByUser(userId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/user/${userId}`);
+  }
+
+  create(reclamation: any): Observable<any> {
+    return this.http.post<any>(this.apiUrl, reclamation);
+  }
 
   update(id: number, reclamation: any): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}`, reclamation);
@@ -34,6 +36,9 @@ create(reclamation: any): Observable<any> {
   }
 
   changeStatut(id: number, statut: string): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}/statut?statut=${statut}`, {});
+    return this.http.put<any>(
+      `${this.apiUrl}/${id}/statut?statut=${statut}`,
+      {}
+    );
   }
 }
