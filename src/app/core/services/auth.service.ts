@@ -28,15 +28,22 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface VerifyLogin2FARequest {
+  tempToken: string;
+  code: string;
+}
+
 export interface AuthResponse {
   userId?: number;
   id?: number;
   utilisateurId?: number;
-  token: string;
+  token?: string | null;
   message: string;
-  role: string;
+  role?: string | null;
   nom?: string;
   email?: string;
+  requires2FA?: boolean;
+  tempToken?: string | null;
 }
 
 export interface CurrentUserResponse {
@@ -62,13 +69,31 @@ export class AuthService {
 
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
-      tap((response) => this.saveAuthData(response))
+      tap((response) => {
+        if (response.token) {
+          this.saveAuthData(response);
+        }
+      })
     );
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
-      tap((response) => this.saveAuthData(response))
+      tap((response) => {
+        if (!response.requires2FA && response.token) {
+          this.saveAuthData(response);
+        }
+      })
+    );
+  }
+
+  verifyLogin2FA(data: VerifyLogin2FARequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.apiUrl}/login/verify-2fa`, data).pipe(
+      tap((response) => {
+        if (response.token) {
+          this.saveAuthData(response);
+        }
+      })
     );
   }
 
@@ -76,7 +101,11 @@ export class AuthService {
     const payload: GoogleLoginRequest = { credential };
 
     return this.http.post<AuthResponse>(`${this.apiUrl}/google`, payload).pipe(
-      tap((response) => this.saveAuthData(response))
+      tap((response) => {
+        if (response.token) {
+          this.saveAuthData(response);
+        }
+      })
     );
   }
 
@@ -93,6 +122,10 @@ export class AuthService {
   }
 
   private saveAuthData(response: AuthResponse): void {
+    if (!response.token) {
+      return;
+    }
+
     localStorage.setItem('token', response.token);
     this.saveRole(response.role);
 
@@ -159,32 +192,28 @@ export class AuthService {
     return this.eventManagementRoles.has(this.normalizeRole(role));
   }
 
-redirectByRole(router: { navigate: (commands: string[]) => void }): void {
-  const role = this.getRole();
+  redirectByRole(router: { navigate: (commands: string[]) => void }): void {
+    const role = this.getRole();
 
-  switch (role) {
-    case 'ADMINISTRATEUR':
-      router.navigate(['/admin/dashboard']);
-      break;
-
-    case 'GUIDE':
-      router.navigate(['/admin/owner-dashboard']);
-      break;
-
-    case 'LIVREUR':
-      router.navigate(['/admin']);
-      break;
-
-    case 'GERANT_RESTAU':
-      router.navigate(['/admin']);
-      break;
-
-    case 'CLIENT':
-    default:
-      router.navigate(['/public']);
-      break;
+    switch (role) {
+      case 'ADMINISTRATEUR':
+        router.navigate(['/admin/dashboard']);
+        break;
+      case 'GUIDE':
+        router.navigate(['/admin/owner-dashboard']);
+        break;
+      case 'LIVREUR':
+        router.navigate(['/admin']);
+        break;
+      case 'GERANT_RESTAU':
+        router.navigate(['/admin']);
+        break;
+      case 'CLIENT':
+      default:
+        router.navigate(['/public']);
+        break;
+    }
   }
-}
 
   saveUserName(nom: string): void {
     localStorage.setItem('nom', nom);
@@ -232,11 +261,11 @@ redirectByRole(router: { navigate: (commands: string[]) => void }): void {
     }
   }
 
- fetchCurrentUser(): Observable<CurrentUserResponse> {
-  return this.http.get<CurrentUserResponse>(`${this.apiUrl}/me`).pipe(
-    tap((userInfo) => this.syncCurrentUser(userInfo))
-  );
-}
+  fetchCurrentUser(): Observable<CurrentUserResponse> {
+    return this.http.get<CurrentUserResponse>(`${this.apiUrl}/me`).pipe(
+      tap((userInfo) => this.syncCurrentUser(userInfo))
+    );
+  }
 
   getUserEmail(): string {
     return localStorage.getItem('email') || '';

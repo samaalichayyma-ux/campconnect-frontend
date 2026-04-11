@@ -1,0 +1,46 @@
+<p>notification-history works!</p>
+<section class="history-page">
+  <div class="history-card">
+    <div class="history-header">
+      <div>
+        <h1>Historique des notifications</h1>
+        <p>Toutes vos notifications sont affichées ici</p>
+      </div>
+
+      <div class="history-actions">
+        <button class="btn primary-btn" (click)="markAllAsRead()">Tout marquer comme lu</button>
+        <button class="btn secondary-btn" routerLink="/public/profile">Retour profil</button>
+      </div>
+    </div>
+
+    <div *ngIf="loading">Chargement...</div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <div *ngIf="!loading && notifications.length === 0">
+      Aucune notification.
+    </div>
+
+    <div class="history-list" *ngIf="!loading && notifications.length > 0">
+      <div class="history-item" *ngFor="let notification of notifications" [class.unread]="!notification.read">
+        <div class="history-top">
+          <h3>{{ notification.titre }}</h3>
+          <span>{{ getNotificationLabel(notification.type) }}</span>
+        </div>
+
+        <p>{{ notification.message }}</p>
+
+        <div class="history-bottom">
+          <small>{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+          <button
+            *ngIf="!notification.read"
+            class="link-btn"
+            type="button"
+            (click)="markAsRead(notification)"
+          >
+            Marquer comme lu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

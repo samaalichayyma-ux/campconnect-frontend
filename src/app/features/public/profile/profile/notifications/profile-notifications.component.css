@@ -1,0 +1,116 @@
+.notifications-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.notifications-header h3 {
+  margin: 0;
+}
+
+.notifications-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.badge {
+  background: #ff4d4f;
+  color: white;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.btn-mark-all {
+  border: none;
+  background: #1677ff;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-mark-all:disabled {
+  background: #bfbfbf;
+  cursor: not-allowed;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-item {
+  border: 1px solid #e8e8e8;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+  background: #fafafa;
+}
+
+.notification-item:hover {
+  background: #f3f7ff;
+}
+
+.notification-item.unread {
+  border-left: 5px solid #1677ff;
+  background: #eef5ff;
+}
+
+.notification-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.notification-top h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.notification-type {
+  font-size: 12px;
+  background: #f0f0f0;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+
+.notification-item p {
+  margin: 10px 0;
+  color: #444;
+}
+
+.notification-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status {
+  color: #1677ff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.info-message {
+  color: #666;
+}
+
+.error-message {
+  color: #d93025;
+}
