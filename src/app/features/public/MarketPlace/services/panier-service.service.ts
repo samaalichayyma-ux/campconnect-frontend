@@ -31,8 +31,29 @@ export class PanierServiceService {
   }
 
   getOrCreatePanierEnCours(userId: number) {
-  return this.http.get<{ message: string; idPanier: number }>(
-    `${this.panierUrl}/${userId}/en-cours`
-  );
+    return this.http.get<any>(`${this.panierUrl}/${userId}/en-cours`);
+  }
+
+  getDetailsByPanier(idPanier: number) {
+    return this.http.get<any[]>(`${this.detailPanierUrl}/panier/${idPanier}`);
+  }
+
+  viderPanierEnCours(userId: number) {
+    return this.http.delete(
+      `${this.panierUrl}/utilisateur/${userId}/vider-en-cours`,
+      { responseType: 'text' }
+    );
+  }
+
+  updateDetailPanier(id: number, payload: any) {
+  return this.http.put(`${this.detailPanierUrl}/${id}`, payload, {
+    responseType: 'text'
+  });
+}
+
+deleteDetailPanier(id: number) {
+  return this.http.delete(`${this.detailPanierUrl}/${id}`, {
+    responseType: 'text'
+  });
 }
 }

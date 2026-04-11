@@ -298,3 +298,19 @@
   font-weight: 700;
   margin-top: 10px;
 }
+
+.variant-btn.disabled,
+.variant-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: #eee;
+  color: #888;
+  border-color: #ccc;
+}
+
+.variant-btn.selected {
+  border: 2px solid #000;
+  background-color: #111;
+  color: #fff;
+}

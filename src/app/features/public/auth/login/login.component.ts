@@ -28,30 +28,41 @@ export class LoginComponent {
     });
   }
 
-  onSubmit(): void {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
-        this.successMessage = response.message;
-        this.authService.redirectByRole(this.router);
-      },
-      error: (error) => {
-        this.errorMessage =
-          error?.error?.message ||
-          'Échec de connexion. Vérifiez vos identifiants.';
-        this.isLoading = false;
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
+onSubmit(): void {
+  if (this.loginForm.invalid) {
+    this.loginForm.markAllAsTouched();
+    return;
   }
+
+  this.isLoading = true;
+  this.errorMessage = '';
+  this.successMessage = '';
+
+  this.authService.login(this.loginForm.value).subscribe({
+    next: (response) => {
+      this.successMessage = response.message;
+
+      this.authService.fetchCurrentUser().subscribe({
+        next: (userInfo) => {
+          console.log('USER INFO /me =', userInfo);
+          console.log('USER ID AFTER /me =', localStorage.getItem('userId'));
+          this.authService.redirectByRole(this.router);
+        },
+        error: (err) => {
+          console.error('Erreur fetchCurrentUser après login =', err);
+          this.authService.redirectByRole(this.router);
+        }
+      });
+    },
+    error: (error) => {
+      this.errorMessage =
+        error?.error?.message ||
+        'Échec de connexion. Vérifiez vos identifiants.';
+      this.isLoading = false;
+    },
+    complete: () => {
+      this.isLoading = false;
+    }
+  });
+}
 }

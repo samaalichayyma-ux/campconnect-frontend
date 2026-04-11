@@ -61,6 +61,7 @@ import { DetailproduitComponent } from './features/public/MarketPlace/detailprod
 import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
 import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
 import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
+import { DetailpanierComponent } from './features/public/MarketPlace/detailpanier/detailpanier.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -142,7 +143,8 @@ export const routes: Routes = [
       { path: 'commande-repas', component: CommandeRepasComponent },
       { path: 'Accueil-Market', component: AccueilmarketComponent },
         {path: 'listP', component: ListeProduitComponent},
-  { path: 'detailP/:id', component: DetailproduitComponent }
+  { path: 'detailP/:id', component: DetailproduitComponent },
+ {path: 'detailpanier', component: DetailpanierComponent}
 
     ]
   },

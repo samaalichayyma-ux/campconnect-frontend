@@ -5,19 +5,27 @@ import { BehaviorSubject } from 'rxjs';
   providedIn: 'root'
 })
 export class PanierService {
-  private cartCountSubject = new BehaviorSubject<number>(0);
-  cartCount$ = this.cartCountSubject.asObservable();
+  private countSubject = new BehaviorSubject<number>(0);
+  count$ = this.countSubject.asObservable();
+
+  setCount(count: number): void {
+    this.countSubject.next(count);
+  }
 
   increment(): void {
-    this.cartCountSubject.next(this.cartCountSubject.value + 1);
-    console.log('NEW CART COUNT:', this.cartCountSubject.value);
+    this.countSubject.next(this.countSubject.value + 1);
+  }
+
+  decrement(): void {
+    const current = this.countSubject.value;
+    this.countSubject.next(Math.max(0, current - 1));
   }
 
   reset(): void {
-    this.cartCountSubject.next(0);
+    this.countSubject.next(0);
   }
 
   getCurrentCount(): number {
-    return this.cartCountSubject.value;
+    return this.countSubject.value;
   }
 }
