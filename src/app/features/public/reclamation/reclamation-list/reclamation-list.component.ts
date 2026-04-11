@@ -12,7 +12,6 @@ import { ReclamationService } from '../reclamation.service';
 export class ReclamationListComponent implements OnInit {
 
   reclamations: any[] = [];
-  userId: number = 1; // <-- à remplacer par l'ID de l'utilisateur connecté
 
   constructor(private reclamationService: ReclamationService) {}
 
@@ -21,9 +20,13 @@ export class ReclamationListComponent implements OnInit {
   }
 
   loadUserReclamations() {
-    this.reclamationService.getByUser(this.userId).subscribe({
-      next: (data) => this.reclamations = data,
-      error: (err) => console.error(err)
+    this.reclamationService.getMyReclamations().subscribe({
+      next: (data) => {
+        this.reclamations = data;
+      },
+      error: (err) => {
+        console.error('Erreur loading reclamations', err);
+      }
     });
   }
 
