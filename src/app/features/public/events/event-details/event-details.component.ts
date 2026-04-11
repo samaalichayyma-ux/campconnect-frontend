@@ -1,254 +1,86 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { EventLocationMapComponent } from '../components/event-location-map/event-location-map.component';
-import {
-  EventResponseDTO,
-  PromotionOfferResponseDTO,
-  PromotionPreviewDTO,
-  ReservationRequestDTO,
-  ReservationResponseDTO
-} from '../models/event.model';
+import { EventFeedbackDTO, EventResponseDTO } from '../models/event.model';
 import { EventService } from '../services/event.service';
 
 @Component({
   selector: 'app-event-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AdminIconComponent, EventLocationMapComponent],
+  imports: [CommonModule, AdminIconComponent, EventLocationMapComponent],
   templateUrl: './event-details.component.html',
   styleUrl: './event-details.component.css'
 })
-export class EventDetailsComponent implements OnInit {
+export class EventDetailsComponent extends ToastMessageHost implements OnInit, OnDestroy {
   readonly fallbackImageUrl = 'assets/images/default-image.jpg';
-  readonly activeReservationStatuses = new Set(['PENDING', 'CONFIRMED', 'PAID']);
-  private readonly currencyFormatter = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  });
+  readonly ratingStars = [1, 2, 3, 4, 5];
+  private successMessageTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
 
   event: EventResponseDTO | null = null;
   galleryImages: string[] = [];
 
   isLoading = false;
-  isSubmitting = false;
-  isBookingModalOpen = false;
-  bookingSuccess = false;
-  errorMessage = '';
-  successMessage = '';
-  hasReservationConflict = false;
-  existingReservationConflict: ReservationResponseDTO | null = null;
-
-  numberOfParticipants = 1;
-  remarks = '';
-  totalPrice = 0;
-  promoCodeInput = '';
-  promoFeedbackMessage = '';
-  pricingPreview: PromotionPreviewDTO | null = null;
-  availablePromotions: PromotionOfferResponseDTO[] = [];
-  isLoadingPricing = false;
-
-  isOnWaitlist = false;
-  availableSeats = 0;
   isFavorite = false;
   isFavoriteLoading = false;
-
   isLoggedIn = false;
-
-  searchQuery = '';
-  searchSuggestions: EventResponseDTO[] = [];
-  showSuggestions = false;
-  isSearching = false;
-  searchTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   constructor(
     private eventService: EventService,
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
-    this.checkAuth();
-    this.promoCodeInput = (this.route.snapshot.queryParamMap.get('promoCode') || '').trim().toUpperCase();
-    const eventId = this.route.snapshot.paramMap.get('id');
-    if (eventId) {
-      this.loadEvent(Number.parseInt(eventId, 10), this.getInitialParticipants());
-    }
-  }
-
-  checkAuth(): void {
     this.isLoggedIn = this.authService.isLoggedIn();
+
+    const rawEventId = this.route.snapshot.paramMap.get('id');
+    const eventId = rawEventId ? Number.parseInt(rawEventId, 10) : Number.NaN;
+    if (Number.isFinite(eventId) && eventId > 0) {
+      this.loadEvent(eventId);
+      return;
+    }
+
+    this.errorMessage = 'This event could not be found. Please go back and try again.';
   }
 
-  loadEvent(id: number, preferredParticipants = 1): void {
+  ngOnDestroy(): void {
+    this.clearSuccessMessageTimeout();
+  }
+
+  loadEvent(id: number): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.hasReservationConflict = false;
-    this.existingReservationConflict = null;
     window.scrollTo(0, 0);
 
     this.eventService.getEventById(id).subscribe({
-      next: (data) => {
-        this.event = data;
-        this.galleryImages = this.eventService.getEventGalleryImageUrls(data);
-        this.numberOfParticipants = Math.max(1, Math.min(preferredParticipants, this.getParticipantLimit()));
-        this.availableSeats = data.availableSeats;
-        this.loadPublicPromotions();
-        this.calculatePrice();
-
-        if (this.isLoggedIn) {
-          this.checkWaitlistStatus(id);
-        }
-
+      next: (event) => {
+        this.event = event;
+        this.galleryImages = this.eventService.getEventGalleryImageUrls(event);
         if (this.isLoggedIn) {
           this.loadFavoriteState(id);
+        } else {
+          this.isFavorite = false;
         }
-
         this.isLoading = false;
       },
       error: (error) => {
-        this.errorMessage = 'Failed to load event details. Please try again.';
+        this.errorMessage = this.getBackendMessage(error) || 'Failed to load event details. Please try again.';
         console.error('Error loading event:', error);
         this.isLoading = false;
       }
     });
   }
 
-  checkWaitlistStatus(eventId: number): void {
-    this.eventService.getMyReservations().subscribe({
-      next: (reservations) => {
-        this.isOnWaitlist = reservations.some((reservation) =>
-          reservation.eventId === eventId && Boolean(reservation.estEnAttente)
-        );
-      },
-      error: (error) => {
-        this.isOnWaitlist = false;
-        console.error('Error checking waitlist status:', error);
-      }
-    });
-  }
-
-  calculatePrice(): void {
-    if (!this.event) {
-      return;
-    }
-
-    this.isLoadingPricing = true;
-
-    this.eventService.previewReservationPricing(
-      this.event.id,
-      this.numberOfParticipants,
-      this.getNormalizedPromoCode() || undefined
-    ).subscribe({
-      next: (preview) => {
-        this.pricingPreview = preview;
-        this.totalPrice = preview.totalPrice;
-        this.promoFeedbackMessage = preview.validationMessage || '';
-        this.isLoadingPricing = false;
-      },
-      error: (error) => {
-        console.error('Error calculating price:', error);
-        this.pricingPreview = null;
-        this.totalPrice = this.event!.prix * this.numberOfParticipants;
-        this.promoFeedbackMessage = this.getNormalizedPromoCode()
-          ? this.getBackendMessage(error) || 'We could not validate that promo code right now.'
-          : '';
-        this.isLoadingPricing = false;
-      }
-    });
-  }
-
-  increaseParticipants(): void {
-    const maxParticipants = this.getParticipantLimit();
-    if (this.numberOfParticipants < maxParticipants) {
-      this.numberOfParticipants++;
-      this.calculatePrice();
-    }
-  }
-
-  decreaseParticipants(): void {
-    if (this.numberOfParticipants > 1) {
-      this.numberOfParticipants--;
-      this.calculatePrice();
-    }
-  }
-
-  applyPromoCode(): void {
-    this.promoCodeInput = this.getNormalizedPromoCode();
-    this.calculatePrice();
-  }
-
-  clearPromoCode(): void {
-    this.promoCodeInput = '';
-    this.promoFeedbackMessage = '';
-    this.calculatePrice();
-  }
-
-  openBookingModal(): void {
-    const normalizedPromoCode = this.getNormalizedPromoCode();
-    const reservationQueryParams = {
-      participants: this.numberOfParticipants,
-      ...(normalizedPromoCode ? { promoCode: normalizedPromoCode } : {})
-    };
-
-    if (!this.isLoggedIn) {
-      if (this.event) {
-        const reservationPath = `/public/events/${this.event.id}/reservation?participants=${this.numberOfParticipants}`
-          + (normalizedPromoCode ? `&promoCode=${encodeURIComponent(normalizedPromoCode)}` : '');
-        this.authService.setReturnUrl(reservationPath);
-      }
-      this.router.navigate(['/login']);
-      return;
-    }
-
-    if (this.event) {
-      this.router.navigate(['/public/events', this.event.id, 'reservation'], {
-        queryParams: reservationQueryParams
-      });
-    }
-  }
-
-  closeBookingModal(): void {
-    this.isBookingModalOpen = false;
-    this.bookingSuccess = false;
-    this.numberOfParticipants = 1;
-    this.remarks = '';
-    this.errorMessage = '';
-    this.hasReservationConflict = false;
-    this.existingReservationConflict = null;
-  }
-
-  submitBooking(): void {
-    if (!this.event || !this.numberOfParticipants) {
-      this.errorMessage = 'Invalid reservation data.';
-      return;
-    }
-
-    this.isSubmitting = true;
-    this.errorMessage = '';
-    this.successMessage = '';
-    this.hasReservationConflict = false;
-    this.existingReservationConflict = null;
-    this.checkExistingReservationConflictBeforeSubmit();
-  }
-
-  getTotalPrice(): number {
-    return (this.event?.prix || 0) * this.numberOfParticipants;
-  }
-
   getAvailableSeats(): number {
     return this.event?.availableSeats || 0;
-  }
-
-  getParticipantLimit(): number {
-    const capacity = this.event?.capaciteMax ?? 1;
-    return Math.max(1, Math.min(capacity, 100));
   }
 
   getSpotsTaken(): number {
@@ -265,19 +97,30 @@ export class EventDetailsComponent implements OnInit {
     return Math.min(100, Math.max(0, (this.getSpotsTaken() / capacity) * 100));
   }
 
-  isWaitlistLikely(): boolean {
-    return this.numberOfParticipants > this.getAvailableSeats();
+  isEventFull(): boolean {
+    return this.getAvailableSeats() === 0;
   }
 
-  isEventFull(): boolean {
-    return (this.event?.availableSeats || 0) === 0;
+  isReservationClosed(): boolean {
+    const status = this.getNormalizedStatus();
+    return status === 'COMPLETED' || status === 'CANCELLED';
   }
 
   isAlmostFull(): boolean {
     return Boolean(this.event?.isAlmostFull);
   }
 
+  requiresReservationApproval(): boolean {
+    return this.event?.reservationApprovalRequired !== false;
+  }
+
   getCapacityHeadline(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'Event completed'
+        : 'Reservations closed';
+    }
+
     if (this.isEventFull()) {
       return 'Fully booked right now';
     }
@@ -294,6 +137,12 @@ export class EventDetailsComponent implements OnInit {
       return 'Live capacity details will appear here once the event finishes loading.';
     }
 
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'This event has already finished. Ratings and reviews stay available here, but we no longer accept reservations or waitlist requests.'
+        : 'This event is no longer accepting reservations or waitlist requests.';
+    }
+
     if (this.isEventFull()) {
       return this.event.waitlistCount > 0
         ? `${this.event.waitlistCount} guest${this.event.waitlistCount === 1 ? '' : 's'} are already waiting for an opening.`
@@ -301,10 +150,78 @@ export class EventDetailsComponent implements OnInit {
     }
 
     if (this.isAlmostFull()) {
-      return `${this.getAvailableSeats()} seat${this.getAvailableSeats() === 1 ? '' : 's'} remain, so demand is high and this event may flip to waitlist mode soon.`;
+      return `${this.getAvailableSeats()} seat${this.getAvailableSeats() === 1 ? '' : 's'} remain, so this event may flip to waitlist mode soon.`;
     }
 
     return `${this.getAvailableSeats()} seats are currently open, with ${this.event.waitlistCount || 0} guest${(this.event.waitlistCount || 0) === 1 ? '' : 's'} already waiting.`;
+  }
+
+  getCheckoutStateLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations closed';
+    }
+
+    if (this.isEventFull()) {
+      return 'Waitlist flow';
+    }
+
+    return this.requiresReservationApproval() ? 'Admin review after checkout' : 'Instant confirmation';
+  }
+
+  getCheckoutCtaLabel(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'Event Completed - Reservations Closed'
+        : 'Reservations Closed';
+    }
+
+    return this.isEventFull() ? 'Continue to Waitlist' : 'Continue to Checkout';
+  }
+
+  getCheckoutSupportCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedStatus() === 'COMPLETED'
+        ? 'This event is completed, so we do not accept new reservations or waitlist entries anymore.'
+        : 'This event is no longer open for new reservations or waitlist entries.';
+    }
+
+    return this.isEventFull()
+      ? 'You can still join the waitlist while this event remains active.'
+      : 'Reservations are open while seats are still available.';
+  }
+
+  getHeroStatusLabel(): string {
+    if (!this.event) {
+      return 'Scheduled';
+    }
+
+    if (this.isReservationClosed()) {
+      return this.getStatusLabel(this.event.statut);
+    }
+
+    return this.isEventFull() ? 'Waitlist likely' : this.getStatusLabel(this.event.statut);
+  }
+
+  hasFeedback(): boolean {
+    return Number(this.event?.feedbackCount || 0) > 0;
+  }
+
+  getFeedbackEntries(): EventFeedbackDTO[] {
+    return this.event?.feedbackEntries ?? [];
+  }
+
+  getAverageRatingLabel(): string {
+    const averageRating = Number(this.event?.averageRating || 0);
+    return averageRating > 0 ? averageRating.toFixed(1) : '0.0';
+  }
+
+  getRoundedAverageRating(): number {
+    return Math.max(0, Math.min(5, Math.round(Number(this.event?.averageRating || 0))));
+  }
+
+  getFeedbackCountLabel(): string {
+    const feedbackCount = Number(this.event?.feedbackCount || 0);
+    return feedbackCount === 1 ? '1 review' : `${feedbackCount} reviews`;
   }
 
   formatDate(dateString: string): string {
@@ -325,72 +242,25 @@ export class EventDetailsComponent implements OnInit {
     });
   }
 
-  getDurationLabel(): string {
-    const durationInMinutes = this.event?.dureeMinutes ?? 0;
-    if (durationInMinutes >= 60) {
-      const hours = Math.floor(durationInMinutes / 60);
-      const minutes = durationInMinutes % 60;
-      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+  formatFeedbackDate(dateString?: string): string {
+    if (!dateString) {
+      return 'Recently';
     }
 
-    return `${durationInMinutes} min`;
-  }
-
-  getReservationCtaLabel(): string {
-    return this.isWaitlistLikely() ? 'Continue to Waitlist' : 'Continue to Reservation';
-  }
-
-  getReservationHelperText(): string {
-    if (this.isOnWaitlist) {
-      return 'You are already on this event waitlist. You can review that request anytime from My Reservations.';
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) {
+      return 'Recently';
     }
 
-    if (this.isWaitlistLikely()) {
-      const availableSeats = this.getAvailableSeats();
-      return `Only ${availableSeats} seat${availableSeats === 1 ? '' : 's'} are open for the group size you selected, so the request will likely stay on the waitlist. Stripe payment is required right away to hold your place in line, and CampConnect refunds it in full automatically if no seat opens before the event starts.`;
-    }
-
-    if (this.requiresReservationApproval()) {
-      return 'The next page lets you confirm notes and submit the reservation using the same public booking flow.';
-    }
-
-    return 'Seats are open for your group. This event confirms reservations immediately, and Stripe payment becomes available right after booking.';
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   }
 
-  requiresReservationApproval(): boolean {
-    return this.event?.reservationApprovalRequired !== false;
-  }
-
-  getReservationNextStateLabel(): string {
-    if (this.isWaitlistLikely()) {
-      return 'Waitlist + payment required';
-    }
-
-    return this.requiresReservationApproval() ? 'Pending admin review' : 'Confirmed right away';
-  }
-
-  getReservationReviewSupportCopy(): string {
-    if (this.isWaitlistLikely()) {
-      return 'If your group lands on the waitlist, CampConnect keeps the booking pending until a seat opens.';
-    }
-
-    return this.requiresReservationApproval()
-      ? 'Your request is created in the public reservation flow and reviewed by the admin team.'
-      : 'If seats are still open for your group, the reservation is confirmed immediately after you submit it.';
-  }
-
-  getReservationWaitlistSupportCopy(): string {
-    return 'Waitlist bookings are paid immediately to hold a place in line. If a seat opens, CampConnect promotes the booking automatically. If not, the full payment is refunded when the event starts.';
-  }
-
-  getReservationPaymentSupportCopy(): string {
-    if (this.isWaitlistLikely()) {
-      return 'As soon as the waitlist reservation is created, Stripe payment is available from My Reservations so you can secure the booking.';
-    }
-
-    return this.requiresReservationApproval()
-      ? 'After a reservation is confirmed, you can finish the payment with Stripe directly from the My Reservations page.'
-      : 'Because this event confirms reservations instantly, Stripe payment is available from My Reservations right after booking.';
+  trackByGalleryImage(_index: number, imageUrl: string): string {
+    return imageUrl;
   }
 
   getCategoryLabel(category: string): string {
@@ -421,26 +291,6 @@ export class EventDetailsComponent implements OnInit {
     return statusMap[status] || status;
   }
 
-  getStatusIcon(status: string): string {
-    const iconMap: Record<string, string> = {
-      SCHEDULED: 'calendar',
-      ONGOING: 'clock',
-      COMPLETED: 'check',
-      CANCELLED: 'close',
-      POSTPONED: 'warning'
-    };
-
-    return iconMap[status] || 'events';
-  }
-
-  getLocationCoordinatesLabel(): string {
-    if (typeof this.event?.latitude !== 'number' || typeof this.event?.longitude !== 'number') {
-      return 'Coordinates will appear here once an exact map pin is saved for this event.';
-    }
-
-    return `${this.event.latitude.toFixed(6)}, ${this.event.longitude.toFixed(6)}`;
-  }
-
   toggleFavorite(): void {
     if (!this.event) {
       return;
@@ -468,9 +318,11 @@ export class EventDetailsComponent implements OnInit {
           const currentCount = Number(this.event.favoriteCount || 0);
           this.event.favoriteCount = Math.max(0, currentCount + (this.isFavorite ? 1 : -1));
         }
-        this.successMessage = this.isFavorite
-          ? 'Event saved to your favorites.'
-          : 'Event removed from your favorites.';
+        this.showSuccessMessage(
+          this.isFavorite
+            ? 'Event saved to your favorites.'
+            : 'Event removed from your favorites.'
+        );
         this.isFavoriteLoading = false;
       },
       error: (error) => {
@@ -481,10 +333,6 @@ export class EventDetailsComponent implements OnInit {
     });
   }
 
-  goToSavedEvents(): void {
-    this.router.navigate(['/public/events'], { queryParams: { saved: '1' } });
-  }
-
   goBack(): void {
     const savedFilter = this.route.snapshot.queryParamMap.get('saved');
     this.router.navigate(['/public/events'], {
@@ -492,158 +340,41 @@ export class EventDetailsComponent implements OnInit {
     });
   }
 
-  goToMyReservations(reservationId?: number | null): void {
-    this.router.navigate(['/public/events/my-reservations'], {
-      queryParams: reservationId ? { focusReservation: reservationId } : undefined
-    });
+  goToMyReservations(): void {
+    this.router.navigate(['/public/events/my-reservations']);
   }
 
-  getBasePriceTotal(): number {
-    return this.pricingPreview?.basePriceTotal ?? this.getTotalPrice();
-  }
-
-  getDiscountAmount(): number {
-    return this.pricingPreview?.discountAmount ?? 0;
-  }
-
-  getFinalTotal(): number {
-    const previewTotal = this.pricingPreview?.totalPrice;
-    return typeof previewTotal === 'number' ? previewTotal : (this.totalPrice || this.getTotalPrice());
-  }
-
-  hasDiscountApplied(): boolean {
-    return this.getDiscountAmount() > 0;
-  }
-
-  hasPromoCodeValue(): boolean {
-    return Boolean(this.getNormalizedPromoCode());
-  }
-
-  getPromoFeedbackClass(): string {
-    if (this.pricingPreview?.invalidPromoCode) {
-      return 'promo-feedback warning';
+  openBookingModal(): void {
+    if (!this.event) {
+      return;
     }
 
-    if (this.hasDiscountApplied()) {
-      return 'promo-feedback success';
+    if (this.isReservationClosed()) {
+      this.errorMessage = this.getCheckoutSupportCopy();
+      return;
     }
 
-    return 'promo-feedback';
-  }
-
-  getPromoFeedbackText(): string {
-    if (this.promoFeedbackMessage) {
-      return this.promoFeedbackMessage;
+    const reservationPath = `/public/events/${this.event.id}/reservation`;
+    if (!this.isLoggedIn) {
+      this.authService.setReturnUrl(reservationPath);
+      this.router.navigate(['/login']);
+      return;
     }
 
-    if (this.pricingPreview?.discountLabel) {
-      return this.pricingPreview.discountLabel;
-    }
-
-    return '';
-  }
-
-  getPromotionPillLabel(promotion: PromotionOfferResponseDTO): string {
-    if (promotion.autoApply) {
-      return 'Auto';
-    }
-
-    return promotion.code?.trim() || 'Code';
-  }
-
-  getPromotionSupportCopy(promotion: PromotionOfferResponseDTO): string {
-    const minimumParticipants = promotion.minimumParticipants
-      ? `${promotion.minimumParticipants}+ guests`
-      : 'any group size';
-    const minimumSubtotal = promotion.minimumSubtotal
-      ? ` from ${this.formatCurrency(promotion.minimumSubtotal)}`
-      : '';
-
-    return `${promotion.name} for ${minimumParticipants}${minimumSubtotal}.`;
-  }
-
-  getErrorTitle(): string {
-    return this.hasReservationConflict ? 'Reservation already exists' : 'Something went wrong';
+    this.router.navigate(['/public/events', this.event.id, 'reservation']);
   }
 
   getErrorActionLabel(): string {
-    if (this.hasReservationConflict) {
-      if (this.existingReservationConflict?.statutPaiement !== 'PAID'
-        && (this.existingReservationConflict?.statut === 'CONFIRMED'
-          || this.existingReservationConflict?.estEnAttente)) {
-        return 'Go to Payment';
-      }
-
-      return 'View My Reservations';
-    }
-
-    return 'Retry';
+    return this.event ? 'Retry' : 'Back to Events';
   }
 
   handleErrorAction(): void {
-    if (this.hasReservationConflict) {
-      this.goToMyReservations(this.existingReservationConflict?.id);
-      return;
-    }
-
     if (this.event) {
       this.loadEvent(this.event.id);
-    }
-  }
-
-  onSearchInput(query: string): void {
-    this.searchQuery = query;
-
-    if (this.searchTimeoutId) {
-      clearTimeout(this.searchTimeoutId);
-    }
-
-    if (!query.trim()) {
-      this.showSuggestions = false;
-      this.searchSuggestions = [];
       return;
     }
 
-    this.isSearching = true;
-    this.searchTimeoutId = setTimeout(() => {
-      this.fetchSearchSuggestions(query);
-    }, 300);
-  }
-
-  fetchSearchSuggestions(keyword: string): void {
-    this.eventService.searchEvents(keyword).subscribe({
-      next: (events) => {
-        this.searchSuggestions = events.slice(0, 5);
-        this.showSuggestions = this.searchSuggestions.length > 0;
-        this.isSearching = false;
-      },
-      error: (error) => {
-        console.error('Error searching events:', error);
-        this.searchSuggestions = [];
-        this.showSuggestions = false;
-        this.isSearching = false;
-      }
-    });
-  }
-
-  selectSuggestion(eventId: number): void {
-    this.searchQuery = '';
-    this.showSuggestions = false;
-    this.searchSuggestions = [];
-    this.router.navigate(['/public/events', eventId]);
-  }
-
-  performSearch(): void {
-    if (!this.searchQuery.trim()) {
-      return;
-    }
-
-    this.showSuggestions = false;
-    this.router.navigate(['/public/events'], { queryParams: { search: this.searchQuery } });
-  }
-
-  closeSuggestions(): void {
-    this.showSuggestions = false;
+    this.goBack();
   }
 
   getPrimaryImageUrl(): string {
@@ -660,12 +391,6 @@ export class EventDetailsComponent implements OnInit {
     imageElement.src = this.fallbackImageUrl;
   }
 
-  private getInitialParticipants(): number {
-    const rawParticipants = this.route.snapshot.queryParamMap.get('participants');
-    const parsedParticipants = rawParticipants ? Number.parseInt(rawParticipants, 10) : 1;
-    return Number.isFinite(parsedParticipants) && parsedParticipants > 0 ? parsedParticipants : 1;
-  }
-
   private loadFavoriteState(eventId: number): void {
     this.eventService.getFavoriteEvents().subscribe({
       next: (favorites) => {
@@ -677,20 +402,20 @@ export class EventDetailsComponent implements OnInit {
     });
   }
 
-  private loadPublicPromotions(): void {
-    this.eventService.getPublicPromotions().subscribe({
-      next: (promotions) => {
-        this.availablePromotions = promotions;
-      },
-      error: (error) => {
-        console.warn('Could not load public promotions:', error);
-        this.availablePromotions = [];
-      }
-    });
+  private showSuccessMessage(message: string): void {
+    this.clearSuccessMessageTimeout();
+    this.successMessage = message;
+    this.successMessageTimeoutId = window.setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimeoutId = null;
+    }, 3200);
   }
 
-  private getNormalizedPromoCode(): string {
-    return this.promoCodeInput.trim().toUpperCase();
+  private clearSuccessMessageTimeout(): void {
+    if (this.successMessageTimeoutId !== null) {
+      window.clearTimeout(this.successMessageTimeoutId);
+      this.successMessageTimeoutId = null;
+    }
   }
 
   private getBackendMessage(error: unknown): string | null {
@@ -712,158 +437,7 @@ export class EventDetailsComponent implements OnInit {
     return typeof message === 'string' && message.trim() ? message.trim() : null;
   }
 
-  private getForbiddenReservationMessage(): string {
-    const role = this.authService.getRole();
-    if (role && role !== 'CLIENT' && role !== 'ADMINISTRATEUR') {
-      return `Reservations are currently blocked for the ${role} role. Please log in with a client account.`;
-    }
-
-    return 'You already have another active reservation for this event. Cancel it from My Reservations, or finish the existing one first, before creating a new reservation.';
-  }
-
-  private createReservationRequest(): void {
-    if (!this.event) {
-      this.isSubmitting = false;
-      this.errorMessage = 'Event details are unavailable. Please reload the page.';
-      return;
-    }
-
-    const remarks = this.remarks.trim();
-    const promoCode = this.getNormalizedPromoCode();
-    const reservationRequest: ReservationRequestDTO = {
-      eventId: this.event.id,
-      nombreParticipants: this.numberOfParticipants,
-      ...(remarks ? { remarques: remarks } : {}),
-      ...(promoCode ? { promoCode } : {})
-    };
-
-    this.eventService.createReservation(reservationRequest).subscribe({
-      next: (response: ReservationResponseDTO) => {
-        this.isSubmitting = false;
-        this.bookingSuccess = true;
-        this.existingReservationConflict = null;
-        this.successMessage = response.estEnAttente
-          ? 'Your reservation was added to the waitlist. Finish the Stripe payment from My Reservations to hold your place in line.'
-          : response.statut === 'CONFIRMED'
-            ? `Reservation confirmed. Total: ${this.formatCurrency(response.prixTotal)}. You can now pay from My Reservations.`
-            : `Reservation request received. Total: ${this.formatCurrency(response.prixTotal)}. It is now pending admin confirmation.`;
-
-        setTimeout(() => {
-          if (this.event) {
-            this.closeBookingModal();
-            this.loadEvent(this.event.id);
-          }
-        }, 2000);
-      },
-      error: (error: unknown) => {
-        this.isSubmitting = false;
-
-        const backendMessage = this.getBackendMessage(error);
-        if (this.isDuplicateReservationMessage(backendMessage)) {
-          this.hasReservationConflict = true;
-          this.errorMessage = this.getExistingReservationConflictMessage();
-        } else if (backendMessage) {
-          this.hasReservationConflict = false;
-          this.existingReservationConflict = null;
-          this.errorMessage = backendMessage;
-        } else if ((error as { status?: number })?.status === 403) {
-          this.hasReservationConflict = true;
-          this.errorMessage = this.getForbiddenReservationMessage();
-        } else if ((error as { status?: number })?.status === 409) {
-          this.hasReservationConflict = true;
-          this.errorMessage = this.getExistingReservationConflictMessage();
-        } else if ((error as { status?: number })?.status === 400) {
-          this.hasReservationConflict = false;
-          this.existingReservationConflict = null;
-          this.errorMessage = 'Invalid reservation request. Please check your input.';
-        } else {
-          this.hasReservationConflict = false;
-          this.existingReservationConflict = null;
-          this.errorMessage = 'Failed to create reservation. Please try again.';
-        }
-
-        console.error('Error creating reservation:', error);
-      }
-    });
-  }
-
-  private checkExistingReservationConflictBeforeSubmit(): void {
-    if (!this.event) {
-      this.isSubmitting = false;
-      this.errorMessage = 'Event details are unavailable. Please reload the page.';
-      this.hasReservationConflict = false;
-      this.existingReservationConflict = null;
-      return;
-    }
-
-    this.eventService.getMyReservations().subscribe({
-      next: (reservations) => {
-        const existingReservation = this.findActiveReservationForCurrentEvent(reservations);
-        if (!existingReservation) {
-          this.createReservationRequest();
-          return;
-        }
-
-        this.isSubmitting = false;
-        this.hasReservationConflict = true;
-        this.existingReservationConflict = existingReservation;
-        this.errorMessage = this.getExistingReservationConflictMessage(existingReservation);
-      },
-      error: (lookupError: unknown) => {
-        console.warn('Could not pre-check existing reservations before submit:', lookupError);
-        this.createReservationRequest();
-      }
-    });
-  }
-
-  private findActiveReservationForCurrentEvent(
-    reservations: ReservationResponseDTO[]
-  ): ReservationResponseDTO | null {
-    if (!this.event) {
-      return null;
-    }
-
-    return reservations.find((reservation) =>
-      reservation.eventId === this.event?.id && this.activeReservationStatuses.has(reservation.statut)
-    ) ?? null;
-  }
-
-  private getExistingReservationConflictMessage(existingReservation?: ReservationResponseDTO | null): string {
-    if (!existingReservation) {
-      return 'You already have another reservation for this event. Cancel it from My Reservations, or finish the existing one first, before making a new reservation.';
-    }
-
-    if (existingReservation.statut === 'PENDING') {
-      return existingReservation.estEnAttente
-        ? existingReservation.statutPaiement === 'PAID'
-          ? 'You already have a paid waitlist reservation for this event. Wait for a seat to open, or cancel it from My Reservations before creating another one.'
-          : 'You already have a waitlist reservation for this event. Complete the Stripe payment from My Reservations to hold your place in line, or cancel it before creating another one.'
-        : 'You already have a pending reservation for this event. Cancel it from My Reservations, or wait for the admin review before trying to create another one.';
-    }
-
-    if (existingReservation.statut === 'CONFIRMED' && existingReservation.statutPaiement !== 'PAID') {
-      return 'You already have a confirmed reservation for this event. Cancel it from My Reservations, or complete the payment first before making another one.';
-    }
-
-    if (existingReservation.statut === 'PAID' || existingReservation.statutPaiement === 'PAID') {
-      return 'You already have a paid reservation for this event. If you need a different booking, cancel the current reservation from My Reservations before creating another one.';
-    }
-
-    return 'You already have another active reservation for this event. Cancel it from My Reservations, or finish it first, before creating a new reservation.';
-  }
-
-  private isDuplicateReservationMessage(message: string | null): boolean {
-    if (!message) {
-      return false;
-    }
-
-    const normalizedMessage = message.toLowerCase();
-    return normalizedMessage.includes('active reservation')
-      || (normalizedMessage.includes('already have') && normalizedMessage.includes('event'))
-      || normalizedMessage.includes('waitlist entry');
-  }
-
-  private formatCurrency(amount: number): string {
-    return this.currencyFormatter.format(Number(amount || 0));
+  private getNormalizedStatus(): string {
+    return String(this.event?.statut || '').toUpperCase();
   }
 }

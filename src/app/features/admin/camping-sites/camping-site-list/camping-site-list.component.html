@@ -30,7 +30,6 @@
               <th>Name</th>
               <th>Location</th>
               <th>Capacity</th>
-              <th>Remaining</th>
               <th>Price / Night</th>
               <th>Status</th>
               <th *ngIf="userRole === 'ADMINISTRATEUR'">Owner</th>
@@ -43,7 +42,6 @@
               <td class="site-name">{{ site.nom }}</td>
               <td>{{ site.localisation }}</td>
               <td>{{ site.capacite }}</td>
-              <td>{{ site.remainingCapacity ?? 0 }}</td>
               <td>{{ site.prixParNuit }} DT</td>
               <td>
                 <span

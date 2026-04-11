@@ -64,8 +64,7 @@ export class ReclamationAdminListComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'EN_ATTENTE':
-        return 'pending';
+  
       case 'EN_COURS':
         return 'progress';
       case 'RESOLUE':
@@ -75,5 +74,9 @@ export class ReclamationAdminListComponent implements OnInit {
       default:
         return '';
     }
+  }
+
+  countByStatus(status: string): number {
+    return this.reclamations.filter(r => r.statut === status).length;
   }
 }

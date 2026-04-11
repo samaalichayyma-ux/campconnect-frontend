@@ -64,27 +64,56 @@ isCancelable(booking: any): boolean {
   return booking.statut === 'PENDING';
 }
 
-  updateStatus(
-    booking: UpdateSiteBooking,
-    newStatus: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
-  ): void {
-    if (!booking.idInscription) {
+updateStatus(
+  booking: UpdateSiteBooking,
+  newStatus: 'PENDING' | 'CONFIRMED' | 'CANCELLED'
+): void {
+  if (!booking.idInscription) {
+    return;
+  }
+
+  if (newStatus !== 'CANCELLED') {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Not Allowed',
+      text: 'Only cancellation is supported here.',
+      confirmButtonColor: '#96952f',
+      background: '#f5f5f3',
+      color: '#172b44',
+      customClass: {
+        popup: 'custom-swal-popup'
+      }
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you want to cancel this booking?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, cancel it',
+    cancelButtonText: 'No, keep it',
+    confirmButtonColor: '#96952f',
+    cancelButtonColor: '#9ca3af',
+    background: '#f5f5f3',
+    color: '#172b44',
+    customClass: {
+      popup: 'custom-swal-popup'
+    }
+  }).then((result) => {
+    if (!result.isConfirmed) {
       return;
     }
 
-    const updatedBooking: UpdateSiteBooking = {
-      ...booking,
-      statut: newStatus
-    };
-
-    this.campingService.updateBooking(booking.idInscription, updatedBooking).subscribe({
-      next: () => {
-        booking.statut = newStatus;
+    this.campingService.cancelBooking(booking.idInscription).subscribe({
+      next: (updatedBooking: UpdateSiteBooking) => {
+        booking.statut = updatedBooking.statut;
 
         Swal.fire({
           icon: 'success',
-          title: 'Updated',
-          text: `Booking status changed to ${newStatus}.`,
+          title: 'Cancelled',
+          text: 'Booking status changed to CANCELLED.',
           confirmButtonColor: '#96952f',
           background: '#f5f5f3',
           color: '#172b44',
@@ -98,8 +127,8 @@ isCancelable(booking: any): boolean {
 
         Swal.fire({
           icon: 'error',
-          title: 'Update Failed',
-          text: 'Could not update booking status.',
+          title: 'Cancellation Failed',
+          text: 'Could not cancel booking.',
           confirmButtonColor: '#96952f',
           background: '#f5f5f3',
           color: '#172b44',
@@ -109,5 +138,6 @@ isCancelable(booking: any): boolean {
         });
       }
     });
-  }
+  });
+}
 }

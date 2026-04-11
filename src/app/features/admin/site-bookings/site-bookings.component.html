@@ -58,7 +58,6 @@
             <button
               class="btn-cancel"
               (click)="updateStatus(booking, 'CANCELLED')"
-              [disabled]="!isCancelable(booking)"
             >
               Cancel
             </button>

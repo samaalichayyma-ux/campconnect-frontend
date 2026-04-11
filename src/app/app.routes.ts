@@ -61,8 +61,10 @@ import { EventReservationComponent } from './features/public/events/event-reserv
 import { EventListComponent } from './features/admin/events/event-list/event-list.component';
 import { EventCreateComponent } from './features/admin/events/event-create/event-create.component';
 import { EventEditComponent } from './features/admin/events/event-edit/event-edit.component';
+import { EventInsightsComponent } from './features/admin/events/event-insights/event-insights.component';
 import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.component';
 
+import { PromotionManagementComponent } from './features/admin/promotions/promotion-management/promotion-management.component';
 import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
 import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
 import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
@@ -89,6 +91,8 @@ import { BookingPaymentSuccessComponent } from './features/public/booking-paymen
 import { BookingPaymentCancelComponent } from './features/public/booking-payment/booking-payment-cancel/booking-payment-cancel.component';
 import { NotificationHistoryComponent } from './features/public/notifications/notification-history/notification-history.component';
 
+import { ReservationInsightsComponent } from './features/admin/reservations/reservation-insights/reservation-insights.component';
+import {NotificationBellComponent} from './features/public/reclamation/notification-bell/notification-bell.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -128,13 +132,18 @@ export const routes: Routes = [
       { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
 
       { path: 'events', component: EventListComponent },
+      { path: 'events/stats', component: EventInsightsComponent },
       { path: 'events/new', component: EventCreateComponent },
       { path: 'events/:id/edit', component: EventEditComponent },
+      { path: 'events/:id/insights', component: EventInsightsComponent },
       { path: 'events/api-demo', component: ApiDemoComponent },
+      { path: 'promotions', component: PromotionManagementComponent },
 
       { path: 'reservations', component: ReservationListComponent },
+      { path: 'reservations/stats', component: ReservationInsightsComponent },
       { path: 'reservations/new', component: ReservationCreateComponent },
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
+      { path: 'reservations/:id/insights', component: ReservationInsightsComponent },
 
       { path: 'Market/AddProduct', component: AddProductComponent },
       { path: 'Market/EditProduct/:id', component: AddProductComponent },
@@ -146,6 +155,7 @@ export const routes: Routes = [
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] }
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
     ]
   },
 
@@ -196,6 +206,19 @@ export const routes: Routes = [
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
       { path: 'notifications', component: NotificationHistoryComponent },
+      { path: 'profile/reclamation/add', component: ReclamationAddComponent },
+      { path: 'reclamation', component: ReclamationListComponent },
+      { path: 'repas', component: RepasListComponent },
+      { path: 'commande-repas', component: CommandeRepasComponent },
+      { path: 'Accueil-Market', component: AccueilmarketComponent },
+      { path: 'listP', component: ListeProduitComponent },
+      { path: 'detailP/:id', component: DetailproduitComponent },
+      { path: 'publications', component: PublicationListComponent },
+      { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
+      { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] }
     ]
   },
 
@@ -207,5 +230,7 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
+  { path: '**', component: NotFoundComponent }
+];
   { path: '**', component: NotFoundComponent }
 ];

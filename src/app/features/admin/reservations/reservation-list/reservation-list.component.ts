@@ -3,14 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import {
+  Event,
   PaymentStatus,
   ReservationResponseDTO,
   ReservationStatus
 } from '../../../public/events/models/event.model';
 import { EventService } from '../../../public/events/services/event.service';
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
+import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
+import { catchError, forkJoin, of } from 'rxjs';
 
-type ReservationActionDialogType = 'cancel' | 'confirm' | 'no-show';
+type ReservationActionDialogType = 'attended' | 'cancel' | 'confirm' | 'no-show';
 type ReservationWorkflowFilter = 'all' | 'needs-approval' | 'refunded' | 'waitlist' | 'paid' | 'cancelled';
 
 interface ReservationActionDialog {
@@ -25,12 +28,13 @@ interface ReservationActionDialog {
   templateUrl: './reservation-list.component.html',
   styleUrl: './reservation-list.component.css'
 })
-export class ReservationListComponent implements OnInit {
+export class ReservationListComponent extends ToastMessageHost implements OnInit {
+  readonly fallbackImageUrl = 'assets/images/default-image.jpg';
   reservations: ReservationResponseDTO[] = [];
   filteredReservations: ReservationResponseDTO[] = [];
   paginatedReservations: ReservationResponseDTO[] = [];
+  eventById = new Map<number, Event>();
   isLoading = false;
-  errorMessage = '';
   actionDialog: ReservationActionDialog | null = null;
   actionReservationId: number | null = null;
   eventFilter = '';
@@ -40,7 +44,9 @@ export class ReservationListComponent implements OnInit {
   pageSize = 8;
   totalPages = 1;
 
-  constructor(private eventService: EventService) {}
+  constructor(private eventService: EventService) {
+    super();
+  }
 
   ngOnInit(): void {
     this.loadReservations();
@@ -50,8 +56,12 @@ export class ReservationListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    this.eventService.getAllReservations().subscribe({
-      next: (reservations: ReservationResponseDTO[]) => {
+    forkJoin({
+      reservations: this.eventService.getAllReservations(),
+      events: this.eventService.getAllEvents().pipe(catchError(() => of([] as Event[])))
+    }).subscribe({
+      next: ({ reservations, events }) => {
+        this.eventById = new Map(events.map((event) => [event.id, event]));
         this.reservations = reservations.sort((a, b) =>
           new Date(b.dateCreation || 0).getTime() - new Date(a.dateCreation || 0).getTime()
         );
@@ -82,6 +92,7 @@ export class ReservationListComponent implements OnInit {
       next: () => {
         this.actionDialog = null;
         this.actionReservationId = null;
+        this.showSuccessToast('Reservation cancelled successfully.', 'Reservation updated');
         this.loadReservations(false);
       },
       error: (error: any) => {
@@ -99,9 +110,27 @@ export class ReservationListComponent implements OnInit {
         this.replaceReservation(reservation);
         this.actionDialog = null;
         this.actionReservationId = null;
+        this.showSuccessToast('Reservation confirmed successfully.', 'Reservation updated');
       },
       error: (error: any) => {
         this.handleActionError('confirm reservation', error);
+      }
+    });
+  }
+
+  markReservationAsAttended(id: number): void {
+    this.actionReservationId = id;
+    this.errorMessage = '';
+
+    this.eventService.markAsAttended(id).subscribe({
+      next: (reservation: ReservationResponseDTO) => {
+        this.replaceReservation(reservation);
+        this.actionDialog = null;
+        this.actionReservationId = null;
+        this.showSuccessToast('Reservation marked as attended. Feedback is now open for finished events.', 'Reservation updated');
+      },
+      error: (error: any) => {
+        this.handleActionError('mark reservation as attended', error);
       }
     });
   }
@@ -115,6 +144,7 @@ export class ReservationListComponent implements OnInit {
         this.replaceReservation(reservation);
         this.actionDialog = null;
         this.actionReservationId = null;
+        this.showSuccessToast('Reservation marked as no-show.', 'Reservation updated');
       },
       error: (error: any) => {
         this.handleActionError('mark reservation as no-show', error);
@@ -129,6 +159,7 @@ export class ReservationListComponent implements OnInit {
     this.eventService.refundReservation(id, 'Refund processed by administrator').subscribe({
       next: () => {
         this.actionReservationId = null;
+        this.showSuccessToast('Refund processed successfully.', 'Reservation updated');
         this.loadReservations(false);
       },
       error: (error: any) => {
@@ -156,6 +187,28 @@ export class ReservationListComponent implements OnInit {
     });
   }
 
+  getEventImageUrl(reservation: ReservationResponseDTO): string {
+    return this.eventService.getEventPrimaryImageUrl(this.eventById.get(reservation.eventId), this.fallbackImageUrl);
+  }
+
+  trackByReservationId(_index: number, reservation: ReservationResponseDTO): number {
+    return reservation.id;
+  }
+
+  trackByPageNumber(_index: number, page: number): number {
+    return page;
+  }
+
+  onImageError(event: globalThis.Event): void {
+    const imageElement = event.target as HTMLImageElement | null;
+    if (!imageElement || imageElement.dataset['fallbackApplied'] === 'true') {
+      return;
+    }
+
+    imageElement.dataset['fallbackApplied'] = 'true';
+    imageElement.src = this.fallbackImageUrl;
+  }
+
   formatStatusLabel(value: string | null | undefined): string {
     if (!value) {
       return '-';
@@ -173,6 +226,7 @@ export class ReservationListComponent implements OnInit {
       PENDING: 'status-pending',
       CONFIRMED: 'status-confirmed',
       PAID: 'status-paid',
+      ATTENDED: 'status-confirmed',
       NO_SHOW: 'status-no-show',
       CANCELLED: 'status-cancelled',
       REFUNDED: 'status-refunded'
@@ -198,6 +252,14 @@ export class ReservationListComponent implements OnInit {
     return reservation.statut === 'PENDING';
   }
 
+  canMarkAttended(reservation: ReservationResponseDTO): boolean {
+    if (typeof reservation.attendanceRecordable === 'boolean') {
+      return reservation.attendanceRecordable;
+    }
+
+    return reservation.statut === 'CONFIRMED' || reservation.statut === 'PAID';
+  }
+
   canMarkNoShow(reservation: ReservationResponseDTO): boolean {
     return reservation.statut === 'CONFIRMED' || reservation.statut === 'PAID';
   }
@@ -208,7 +270,10 @@ export class ReservationListComponent implements OnInit {
   }
 
   canCancel(reservation: ReservationResponseDTO): boolean {
-    return reservation.statut !== 'CANCELLED' && reservation.statut !== 'REFUNDED';
+    return reservation.statut !== 'CANCELLED'
+      && reservation.statut !== 'REFUNDED'
+      && reservation.statut !== 'NO_SHOW'
+      && reservation.statut !== 'ATTENDED';
   }
 
   isActionPending(id: number): boolean {
@@ -217,6 +282,8 @@ export class ReservationListComponent implements OnInit {
 
   get dialogTitle(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'Mark this reservation as attended?';
       case 'confirm':
         return 'Confirm this reservation?';
       case 'no-show':
@@ -228,6 +295,8 @@ export class ReservationListComponent implements OnInit {
 
   get dialogMessage(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'This records the guest as present. For events that already ended, the satisfaction form will open immediately after this update.';
       case 'confirm':
         return 'This will confirm the booking and re-check capacity before the status is updated.';
       case 'no-show':
@@ -239,6 +308,8 @@ export class ReservationListComponent implements OnInit {
 
   get dialogConfirmLabel(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'Mark attended';
       case 'confirm':
         return 'Confirm reservation';
       case 'no-show':
@@ -250,6 +321,8 @@ export class ReservationListComponent implements OnInit {
 
   get dialogKeepLabel(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'Keep pending';
       case 'confirm':
         return 'Review first';
       case 'no-show':
@@ -261,6 +334,8 @@ export class ReservationListComponent implements OnInit {
 
   get dialogIconName(): 'warning' | 'check' | 'close' {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'check';
       case 'confirm':
         return 'check';
       case 'no-show':
@@ -272,6 +347,8 @@ export class ReservationListComponent implements OnInit {
 
   get dialogVariantClass(): string {
     switch (this.actionDialog?.type) {
+      case 'attended':
+        return 'confirm-variant';
       case 'confirm':
         return 'confirm-variant';
       case 'no-show':
@@ -287,6 +364,11 @@ export class ReservationListComponent implements OnInit {
     }
 
     const { id, type } = this.actionDialog;
+
+    if (type === 'attended') {
+      this.markReservationAsAttended(id);
+      return;
+    }
 
     if (type === 'confirm') {
       this.confirmReservation(id);

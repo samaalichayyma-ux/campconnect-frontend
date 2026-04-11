@@ -1,0 +1,349 @@
+<div class="dashboard-shell">
+  <div *ngIf="isLoading" class="loading-card">
+    <div class="spinner"></div>
+    <p>Loading the reservation BI dashboard...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <div class="hero-actions">
+          <a [routerLink]="backLink" class="ghost-btn">
+            <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+            <span>{{ backLabel }}</span>
+          </a>
+
+          <a [routerLink]="contextLink" class="ghost-btn accent">
+            <app-admin-icon name="reservations" [size]="14"></app-admin-icon>
+            <span>{{ contextLabel }}</span>
+          </a>
+
+          <button
+            class="ghost-btn utility"
+            (click)="downloadReservationReport()"
+            [disabled]="downloadingReservationReport"
+            type="button">
+            <app-admin-icon name="download" [size]="14"></app-admin-icon>
+            <span>{{ downloadingReservationReport ? 'Preparing reservation CSV...' : 'Reservation CSV' }}</span>
+          </button>
+
+          <button
+            class="ghost-btn utility"
+            (click)="downloadRevenueReport()"
+            [disabled]="downloadingRevenueReport"
+            type="button">
+            <app-admin-icon name="download" [size]="14"></app-admin-icon>
+            <span>{{ downloadingRevenueReport ? 'Preparing revenue PDF...' : 'Revenue PDF' }}</span>
+          </button>
+        </div>
+
+        <span class="hero-kicker">Reservations Intelligence</span>
+        <h1>Booking conversion, cash collection, and day-of-event control</h1>
+        <p>
+          Follow the business story from approval to payment to attendance, and keep the team focused on the
+          reservations that need action right now.
+        </p>
+
+        <div class="hero-chip-row">
+          <span class="hero-chip">{{ reservations.length }} total reservations</span>
+          <span class="hero-chip">{{ approvalBacklog.length }} pending approvals</span>
+          <span class="hero-chip">{{ checkInQueue.length }} ready for check-in</span>
+          <span class="hero-chip">{{ formatPercent(paymentCollectionRate) }}% collected</span>
+        </div>
+      </div>
+
+      <article class="spotlight-card" *ngIf="featuredReservation as spotlight; else emptySpotlight">
+        <span class="spotlight-kicker">{{ focusReservationId ? 'Focused reservation' : 'Workflow spotlight' }}</span>
+        <h2>Reservation #{{ spotlight.id }}</h2>
+        <p>{{ spotlight.eventTitre }} | {{ spotlight.utilisateurNom }}</p>
+
+        <div class="spotlight-metrics">
+          <div>
+            <span>Status</span>
+            <strong>{{ formatStatusLabel(spotlight.statut) }}</strong>
+          </div>
+          <div>
+            <span>Payment</span>
+            <strong>{{ formatStatusLabel(spotlight.statutPaiement) }}</strong>
+          </div>
+          <div>
+            <span>Total</span>
+            <strong>{{ formatCurrency(spotlight.prixTotal) }}</strong>
+          </div>
+          <div>
+            <span>Event starts</span>
+            <strong>{{ formatDateTime(spotlight.eventDateDebut) }}</strong>
+          </div>
+        </div>
+      </article>
+
+      <ng-template #emptySpotlight>
+        <article class="spotlight-card empty">
+          <span class="spotlight-kicker">Workflow spotlight</span>
+          <h2>No reservations yet</h2>
+          <p>As soon as bookings start, this dashboard will show the real operating picture.</p>
+        </article>
+      </ng-template>
+    </section>
+
+    <section class="metrics-grid" *ngIf="reservations.length > 0; else emptyState">
+      <article *ngFor="let metric of metricCards" class="metric-card" [ngClass]="metric.toneClass">
+        <div class="metric-icon">
+          <app-admin-icon [name]="metric.icon" [size]="18"></app-admin-icon>
+        </div>
+        <div>
+          <span class="metric-label">{{ metric.label }}</span>
+          <strong class="metric-value">{{ metric.value }}</strong>
+          <p class="metric-note">{{ metric.note }}</p>
+        </div>
+      </article>
+    </section>
+
+    <ng-template #emptyState>
+      <div class="message-card neutral">
+        <app-admin-icon name="info" [size]="18"></app-admin-icon>
+        <div>
+          <strong>No reservation data yet</strong>
+          <p>Create or receive reservations first, then this page will turn into a real operations dashboard.</p>
+        </div>
+      </div>
+    </ng-template>
+
+    <section class="dashboard-grid" *ngIf="reservations.length > 0">
+      <article class="panel-card wide chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Booking Pulse</span>
+            <h2>Reservations and paid bookings over the last 14 days</h2>
+          </div>
+        </div>
+
+        <div class="chart-shell chart-shell-tall">
+          <canvas
+            baseChart
+            [data]="bookingTrendChartData"
+            [options]="lineChartOptions"
+            [type]="'line'">
+          </canvas>
+        </div>
+
+        <div class="insight-strip">
+          <div class="insight-pill">
+            <span>Approval rate</span>
+            <strong>{{ formatPercent(approvalRate) }}%</strong>
+          </div>
+          <div class="insight-pill">
+            <span>Collection rate</span>
+            <strong>{{ formatPercent(paymentCollectionRate) }}%</strong>
+          </div>
+          <div class="insight-pill">
+            <span>Attendance coverage</span>
+            <strong>{{ formatPercent(attendanceCompletionRate) }}%</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel-card chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Workflow Mix</span>
+            <h2>Where reservations sit in the funnel</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="reservationStages.length > 0; else emptyWorkflowChart">
+          <div class="chart-shell">
+            <canvas
+              baseChart
+              [data]="stageMixChartData"
+              [options]="doughnutChartOptions"
+              [type]="'doughnut'">
+            </canvas>
+          </div>
+
+          <div class="summary-list">
+            <div *ngFor="let item of reservationStages" class="summary-row">
+              <div class="summary-main">
+                <span class="legend-dot" [ngClass]="item.toneClass"></span>
+                <strong>{{ item.label }}</strong>
+              </div>
+              <span>{{ item.count }} bookings</span>
+              <strong>{{ formatPercent(item.share) }}%</strong>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyWorkflowChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="info" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No workflow mix yet</strong>
+              <p>The reservation funnel will appear here once bookings arrive.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Payment Mix</span>
+            <h2>Billing quality across the booking base</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="paymentMix.length > 0; else emptyPaymentChart">
+          <div class="chart-shell">
+            <canvas
+              baseChart
+              [data]="paymentMixChartData"
+              [options]="doughnutChartOptions"
+              [type]="'doughnut'">
+            </canvas>
+          </div>
+
+          <div class="summary-list">
+            <div *ngFor="let item of paymentMix" class="summary-row">
+              <div class="summary-main">
+                <span class="legend-dot" [ngClass]="item.toneClass"></span>
+                <strong>{{ item.label }}</strong>
+              </div>
+              <span>{{ item.count }} bookings</span>
+              <strong>{{ formatPercent(item.share) }}%</strong>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyPaymentChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="wallet" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No payment mix yet</strong>
+              <p>Payment quality will show here once reservations start flowing.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card wide chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Top Event Load</span>
+            <h2>The events driving reservation pressure</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="eventLoadRows.length > 0; else emptyEventLoadChart">
+          <div class="split-panel">
+            <div class="chart-shell chart-shell-wide" [style.height.px]="eventLoadChartHeight">
+              <canvas
+                baseChart
+                [data]="eventLoadChartData"
+                [options]="horizontalBarChartOptions"
+                [type]="'bar'">
+              </canvas>
+            </div>
+
+            <div class="scoreboard">
+              <div *ngFor="let row of eventLoadRows | slice:0:5" class="scoreboard-row">
+                <div>
+                  <strong>{{ row.title }}</strong>
+                  <span>{{ formatDateTime(row.dateLabel) }}</span>
+                </div>
+                <div class="scoreboard-metrics">
+                  <span>{{ row.guests }} guests</span>
+                  <strong>{{ formatCurrency(row.revenue) }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyEventLoadChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="events" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No event demand yet</strong>
+              <p>Top-loading events will appear here once reservations are created.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+      <article class="panel-card wide chart-panel">
+        <div class="section-heading">
+          <div>
+            <span class="section-kicker">Guest Satisfaction</span>
+            <h2>How the attended experience is being rated</h2>
+          </div>
+        </div>
+
+        <ng-container *ngIf="feedbackReservations.length > 0; else emptyFeedbackChart">
+          <div class="split-panel">
+            <div class="chart-shell chart-shell-wide">
+              <canvas
+                baseChart
+                [data]="feedbackMixChartData"
+                [options]="doughnutChartOptions"
+                [type]="'doughnut'">
+              </canvas>
+            </div>
+
+            <div class="feedback-side">
+              <div class="summary-list">
+                <div class="summary-row">
+                  <div class="summary-main">
+                    <strong>Average rating</strong>
+                  </div>
+                  <span>{{ feedbackReservations.length }} responses</span>
+                  <strong>{{ averageFeedbackRating | number:'1.1-1' }}/5</strong>
+                </div>
+
+                <div class="summary-row">
+                  <div class="summary-main">
+                    <strong>Response rate</strong>
+                  </div>
+                  <span>{{ attendedReservations.length }} attended bookings</span>
+                  <strong>{{ formatPercent(feedbackResponseRate) }}%</strong>
+                </div>
+
+                <div class="summary-row">
+                  <div class="summary-main">
+                    <strong>4-5 star share</strong>
+                  </div>
+                  <span>Positive experience signal</span>
+                  <strong>{{ formatPercent(highRatingShare) }}%</strong>
+                </div>
+              </div>
+
+              <div class="feedback-feed" *ngIf="recentFeedback.length > 0">
+                <div *ngFor="let item of recentFeedback" class="feedback-row">
+                  <div class="feedback-row-head">
+                    <strong>{{ item.eventTitle }}</strong>
+                    <span>{{ item.rating }}/5</span>
+                  </div>
+                  <div class="feedback-row-meta">
+                    <span>{{ item.guestName }}</span>
+                    <span>{{ formatDateTime(item.submittedAt) }}</span>
+                  </div>
+                  <p>{{ item.comment }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #emptyFeedbackChart>
+          <div class="message-card neutral compact">
+            <app-admin-icon name="sparkles" [size]="18"></app-admin-icon>
+            <div>
+              <strong>No feedback yet</strong>
+              <p>Once attended guests start rating their reservation journey, the satisfaction picture will appear here.</p>
+            </div>
+          </div>
+        </ng-template>
+      </article>
+
+    </section>
+  </ng-container>
+</div>
