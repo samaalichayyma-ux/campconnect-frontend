@@ -124,6 +124,10 @@ import { Component, Input } from '@angular/core';
           <circle cx="12" cy="12" r="3"></circle>
         </ng-container>
 
+        <ng-container *ngSwitchCase="'comments'">
+          <path d="M4 5h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"></path>
+        </ng-container>
+
         <ng-container *ngSwitchCase="'heart'">
           <path d="m12 20-1.35-1.23C5.4 14 2 10.91 2 7.5 2 4.91 4.01 3 6.5 3 8.24 3 9.91 3.81 11 5.08 12.09 3.81 13.76 3 15.5 3 17.99 3 20 4.91 20 7.5c0 3.41-3.4 6.5-8.65 11.27L12 20z"></path>
         </ng-container>

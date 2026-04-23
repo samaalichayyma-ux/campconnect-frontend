@@ -1,0 +1,111 @@
+.admin-commentaires {
+  padding: 16px;
+}
+
+.page-head h2 {
+  margin: 0 0 4px;
+}
+
+.page-head p {
+  margin: 0 0 12px;
+  color: #5b6470;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.search,
+.publication-filter {
+  border: 1px solid #d6dbe1;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 14px;
+}
+
+.search {
+  min-width: 280px;
+  flex: 1;
+}
+
+.state {
+  color: #526173;
+}
+
+.state.error {
+  color: #b42318;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid #e3e8ef;
+  border-radius: 12px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 920px;
+}
+
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef1f5;
+  text-align: left;
+  vertical-align: top;
+}
+
+th {
+  background: #f8fafc;
+  font-weight: 700;
+}
+
+.content-cell {
+  max-width: 420px;
+}
+
+.content-cell textarea {
+  width: 100%;
+  border: 1px solid #d6dbe1;
+  border-radius: 8px;
+  padding: 8px;
+  resize: vertical;
+}
+
+.actions {
+  white-space: nowrap;
+}
+
+.btn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 10px;
+  margin-right: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.btn.edit {
+  background: #f4f0ff;
+  color: #5f3dc4;
+}
+
+.btn.delete {
+  background: #ffe8e8;
+  color: #c92a2a;
+}
+
+.btn.save {
+  background: #e6fcf5;
+  color: #087f5b;
+}
+
+.btn.cancel {
+  background: #f1f3f5;
+  color: #495057;
+}

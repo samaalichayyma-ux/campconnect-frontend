@@ -1,0 +1,71 @@
+:root {
+  --cc-btn-icon-default: "\27A4";
+}
+
+button {
+  --cc-btn-icon: var(--cc-btn-icon-default);
+}
+
+button[class*="back"],
+button[class*="prev"],
+button[class*="previous"],
+button[class*="retour"] {
+  --cc-btn-icon: "\2190";
+}
+
+button[class*="add"],
+button[class*="new"],
+button[class*="create"] {
+  --cc-btn-icon: "\002B";
+}
+
+button[class*="edit"] {
+  --cc-btn-icon: "\270E";
+}
+
+button[class*="save"],
+button[class*="submit"],
+button[class*="confirm"],
+button[class*="update"],
+button[class*="pay"] {
+  --cc-btn-icon: "\2714";
+}
+
+button[class*="like"],
+button[class*="fav"],
+button[class*="favorite"] {
+  --cc-btn-icon: "\2665";
+}
+
+button[class*="delete"],
+button[class*="danger"],
+button[class*="remove"],
+button[class*="cancel"],
+button[class*="close"] {
+  --cc-btn-icon: "\2716";
+}
+
+button[class*="search"],
+button[class*="filter"],
+button[class*="retry"],
+button[class*="refresh"] {
+  --cc-btn-icon: "\2315";
+}
+
+button[class*="view"],
+button[class*="detail"],
+button[class*="show"] {
+  --cc-btn-icon: "\1F441";
+}
+
+button[class*="logout"] {
+  --cc-btn-icon: "\21AA";
+}
+
+button:not(:has(.btn-icon)):not(.icon-btn):not(.btn-edit-icon):not(.sidebar-close-btn):not(.message-close):not(.nav-btn):not(.no-auto-icon)::before {
+  content: var(--cc-btn-icon);
+  display: inline-block;
+  margin-right: 0.4rem;
+  line-height: 1;
+  vertical-align: baseline;
+}

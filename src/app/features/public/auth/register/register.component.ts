@@ -52,7 +52,7 @@ export class RegisterComponent {
       email: this.registerForm.value.email,
       motDePasse: this.registerForm.value.motDePasse,
       telephone: this.registerForm.value.telephone,
-      role: this.registerForm.value.role
+      role: 'CLIENT'
     };
 
     this.authService.register(payload).subscribe({

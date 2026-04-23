@@ -2,16 +2,29 @@
   <div class="edit-card">
     <h2>Modifier la publication</h2>
 
+    <div *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</div>
+
+    <input
+      type="text"
+      class="edit-input"
+      [(ngModel)]="publication.titre"
+      placeholder="Titre de la publication"
+      [disabled]="!canEdit"
+    />
+
     <textarea
       [(ngModel)]="publication.contenu"
       placeholder="Modifiez votre publication..."
+      [disabled]="!canEdit"
     ></textarea>
 
     <div class="form-actions">
-      <button class="save-btn" (click)="update()">✔ Sauvegarder</button>
+      <button class="save-btn" [disabled]="!canEdit" (click)="update()">
+        <span class="btn-icon" aria-hidden="true">&#128190;</span>
+        <span>Sauvegarder</span>
+      </button>
     </div>
 
     <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
-    <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
   </div>
 </div>

@@ -3,4 +3,6 @@ export interface Commentaire {
   contenu: string;
   dateCreation?: string;
   likesCount?: number;
+  auteurEmail?: string;
+  auteurNom?: string;
 }

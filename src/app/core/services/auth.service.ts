@@ -42,8 +42,9 @@ export interface CurrentUserResponse {
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/auth';
   private readonly currentUserFallbackUrl = 'http://localhost:8080/api/utilisateurs/me';
-  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'GUIDE', 'LIVREUR', 'GERANT_RESTAU']);
-  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
+  // Back-end security only grants /admin/** to ADMINISTRATEUR.
+  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR']);
+  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR']);
 
   constructor(private http: HttpClient) {}
 
@@ -189,6 +190,16 @@ export class AuthService {
 
   getUserEmail(): string {
     return localStorage.getItem('email') || '';
+  }
+
+  isAdmin(): boolean {
+    return this.canAccessAdminPanel();
+  }
+
+  ownsResource(authorEmail?: string): boolean {
+    const currentEmail = this.getUserEmail().trim().toLowerCase();
+    const targetEmail = (authorEmail || '').trim().toLowerCase();
+    return currentEmail !== '' && currentEmail === targetEmail;
   }
 
   saveUserEmail(email: string): void {

@@ -69,11 +69,14 @@ import { ListProductComponent } from './features/admin/MarketPlace/list-product/
 import { PublicationListComponent } from './features/public/publication/publication-list/publication-list.component';
 import { PublicationCreateComponent } from './features/public/publication/publication-create/publication-create.component';
 import { PublicationEditComponent } from './features/public/publication/publication-edit/publication-edit.component';
-import { ForumListComponent } from './features/public/forum/forum-list/forum-list.component';
+import { ForumListComponent } from './features/public/forum/forum-list';
 import { ForumCreateComponent } from './features/public/forum/forum-create/forum-create.component';
 import { ForumEditComponent } from './features/public/forum/forum-edit/forum-edit.component';
+import { ForumPublicationsComponent } from './features/public/forum/forum-publications/forum-publications.component';
+import { ForumAdminListComponent } from './features/admin/forum/forum-admin-list.component';
 import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
 import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
+import { CommentaireAdminListComponent } from './features/admin/commentaire/commentaire-admin-list/commentaire-admin-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -107,8 +110,7 @@ export const routes: Routes = [
   { path: 'repas', component: RepasAdminComponent },
   { path: 'commandes-repas', component: CommandesAdminComponent },
   { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
-{ path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
-
+  { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
 
       { path: 'events', component: EventListComponent },
       { path: 'events/new', component: EventCreateComponent },
@@ -119,21 +121,13 @@ export const routes: Routes = [
       { path: 'reservations/new', component: ReservationCreateComponent },
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
 
-      { path: 'reclamations', component: ReclamationAdminListComponent },
-      { path: 'repas', component: RepasAdminComponent },
-      { path: 'commandes-repas', component: CommandesAdminComponent },
-      
     { path: 'Market/AddProduct', component: AddProductComponent },
     { path: 'Market/EditProduct/:id', component: AddProductComponent },
     { path: 'Market/listProduct', component: ListProductComponent },
       { path: 'publication/list', component: PublicationAdminListComponent },
       { path: 'publication/edit/:id', component: PublicationAdminEditComponent },
-      { path: 'forums', component: ForumListComponent },
-      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
-      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
-    
-
-
+      { path: 'forums', component: ForumAdminListComponent },
+      { path: 'commentaires', component: CommentaireAdminListComponent }
     ]
   },
   {
@@ -175,9 +169,10 @@ export const routes: Routes = [
     { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
     { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
 
-    { path: 'forums', component: ForumListComponent },
-    { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
-    { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+{ path: 'forums', component: ForumListComponent },
+{ path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+{ path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+{ path: 'forums/:id/publications', component: ForumPublicationsComponent }
 
     ]
   },

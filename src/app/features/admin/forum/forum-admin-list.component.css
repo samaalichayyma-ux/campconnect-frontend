@@ -1,0 +1,145 @@
+.forum-admin-page {
+  max-width: 1100px;
+  margin: 28px auto;
+  padding: 20px;
+  background: #faf8f3;
+}
+
+.page-head {
+  margin-bottom: 16px;
+}
+
+.page-head h2 {
+  margin: 0 0 6px;
+  color: #2f6f57;
+}
+
+.page-head p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.state-msg {
+  margin: 10px 0;
+  color: #4b5563;
+}
+
+.state-msg.error {
+  color: #b91c1c;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.stat-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+.stat-card .label {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.stat-card strong {
+  font-size: 22px;
+  color: #1f2937;
+}
+
+.highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.highlight-item {
+  background: #eef7f2;
+  border: 1px solid #d6eadf;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.h-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2f6f57;
+  margin-bottom: 4px;
+}
+
+.highlight-item p {
+  margin: 0;
+  color: #1f2937;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+th,
+td {
+  border-bottom: 1px solid #f0f2f5;
+  padding: 10px 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  background: #f4efe6;
+  color: #374151;
+  font-weight: 700;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.count-badge {
+  background: #e8f3ec;
+  color: #2f6f57;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  background: #2f6f57;
+  color: #ffffff;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+button.danger-btn {
+  background: #b91c1c;
+}
+
+button:hover {
+  opacity: 0.9;
+}

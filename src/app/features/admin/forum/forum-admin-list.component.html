@@ -1,0 +1,102 @@
+<div class="forum-admin-page">
+  <div class="page-head">
+    <h2>Administration des forums</h2>
+    <p>Statistiques globales des forums et des publications</p>
+  </div>
+
+  <p *ngIf="loading" class="state-msg">Chargement...</p>
+  <p *ngIf="error" class="state-msg error">{{ error }}</p>
+
+  <section class="stats-grid" *ngIf="!loading && !error">
+    <article class="stat-card">
+      <span class="label">Forums</span>
+      <strong>{{ stats.totalForums }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Publications</span>
+      <strong>{{ stats.totalPublications }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Moyenne pubs/forum</span>
+      <strong>{{ stats.averagePublicationsPerForum | number:'1.1-1' }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Forums sans publication</span>
+      <strong>{{ stats.forumsWithoutPublications }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Likes total</span>
+      <strong>{{ stats.totalLikes }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Vues total</span>
+      <strong>{{ stats.totalViews }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Commentaires total</span>
+      <strong>{{ stats.totalComments }}</strong>
+    </article>
+  </section>
+
+  <section class="highlights" *ngIf="!loading && !error">
+    <div class="highlight-item">
+      <span class="h-label">Forum le plus actif</span>
+      <p>{{ stats.mostActiveForumName }} ({{ stats.mostActiveForumCount }} publications)</p>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Publication la plus likee</span>
+      <p>{{ stats.topLikedPublicationTitle }} ({{ stats.topLikedPublicationCount }} likes)</p>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Publication la plus vue</span>
+      <p>{{ stats.topViewedPublicationTitle }} ({{ stats.topViewedPublicationCount }} vues)</p>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Publication la plus commentee</span>
+      <p>{{ stats.topCommentedPublicationTitle }} ({{ stats.topCommentedPublicationCount }} commentaires)</p>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Auteur le plus actif</span>
+      <p>{{ stats.mostActiveAuthorEmail }} ({{ stats.mostActiveAuthorCount }} publications)</p>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Derniere publication par</span>
+      <p>{{ stats.newestPublisherEmail }} ({{ formatPublicationDate(stats.newestPublicationDate) }})</p>
+    </div>
+  </section>
+
+  <table *ngIf="forums.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Icone</th>
+        <th>Nom</th>
+        <th>Categorie</th>
+        <th>Auteur</th>
+        <th>Date</th>
+        <th>Publications</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let forum of forums">
+        <td>{{ forum.id }}</td>
+        <td>{{ forum.icon || '-' }}</td>
+        <td>{{ forum.nom }}</td>
+        <td>{{ forum.categorie }}</td>
+        <td>{{ forum.auteurNom || forum.auteurEmail || '-' }}</td>
+        <td>{{ forum.dateCreation | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <span class="count-badge">{{ getPublicationCountForForum(forum.id) }}</span>
+        </td>
+        <td class="actions-cell">
+          <button type="button" (click)="openForum(forum.id)">Voir</button>
+          <button type="button" (click)="editForum(forum.id)">Modifier</button>
+          <button type="button" class="danger-btn" (click)="deleteForum(forum.id)">Supprimer</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && forums.length === 0" class="state-msg">Aucun forum trouve.</p>
+</div>
