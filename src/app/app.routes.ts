@@ -93,6 +93,11 @@ import { NotificationHistoryComponent } from './features/public/notifications/no
 
 import { ReservationInsightsComponent } from './features/admin/reservations/reservation-insights/reservation-insights.component';
 import {NotificationBellComponent} from './features/public/reclamation/notification-bell/notification-bell.component';
+import { LivraisonListComponent } from './features/admin/livraison/livraison-list/livraison-list.component';
+import { MyLivreurLivraisonsComponent } from './features/admin/livraison/my-livreur-livraisons/my-livreur-livraisons.component';
+import { LivreurDashboardComponent } from './features/admin/livraison/livreur-dashboard/livreur-dashboard.component';
+import { CreateLivraisonComponent } from './features/admin/livraison/create-livraison/create-livraison.component';
+import { AvailableOrdersComponent } from './features/admin/livraison/available-orders/available-orders.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -100,6 +105,7 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
+    // data: { roles: ['ADMINISTRATEUR', 'LIVREUR', 'GUIDE'] },
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'profile', component: AdminProfileComponent },
@@ -154,8 +160,12 @@ export const routes: Routes = [
 
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
-      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] }
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+      { path: 'livraison/dashboard', component: LivreurDashboardComponent},
+      { path: 'livraison/all', component: LivraisonListComponent },
+      { path: 'livraison/mine', component: MyLivreurLivraisonsComponent },
+       { path: 'livraison/create', component: CreateLivraisonComponent },
+       { path: 'livraison/orders', component: AvailableOrdersComponent },
     ]
   },
 
@@ -218,7 +228,7 @@ export const routes: Routes = [
       { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
-      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] }
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
     ]
   },
 
@@ -230,7 +240,5 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
-  { path: '**', component: NotFoundComponent }
-];
   { path: '**', component: NotFoundComponent }
 ];

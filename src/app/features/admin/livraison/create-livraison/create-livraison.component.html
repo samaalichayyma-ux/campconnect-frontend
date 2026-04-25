@@ -1,0 +1,68 @@
+<div class="create-livraison-page">
+  <div class="page-header">
+<h2>Create Delivery</h2>
+<p>Create a delivery for an existing marketplace or food order.</p>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <form class="form-card" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-group">
+      <label for="commandeId">Order ID</label>
+      <input
+        id="commandeId"
+        type="number"
+        formControlName="commandeId"
+        class="form-control"
+        placeholder="Example: 1"
+      />
+      <small class="error-text" *ngIf="isInvalid('commandeId')">
+        Order ID is required.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="typeCommande">Order Type</label>
+      <select id="typeCommande" formControlName="typeCommande" class="form-control">
+        <option *ngFor="let type of typeOptions" [value]="type">
+          {{ type }}
+        </option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="adresseLivraison">Delivery Address</label>
+      <input
+        id="adresseLivraison"
+        type="text"
+        formControlName="adresseLivraison"
+        class="form-control"
+        placeholder="Enter your delivery address"
+      />
+      <small class="error-text" *ngIf="isInvalid('adresseLivraison')">
+        Delivery address is required.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label for="commentaire">Comment</label>
+      <textarea
+        id="commentaire"
+        rows="4"
+        formControlName="commentaire"
+        class="form-control"
+        placeholder="Optional comment"
+      ></textarea>
+    </div>
+
+    <button type="submit" class="submit-btn" [disabled]="loading">
+      {{ loading ? 'Creating...' : 'Create Delivery' }}
+    </button>
+  </form>
+</div>

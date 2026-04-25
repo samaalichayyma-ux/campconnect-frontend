@@ -1,0 +1,92 @@
+:host {
+  display: block;
+  padding: 24px;
+  background: #f4ede4;
+  min-height: 100vh;
+}
+
+.create-livraison-page {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-header h2 {
+  margin: 0 0 8px;
+  color: #1c2a39;
+}
+
+.page-header p {
+  margin: 0;
+  color: #5d6874;
+}
+
+.form-card {
+  background: #fffaf5;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 22px rgba(28, 42, 57, 0.08);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #1c2a39;
+}
+
+.form-control {
+  width: 100%;
+  border: 1px solid #d8d2c8;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+}
+
+.form-control:focus {
+  border-color: #1f3d2b;
+}
+
+.submit-btn {
+  background: #1f3d2b;
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 20px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.alert {
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.alert-success {
+  background: #dff3e7;
+  color: #1f5133;
+}
+
+.alert-danger {
+  background: #fde3e3;
+  color: #8f2525;
+}
+
+.error-text {
+  color: #b42318;
+  font-size: 12px;
+}

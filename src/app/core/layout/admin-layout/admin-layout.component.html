@@ -19,7 +19,7 @@
 
   <!-- Dashboard -->
   <a
-    *ngIf="isAdmin() || isGuide()"
+    *ngIf="isAdmin() || isGuide() || isLivreur()"
     [routerLink]="getDashboardRoute()"
     routerLinkActive="active"
     [routerLinkActiveOptions]="{ exact: true }"
@@ -92,11 +92,22 @@
     <span>Camping Reviews</span>
   </a>
 
+<a *ngIf="isAdmin()" routerLink="/admin/livraison/all" routerLinkActive="active" class="nav-item">
+  <span class="nav-icon">
+    <app-admin-icon name="reservations" [size]="18"></app-admin-icon>
+  </span>
+  <span>Manage Deliveries</span>
+</a>
   <a routerLink="/admin/profile" routerLinkActive="active" class="nav-item">
     <span class="nav-icon"><app-admin-icon name="profile" [size]="18"></app-admin-icon></span>
     <span>Profile</span>
   </a>
 
+  <!-- LIVREUR ONLY -->
+  <a *ngIf="isLivreur()" routerLink="/admin/livraison/mine" routerLinkActive="active" class="nav-item">
+    <span class="nav-icon"><app-admin-icon name="reservations" [size]="18"></app-admin-icon></span>
+    <span>My Deliveries</span>
+  </a>
 </nav>
   </aside>
 

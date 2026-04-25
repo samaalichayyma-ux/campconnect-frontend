@@ -36,22 +36,47 @@ export class AdminLayoutComponent {
     return this.adminRole === 'GUIDE';
   }
 
+  isLivreur(): boolean {
+  return this.adminRole === 'LIVREUR';
+}
+
   canAccessCampingManagement(): boolean {
     return this.isAdmin() || this.isGuide();
   }
 
   getDashboardRoute(): string {
-  return this.isGuide() ? '/admin/owner-dashboard' : '/admin/dashboard';
+  if (this.isGuide()) {
+    return '/admin/owner-dashboard';
+  }
+
+  if (this.isLivreur()) {
+    return '/admin/livraison/dashboard';
+  }
+
+  return '/admin/dashboard';
 }
 
 getDashboardLabel(): string {
-  return this.isGuide() ? 'My Dashboard' : 'Dashboard';
+  if (this.isGuide()) {
+    return 'My Dashboard';
+  }
+
+  if (this.isLivreur()) {
+    return 'Delivery Dashboard';
+  }
+
+  return 'Dashboard';
 }
 
 getPageTitle(): string {
   if (this.isGuide()) {
     return 'Camp Host Panel';
   }
+
+  if (this.isLivreur()) {
+    return 'Delivery Panel';
+  }
+
   return 'Administration';
 }
 
@@ -59,6 +84,12 @@ getPageSubtitle(): string {
   if (this.isGuide()) {
     return 'Manage your camping sites, bookings, and guest reviews.';
   }
+
+  if (this.isLivreur()) {
+    return 'Manage your assigned deliveries and update delivery progress.';
+  }
+
   return 'Manage your platform with clarity and control.';
 }
+
 }
