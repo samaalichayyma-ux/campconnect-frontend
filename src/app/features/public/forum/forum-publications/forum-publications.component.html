@@ -264,6 +264,7 @@
         <article
           class="fp-card"
           *ngFor="let pub of publicationsView; trackBy: trackByPublication"
+          [attr.id]="getPublicationCardId(pub)"
           (mouseenter)="ouvrir(pub)">
 
           <div class="fp-card-body">

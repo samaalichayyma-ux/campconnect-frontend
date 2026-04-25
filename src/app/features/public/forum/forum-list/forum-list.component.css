@@ -93,6 +93,17 @@
   font-size: 22px;
 }
 
+.stat-title-link {
+  cursor: pointer;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+
+.stat-title-link:hover,
+.stat-title-link:focus-visible {
+  color: #2f6f57;
+}
+
 .stat-card p {
   margin: 0;
   color: #5f6f63;

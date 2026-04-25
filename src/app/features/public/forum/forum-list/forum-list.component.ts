@@ -169,7 +169,12 @@ export class ForumListComponent implements OnInit, OnDestroy {
 
     const forumId = Number(publication.forumId || publication.forum?.id);
     if (Number.isFinite(forumId) && forumId > 0) {
-      this.router.navigate(['/public/forums', forumId, 'publications']);
+      const publicationId = Number(publication.id);
+      const queryParams = Number.isFinite(publicationId) && publicationId > 0
+        ? { publicationId }
+        : undefined;
+
+      this.router.navigate(['/public/forums', forumId, 'publications'], { queryParams });
       return;
     }
 

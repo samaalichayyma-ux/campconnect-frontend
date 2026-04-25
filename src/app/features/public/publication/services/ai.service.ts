@@ -24,36 +24,73 @@ export class AiService {
 
   constructor(private http: HttpClient) {}
 
-  suggestContent(theme: string, forumName = ''): Observable<string> {
-    if (!theme?.trim()) return of('');
+  suggestContent(theme: string, forumName = '', titleHint = ''): Observable<string> {
+    const cleanTheme = this.cleanOneLine(theme);
+    const cleanForum = this.cleanOneLine(forumName) || 'general';
+    const cleanTitle = this.cleanOneLine(titleHint);
+    const subject = cleanTitle || cleanTheme;
+    if (!subject) return of('');
 
-    const prompt = `Tu es un assistant pour un forum de camping en Tunisie appele CampConnect.
-Contexte forum: "${forumName || 'general'}".
-Genere une publication de forum en francais (3 a 4 phrases maximum) sur le theme suivant : "${theme}".
-La publication doit etre engageante, utile et adaptee a une communaute de campeurs.
-Retourne uniquement le texte de la publication.`;
+    const prompt = cleanTitle
+      ? `Tu es un assistant editorial pour CampConnect.
+Forum: "${cleanForum}".
+Titre impose: "${cleanTitle}".
+Theme complementaire: "${cleanTheme || 'aucun'}".
 
-    return this.callGemini(prompt, 380, 0.72).pipe(
-      map((text) => text || this.buildContentFallback(theme, forumName))
+Ecris UNIQUEMENT le contenu complet de la publication en francais.
+Contraintes:
+- rester strictement coherent avec le titre impose
+- 3 a 5 phrases, 55 a 110 mots
+- donner des details concrets (lieu, ambiance, conseils pratiques)
+- finir par une question ouverte a la communaute
+- pas de liste a puces, pas de markdown, pas de prefixe`
+      : `Tu es un assistant editorial pour CampConnect.
+Forum: "${cleanForum}".
+Theme: "${cleanTheme}".
+
+Ecris UNIQUEMENT le contenu complet de la publication en francais.
+Contraintes:
+- 3 a 5 phrases, 55 a 110 mots
+- style naturel, utile et engageant
+- inclure au moins un conseil pratique
+- finir par une question ouverte a la communaute
+- pas de liste a puces, pas de markdown, pas de prefixe`;
+
+    const fallback = this.buildContentFallback(cleanTheme, cleanForum, cleanTitle);
+    return this.callGemini(prompt, 420, 0.55).pipe(
+      map((text) =>
+        this.normalizeGeneratedPublicationContent(text, fallback, cleanTitle, cleanTheme || cleanForum)
+      )
     );
   }
 
-  suggestTitle(content: string, theme = ''): Observable<string> {
-    const source = `${theme} ${content}`.trim();
+  suggestTitle(content: string, theme = '', titleHint = ''): Observable<string> {
+    const cleanTitleHint = this.cleanOneLine(titleHint);
+    const source = `${cleanTitleHint} ${theme} ${content}`.trim();
     if (!source) return of('');
 
-    const prompt = `Propose un titre unique de publication de forum en francais.
+    const prompt = cleanTitleHint
+      ? `Corrige et ameliore ce titre de publication en francais sans changer son idee principale.
+Titre initial: "${cleanTitleHint}".
+
 Contraintes:
-- 8 a 12 mots maximum
+- 6 a 12 mots
+- naturel et clair
+- coherent avec ce contenu: "${content || theme}"
+- sans guillemets, sans prefixe`
+      : `Propose un titre unique de publication de forum en francais.
+Contraintes:
+- 6 a 12 mots
 - style naturel et accrocheur
+- coherent avec le texte source
 - pas de guillemets
-- pas de prefixe "Titre:"
+- pas de prefixe
 
 Texte source:
 "${source}"`;
 
-    return this.callGemini(prompt, 80, 0.55).pipe(
-      map((title) => this.cleanOneLine(title || this.buildTitleFallback(source)))
+    return this.callGemini(prompt, 80, 0.4).pipe(
+      map((title) => this.normalizeGeneratedTitle(title, this.buildTitleFallback(source)))
     );
   }
 
@@ -111,6 +148,7 @@ Contraintes strictes:
 - une seule phrase complete
 - 12 a 24 mots
 - utile, naturelle, respectueuse
+- liee directement au sujet de la publication (au moins un detail concret)
 - sans emoji
 - sans guillemets
 - pas de prefixe "Commentaire:"
@@ -122,7 +160,8 @@ Contenu: "${publicationContent}"`;
     return this.callGemini(prompt, 140, 0.6).pipe(
       map((result) => {
         const fallback = this.buildCommentFallback(publicationTitle, publicationContent, tone);
-        return this.normalizeGeneratedComment(result, fallback);
+        const context = `${publicationTitle} ${publicationContent}`.trim();
+        return this.normalizeGeneratedComment(result, fallback, context, 9);
       })
     );
   }
@@ -155,7 +194,12 @@ Commentaire:
 "${source}"`;
 
     return this.callGemini(prompt, 90, 0.25).pipe(
-      map((result) => this.normalizeGeneratedComment(result, this.buildImproveCommentFallback(source)))
+      map((result) => this.normalizeGeneratedComment(
+        result,
+        this.buildImproveCommentFallback(source),
+        source,
+        6
+      ))
     );
   }
 
@@ -246,6 +290,50 @@ Commentaire :
 
   private cleanOneLine(text: string): string {
     return this.normalizeText(text).replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
+  }
+
+  private normalizeGeneratedTitle(result: string, fallback: string): string {
+    const cleaned = this.cleanOneLine(result)
+      .replace(/^(titre|title)\s*[:\-]\s*/i, '')
+      .replace(/^"(.*)"$/i, '$1')
+      .trim();
+
+    const candidate = cleaned || fallback;
+    const words = candidate.split(/\s+/).filter(Boolean).slice(0, 12);
+    if (!words.length) {
+      return fallback;
+    }
+
+    const joined = words.join(' ');
+    return joined.charAt(0).toUpperCase() + joined.slice(1);
+  }
+
+  private normalizeGeneratedPublicationContent(
+    result: string,
+    fallback: string,
+    titleHint: string,
+    topicHint: string
+  ): string {
+    const cleaned = this.normalizeText(result)
+      .replace(/^(publication|contenu)\s*[:\-]\s*/i, '')
+      .replace(/\n+/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+
+    if (!cleaned) {
+      return fallback;
+    }
+
+    const words = cleaned.split(/\s+/).filter(Boolean);
+    const sentenceCount = (cleaned.match(/[.!?]/g) ?? []).length;
+    const hasEnoughDetail = words.length >= 35 && sentenceCount >= 2;
+    const isAligned = this.isContentAlignedWithSource(cleaned, `${titleHint} ${topicHint}`.trim());
+    if (!hasEnoughDetail || !isAligned) {
+      return fallback;
+    }
+
+    const normalized = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+    return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
   }
 
   private storeInCache(key: string, value: string): void {
@@ -381,12 +469,41 @@ Commentaire :
     return cleaned.length ? cleaned : fallback;
   }
 
-  private buildContentFallback(theme: string, forumName: string): string {
+  private isContentAlignedWithSource(content: string, source: string): boolean {
+    const cleanSource = this.cleanOneLine(source).toLowerCase();
+    if (!cleanSource) {
+      return true;
+    }
+
+    const stopWords = new Set([
+      'dans', 'avec', 'pour', 'sans', 'mais', 'vous', 'nous', 'leur', 'cette', 'celui', 'celle',
+      'forum', 'titre', 'theme', 'camp', 'spot', 'lieu', 'site', 'tres', 'plus', 'moins'
+    ]);
+
+    const keywords = cleanSource
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .map((word) => word.trim())
+      .filter((word) => word.length >= 4 && !stopWords.has(word));
+
+    if (!keywords.length) {
+      return true;
+    }
+
+    const lowerContent = content.toLowerCase();
+    return keywords.some((keyword) => lowerContent.includes(keyword));
+  }
+
+  private buildContentFallback(theme: string, forumName: string, titleHint = ''): string {
     const cleanTheme = this.cleanOneLine(theme) || 'camping';
     const cleanForum = this.cleanOneLine(forumName) || 'la communaute';
-    return `Salut la team ${cleanForum}, je partage une idee autour de "${cleanTheme}". `
-      + `Avez-vous des conseils pratiques, materiel recommande ou retour d experience sur ce sujet ? `
-      + `Merci d avance pour vos astuces afin d aider les nouveaux campeurs.`;
+    const cleanTitle = this.cleanOneLine(titleHint);
+    const focus = cleanTitle || cleanTheme;
+
+    return `Je partage un retour sur ${focus} dans le forum ${cleanForum}. `
+      + `Le lieu est agreable pour camper loin du bruit, avec une ambiance calme et une bonne accessibilite pour un week-end nature. `
+      + `Je conseille de preparer le materiel selon la meteo, de verifier la securite sur place et de respecter la proprete du site. `
+      + `Quels sont vos conseils ou vos spots similaires a recommander ?`;
   }
 
   private buildTitleFallback(source: string): string {
@@ -444,28 +561,89 @@ Commentaire :
       return '';
     }
 
+    const wordCount = compact.split(/\s+/).filter(Boolean).length;
+    if (wordCount < 4) {
+      return 'Merci pour ton retour, peux tu ajouter un detail pratique pour mieux guider la communaute ?';
+    }
+
     const normalized = compact.charAt(0).toUpperCase() + compact.slice(1);
     return /[.!?]$/.test(normalized) ? normalized : `${normalized}.`;
   }
 
-  private normalizeGeneratedComment(result: string, fallback: string): string {
+  private normalizeGeneratedComment(
+    result: string,
+    fallback: string,
+    sourceContext = '',
+    minWords = 6
+  ): string {
     const cleaned = this.cleanOneLine(result)
       .replace(/^(commentaire|reponse|suggestion)\s*[:\-]\s*/i, '')
       .replace(/^"(.*)"$/i, '$1')
       .trim();
 
-    const base = cleaned || fallback;
-    if (!base) {
-      return '';
+    const normalizedResult = this.cleanCommentCandidate(cleaned);
+    const normalizedFallback = this.cleanCommentCandidate(fallback);
+
+    let selected = normalizedResult;
+    if (!this.isAcceptableComment(selected, sourceContext, minWords)) {
+      selected = normalizedFallback;
     }
 
-    const oneLine = base.replace(/\s+/g, ' ').trim();
-    if (!oneLine) {
-      return '';
+    if (!this.isAcceptableComment(selected, sourceContext, Math.max(5, minWords - 2))) {
+      selected = 'Merci pour ce partage, peux tu donner un detail pratique supplementaire pour aider la communaute ?';
     }
 
-    const capped = oneLine.charAt(0).toUpperCase() + oneLine.slice(1);
+    const capped = selected.charAt(0).toUpperCase() + selected.slice(1);
     return /[.!?]$/.test(capped) ? capped : `${capped}.`;
+  }
+
+  private cleanCommentCandidate(value: string): string {
+    return this.cleanOneLine(value)
+      .replace(/[*_`#~]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private isAcceptableComment(candidate: string, context: string, minWords: number): boolean {
+    if (!candidate) {
+      return false;
+    }
+
+    const words = candidate.split(/\s+/).filter(Boolean);
+    if (words.length < minWords || words.length > 28) {
+      return false;
+    }
+
+    if (this.isGenericComment(candidate)) {
+      return false;
+    }
+
+    if (!context.trim()) {
+      return true;
+    }
+
+    return this.isContentAlignedWithSource(candidate, context);
+  }
+
+  private isGenericComment(candidate: string): boolean {
+    const normalized = candidate.toLowerCase().replace(/[.!?]+$/g, '').trim();
+    if (!normalized) {
+      return true;
+    }
+
+    const genericPatterns = [
+      /^je me demande$/,
+      /^interessant$/,
+      /^super$/,
+      /^merci$/,
+      /^ok$/,
+      /^bien dit$/,
+      /^bonne idee$/,
+      /^j aime$/,
+      /^je suis d accord$/
+    ];
+
+    return genericPatterns.some((pattern) => pattern.test(normalized));
   }
 
   private extractTopic(title: string, content: string): string {

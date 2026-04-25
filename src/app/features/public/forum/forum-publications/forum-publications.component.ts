@@ -22,6 +22,7 @@ type CommentTone = 'friendly' | 'curious' | 'expert';
 export class ForumPublicationsComponent implements OnInit {
   forum?: Forum;
   forumId = 0;
+  private targetPublicationId: number | null = null;
 
   publications: Publication[] = [];
   similaires: Publication[] = [];
@@ -89,6 +90,8 @@ export class ForumPublicationsComponent implements OnInit {
       return;
     }
 
+    this.targetPublicationId = this.parsePositiveInt(this.route.snapshot.queryParamMap.get('publicationId'));
+
     // Evite de bloquer l affichage si les metadonnees forum ne chargent pas.
     this.forum = {
       id: this.forumId,
@@ -98,6 +101,9 @@ export class ForumPublicationsComponent implements OnInit {
     };
 
     this.loadDraft();
+    if (this.targetPublicationId) {
+      this.showForm = false;
+    }
 
     this.forumService.getById(this.forumId).subscribe({
       next: (forum) => {
@@ -179,16 +185,16 @@ export class ForumPublicationsComponent implements OnInit {
   }
 
   suggestIA(): void {
-    const source = this.aiTheme.trim() || this.forum?.nom || '';
+    const source = this.nouveauTitre.trim() || this.aiTheme.trim() || this.forum?.nom || '';
     if (!source) {
-      this.formError = 'Donne un theme pour lancer la suggestion IA.';
+      this.formError = 'Ajoute un titre ou un theme pour lancer la suggestion IA.';
       return;
     }
 
     this.formError = '';
     this.aiLoading = true;
 
-    this.aiService.suggestContent(source, this.forum?.nom || '').subscribe({
+    this.aiService.suggestContent(source, this.forum?.nom || '', this.nouveauTitre.trim()).subscribe({
       next: (txt) => {
         this.aiLoading = false;
         this.nouveauContenu = txt || this.nouveauContenu;
@@ -230,15 +236,15 @@ export class ForumPublicationsComponent implements OnInit {
   }
 
   suggestTitleIA(): void {
-    if (!this.nouveauContenu.trim() && !this.aiTheme.trim()) {
-      this.formError = 'Ajoute du contenu ou un theme pour proposer un titre.';
+    if (!this.nouveauContenu.trim() && !this.aiTheme.trim() && !this.nouveauTitre.trim()) {
+      this.formError = 'Ajoute un titre, un contenu ou un theme pour proposer un titre IA.';
       return;
     }
 
     this.formError = '';
     this.aiTitleLoading = true;
 
-    this.aiService.suggestTitle(this.nouveauContenu, this.aiTheme).subscribe({
+    this.aiService.suggestTitle(this.nouveauContenu, this.aiTheme, this.nouveauTitre).subscribe({
       next: (title) => {
         this.aiTitleLoading = false;
         if (title) {
@@ -297,6 +303,7 @@ export class ForumPublicationsComponent implements OnInit {
   }
 
   onDraftChange(): void {
+    this.formError = '';
     this.saveDraft();
   }
 
@@ -310,8 +317,8 @@ export class ForumPublicationsComponent implements OnInit {
       return;
     }
 
-    const title = this.nouveauTitre.trim();
-    const content = this.nouveauContenu.trim();
+    const title = this.normalizeForBackend(this.nouveauTitre.trim());
+    const content = this.normalizeForBackend(this.nouveauContenu.trim());
 
     if (title.length < 5) {
       this.formError = 'Le titre doit contenir au moins 5 caracteres.';
@@ -837,6 +844,14 @@ export class ForumPublicationsComponent implements OnInit {
     return pub.id || pub.titre;
   }
 
+  getPublicationCardId(pub: Publication): string | null {
+    const publicationId = Number(pub.id);
+    if (!Number.isFinite(publicationId) || publicationId <= 0) {
+      return null;
+    }
+    return `publication-${publicationId}`;
+  }
+
   calculerTopStats(pubs: Publication[]): void {
     if (!pubs.length) {
       this.topViewed = undefined;
@@ -873,6 +888,7 @@ export class ForumPublicationsComponent implements OnInit {
       ? this.forumService.getSimilarPublications(this.publications[0], this.publications, 3)
       : [];
     this.isLoadingPublications = false;
+    this.focusTargetPublication();
   }
 
   private loadDraft(): void {
@@ -925,9 +941,13 @@ export class ForumPublicationsComponent implements OnInit {
   }
 
   private resolveActionError(error: unknown, fallback: string): string {
+    const backendMessage = this.extractBackendMessage(error);
     const status = Number((error as { status?: unknown })?.status);
     if (status === 0) {
       return 'Backend inaccessible. Verifie que le serveur Spring tourne sur le bon port.';
+    }
+    if (backendMessage && /invalid utf-8|utf-8/i.test(backendMessage)) {
+      return 'Le texte contient des caracteres non supportes (emoji/symboles). Supprime-les puis reessaie.';
     }
     if (status === 400) {
       return 'Donnees invalides envoyees au backend. Verifie le commentaire et reessaie.';
@@ -939,7 +959,13 @@ export class ForumPublicationsComponent implements OnInit {
       return 'Action interdite: tu peux modifier/supprimer seulement ton propre contenu.';
     }
     if (status === 500) {
+      if (backendMessage) {
+        return `Erreur serveur: ${backendMessage}`;
+      }
       return 'Erreur serveur pendant l action. Reessaie dans quelques secondes.';
+    }
+    if (backendMessage) {
+      return backendMessage;
     }
     return fallback;
   }
@@ -954,6 +980,42 @@ export class ForumPublicationsComponent implements OnInit {
     this.isAdmin = this.authService.isAdmin();
   }
 
+  private normalizeForBackend(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    // Remove problematic Unicode ranges (emoji/non-BMP) to avoid backend UTF-8 parse errors.
+    return value
+      .normalize('NFC')
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
+      .replace(/[\u{10000}-\u{10FFFF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private extractBackendMessage(error: unknown): string {
+    const payload = (error as { error?: unknown })?.error;
+
+    if (typeof payload === 'string' && payload.trim()) {
+      try {
+        const parsed = JSON.parse(payload) as { message?: string };
+        if (typeof parsed?.message === 'string' && parsed.message.trim()) {
+          return parsed.message.trim();
+        }
+      } catch {
+        return payload.trim();
+      }
+    }
+
+    const message = (payload as { message?: unknown } | undefined)?.message;
+    if (typeof message === 'string' && message.trim()) {
+      return message.trim();
+    }
+
+    return '';
+  }
+
   private closeFiltersOnMobile(): void {
     if (!this.showFilters) {
       return;
@@ -966,5 +1028,42 @@ export class ForumPublicationsComponent implements OnInit {
     } catch {
       // No-op: window peut etre indisponible dans certains contextes.
     }
+  }
+
+  private parsePositiveInt(value: string | null): number | null {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed) || parsed <= 0) {
+      return null;
+    }
+    return parsed;
+  }
+
+  private focusTargetPublication(): void {
+    const publicationId = this.targetPublicationId;
+    if (!publicationId) {
+      return;
+    }
+
+    const existsInCurrentForum = this.publications.some(
+      (publication) => Number(publication.id) === publicationId
+    );
+    this.targetPublicationId = null;
+
+    if (!existsInCurrentForum) {
+      return;
+    }
+
+    this.expandedPublicationIds.add(publicationId);
+
+    setTimeout(() => {
+      const element = document.getElementById(`publication-${publicationId}`);
+      if (!element) {
+        return;
+      }
+
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      element.classList.add('target-publication');
+      setTimeout(() => element.classList.remove('target-publication'), 1800);
+    }, 0);
   }
 }

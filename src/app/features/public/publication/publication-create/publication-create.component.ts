@@ -52,15 +52,19 @@ export class PublicationCreateComponent implements OnInit {
   }
 
   suggestWithAI(): void {
-    if (!this.theme.trim()) {
-      this.aiError = 'Veuillez saisir un theme pour obtenir une suggestion.';
+    const titleHint = this.titre.trim();
+    const themeHint = this.theme.trim();
+    const source = titleHint || themeHint;
+    if (!source) {
+      this.aiError = 'Veuillez saisir un titre ou un theme pour obtenir une suggestion.';
       return;
     }
 
     this.aiError = '';
     this.aiLoading = true;
+    const selectedForumName = this.forums.find((forum) => forum.id === this.selectedForumId)?.nom || '';
 
-    this.aiService.suggestContent(this.theme).subscribe({
+    this.aiService.suggestContent(source, selectedForumName, titleHint).subscribe({
       next: (suggestion) => {
         this.aiLoading = false;
         if (suggestion) {
@@ -105,7 +109,8 @@ export class PublicationCreateComponent implements OnInit {
     this.successMessage = '';
     this.errorMessage = '';
 
-    const content = this.contenu.trim();
+    const title = this.normalizeForBackend(this.getNormalizedTitle());
+    const content = this.normalizeForBackend(this.contenu.trim());
     if (!content) {
       this.errorMessage = 'Le contenu est obligatoire.';
       return;
@@ -117,7 +122,7 @@ export class PublicationCreateComponent implements OnInit {
     }
 
     const publication: Publication = {
-      titre: this.getNormalizedTitle(),
+      titre: title,
       contenu: content,
       forumId: this.selectedForumId,
       forum: { id: this.selectedForumId }
@@ -132,7 +137,8 @@ export class PublicationCreateComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erreur creation publication :', error);
-        this.errorMessage = 'Impossible de creer la publication.';
+        const backendMessage = this.extractBackendMessage(error);
+        this.errorMessage = backendMessage || 'Impossible de creer la publication.';
       }
     });
   }
@@ -144,5 +150,35 @@ export class PublicationCreateComponent implements OnInit {
     }
 
     return candidate.length > 60 ? candidate.slice(0, 60).trim() : candidate;
+  }
+
+  private normalizeForBackend(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    return value
+      .normalize('NFC')
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, ' ')
+      .replace(/[\u{10000}-\u{10FFFF}]/gu, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private extractBackendMessage(error: unknown): string {
+    const payload = (error as { error?: unknown })?.error;
+    if (typeof payload === 'string' && payload.trim()) {
+      try {
+        const parsed = JSON.parse(payload) as { message?: string };
+        if (typeof parsed?.message === 'string' && parsed.message.trim()) {
+          return parsed.message.trim();
+        }
+      } catch {
+        return payload.trim();
+      }
+    }
+
+    const message = (payload as { message?: unknown } | undefined)?.message;
+    return typeof message === 'string' ? message.trim() : '';
   }
 }

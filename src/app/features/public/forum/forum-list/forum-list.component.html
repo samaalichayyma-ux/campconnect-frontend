@@ -23,7 +23,19 @@
         <app-admin-icon name="eye" [size]="22"></app-admin-icon>
       </span>
       <span class="stat-label">Le plus consulté</span>
-      <h3>{{ topViewed?.titre || 'Aucune publication' }}</h3>
+      <h3
+        *ngIf="topViewed; else emptyTopViewed"
+        class="stat-title-link"
+        (click)="openPublication(topViewed); $event.stopPropagation()"
+        role="link"
+        tabindex="0"
+        (keydown.enter)="openPublication(topViewed); $event.preventDefault(); $event.stopPropagation()"
+        (keydown.space)="openPublication(topViewed); $event.preventDefault(); $event.stopPropagation()">
+        {{ topViewed.titre }}
+      </h3>
+      <ng-template #emptyTopViewed>
+        <h3>Aucune publication</h3>
+      </ng-template>
       <p>{{ topViewed?.vuesCount || 0 }} vues</p>
     </div>
 
@@ -32,7 +44,19 @@
         <app-admin-icon name="comments" [size]="22"></app-admin-icon>
       </span>
       <span class="stat-label">Le plus commenté</span>
-      <h3>{{ topCommented?.titre || 'Aucune publication' }}</h3>
+      <h3
+        *ngIf="topCommented; else emptyTopCommented"
+        class="stat-title-link"
+        (click)="openPublication(topCommented); $event.stopPropagation()"
+        role="link"
+        tabindex="0"
+        (keydown.enter)="openPublication(topCommented); $event.preventDefault(); $event.stopPropagation()"
+        (keydown.space)="openPublication(topCommented); $event.preventDefault(); $event.stopPropagation()">
+        {{ topCommented.titre }}
+      </h3>
+      <ng-template #emptyTopCommented>
+        <h3>Aucune publication</h3>
+      </ng-template>
       <p>{{ topCommented?.commentairesCount || 0 }} commentaires</p>
     </div>
 
@@ -41,7 +65,19 @@
         <app-admin-icon name="heart" [size]="22"></app-admin-icon>
       </span>
       <span class="stat-label">Le plus aimé</span>
-      <h3>{{ topLiked?.titre || 'Aucune publication' }}</h3>
+      <h3
+        *ngIf="topLiked; else emptyTopLiked"
+        class="stat-title-link"
+        (click)="openPublication(topLiked); $event.stopPropagation()"
+        role="link"
+        tabindex="0"
+        (keydown.enter)="openPublication(topLiked); $event.preventDefault(); $event.stopPropagation()"
+        (keydown.space)="openPublication(topLiked); $event.preventDefault(); $event.stopPropagation()">
+        {{ topLiked.titre }}
+      </h3>
+      <ng-template #emptyTopLiked>
+        <h3>Aucune publication</h3>
+      </ng-template>
       <p>{{ topLiked?.likesCount || 0 }} likes</p>
     </div>
   </section>
@@ -186,11 +222,8 @@
     <div class="publication-list">
       <article
         class="publication-row clickable"
-        *ngFor="let publication of (isSearching ? filteredPublications : topPublications); let i = index"
+        *ngFor="let publication of (isSearching ? filteredPublications : topPublications)"
         (click)="openPublication(publication)">
-        <div class="rank-badge" [class.gold]="i===0" [class.silver]="i===1" [class.bronze]="i===2">
-          #{{ i + 1 }}
-        </div>
         <div class="publication-main">
           <h3>{{ publication.titre }}</h3>
           <p>{{ publication.contenu }}</p>
