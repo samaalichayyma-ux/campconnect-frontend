@@ -6,7 +6,6 @@ import Swal from 'sweetalert2';
 
 import { CampingSite } from '../models/camping-site.model';
 import { SiteBooking } from '../models/booking.model';
-import { SiteAvailability } from '../models/site-availability.model';
 import { CampingService } from '../services/camping.service';
 
 import { AvisListComponent } from '../avis/avis-list/avis-list.component';
@@ -20,6 +19,7 @@ import { AddAvisComponent } from '../avis/add-avis/add-avis.component';
   styleUrl: './site-booking.component.css'
 })
 export class SiteBookingComponent implements OnInit {
+
   selectedSite?: CampingSite;
   hoverRating = 0;
   errorMessage = '';
@@ -27,8 +27,6 @@ export class SiteBookingComponent implements OnInit {
   isLoading = false;
 
   todayString = '';
-  availability?: SiteAvailability;
-  availabilityLoading = false;
 
   bookingForm: SiteBooking = {
     dateDebut: '',
@@ -38,10 +36,10 @@ export class SiteBookingComponent implements OnInit {
   };
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private campingService: CampingService
-  ) {}
+  private route: ActivatedRoute,
+  private router: Router,
+  private campingService: CampingService
+) {}
 
   ngOnInit(): void {
     const today = new Date();
@@ -68,54 +66,6 @@ export class SiteBookingComponent implements OnInit {
     });
   }
 
-  onBookingFieldChange(): void {
-    this.errorMessage = '';
-
-    if (!this.selectedSite || !this.bookingForm.dateDebut || !this.bookingForm.dateFin) {
-      this.availability = undefined;
-      return;
-    }
-
-    const start = new Date(this.bookingForm.dateDebut);
-    const end = new Date(this.bookingForm.dateFin);
-
-    if (end <= start) {
-      this.availability = undefined;
-      return;
-    }
-
-    this.checkAvailability();
-  }
-
-  checkAvailability(): void {
-    if (!this.selectedSite || !this.bookingForm.dateDebut || !this.bookingForm.dateFin) {
-      return;
-    }
-
-    this.availabilityLoading = true;
-
-    this.campingService.getSiteAvailability(
-      this.selectedSite.idSite,
-      this.bookingForm.dateDebut,
-      this.bookingForm.dateFin
-    ).subscribe({
-      next: (data) => {
-        this.availability = data;
-        this.availabilityLoading = false;
-
-        if (this.bookingForm.numberOfGuests > data.remainingCapacity) {
-          this.errorMessage = `Only ${data.remainingCapacity} guest(s) available for these dates.`;
-        }
-      },
-      error: (error) => {
-        console.error(error);
-        this.availability = undefined;
-        this.availabilityLoading = false;
-        this.errorMessage = 'Failed to check availability for selected dates.';
-      }
-    });
-  }
-
   getNumberOfNights(): number {
     if (!this.bookingForm.dateDebut || !this.bookingForm.dateFin) return 0;
 
@@ -134,71 +84,63 @@ export class SiteBookingComponent implements OnInit {
       * this.selectedSite.prixParNuit;
   }
 
-  getRemainingCapacity(): number {
-    return this.availability?.remainingCapacity ?? this.selectedSite?.remainingCapacity ?? 0;
+ onSubmit(): void {
+  if (!this.selectedSite) {
+    this.showError('Site not found');
+    return;
   }
 
-  onSubmit(): void {
-    if (!this.selectedSite) {
-      this.showError('Site not found');
-      return;
-    }
+  const remaining = this.selectedSite.remainingCapacity ?? 0;
 
-    if (!this.bookingForm.dateDebut || !this.bookingForm.dateFin) {
-      this.showError('Please select both dates.');
-      return;
-    }
-
-    const start = new Date(this.bookingForm.dateDebut);
-    const end = new Date(this.bookingForm.dateFin);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    if (start < today) {
-      this.showError('Start date cannot be in the past.');
-      return;
-    }
-
-    if (end <= start) {
-      this.showError('End date must be after start date.');
-      return;
-    }
-
-    if (this.bookingForm.numberOfGuests < 1) {
-      this.showError('Guests must be at least 1.');
-      return;
-    }
-
-    if (!this.availability) {
-      this.showError('Please select valid dates to check availability first.');
-      return;
-    }
-
-    if (this.availability.remainingCapacity <= 0) {
-      this.showError('No remaining spots are available for these dates.');
-      return;
-    }
-
-    if (this.bookingForm.numberOfGuests > this.availability.remainingCapacity) {
-      this.showError(`Max allowed for these dates is ${this.availability.remainingCapacity} guest(s).`);
-      return;
-    }
-
-    this.router.navigate(['/public/booking-summary'], {
-      state: {
-        bookingData: {
-          ...this.bookingForm,
-          siteId: this.selectedSite.idSite
-        },
-        selectedSite: this.selectedSite,
-        totalPrice: this.getTotalPrice(),
-        nights: this.getNumberOfNights(),
-        availability: this.availability
-      }
-    });
+  if (remaining === 0) {
+    this.showError('This camping site is fully booked.');
+    return;
   }
 
-  private showError(msg: string): void {
+  if (!this.bookingForm.dateDebut || !this.bookingForm.dateFin) {
+    this.showError('Please select both dates.');
+    return;
+  }
+
+  const start = new Date(this.bookingForm.dateDebut);
+  const end = new Date(this.bookingForm.dateFin);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (start < today) {
+    this.showError('Start date cannot be in the past.');
+    return;
+  }
+
+  if (end <= start) {
+    this.showError('End date must be after start date.');
+    return;
+  }
+
+  if (this.bookingForm.numberOfGuests < 1) {
+    this.showError('Guests must be at least 1.');
+    return;
+  }
+
+  if (this.bookingForm.numberOfGuests > remaining) {
+    this.showError(`Max allowed is ${remaining} guests.`);
+    return;
+  }
+
+  this.router.navigate(['/public/booking-summary'], {
+    state: {
+      bookingData: {
+        ...this.bookingForm,
+        siteId: this.selectedSite.idSite
+      },
+      selectedSite: this.selectedSite,
+      totalPrice: this.getTotalPrice(),
+      nights: this.getNumberOfNights()
+    }
+  });
+}
+
+  private showError(msg: string) {
     this.errorMessage = msg;
 
     Swal.fire({

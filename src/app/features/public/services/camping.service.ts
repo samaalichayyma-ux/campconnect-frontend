@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CampingSite } from '../models/camping-site.model';
-import { InscriptionCheckoutResponse, SiteBooking, UpdateSiteBooking } from '../models/booking.model';
-import { SiteAvailability } from '../models/site-availability.model';
+import { SiteBooking, UpdateSiteBooking } from '../models/booking.model';
 
 @Injectable({
   providedIn: 'root'
@@ -33,33 +32,10 @@ export class CampingService {
     return this.http.get<CampingSite>(`${this.apiUrl}/site-camping/getsite/${idSite}`);
   }
 
-  createBooking(booking: SiteBooking): Observable<InscriptionCheckoutResponse> {
-    return this.http.post<InscriptionCheckoutResponse>(
-      `${this.apiUrl}/inscriptionsite/add`,
-      booking
-    );
+  createBooking(booking: SiteBooking): Observable<SiteBooking> {
+    return this.http.post<SiteBooking>(`${this.apiUrl}/inscriptionsite/add`, booking);
   }
 
-  confirmPayment(id: number) {
-  return this.http.patch(
-    `${this.apiUrl}/inscriptionsite/confirm-payment/${id}`,
-    {}
-  );
-}
-
-  downloadInvoice(id: number) {
-  return this.http.get(
-    `${this.apiUrl}/inscriptionsite/invoice/${id}`,
-    { responseType: 'blob' }
-  );
-  }
-
-  downloadTicket(idInscription: number) {
-  return this.http.get(
-    `${this.apiUrl}/inscriptionsite/ticket/${idInscription}`,
-    { responseType: 'blob' }
-  );
-}
   getAllBookings(): Observable<UpdateSiteBooking[]> {
     return this.http.get<UpdateSiteBooking[]>(`${this.apiUrl}/inscriptionsite/getAll`);
   }
@@ -68,20 +44,9 @@ export class CampingService {
     return this.http.get<SiteBooking[]>(`${this.apiUrl}/inscriptionsite/bySite/${idSite}`);
   }
 
-  getDetailedBookingsBySite(idSite: number): Observable<UpdateSiteBooking[]> {
-  return this.http.get<UpdateSiteBooking[]>(`${this.apiUrl}/inscriptionsite/bySite/${idSite}`);
-}
-
   updateBooking(idInscription: number, booking: UpdateSiteBooking): Observable<UpdateSiteBooking> {
     return this.http.patch<UpdateSiteBooking>(`${this.apiUrl}/inscriptionsite/update/${idInscription}`, booking);
   }
-
-cancelBooking(idInscription: number): Observable<UpdateSiteBooking> {
-  return this.http.patch<UpdateSiteBooking>(
-    `${this.apiUrl}/inscriptionsite/cancel/${idInscription}`,
-    {}
-  );
-}
 
   getMyCampingSites(): Observable<CampingSite[]> {
     return this.http.get<CampingSite[]>(`${this.apiUrl}/site-camping/my-sites`);
@@ -89,32 +54,4 @@ cancelBooking(idInscription: number): Observable<UpdateSiteBooking> {
   getMyBookings(): Observable<UpdateSiteBooking[]> {
   return this.http.get<UpdateSiteBooking[]>(`${this.apiUrl}/inscriptionsite/my-inscriptions`);
 }
-
-  getSiteAvailability(idSite: number, dateDebut: string, dateFin: string) {
-  return this.http.get<SiteAvailability>(
-    `${this.apiUrl}/site-camping/${idSite}/availability`,
-    {
-      params: {
-        dateDebut,
-        dateFin
-      }
-    }
-  );
-}
-
-getMyCampBookingList(): Observable<UpdateSiteBooking[]> {
-  return this.http.get<UpdateSiteBooking[]>(
-    `${this.apiUrl}/inscriptionsite/my-camp-booking-list`
-  );
-}
-
-  
-  getRecommendedSites() {
-  return this.http.get<any[]>(`http://localhost:8082/api/site-camping/recommendations/recommended`);
-}
-
-getFeaturedSites() {
-  return this.http.get<any[]>(`http://localhost:8082/api/site-camping/recommendations/featured`);
-}
-
 }

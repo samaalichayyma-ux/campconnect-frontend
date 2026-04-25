@@ -1,77 +1,38 @@
 <section class="reclamation-page">
   <div class="reclamation-overlay">
     <div class="reclamation-card">
-
-      <!-- Card Header -->
-      <div class="card-header">
-        <div class="header-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
-        </div>
-        <div>
-          <h2 class="card-title">Submit a Complaint</h2>
-          <p class="card-subtitle">Describe your issue and we'll take care of it</p>
-        </div>
-      </div>
-
-      <form (ngSubmit)="save()" #reclamationForm="ngForm" class="card-form">
-
-        <!-- Type -->
-        <div class="form-group mb-3">
-          <label for="type" class="form-label">
-            <span class="label-icon">📂</span> Category
-          </label>
-          <select id="type" [(ngModel)]="reclamation.type" name="type" class="form-control form-select-styled">
-            <option value="Destination">🏕️ Destination</option>
-            <option value="Shop">🛍️ Shop</option>
-            <option value="Restaurant">🍽️ Restaurant</option>
-            <option value="Event">🎉 Event</option>
-            <option value="Formation">📚 Formation</option>
-          </select>
-        </div>
+      <form (ngSubmit)="save()" #reclamationForm="ngForm">
 
         <!-- Description -->
-        <div class="form-group mb-3">
-          <label for="description" class="form-label">
-            <span class="label-icon">📝</span> Complaint Description
-          </label>
+        <div class="mb-3">
+          <label for="description" class="form-label">Complaint Description</label>
+          <br>
           <textarea
             id="description"
             name="description"
             class="form-control"
             rows="5"
-            placeholder="Please describe your complaint in detail..."
             [(ngModel)]="reclamation.description"
             required
             #description="ngModel">
           </textarea>
+
           <div class="text-danger" *ngIf="submitted && description.invalid">
             Description is required.
           </div>
         </div>
 
         <!-- Image Upload -->
-        <div class="form-group mb-3">
-          <label for="image" class="form-label">
-            <span class="label-icon">📷</span> Attach Image <span class="optional-tag">(optional)</span>
-          </label>
-          <div class="file-upload-zone">
-            <input
-              id="image"
-              type="file"
-              name="image"
-              accept="image/*"
-              class="file-input"
-              (change)="onFileSelected($event)"
-            />
-            <div class="file-upload-hint">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-              </svg>
-              <span>Click to browse or drag & drop an image</span>
-            </div>
-          </div>
+        <div class="form-group full-width mb-3">
+          <label for="description" class="form-label">
+         Image</label><br>
+          <input
+            id="image"
+            type="file"
+            name="image"
+            accept="image/*"
+            (change)="onFileSelected($event)"
+          />
         </div>
 
         <!-- Acceptation -->
@@ -84,9 +45,11 @@
             [(ngModel)]="reclamation.acceptationDeclaration"
             required
             #acceptationDeclaration="ngModel">
+
           <label class="form-check-label" for="acceptationDeclaration">
             I accept the processing of my personal data for handling my complaint.
-            <a href="javascript:void(0)" (click)="ouvrirDeclaration()" class="declaration-link">View the declaration</a>
+            <br>
+            <a href="javascript:void(0)" (click)="ouvrirDeclaration()">View the declaration</a>
           </label>
         </div>
 
@@ -94,16 +57,9 @@
           You must accept the declaration before submitting your complaint.
         </div>
 
-        <!-- Submit -->
-        <div class="form-footer">
-          <button type="submit" class="btn btn-primary submit-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/>
-            </svg>
-            Submit Complaint
-          </button>
-        </div>
-
+        <button type="submit" class="btn btn-primary submit-btn">
+          Submit Complaint
+        </button>
       </form>
     </div>
   </div>
@@ -116,9 +72,11 @@
       <h4>Personal Data Processing Declaration</h4>
       <button type="button" class="btn-close-custom" (click)="fermerDeclaration()">×</button>
     </div>
+
     <div class="modal-body-custom">
       <p>The <strong>CampConnect</strong> platform collects your data...</p>
     </div>
+
     <div class="modal-footer-custom">
       <button class="btn btn-secondary modal-close-btn" type="button" (click)="fermerDeclaration()">Close</button>
     </div>

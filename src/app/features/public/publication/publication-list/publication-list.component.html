@@ -1,8 +1,10 @@
 <div class="publication-page">
   <div class="hero-section">
-    <h1>Explorer la communauté camping</h1>
-    <p>Découvrez les expériences, conseils et publications des campeurs.</p>
+    <h1>Explorer la communaute camping</h1>
+    <p>Decouvrez les experiences, conseils et publications des campeurs.</p>
   </div>
+
+  <p class="feedback-msg" *ngIf="feedbackMessage">{{ feedbackMessage }}</p>
 
   <div class="publication-list">
     <div class="publication-card" *ngFor="let publication of publications">
@@ -13,24 +15,36 @@
         </div>
 
         <div class="publication-actions">
-          <button class="icon-btn" title="Modifier" (click)="goToEdit(publication.id)">
-            ✏️
+          <button type="button" class="icon-btn" *ngIf="canManagePublication(publication)" title="Modifier" (click)="goToEdit(publication.id)">
+            <span class="btn-icon" aria-hidden="true">&#9998;</span>
+            <span>Modifier</span>
           </button>
-          <button class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">
-            🗑️
+          <button type="button" class="icon-btn danger-btn" *ngIf="canManagePublication(publication)" title="Supprimer" (click)="deletePublication(publication)">
+            <span class="btn-icon" aria-hidden="true">&#128465;</span>
+            <span>Supprimer</span>
           </button>
         </div>
       </div>
 
       <div class="publication-footer">
-        <button class="like-btn" (click)="like(publication.id)">
-          ❤️ {{ publication.likesCount || 0 }}
+        <button type="button" class="like-btn" (click)="like(publication.id)" [disabled]="hasLikedPublication(publication)">
+          <ng-container *ngIf="hasLikedPublication(publication); else canLikePublicationTpl">
+            <span class="btn-icon" aria-hidden="true">&#127881;</span>
+            <span>Deja aime</span>
+          </ng-container>
+          <ng-template #canLikePublicationTpl>
+            <span class="btn-icon" aria-hidden="true">&#10084;</span>
+            <span>Aimer</span>
+          </ng-template>
+          <span>{{ publication.likesCount || 0 }}</span>
         </button>
 
-        <button class="details-btn" (click)="goToDetails(publication.id)">
-          Voir détails
+        <button type="button" class="details-btn" (click)="goToDetails(publication)">
+          <span class="btn-icon" aria-hidden="true">&#128065;</span>
+          <span>Consulter</span>
         </button>
       </div>
     </div>
   </div>
 </div>
+

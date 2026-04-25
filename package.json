@@ -11,7 +11,6 @@
   "private": true,
   "dependencies": {
     "@angular/animations": "^19.1.0",
-    "@angular/cdk": "^19.1.0",
     "@angular/common": "^19.1.0",
     "@angular/compiler": "^19.1.0",
     "@angular/core": "^19.1.0",
@@ -19,10 +18,7 @@
     "@angular/platform-browser": "^19.1.0",
     "@angular/platform-browser-dynamic": "^19.1.0",
     "@angular/router": "^19.1.0",
-    "chart.js": "^4.5.1",
     "intl-tel-input": "^17.0.21",
-    "ng2-charts": "^8.0.0",
-    "ngx-toastr": "^19.1.0",
     "rxjs": "~7.8.0",
     "sweetalert2": "^11.26.22",
     "tslib": "^2.3.0",

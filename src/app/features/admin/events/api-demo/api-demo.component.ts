@@ -1,7 +1,6 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { EventService } from '../../../public/events/services/event.service';
 import { Event, EventReservation } from '../../../public/events/models/event.model';
 
@@ -12,13 +11,15 @@ import { Event, EventReservation } from '../../../public/events/models/event.mod
   templateUrl: './api-demo.component.html',
   styleUrl: './api-demo.component.css'
 })
-export class ApiDemoComponent extends ToastMessageHost implements OnInit {
+export class ApiDemoComponent implements OnInit {
+  // Sample data
   events: Event[] = [];
   reservations: EventReservation[] = [];
   upcomingEvents: Event[] = [];
   availableEvents: Event[] = [];
   pendingReservations: EventReservation[] = [];
-
+  
+  // UI Controls
   loading = false;
   selectedEventId: number | null = null;
   selectedReservationId: number | null = null;
@@ -27,50 +28,69 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
   searchQuery: string = '';
   participantCount: number = 1;
   selectedDateRange = { start: '', end: '' };
-
+  
+  // Results display
   results: any = null;
   resultType: string = '';
-  constructor(private eventService: EventService) {
-    super();
-  }
+  errorMessage: string = '';
+  successMessage: string = '';
+
+  constructor(private eventService: EventService) {}
 
   ngOnInit(): void {
     this.loadAllDemo();
   }
 
+  // ========== DEMO: Load All Data ==========
   loadAllDemo(): void {
+    console.log('ðŸš€ Starting loadAllDemo()...');
+    
+    // Load all events
     this.eventService.getAllEvents().subscribe({
       next: (data: Event[]) => {
         this.events = data;
         this.resultType = 'Events';
         this.results = data;
+        console.log('âœ… All Events Loaded:', data);
+        console.log('Total events:', data.length);
       },
       error: (err: any) => {
+        console.error('âŒ Error loading events:', err);
         this.handleError('Failed to load all events', err);
       }
     });
 
+    // Load upcoming events
     this.eventService.getUpcomingEvents().subscribe({
       next: (data: Event[]) => {
         this.upcomingEvents = data;
+        console.log('âœ… Upcoming Events Loaded:', data);
       },
       error: (err: any) => console.error('Error loading upcoming events:', err)
     });
 
+    // Load available events
     this.eventService.getAvailableEvents().subscribe({
       next: (data: Event[]) => {
         this.availableEvents = data;
+        console.log('âœ… Available Events Loaded:', data);
       },
       error: (err: any) => console.error('Error loading available events:', err)
     });
 
+    // Load pending reservations
     this.eventService.getPendingReservations().subscribe({
       next: (data: EventReservation[]) => {
         this.pendingReservations = data;
+        console.log('âœ… Pending Reservations Loaded:', data);
       },
       error: (err: any) => console.error('Error loading pending reservations:', err)
     });
   }
+
+  // ========== EVENTS API DEMOS ==========
+
+  // Demo: Get Event by ID
   getEventDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -82,26 +102,29 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (event: Event) => {
         this.results = event;
         this.resultType = 'Event Details';
-        this.successMessage = 'Event loaded successfully.';
+        this.successMessage = 'âœ… Event loaded successfully!';
         this.loading = false;
+        console.log('Event Details:', event);
       },
       error: (err: any) => this.handleError('Failed to get event', err)
     });
   }
 
+  // Demo: Get Events by Category
   getByCategory(): void {
     this.loading = true;
     this.eventService.getEventsByCategory(this.selectedCategory).subscribe({
       next: (events: Event[]) => {
         this.results = events;
         this.resultType = `Events by Category: ${this.selectedCategory}`;
-        this.successMessage = `Found ${events.length} events in ${this.selectedCategory}.`;
+        this.successMessage = `âœ… Found ${events.length} events in ${this.selectedCategory}`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get events by category', err)
     });
   }
 
+  // Demo: Search Events
   searchEvents(): void {
     if (!this.searchQuery.trim()) {
       this.errorMessage = 'Please enter a search query';
@@ -113,13 +136,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (events: Event[]) => {
         this.results = events;
         this.resultType = `Search Results: "${this.searchQuery}"`;
-        this.successMessage = `Found ${events.length} events.`;
+        this.successMessage = `âœ… Found ${events.length} events`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Search failed', err)
     });
   }
 
+  // Demo: Get Available Seats
   getAvailableSeatsDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -131,13 +155,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (seats: number) => {
         this.results = { availableSeats: seats };
         this.resultType = 'Available Seats';
-        this.successMessage = `Event has ${seats} available seats.`;
+        this.successMessage = `âœ… Event has ${seats} available seats`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get available seats', err)
     });
   }
 
+  // Demo: Get Participant Count
   getParticipantCountDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -149,13 +174,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (count: number) => {
         this.results = { participantCount: count };
         this.resultType = 'Participant Count';
-        this.successMessage = `Event has ${count} participants.`;
+        this.successMessage = `âœ… Event has ${count} participants`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get participant count', err)
     });
   }
 
+  // Demo: Get Event Revenue
   getEventRevenueDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -167,13 +193,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (revenue: number) => {
         this.results = { totalRevenue: revenue };
         this.resultType = 'Event Revenue';
-        this.successMessage = `Total revenue: $${this.formatPrice(revenue)}.`;
+        this.successMessage = `âœ… Total revenue: $${this.formatPrice(revenue)}`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get event revenue', err)
     });
   }
 
+  // Demo: Get Event by Date Range
   getByDateRange(): void {
     if (!this.selectedDateRange.start || !this.selectedDateRange.end) {
       this.errorMessage = 'Please select both start and end dates';
@@ -185,19 +212,20 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (events: Event[]) => {
         this.results = events;
         this.resultType = `Events from ${this.selectedDateRange.start} to ${this.selectedDateRange.end}`;
-        this.successMessage = `Found ${events.length} events.`;
+        this.successMessage = `âœ… Found ${events.length} events`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get events by date range', err)
     });
   }
 
+  // Simple demo methods for inline buttons
   loadUpcomingEvents(): void {
     this.eventService.getUpcomingEvents().subscribe({
       next: (data: Event[]) => {
         this.results = data;
         this.resultType = 'Upcoming Events';
-        this.successMessage = 'Loaded upcoming events.';
+        this.successMessage = 'âœ… Loaded upcoming events';
       },
       error: (err: any) => this.handleError('Failed to load upcoming events', err)
     });
@@ -208,7 +236,7 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (data: Event[]) => {
         this.results = data;
         this.resultType = 'Available Events';
-        this.successMessage = 'Loaded available events.';
+        this.successMessage = 'âœ… Loaded available events';
       },
       error: (err: any) => this.handleError('Failed to load available events', err)
     });
@@ -219,7 +247,7 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (data: EventReservation[]) => {
         this.results = data;
         this.resultType = 'Unpaid Reservations';
-        this.successMessage = 'Loaded unpaid reservations.';
+        this.successMessage = 'âœ… Loaded unpaid reservations';
       },
       error: (err: any) => this.handleError('Failed to load unpaid reservations', err)
     });
@@ -234,38 +262,43 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (data: number) => {
         this.results = { waitlistCount: data };
         this.resultType = 'Waitlist Count';
-        this.successMessage = 'Loaded waitlist count.';
+        this.successMessage = 'âœ… Loaded waitlist count';
       },
       error: (err: any) => this.handleError('Failed to load waitlist count', err)
     });
   }
 
+  // ========== HELPER METHODS ==========
+
+  // Demo: Get All Reservations
   getAllReservationsDemo(): void {
     this.loading = true;
     this.eventService.getAllReservations().subscribe({
       next: (reservations: EventReservation[]) => {
         this.results = reservations;
         this.resultType = 'All Reservations';
-        this.successMessage = `Found ${reservations.length} reservations.`;
+        this.successMessage = `âœ… Found ${reservations.length} reservations`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get all reservations', err)
     });
   }
 
+  // Demo: Get User Reservations
   getUserReservationsDemo(): void {
     this.loading = true;
     this.eventService.getUserReservations(this.selectedUserId).subscribe({
       next: (reservations: EventReservation[]) => {
         this.results = reservations;
         this.resultType = `User ${this.selectedUserId} Reservations`;
-        this.successMessage = `User has ${reservations.length} reservations.`;
+        this.successMessage = `âœ… User has ${reservations.length} reservations`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get user reservations', err)
     });
   }
 
+  // Demo: Get Event Reservations
   getEventReservationsDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -277,26 +310,28 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (reservations: EventReservation[]) => {
         this.results = reservations;
         this.resultType = `Reservations for Event ${this.selectedEventId}`;
-        this.successMessage = `Event has ${reservations.length} reservations.`;
+        this.successMessage = `âœ… Event has ${reservations.length} reservations`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get event reservations', err)
     });
   }
 
+  // Demo: Get Pending Reservations
   getPendingReservationsDemo(): void {
     this.loading = true;
     this.eventService.getPendingReservations().subscribe({
       next: (reservations: EventReservation[]) => {
         this.results = reservations;
         this.resultType = 'Pending Reservations';
-        this.successMessage = `Found ${reservations.length} pending reservations.`;
+        this.successMessage = `âœ… Found ${reservations.length} pending reservations`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get pending reservations', err)
     });
   }
 
+  // Demo: Calculate Reservation Price
   calculatePriceDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -308,13 +343,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (price: number) => {
         this.results = { totalPrice: price, participants: this.participantCount };
         this.resultType = 'Price Calculation';
-        this.successMessage = `Total price for ${this.participantCount} participant(s): $${this.formatPrice(price)}.`;
+        this.successMessage = `âœ… Total price for ${this.participantCount} participant(s): $${this.formatPrice(price)}`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to calculate price', err)
     });
   }
 
+  // Demo: Check if User on Waitlist
   checkWaitlistDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -327,13 +363,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
         this.results = { isOnWaitlist: onWaitlist };
         this.resultType = 'Waitlist Status';
         const message = onWaitlist ? 'is on the waitlist' : 'is NOT on the waitlist';
-        this.successMessage = `User ${this.selectedUserId} ${message}.`;
+        this.successMessage = `âœ… User ${this.selectedUserId} ${message}`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to check waitlist status', err)
     });
   }
 
+  // Demo: Get Confirmed Reservations Count
   getConfirmedCountDemo(): void {
     if (!this.selectedEventId) {
       this.errorMessage = 'Please select an event ID';
@@ -345,12 +382,14 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
       next: (count: number) => {
         this.results = { confirmedCount: count };
         this.resultType = 'Confirmed Reservations Count';
-        this.successMessage = `Event has ${count} confirmed reservations.`;
+        this.successMessage = `âœ… Event has ${count} confirmed reservations`;
         this.loading = false;
       },
       error: (err: any) => this.handleError('Failed to get confirmed reservations count', err)
     });
   }
+
+  // ========== HELPER METHODS ==========
 
   clearResults(): void {
     this.results = null;
@@ -360,7 +399,7 @@ export class ApiDemoComponent extends ToastMessageHost implements OnInit {
   }
 
   handleError(message: string, error: any): void {
-    this.errorMessage = message;
+    this.errorMessage = `âŒ ${message}`;
     this.loading = false;
     console.error(message, error);
   }

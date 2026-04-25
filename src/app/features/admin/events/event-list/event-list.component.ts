@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
-import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { Event, EventDuplicateRequestDTO, RecurrenceFrequency } from '../../../public/events/models/event.model';
 import { EventService } from '../../../public/events/services/event.service';
 
@@ -14,11 +13,13 @@ import { EventService } from '../../../public/events/services/event.service';
   templateUrl: './event-list.component.html',
   styleUrl: './event-list.component.css'
 })
-export class EventListComponent extends ToastMessageHost implements OnInit {
+export class EventListComponent implements OnInit {
   readonly fallbackImageUrl = 'assets/images/default-image.jpg';
   events: Event[] = [];
   paginatedEvents: Event[] = [];
   isLoading = false;
+  errorMessage = '';
+  successMessage = '';
   deleteConfirmId: number | null = null;
   publishActionEventId: number | null = null;
   duplicateDialogEvent: Event | null = null;
@@ -30,9 +31,7 @@ export class EventListComponent extends ToastMessageHost implements OnInit {
   pageSize = 8;
   totalPages = 1;
 
-  constructor(private eventService: EventService) {
-    super();
-  }
+  constructor(private eventService: EventService) {}
 
   ngOnInit(): void {
     this.loadEvents();
@@ -168,14 +167,6 @@ export class EventListComponent extends ToastMessageHost implements OnInit {
 
   getEventImageUrl(event: Event): string {
     return this.eventService.getEventPrimaryImageUrl(event, this.fallbackImageUrl);
-  }
-
-  trackByEventId(_index: number, event: Event): number {
-    return event.id;
-  }
-
-  trackByPageNumber(_index: number, page: number): number {
-    return page;
   }
 
   onImageError(event: globalThis.Event): void {

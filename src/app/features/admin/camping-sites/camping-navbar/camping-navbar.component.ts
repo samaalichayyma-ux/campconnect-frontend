@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-camping-navbar',
@@ -10,9 +9,4 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class CampingNavbarComponent {
 
-  constructor(public authService: AuthService) {}
-
-  isGuide(): boolean {
-    return this.authService.getRole() === 'GUIDE';
-  }
 }

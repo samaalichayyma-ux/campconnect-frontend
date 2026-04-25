@@ -4,12 +4,11 @@ import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
 import { PanierService } from '../../services/panier.service';
 import { Observable } from 'rxjs';
-import { NotificationBellComponent } from '../../../features/public/reclamation/notification-bell/notification-bell.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, CommonModule, RouterModule, NotificationBellComponent],
+  imports: [RouterLink, CommonModule, RouterModule],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -30,10 +29,6 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.userRole = this.authService.getRole();
-  }
-
-    isAdmin(): boolean {
-    return this.userRole === 'ADMINISTRATEUR';
   }
 
   logout(): void {

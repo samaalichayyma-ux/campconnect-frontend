@@ -56,6 +56,11 @@
           </div>
 
           <div class="info-row">
+            <span class="label">Remaining Capacity</span>
+            <p>{{ site.remainingCapacity ?? 0 }}</p>
+          </div>
+
+          <div class="info-row">
             <span class="label">Price / Night</span>
             <p>{{ site.prixParNuit }} DT</p>
           </div>
@@ -81,6 +86,22 @@
       <div class="description-card">
         <h4>Description</h4>
         <p>{{ site.description || 'No description available.' }}</p>
+      </div>
+
+      <div class="quick-links">
+        <a
+          class="quick-link"
+          [routerLink]="['/admin/camping-sites', site.idSite, 'edit']"
+        >
+          Edit this site
+        </a>
+
+        <a
+          class="quick-link"
+          routerLink="/admin/site-bookings"
+        >
+          View bookings
+        </a>
       </div>
     </div>
   </div>

@@ -12,8 +12,6 @@
       <a routerLink="/public/events" routerLinkActive="active">Events</a>
       <a routerLink="/public/forums">Forums</a>
       <a href="#">Formations</a>
-      <a routerLink="/public/reclamation" routerLinkActive="active">Complains</a>
-     
     </nav>
 
     <div class="cc-actions">
@@ -36,9 +34,6 @@
           Camp Host
         </a>
 
-        <!-- ═══ Cloche notifications réclamation ═══ -->
-        <app-notification-bell></app-notification-bell>
-
         <div class="cc-user-box" (click)="toggleDropdown()">
           <div
             class="cc-avatar"
@@ -50,9 +45,7 @@
             class="cc-dropdown"
             *ngIf="isDropdownOpen"
             (click)="$event.stopPropagation()">
-            <a
-            [class.disabled]="isAdmin()"
-             routerLink="/public/my-bookings" (click)="closeDropdown()">
+            <a routerLink="/public/my-bookings" (click)="closeDropdown()">
               My Bookings
             </a>
 

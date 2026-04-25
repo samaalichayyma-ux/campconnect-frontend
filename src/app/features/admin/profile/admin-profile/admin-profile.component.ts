@@ -23,9 +23,6 @@ export class AdminProfileComponent implements OnInit {
     biographie: ''
   };
 
-  imagePreview: string | null = null;
-  photoUrlInput = '';
-
   loading = false;
   saving = false;
   successMessage = '';
@@ -44,32 +41,16 @@ export class AdminProfileComponent implements OnInit {
   loadCurrentUser(): void {
     this.loading = true;
     this.errorMessage = '';
-    this.successMessage = '';
 
     this.profileService.getCurrentUser().subscribe({
-      next: (userData) => {
-        this.user = userData;
-
-        this.profileService.getMyProfile().subscribe({
-          next: (profileData) => {
-            this.profile = {
-              adresse: profileData.adresse || '',
-              photo: profileData.photo || '',
-              biographie: profileData.biographie || ''
-            };
-
-            this.imagePreview =
-              this.profile.photo && !this.profile.photo.startsWith('file:///')
-                ? this.profile.photo
-                : null;
-
-            this.loading = false;
-          },
-          error: () => {
-            this.errorMessage = 'Impossible de charger le profil';
-            this.loading = false;
-          }
-        });
+      next: (data) => {
+        this.user = data;
+        this.profile = {
+          adresse: data.adresse || '',
+          photo: data.photo || '',
+          biographie: data.biographie || ''
+        };
+        this.loading = false;
       },
       error: () => {
         this.errorMessage = 'Impossible de charger le profil admin';
@@ -78,45 +59,16 @@ export class AdminProfileComponent implements OnInit {
     });
   }
 
-  applyPhotoUrl(): void {
-    const url = this.photoUrlInput.trim();
-
-    if (!url) {
-      this.errorMessage = 'Veuillez saisir une URL d’image';
-      return;
-    }
-
-    if (url.startsWith('file:///')) {
-      this.errorMessage = 'Les chemins locaux ne sont pas autorisés';
-      return;
-    }
-
-    this.profile.photo = url;
-    this.imagePreview = url;
-    this.photoUrlInput = '';
-    this.errorMessage = '';
-  }
-
   saveProfile(): void {
     this.saving = true;
     this.successMessage = '';
     this.errorMessage = '';
 
     this.profileService.updateMyProfile(this.profile).subscribe({
-      next: (updatedProfile) => {
-        this.profile = {
-          adresse: updatedProfile.adresse || '',
-          photo: updatedProfile.photo || '',
-          biographie: updatedProfile.biographie || ''
-        };
-
-        this.imagePreview =
-          this.profile.photo && !this.profile.photo.startsWith('file:///')
-            ? this.profile.photo
-            : null;
-
+      next: () => {
         this.successMessage = 'Profil mis à jour avec succès';
         this.saving = false;
+        this.loadCurrentUser();
       },
       error: () => {
         this.errorMessage = 'Erreur lors de la mise à jour du profil';

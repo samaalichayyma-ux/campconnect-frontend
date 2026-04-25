@@ -1018,7 +1018,6 @@
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
-  min-height: 2.7em;
 }
 
 .heart-btn {
@@ -1057,48 +1056,10 @@
   color: var(--text-light);
   font-size: 0.9rem;
   line-height: 1.5;
-  overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
-  min-height: 3em;
-}
-
-.event-rating {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 0 0 16px;
-}
-
-.event-rating-stars {
-  display: inline-flex;
-  gap: 3px;
-  color: rgba(201, 184, 70, 0.22);
-  font-size: 0.88rem;
-  line-height: 1;
-}
-
-.event-rating-stars span.filled {
-  color: #c9b846;
-}
-
-.event-rating-value {
-  font-size: 0.84rem;
-  font-weight: 800;
-  color: var(--text);
-}
-
-.event-rating-count {
-  font-size: 0.78rem;
-  color: var(--text-light);
-  font-weight: 600;
-}
-
-.event-rating.unrated .event-rating-count {
-  color: var(--text-lighter);
 }
 
 .event-details {
@@ -1113,7 +1074,7 @@
 .detail-item {
   display: flex;
   gap: 10px;
-  align-items: flex-start;
+  align-items: center;
   font-size: 0.85rem;
   color: var(--text-light);
 }
@@ -1125,16 +1086,9 @@
 }
 
 .detail-text {
-  display: -webkit-box;
-  overflow: hidden;
-  white-space: normal;
-  line-height: 1.45;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  min-height: 2.9em;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
   flex: 1;
   font-weight: 500;
 }
@@ -1456,10 +1410,6 @@
   -webkit-line-clamp: 1;
   line-clamp: 1;
   -webkit-box-orient: vertical;
-}
-
-.list-rating {
-  margin: 8px 0 0;
 }
 
 .list-item-meta {

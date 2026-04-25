@@ -4,10 +4,7 @@
     <app-camping-navbar></app-camping-navbar>
 
     <div class="page-header">
-      <h2> <h3>
-  {{ getUserRole() === 'GUIDE' ? 'My Camp Bookings' : 'Bookings Management' }}
-</h3>
-        </h2>
+      <h2>Bookings Management</h2>
       <p>Monitor and manage all camping reservations.</p>
     </div>
 
@@ -54,6 +51,12 @@
           </td>
 
           <td class="actions">
+            <button
+              class="btn-confirm"
+              (click)="updateStatus(booking, 'CONFIRMED')"
+            >
+              Confirm
+            </button>
 
             <button
               class="btn-cancel"

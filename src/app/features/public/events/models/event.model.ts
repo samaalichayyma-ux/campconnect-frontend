@@ -1,3 +1,5 @@
+// ===== EVENT IMAGE DTO =====
+
 export interface EventImageDTO {
   id: number;
   imageName: string;
@@ -13,12 +15,7 @@ export interface EventImageDTO {
   isAvailable: boolean;
 }
 
-export interface EventFeedbackDTO {
-  reviewerName: string;
-  rating: number;
-  comment?: string;
-  submittedAt?: string;
-}
+// ===== EVENT DTOs - Matching Backend API =====
 
 export type EventCategory =
   | 'GUIDED_TOUR'
@@ -57,7 +54,6 @@ export type ReservationStatus =
   | 'PENDING'
   | 'CONFIRMED'
   | 'PAID'
-  | 'ATTENDED'
   | 'NO_SHOW'
   | 'CANCELLED'
   | 'REFUNDED';
@@ -71,22 +67,12 @@ export type PaymentStatus =
   | 'REFUNDED';
 
 export type PromotionDiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
-export type PromotionScope = 'GLOBAL' | 'EVENTS';
 
 export type NotificationType =
   | 'BOOKING_CONFIRMED'
-  | 'PAYMENT_CONFIRMED'
   | 'WAITLIST_JOINED'
   | 'WAITLIST_PROMOTED'
-  | 'WAITLIST_OFFER_EXPIRED'
-  | 'REFUND_PROCESSED'
-  | 'EVENT_REMINDER'
-  | 'EVENT_POSTPONED'
-  | 'EVENT_CANCELLED'
-  | 'EVENT_STARTED'
-  | 'EVENT_COMPLETED'
-  | 'ATTENDANCE_RECORDED'
-  | 'FEEDBACK_REQUESTED';
+  | 'REFUND_PROCESSED';
 
 export type CancellationPolicyTier =
   | 'FREE_CANCEL'
@@ -134,12 +120,9 @@ export interface EventResponseDTO {
   isAlmostFull?: boolean;
   occupancyRate?: number;
   favoriteCount?: number;
-  averageRating?: number;
-  feedbackCount?: number;
   dateCreation: string;
   dateModification: string;
-  images?: EventImageDTO[];
-  feedbackEntries?: EventFeedbackDTO[];
+  images?: EventImageDTO[]; // Event images gallery
 }
 
 export interface EventDuplicateRequestDTO {
@@ -166,17 +149,14 @@ export interface EventLocationSelection {
   placeId?: string | null;
 }
 
+// ===== RESERVATION DTOs - Matching Backend API =====
+
 export interface ReservationRequestDTO {
   utilisateurId?: number;
   eventId: number;
   nombreParticipants: number;
   remarques?: string;
   promoCode?: string;
-}
-
-export interface ReservationFeedbackRequestDTO {
-  rating: number;
-  comment?: string;
 }
 
 export interface ReservationResponseDTO {
@@ -190,8 +170,6 @@ export interface ReservationResponseDTO {
   eventDateFin: string;
   eventLieu: string;
   statut: ReservationStatus;
-  statusDescription?: string;
-  nextStepMessage?: string;
   nombreParticipants: number;
   basePriceTotal?: number;
   discountAmount?: number;
@@ -216,20 +194,12 @@ export interface ReservationResponseDTO {
   cancelledAt?: string;
   refundedAt?: string;
   cancellationReason?: string;
-  waitlistOfferedAt?: string;
-  waitlistOfferExpiresAt?: string;
-  waitlistOfferActive?: boolean;
   receiptAvailable?: boolean;
   cancellationPolicy?: ReservationCancellationPolicyDTO;
   calendarExportAvailable?: boolean;
   googleCalendarUrl?: string;
   calendarIcsDownloadUrl?: string;
   calendarIcsFileName?: string;
-  attendanceRecordable?: boolean;
-  feedbackRating?: number;
-  feedbackComment?: string;
-  feedbackSubmittedAt?: string;
-  feedbackEligible?: boolean;
 }
 
 export interface StripeCheckoutSessionResponseDTO {
@@ -271,37 +241,6 @@ export interface PromotionOfferResponseDTO {
   endsAt?: string;
   dateCreation?: string;
   dateModification?: string;
-  appliesToAllEvents?: boolean;
-  scope?: PromotionScope;
-  eventIds?: number[];
-  targetedEvents?: PromotionTargetEventSummaryDTO[];
-}
-
-export interface PromotionTargetEventSummaryDTO {
-  id: number;
-  titre: string;
-  dateDebut?: string;
-  dateFin?: string;
-  lieu?: string;
-}
-
-export interface PromotionOfferRequestDTO {
-  name: string;
-  code?: string;
-  description?: string;
-  discountType: PromotionDiscountType;
-  discountValue: number;
-  minimumSubtotal?: number;
-  minimumParticipants?: number;
-  autoApply: boolean;
-  discoverable: boolean;
-  active: boolean;
-  maxRedemptions?: number;
-  startsAt?: string;
-  endsAt?: string;
-  appliesToAllEvents: boolean;
-  scope?: PromotionScope;
-  eventIds?: number[];
 }
 
 export interface PromotionPreviewDTO {
@@ -334,9 +273,11 @@ export interface UserNotificationResponseDTO {
   actionUrl?: string;
 }
 
+// ===== Backward Compatibility Aliases =====
 export type Event = EventResponseDTO;
 export type EventReservation = ReservationResponseDTO;
 
+// ===== Helper Types =====
 export interface PaginatedResponse<T> {
   content: T[];
   totalElements: number;

@@ -238,10 +238,6 @@
   border-bottom: 0;
 }
 
-.summary-row.discount-row strong {
-  color: #1f8f5f;
-}
-
 .event-overview {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -307,26 +303,6 @@
   margin-top: 8px;
   color: #6b7280;
   font-size: 0.84rem;
-}
-
-.summary-note {
-  margin: 12px 0 0;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #f4f7f4;
-  color: #546170;
-  font-size: 0.88rem;
-  line-height: 1.5;
-}
-
-.summary-note.success {
-  background: #eefbf3;
-  color: #1f8f5f;
-}
-
-.summary-note.warning {
-  background: #fff4e8;
-  color: #a75c00;
 }
 
 .form-actions {

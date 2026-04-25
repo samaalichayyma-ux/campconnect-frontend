@@ -1,58 +1,144 @@
 <div class="commentaire-section">
-  <h3 class="comment-title">💬 Commentaires</h3>
+  <div class="comment-head-row">
+    <h3 class="comment-title">Commentaires</h3>
+
+    <div class="sort-switch">
+      <button [class.active]="sortMode==='recent'" (click)="setSortMode('recent')">
+        <span class="btn-icon" aria-hidden="true">&#9201;</span>
+        <span>Recents</span>
+      </button>
+      <button [class.active]="sortMode==='popular'" (click)="setSortMode('popular')">
+        <span class="btn-icon" aria-hidden="true">&#11088;</span>
+        <span>Populaires</span>
+      </button>
+    </div>
+  </div>
 
   <div class="comment-input-box">
-    <div class="avatar">🙂</div>
+    <div class="avatar" aria-hidden="true">&#128578;</div>
 
     <div class="input-area">
       <input
         type="text"
         [(ngModel)]="nouveauCommentaire.contenu"
         name="contenu"
-        placeholder="Écrire un commentaire..."
+        placeholder="Ecrire un commentaire..."
         class="comment-input"
       />
 
-      <button type="button" class="send-btn" (click)="ajouterCommentaire()">
-        Publier ✨
-      </button>
+      <div class="composer-actions">
+        <select [(ngModel)]="commentTone" class="tone-select">
+          <option value="friendly">Ton amical</option>
+          <option value="curious">Ton curieux</option>
+          <option value="expert">Ton expert</option>
+        </select>
+
+        <button type="button" class="tool-btn" (click)="suggestWithAI()" [disabled]="aiSuggestLoading">
+          <span class="btn-icon" aria-hidden="true">&#129302;</span>
+          <span>{{ aiSuggestLoading ? 'IA...' : 'Suggestion IA' }}</span>
+        </button>
+
+        <button type="button" class="tool-btn" (click)="improveWithAI()" [disabled]="aiImproveLoading || !nouveauCommentaire.contenu.trim()">
+          <span class="btn-icon" aria-hidden="true">&#9998;</span>
+          <span>{{ aiImproveLoading ? 'Amelioration...' : 'Ameliorer' }}</span>
+        </button>
+
+        <button type="button" class="tool-btn" (click)="analyzeDraftWithAI()" [disabled]="aiAnalyzeLoading || !nouveauCommentaire.contenu.trim()">
+          <span class="btn-icon" aria-hidden="true">&#128202;</span>
+          <span>{{ aiAnalyzeLoading ? 'Analyse...' : 'Analyser' }}</span>
+        </button>
+
+        <button type="button" class="send-btn" (click)="ajouterCommentaire()">
+          <span class="btn-icon" aria-hidden="true">&#10148;</span>
+          <span>Publier</span>
+        </button>
+      </div>
     </div>
   </div>
 
-  <div class="commentaire-list" *ngIf="commentaires.length > 0; else vide">
-    <div class="comment-card" *ngFor="let c of commentaires">
-      <div class="avatar small">😊</div>
+  <div class="quality-box" *ngIf="draftQuality">
+    <p>Score IA: <strong>{{ draftQuality.score }}/100</strong></p>
+    <p>Sentiment: <strong>{{ draftQuality.sentiment }}</strong> | Risque: <strong>{{ draftQuality.risk }}</strong></p>
+    <div class="chips" *ngIf="draftQuality.tags.length">
+      <span class="chip" *ngFor="let tag of draftQuality.tags">#{{ tag }}</span>
+    </div>
+    <ul>
+      <li *ngFor="let tip of draftQuality.suggestions">{{ tip }}</li>
+    </ul>
+  </div>
+
+  <div class="comment-feedback" *ngIf="errorMessage || successMessage">
+    <p class="error-msg" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="success-msg" *ngIf="successMessage">{{ successMessage }}</p>
+  </div>
+
+  <div class="commentaire-list" *ngIf="displayedCommentaires.length > 0; else vide">
+    <div class="comment-card" *ngFor="let c of displayedCommentaires">
+      <div class="avatar small" aria-hidden="true">&#128522;</div>
 
       <div class="comment-content">
         <div class="bubble" *ngIf="editCommentId !== c.id">
-          <span class="comment-user">Camper</span>
+          <span class="comment-user">{{ c.auteurEmail || 'Camper' }}</span>
           <p>{{ c.contenu }}</p>
         </div>
 
         <div class="edit-box" *ngIf="editCommentId === c.id">
           <input [(ngModel)]="editContenu" class="comment-input" />
           <div class="edit-actions">
-            <button type="button" class="save-small-btn" (click)="saveEdit(c.id!)">Enregistrer</button>
-            <button type="button" class="cancel-small-btn" (click)="cancelEdit()">Annuler</button>
+            <button type="button" class="save-small-btn" (click)="saveEdit(c.id!, c.auteurEmail || currentUserEmail)">
+              <span class="btn-icon" aria-hidden="true">&#128190;</span>
+              <span>Enregistrer</span>
+            </button>
+            <button type="button" class="cancel-small-btn" (click)="cancelEdit()">
+              <span class="btn-icon" aria-hidden="true">&#10006;</span>
+              <span>Annuler</span>
+            </button>
           </div>
         </div>
 
         <div class="comment-meta">
-          <button type="button" class="meta-btn like-btn" (click)="likeCommentaire(c.id!)">
-            ❤️ {{ c.likesCount || 0 }}
+          <button
+            type="button"
+            class="meta-btn like-btn"
+            (click)="likeCommentaire(c.id!)"
+            [disabled]="hasLikedCommentaire(c)">
+            <ng-container *ngIf="hasLikedCommentaire(c); else canLikeCommentTpl">
+              <span class="btn-icon" aria-hidden="true">&#127881;</span>
+              <span>Deja aime</span>
+            </ng-container>
+            <ng-template #canLikeCommentTpl>
+              <span class="btn-icon" aria-hidden="true">&#10084;</span>
+              <span>J aime</span>
+            </ng-template>
+            <span>{{ c.likesCount || 0 }}</span>
           </button>
-          <span>·</span>
-          <button type="button" class="meta-btn" (click)="startEdit(c)">Modifier</button>
-          <span>·</span>
-          <button type="button" class="meta-btn" (click)="supprimerCommentaire(c.id!)">Supprimer</button>
-          <span>·</span>
-          <span>{{ c.dateCreation }}</span>
+
+          <span>&middot;</span>
+          <button type="button" class="meta-btn" (click)="replyToComment(c)">
+            <span class="btn-icon" aria-hidden="true">&#129302;</span>
+            <span>Repondre IA</span>
+          </button>
+
+          <span *ngIf="canManageCommentaire(c)">&middot;</span>
+          <button type="button" class="meta-btn" *ngIf="canManageCommentaire(c)" (click)="startEdit(c)">
+            <span class="btn-icon" aria-hidden="true">&#9998;</span>
+            <span>Modifier</span>
+          </button>
+
+          <span *ngIf="canManageCommentaire(c)">&middot;</span>
+          <button type="button" class="meta-btn" *ngIf="canManageCommentaire(c)" (click)="supprimerCommentaire(c)">
+            <span class="btn-icon" aria-hidden="true">&#128465;</span>
+            <span>Supprimer</span>
+          </button>
+
+          <span>&middot;</span>
+          <span [title]="c.dateCreation">{{ c.dateCreation | timeAgo }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <ng-template #vide>
-    <p class="empty-comment">😶 Aucun commentaire pour le moment.</p>
+    <p class="empty-comment">Aucun commentaire pour le moment.</p>
   </ng-template>
 </div>

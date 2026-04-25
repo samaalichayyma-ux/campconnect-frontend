@@ -1,12 +1,13 @@
-import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
+import { TestApiService } from '../../../../core/services/test-api.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { CampingService } from '../../services/camping.service';
+import { CampingSite } from '../../models/camping-site.model';
 import { EventResponseDTO } from '../../events/models/event.model';
 import { EventService } from '../../events/services/event.service';
-import { CampingSite } from '../../models/camping-site.model';
-import { CampingService } from '../../services/camping.service';
 
 @Component({
   selector: 'app-landing-page',
@@ -17,83 +18,31 @@ import { CampingService } from '../../services/camping.service';
 })
 export class LandingPageComponent implements OnInit {
   readonly fallbackEventImageUrl = 'assets/images/default-image.jpg';
-  readonly ratingStars = [1, 2, 3, 4, 5];
-  readonly landingEventsLimit = 6;
-  readonly landingPriorityLiveSlots = 4;
 
   latestSites: CampingSite[] = [];
-  landingEvents: EventResponseDTO[] = [];
+  upcomingEvents: EventResponseDTO[] = [];
   isLoading = false;
-  isLandingEventsLoading = false;
+  isUpcomingEventsLoading = false;
   selectedSection = '';
   cardsPerView = 3;
   currentEventsPage = 0;
 
-  recommendedSites: any[] = [];
-  isRecommendedLoading = false;
-
   constructor(
+    private testApi: TestApiService,
     public authService: AuthService,
     private campingService: CampingService,
     private eventService: EventService
   ) {}
 
   ngOnInit(): void {
-    this.syncEventsGridLayout();
+    this.syncEventsCarouselLayout();
     this.loadLatestSites();
-    this.loadLandingEvents();
-    this.loadRecommendedSites();
-  }
+    this.loadUpcomingEvents();
 
-  getSiteImage(site: any): string {
-    return site?.imageUrl || 'assets/images/default-camp.jpg';
-  }
-
-  hasTags(site: any): boolean {
-    return Array.isArray(site?.smartTags) && site.smartTags.length > 0;
-  }
-
-  getSiteLink(siteId: number): string[] | null {
-    if (this.isAdmin()) {
-      return null;
-    }
-
-    return this.isLoggedIn()
-      ? ['/public/site-booking', String(siteId)]
-      : ['/login'];
-  }
-
-  getSiteButtonLabel(): string {
-    if (this.isAdmin()) {
-      return 'ADMIN ACCESS';
-    }
-
-    return this.isLoggedIn()
-      ? 'LEARN MORE'
-      : 'LOGIN TO BOOK';
-  }
-
-  loadRecommendedSites(): void {
-    this.isRecommendedLoading = true;
-
-    this.campingService.getRecommendedSites().subscribe({
-      next: (data) => {
-        this.recommendedSites = data || [];
-        this.isRecommendedLoading = false;
-      },
-      error: (error) => {
-        console.error(error);
-        this.isRecommendedLoading = false;
-      }
+    this.testApi.testDocs().subscribe({
+      next: (response) => console.log('Backend OK', response),
+      error: (error) => console.log('Backend KO', error)
     });
-  }
-
-  isAdmin(): boolean {
-    return this.authService.getRole() === 'ADMINISTRATEUR';
-  }
-
-  isLoggedIn(): boolean {
-    return this.authService.isLoggedIn();
   }
 
   showSection(section: string): void {
@@ -102,7 +51,7 @@ export class LandingPageComponent implements OnInit {
 
   @HostListener('window:resize')
   onWindowResize(): void {
-    this.syncEventsGridLayout();
+    this.syncEventsCarouselLayout();
   }
 
   loadLatestSites(): void {
@@ -110,8 +59,7 @@ export class LandingPageComponent implements OnInit {
 
     this.campingService.getAllCampingSites().subscribe({
       next: (sites) => {
-        const availableSites = sites.filter((site) => site.statutDispo !== 'CLOSED');
-        this.latestSites = availableSites.slice(-3).reverse();
+        this.latestSites = sites.slice(-3).reverse();
         this.isLoading = false;
       },
       error: (error) => {
@@ -121,36 +69,42 @@ export class LandingPageComponent implements OnInit {
     });
   }
 
-  loadLandingEvents(): void {
-    this.isLandingEventsLoading = true;
+  loadUpcomingEvents(): void {
+    this.isUpcomingEventsLoading = true;
 
-    this.eventService.getAllEvents().subscribe({
+    this.eventService.getUpcomingEvents().subscribe({
       next: (events) => {
-        this.landingEvents = this.extractLandingEvents(events);
-        this.isLandingEventsLoading = false;
+        this.upcomingEvents = [...events].sort(
+          (firstEvent, secondEvent) =>
+            new Date(firstEvent.dateDebut).getTime() - new Date(secondEvent.dateDebut).getTime()
+        );
+        this.currentEventsPage = 0;
+        this.isUpcomingEventsLoading = false;
       },
       error: (error) => {
-        console.error('Error loading landing events', error);
-        this.landingEvents = [];
-        this.isLandingEventsLoading = false;
+        console.error('Error loading upcoming events', error);
+        this.upcomingEvents = [];
+        this.isUpcomingEventsLoading = false;
       }
     });
   }
 
   get visibleEventSkeletons(): number[] {
-    return Array.from({ length: this.landingEventsLimit }, (_, index) => index);
+    return Array.from({ length: this.cardsPerView }, (_, index) => index);
   }
 
-  get visibleLandingEvents(): EventResponseDTO[] {
-    return this.landingEvents.slice(0, this.landingEventsLimit);
-  }
+  get pagedUpcomingEvents(): EventResponseDTO[][] {
+    const pages: EventResponseDTO[][] = [];
 
-  get pagedLandingEvents(): EventResponseDTO[][] {
-    return this.visibleLandingEvents.length ? [this.visibleLandingEvents] : [];
+    for (let index = 0; index < this.upcomingEvents.length; index += this.cardsPerView) {
+      pages.push(this.upcomingEvents.slice(index, index + this.cardsPerView));
+    }
+
+    return pages;
   }
 
   get totalEventsPages(): number {
-    return this.pagedLandingEvents.length;
+    return this.pagedUpcomingEvents.length;
   }
 
   get hasMultipleEventPages(): boolean {
@@ -241,7 +195,7 @@ export class LandingPageComponent implements OnInit {
     return this.eventService.getEventPrimaryImageUrl(event, this.fallbackEventImageUrl);
   }
 
-  onLandingImageError(event: globalThis.Event): void {
+  onUpcomingImageError(event: globalThis.Event): void {
     const imageElement = event.target as HTMLImageElement | null;
 
     if (!imageElement || imageElement.dataset['fallbackApplied'] === 'true') {
@@ -267,34 +221,6 @@ export class LandingPageComponent implements OnInit {
     return categoryLabels[category ?? ''] || 'Outdoor Experience';
   }
 
-  getEventStatusLabel(event: EventResponseDTO): string {
-    const statusLabels: Record<string, string> = {
-      SCHEDULED: 'Scheduled',
-      ONGOING: 'Ongoing',
-      COMPLETED: 'Completed',
-      POSTPONED: 'Postponed',
-      CANCELLED: 'Cancelled'
-    };
-
-    const normalizedStatus = this.getNormalizedEventStatus(event);
-    return statusLabels[normalizedStatus] || 'Scheduled';
-  }
-
-  getEventStatusClass(event: EventResponseDTO): string {
-    switch (this.getNormalizedEventStatus(event)) {
-      case 'ONGOING':
-        return 'is-ongoing';
-      case 'COMPLETED':
-        return 'is-completed';
-      case 'POSTPONED':
-        return 'is-postponed';
-      case 'CANCELLED':
-        return 'is-cancelled';
-      default:
-        return 'is-scheduled';
-    }
-  }
-
   getAvailabilityLabel(event: EventResponseDTO): string {
     if (event.isFullyBooked || (event.availableSeats ?? 0) <= 0) {
       return 'Waitlist available';
@@ -305,24 +231,6 @@ export class LandingPageComponent implements OnInit {
     }
 
     return `${event.availableSeats} spots open`;
-  }
-
-  hasFeedback(event: EventResponseDTO): boolean {
-    return Number(event.feedbackCount || 0) > 0;
-  }
-
-  getRoundedAverageRating(event: EventResponseDTO): number {
-    return Math.max(0, Math.min(5, Math.round(Number(event.averageRating || 0))));
-  }
-
-  getAverageRatingLabel(event: EventResponseDTO): string {
-    const averageRating = Number(event.averageRating || 0);
-    return averageRating > 0 ? averageRating.toFixed(1) : '0.0';
-  }
-
-  getFeedbackCountLabel(event: EventResponseDTO): string {
-    const feedbackCount = Number(event.feedbackCount || 0);
-    return feedbackCount === 1 ? '1 review' : `${feedbackCount} reviews`;
   }
 
   getShortDescription(description?: string | null, limit = 120): string {
@@ -338,147 +246,7 @@ export class LandingPageComponent implements OnInit {
     return `${normalizedDescription.slice(0, limit).trimEnd()}...`;
   }
 
-  private extractLandingEvents(events: EventResponseDTO[]): EventResponseDTO[] {
-    const referenceDate = new Date();
-    const visibleEvents = events.filter((event) => this.canDisplayLandingEvent(event, referenceDate));
-    const liveAndScheduledEvents = visibleEvents
-      .filter((event) => !this.isCompletedLandingEvent(event, referenceDate))
-      .sort((firstEvent, secondEvent) =>
-        this.compareLiveAndScheduledLandingEvents(firstEvent, secondEvent)
-      );
-    const completedEvents = visibleEvents
-      .filter((event) => this.isCompletedLandingEvent(event, referenceDate))
-      .sort((firstEvent, secondEvent) =>
-        this.compareCompletedLandingEvents(firstEvent, secondEvent)
-      );
-
-    // Keep upcoming visibility on the landing page while still surfacing finished events
-    // so visitors can browse ratings and reviews without leaving the homepage.
-    const featuredLandingEvents: EventResponseDTO[] = [];
-    const addUniqueEvents = (items: EventResponseDTO[], limit: number): void => {
-      for (const event of items) {
-        if (featuredLandingEvents.length >= limit) {
-          return;
-        }
-
-        if (!featuredLandingEvents.some((featuredEvent) => featuredEvent.id === event.id)) {
-          featuredLandingEvents.push(event);
-        }
-      }
-    };
-
-    addUniqueEvents(
-      liveAndScheduledEvents,
-      Math.min(this.landingPriorityLiveSlots, this.landingEventsLimit)
-    );
-    addUniqueEvents(completedEvents, this.landingEventsLimit);
-    addUniqueEvents(liveAndScheduledEvents, this.landingEventsLimit);
-
-    return featuredLandingEvents;
-  }
-
-  private canDisplayLandingEvent(event: EventResponseDTO, referenceDate: Date): boolean {
-    const startDate = this.getSafeEventDate(event.dateDebut);
-    const endDate = this.getEventEndDate(event);
-    const status = this.getNormalizedEventStatus(event);
-
-    if (!startDate || !endDate) {
-      return false;
-    }
-
-    if (event.published === false) {
-      return false;
-    }
-
-    if (['CANCELLED', 'DRAFT'].includes(status)) {
-      return false;
-    }
-
-    return status === 'COMPLETED' || endDate.getTime() >= referenceDate.getTime();
-  }
-
-  private isCompletedLandingEvent(event: EventResponseDTO, referenceDate: Date): boolean {
-    const status = this.getNormalizedEventStatus(event);
-    if (status === 'COMPLETED') {
-      return true;
-    }
-
-    const endDate = this.getEventEndDate(event);
-    return Boolean(endDate && endDate.getTime() < referenceDate.getTime());
-  }
-
-  private compareLiveAndScheduledLandingEvents(
-    firstEvent: EventResponseDTO,
-    secondEvent: EventResponseDTO
-  ): number {
-    const statusOrder = (status: string): number => {
-      switch (status) {
-        case 'ONGOING':
-          return 0;
-        case 'SCHEDULED':
-          return 1;
-        case 'POSTPONED':
-          return 2;
-        default:
-          return 3;
-      }
-    };
-
-    const statusDifference =
-      statusOrder(this.getNormalizedEventStatus(firstEvent))
-      - statusOrder(this.getNormalizedEventStatus(secondEvent));
-
-    if (statusDifference !== 0) {
-      return statusDifference;
-    }
-
-    return this.getEventTimestamp(firstEvent.dateDebut) - this.getEventTimestamp(secondEvent.dateDebut);
-  }
-
-  private compareCompletedLandingEvents(
-    firstEvent: EventResponseDTO,
-    secondEvent: EventResponseDTO
-  ): number {
-    const feedbackDifference =
-      Number(secondEvent.feedbackCount || 0) - Number(firstEvent.feedbackCount || 0);
-
-    if (feedbackDifference !== 0) {
-      return feedbackDifference;
-    }
-
-    const ratingDifference =
-      Number(secondEvent.averageRating || 0) - Number(firstEvent.averageRating || 0);
-
-    if (ratingDifference !== 0) {
-      return ratingDifference;
-    }
-
-    return this.getEventTimestamp(secondEvent.dateFin || secondEvent.dateDebut)
-      - this.getEventTimestamp(firstEvent.dateFin || firstEvent.dateDebut);
-  }
-
-  private getNormalizedEventStatus(event: EventResponseDTO): string {
-    return String(event.statut || '').toUpperCase();
-  }
-
-  private getEventEndDate(event: EventResponseDTO): Date | null {
-    return this.getSafeEventDate(event.dateFin || event.dateDebut);
-  }
-
-  private getSafeEventDate(value?: string | null): Date | null {
-    if (!value) {
-      return null;
-    }
-
-    const parsedDate = new Date(value);
-    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
-  }
-
-  private getEventTimestamp(value?: string | null): number {
-    return this.getSafeEventDate(value)?.getTime() ?? Number.MAX_SAFE_INTEGER;
-  }
-
-  private syncEventsGridLayout(): void {
+  private syncEventsCarouselLayout(): void {
     const viewportWidth = typeof window === 'undefined' ? 1280 : window.innerWidth;
 
     if (viewportWidth >= 1180) {
@@ -489,6 +257,7 @@ export class LandingPageComponent implements OnInit {
       this.cardsPerView = 1;
     }
 
-    this.currentEventsPage = 0;
+    const maxPageIndex = Math.max(this.totalEventsPages - 1, 0);
+    this.currentEventsPage = Math.min(this.currentEventsPage, maxPageIndex);
   }
 }

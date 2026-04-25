@@ -28,37 +28,4 @@ export class AdminLayoutComponent {
     this.router.navigate(['/login']);
   }
 
-  isAdmin(): boolean {
-    return this.adminRole === 'ADMINISTRATEUR';
-  }
-
-  isGuide(): boolean {
-    return this.adminRole === 'GUIDE';
-  }
-
-  canAccessCampingManagement(): boolean {
-    return this.isAdmin() || this.isGuide();
-  }
-
-  getDashboardRoute(): string {
-  return this.isGuide() ? '/admin/owner-dashboard' : '/admin/dashboard';
-}
-
-getDashboardLabel(): string {
-  return this.isGuide() ? 'My Dashboard' : 'Dashboard';
-}
-
-getPageTitle(): string {
-  if (this.isGuide()) {
-    return 'Camp Host Panel';
-  }
-  return 'Administration';
-}
-
-getPageSubtitle(): string {
-  if (this.isGuide()) {
-    return 'Manage your camping sites, bookings, and guest reviews.';
-  }
-  return 'Manage your platform with clarity and control.';
-}
 }

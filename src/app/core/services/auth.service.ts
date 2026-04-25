@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, tap } from 'rxjs';
 
 export interface LoginRequest {
   email: string;
@@ -15,35 +15,15 @@ export interface RegisterRequest {
   role: string;
 }
 
-export interface GoogleLoginRequest {
-  credential: string;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ResetPasswordRequest {
-  token: string;
-  newPassword: string;
-}
-
-export interface VerifyLogin2FARequest {
-  tempToken: string;
-  code: string;
-}
-
 export interface AuthResponse {
   userId?: number;
   id?: number;
   utilisateurId?: number;
-  token?: string | null;
+  token: string;
   message: string;
-  role?: string | null;
+  role: string;
   nom?: string;
   email?: string;
-  requires2FA?: boolean;
-  tempToken?: string | null;
 }
 
 export interface CurrentUserResponse {
@@ -61,71 +41,26 @@ export interface CurrentUserResponse {
 })
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/auth';
-  private readonly currentUserFallbackUrl = 'http://localhost:8082/api/auth/me';
-  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'GUIDE', 'LIVREUR', 'GERANT_RESTAU']);
-  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
+  private readonly currentUserFallbackUrl = 'http://localhost:8080/api/utilisateurs/me';
+  // Back-end security only grants /admin/** to ADMINISTRATEUR.
+  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR']);
+  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR']);
 
   constructor(private http: HttpClient) {}
 
   register(data: RegisterRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data).pipe(
-      tap((response) => {
-        if (response.token) {
-          this.saveAuthData(response);
-        }
-      })
+      tap((response) => this.saveAuthData(response))
     );
   }
 
   login(data: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
-      tap((response) => {
-        if (!response.requires2FA && response.token) {
-          this.saveAuthData(response);
-        }
-      })
+      tap((response) => this.saveAuthData(response))
     );
-  }
-
-  verifyLogin2FA(data: VerifyLogin2FARequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login/verify-2fa`, data).pipe(
-      tap((response) => {
-        if (response.token) {
-          this.saveAuthData(response);
-        }
-      })
-    );
-  }
-
-  googleLogin(credential: string): Observable<AuthResponse> {
-    const payload: GoogleLoginRequest = { credential };
-
-    return this.http.post<AuthResponse>(`${this.apiUrl}/google`, payload).pipe(
-      tap((response) => {
-        if (response.token) {
-          this.saveAuthData(response);
-        }
-      })
-    );
-  }
-
-  forgotPassword(data: ForgotPasswordRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/forgot-password`, data, {
-      responseType: 'text'
-    });
-  }
-
-  resetPassword(data: ResetPasswordRequest): Observable<string> {
-    return this.http.post(`${this.apiUrl}/reset-password`, data, {
-      responseType: 'text'
-    });
   }
 
   private saveAuthData(response: AuthResponse): void {
-    if (!response.token) {
-      return;
-    }
-
     localStorage.setItem('token', response.token);
     this.saveRole(response.role);
 
@@ -193,26 +128,7 @@ export class AuthService {
   }
 
   redirectByRole(router: { navigate: (commands: string[]) => void }): void {
-    const role = this.getRole();
-
-    switch (role) {
-      case 'ADMINISTRATEUR':
-        router.navigate(['/admin/dashboard']);
-        break;
-      case 'GUIDE':
-        router.navigate(['/admin/owner-dashboard']);
-        break;
-      case 'LIVREUR':
-        router.navigate(['/admin']);
-        break;
-      case 'GERANT_RESTAU':
-        router.navigate(['/admin']);
-        break;
-      case 'CLIENT':
-      default:
-        router.navigate(['/public']);
-        break;
-    }
+    router.navigate([this.canAccessAdminPanel() ? '/admin' : '/public']);
   }
 
   saveUserName(nom: string): void {
@@ -263,12 +179,27 @@ export class AuthService {
 
   fetchCurrentUser(): Observable<CurrentUserResponse> {
     return this.http.get<CurrentUserResponse>(`${this.apiUrl}/me`).pipe(
-      tap((userInfo) => this.syncCurrentUser(userInfo))
+      tap((userInfo) => this.syncCurrentUser(userInfo)),
+      catchError(() =>
+        this.http.get<CurrentUserResponse>(this.currentUserFallbackUrl).pipe(
+          tap((userInfo) => this.syncCurrentUser(userInfo))
+        )
+      )
     );
   }
 
   getUserEmail(): string {
     return localStorage.getItem('email') || '';
+  }
+
+  isAdmin(): boolean {
+    return this.canAccessAdminPanel();
+  }
+
+  ownsResource(authorEmail?: string): boolean {
+    const currentEmail = this.getUserEmail().trim().toLowerCase();
+    const targetEmail = (authorEmail || '').trim().toLowerCase();
+    return currentEmail !== '' && currentEmail === targetEmail;
   }
 
   saveUserEmail(email: string): void {
@@ -312,9 +243,9 @@ export class AuthService {
   private extractRole(source: unknown): string {
     const candidate = source as
       | {
-          role?: unknown;
-          authorities?: Array<{ authority?: unknown }>;
-        }
+        role?: unknown;
+        authorities?: Array<{ authority?: unknown }>;
+      }
       | null;
 
     const directRole = this.normalizeRole(candidate?.role);
@@ -329,11 +260,11 @@ export class AuthService {
   private resolveDisplayName(source: unknown): string {
     const candidate = source as
       | {
-          nom?: unknown;
-          name?: unknown;
-          username?: unknown;
-          sub?: unknown;
-        }
+        nom?: unknown;
+        name?: unknown;
+        username?: unknown;
+        sub?: unknown;
+      }
       | null;
 
     const directName = [candidate?.nom, candidate?.name, candidate?.username]
@@ -353,9 +284,9 @@ export class AuthService {
   private resolveEmail(source: unknown): string {
     const candidate = source as
       | {
-          email?: unknown;
-          sub?: unknown;
-        }
+        email?: unknown;
+        sub?: unknown;
+      }
       | null;
 
     if (typeof candidate?.email === 'string' && candidate.email.trim()) {

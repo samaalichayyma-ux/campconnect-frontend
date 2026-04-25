@@ -15,96 +15,125 @@
       </a>
     </div>
 
-<nav class="sidebar-nav">
+    <nav class="sidebar-nav">
+      <a
+        routerLink="/admin/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="dashboard" [size]="18"></app-admin-icon></span>
+        <span>Dashboard</span>
+      </a>
 
-  <!-- Dashboard -->
-  <a
-    *ngIf="isAdmin() || isGuide()"
-    [routerLink]="getDashboardRoute()"
-    routerLinkActive="active"
-    [routerLinkActiveOptions]="{ exact: true }"
-    class="nav-item">
-    <span class="nav-icon">
-      <app-admin-icon name="dashboard" [size]="18"></app-admin-icon>
-    </span>
-    <span>{{ getDashboardLabel() }}</span>
-  </a>
+      <a
+        routerLink="/admin/users"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="users" [size]="18"></app-admin-icon></span>
+        <span>Users</span>
+      </a>
 
-  <!-- ADMIN ONLY -->
-  <a *ngIf="isAdmin()" routerLink="/admin/users" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="users" [size]="18"></app-admin-icon></span>
-    <span>Users</span>
-  </a>
+      <a
+        routerLink="/admin/assurances/new"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="assurances" [size]="18"></app-admin-icon></span>
+        <span>Assurances</span>
+      </a>
+  <a routerLink="/admin/Market/listProduct"
+         routerLinkActive="active"
+         class="nav-item">
+        <span>🍽️</span>
+        <span>Market Place</span>
+      </a> 
+      <a
+        routerLink="/admin/repas"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="restaurants" [size]="18"></app-admin-icon></span>
+        <span>Restaurants</span>
+      </a>
 
-  <a *ngIf="isAdmin()" routerLink="/admin/assurances/new" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="assurances" [size]="18"></app-admin-icon></span>
-    <span>Assurances</span>
-  </a>
+      <a
+        routerLink="/admin/events"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="events" [size]="18"></app-admin-icon></span>
+        <span>Events</span>
+      </a>
 
-  <a *ngIf="isAdmin()" routerLink="/admin/Market/listProduct" routerLinkActive="active" class="nav-item">
-    <span>🍽️</span>
-    <span>Market Place</span>
-  </a>
+      <a
+        routerLink="/admin/reservations"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="reservations" [size]="18"></app-admin-icon></span>
+        <span>Reservations</span>
+      </a>
 
-  <a *ngIf="isAdmin()" routerLink="/admin/repas" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="restaurants" [size]="18"></app-admin-icon></span>
-    <span>Restaurants</span>
-  </a>
+      <a
+        routerLink="/admin/camping-sites"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="tent" [size]="18"></app-admin-icon></span>
+        <span>Camping Sites</span>
+      </a>
 
-  <a *ngIf="isAdmin()" routerLink="/admin/events" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="events" [size]="18"></app-admin-icon></span>
-    <span>Events</span>
-  </a>
+      <a
+        routerLink="/admin/avis"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="star" [size]="18"></app-admin-icon></span>
+        <span>Reviews</span>
+      </a>
 
-  <a *ngIf="isAdmin()" routerLink="/admin/reservations" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="reservations" [size]="18"></app-admin-icon></span>
-    <span>Reservations</span>
-  </a>
+      <a
+        routerLink="/admin/formations"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="formations" [size]="18"></app-admin-icon></span>
+        <span>Formations</span>
+      </a>
 
-  <a *ngIf="isAdmin()" routerLink="/admin/publication/list" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="publication" [size]="18"></app-admin-icon></span>
-    <span>Publications</span>
-  </a>
-
-  <a *ngIf="isAdmin()" routerLink="/admin/forums" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="forum" [size]="18"></app-admin-icon></span>
-    <span>Forums</span>
-  </a>
-
-  <a *ngIf="isAdmin()" routerLink="/admin/formations" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="formations" [size]="18"></app-admin-icon></span>
-    <span>Formations</span>
-  </a>
-
-  <!-- ADMIN + GUIDE -->
-  <a *ngIf="canAccessCampingManagement()" routerLink="/admin/camping-sites" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="tent" [size]="18"></app-admin-icon></span>
-    <span>Camping Sites</span>
-  </a>
-
-  <a *ngIf="canAccessCampingManagement()" routerLink="/admin/site-bookings" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="menu" [size]="18"></app-admin-icon></span>
-    <span>Booking</span>
-  </a>
-
-  <a *ngIf="canAccessCampingManagement()" routerLink="/admin/avis" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="star" [size]="18"></app-admin-icon></span>
-    <span>Camping Reviews</span>
-  </a>
-
-  <a routerLink="/admin/profile" routerLinkActive="active" class="nav-item">
-    <span class="nav-icon"><app-admin-icon name="profile" [size]="18"></app-admin-icon></span>
-    <span>Profile</span>
-  </a>
-
-</nav>
+      <a
+        routerLink="/admin/profile"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="profile" [size]="18"></app-admin-icon></span>
+        <span>Profile</span>
+      </a>
+      <a
+         routerLink="/admin/publication/list"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon">
+        <app-admin-icon name="publication" [size]="18"></app-admin-icon>
+        </span>
+        <span>Publications</span>
+       </a>
+       <a
+  routerLink="/admin/forums"
+  routerLinkActive="active"
+  class="nav-item">
+  <span class="nav-icon">
+    <app-admin-icon name="forum" [size]="18"></app-admin-icon>
+  </span>
+  <span>Forums</span>
+</a>
+      <a
+        routerLink="/admin/commentaires"
+        routerLinkActive="active"
+        class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="publication" [size]="18"></app-admin-icon></span>
+        <span>Commentaires</span>
+      </a>
+    </nav>
   </aside>
 
   <main class="layout-content">
     <header class="topbar">
       <div class="topbar-left">
-        <h1>{{ getPageTitle() }}</h1>
-        <p>{{ getPageSubtitle() }}</p>
+        <h1>Administration</h1>
+        <p>Manage your platform with clarity and control.</p>
       </div>
 
       <div class="topbar-right">

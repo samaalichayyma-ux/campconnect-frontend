@@ -4,22 +4,32 @@ import { Observable } from 'rxjs';
 
 export interface Publication {
   id?: number;
+  forumId?: number;
+  forum?: {
+    id?: number;
+    nom?: string;
+  };
+  titre?: string;
   contenu: string;
-  dateCreation?: string;
+  auteurEmail?: string;
   likesCount?: number;
+  commentairesCount?: number;
+  vuesCount?: number;
+  dateCreation?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class PublicationAdminService {
-  private apiUrl = 'http://localhost:8082/api/admin/publications';
+  private apiUrl = '/api/admin/publications';
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Publication[]> {
-    return this.http.get<Publication[]>(this.apiUrl);
-  }
+ getByForum(forumId: number): Observable<Publication[]> {
+  return this.http.get<Publication[]>(`${this.apiUrl}/forum/${forumId}`);
+}
+
 
   getById(id: number): Observable<Publication> {
     return this.http.get<Publication>(`${this.apiUrl}/${id}`);
@@ -36,8 +46,12 @@ export class PublicationAdminService {
   delete(id: number): Observable<string> {
     return this.http.delete(`${this.apiUrl}/${id}`, { responseType: 'text' });
   }
+    getAll(): Observable<Publication[]> {
+    return this.http.get<Publication[]>(this.apiUrl);
+  }
 
   like(id: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}/like`, {});
   }
+  
 }

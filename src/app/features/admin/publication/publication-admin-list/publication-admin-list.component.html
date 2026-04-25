@@ -4,21 +4,87 @@
   <p *ngIf="loading">Chargement...</p>
   <p *ngIf="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
+  <section class="stats-grid" *ngIf="!loading && !errorMessage">
+    <article class="stat-card">
+      <span>Total publications</span>
+      <strong>{{ stats.totalPublications }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Total likes</span>
+      <strong>{{ stats.totalLikes }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Total vues</span>
+      <strong>{{ stats.totalViews }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Total commentaires</span>
+      <strong>{{ stats.totalComments }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Moyenne likes/publication</span>
+      <strong>{{ stats.averageLikes | number:'1.1-1' }}</strong>
+    </article>
+    <article class="stat-card">
+      <span>Moyenne vues/publication</span>
+      <strong>{{ stats.averageViews | number:'1.1-1' }}</strong>
+    </article>
+  </section>
+
+  <section class="top-publications" *ngIf="!loading && !errorMessage">
+    <div class="top-item">
+      <span class="top-label">Publication la plus likee</span>
+      <p>{{ stats.topLikedTitle }}</p>
+      <small>{{ stats.topLikedCount }} likes</small>
+    </div>
+
+    <div class="top-item">
+      <span class="top-label">Publication la plus vue</span>
+      <p>{{ stats.topViewedTitle }}</p>
+      <small>{{ stats.topViewedCount }} vues</small>
+    </div>
+
+    <div class="top-item">
+      <span class="top-label">Publication la plus commentee</span>
+      <p>{{ stats.topCommentedTitle }}</p>
+      <small>{{ stats.topCommentedCount }} commentaires</small>
+    </div>
+
+    <div class="top-item">
+      <span class="top-label">Auteur le plus actif</span>
+      <p>{{ stats.mostActiveAuthorEmail }}</p>
+      <small>{{ stats.mostActiveAuthorCount }} publications</small>
+    </div>
+
+    <div class="top-item">
+      <span class="top-label">Derniere publication par</span>
+      <p>{{ stats.newestPublisherEmail }}</p>
+      <small>{{ formatPublicationDate(stats.newestPublicationDate) }}</small>
+    </div>
+  </section>
+
   <div class="publication-card" *ngFor="let publication of publications">
     <div class="publication-header">
       <div>
-        <h3>{{ publication.contenu }}</h3>
-        <p class="meta">{{ publication.dateCreation }}</p>
+        <h3>{{ getPublicationTitle(publication) }}</h3>
+        <p class="meta">{{ publication.dateCreation | date:'dd/MM/yyyy HH:mm' }}</p>
+        <p class="meta" *ngIf="publication.auteurEmail">Auteur: {{ publication.auteurEmail }}</p>
       </div>
 
       <div class="actions">
-        <button class="icon-btn" title="Modifier" (click)="goToEdit(publication.id)">✏️</button>
-        <button class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">🗑️</button>
+        <button type="button" class="icon-btn" title="Modifier" (click)="goToEdit(publication.id)">Edit</button>
+        <button type="button" class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">Del</button>
       </div>
     </div>
 
-    <div class="publication-footer">
-      ❤️ {{ publication.likesCount || 0 }}
+    <div class="metrics-row">
+      <span class="metric-chip">Likes {{ publication.likesCount || 0 }}</span>
+      <span class="metric-chip">Vues {{ publication.vuesCount || 0 }}</span>
+      <span class="metric-chip">Commentaires {{ publication.commentairesCount || 0 }}</span>
     </div>
   </div>
+
+  <p *ngIf="!loading && !errorMessage && publications.length === 0" class="empty-state">
+    Aucune publication trouvee.
+  </p>
 </div>

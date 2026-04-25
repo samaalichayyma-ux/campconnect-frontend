@@ -2,17 +2,30 @@
   <div class="form-header">
     <h1>Edit Event</h1>
     <p>Update the event details and gallery.</p>
-    <a
-      routerLink="/admin/events/stats"
-      [queryParams]="{ from: 'events', focusEventId: eventId }"
-      class="insight-link">
-      <app-admin-icon name="dashboard" [size]="16"></app-admin-icon>
-      <span>Open Event Stats</span>
-    </a>
   </div>
 
   <div *ngIf="isLoading" class="loading">
     <p>Loading event details...</p>
+  </div>
+
+  <div *ngIf="successMessage && !isLoading" class="success-message">
+    <div class="message-icon success">
+      <app-admin-icon name="check" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Event updated</strong>
+      <p>{{ successMessage }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <div class="message-icon error">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Update failed</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
   </div>
 
   <form *ngIf="!isLoading" [formGroup]="eventForm" (ngSubmit)="submitForm()" class="event-form">
@@ -78,7 +91,7 @@
                   type="time"
                   id="startTime"
                   formControlName="startTime"
-                  [class.error]="(eventForm.get('startTime')?.invalid && eventForm.get('startTime')?.touched) || hasScheduleError" />
+                  [class.error]="eventForm.get('startTime')?.invalid && eventForm.get('startTime')?.touched" />
                 <span class="field-icon">
                   <app-admin-icon name="clock" [size]="16"></app-admin-icon>
                 </span>
@@ -95,19 +108,13 @@
                   type="time"
                   id="endTime"
                   formControlName="endTime"
-                  [class.error]="(eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched) || hasScheduleError" />
+                  [class.error]="eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched" />
                 <span class="field-icon">
                   <app-admin-icon name="clock" [size]="16"></app-admin-icon>
                 </span>
               </div>
               <span *ngIf="eventForm.get('endTime')?.invalid && eventForm.get('endTime')?.touched" class="error-text">
                 End time is required
-              </span>
-              <span *ngIf="showScheduleFeedback && hasScheduleError" class="error-text">
-                {{ scheduleFeedbackMessage }}
-              </span>
-              <span *ngIf="showScheduleFeedback && !hasScheduleError" class="helper-text">
-                {{ scheduleFeedbackMessage }}
               </span>
             </div>
 
@@ -392,10 +399,6 @@
           <div class="summary-row">
             <span>Time</span>
             <strong>{{ eventForm.get('startTime')?.value || '--:--' }} - {{ eventForm.get('endTime')?.value || '--:--' }}</strong>
-          </div>
-          <div class="summary-row">
-            <span>Duration</span>
-            <strong [class.summary-error]="hasScheduleError">{{ durationSummary }}</strong>
           </div>
           <div class="summary-row">
             <span>Capacity</span>

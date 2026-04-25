@@ -3,61 +3,26 @@
   min-height: 100vh;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-:root {
-  --primary: #838332;
-  --secondary: #1f3d2b;
-  --bg: #f4ede4;
-  --dark: #1c2a39;
-  --accent: #f4a261;
-  --white: #ffffff;
-  --danger: #c62828;
-  --success: #1f3d2b;
-  --text-soft: #6f746f;
-  --shadow-main: 0 20px 60px rgba(0, 0, 0, 0.18);
-  --shadow-soft: 0 12px 28px rgba(31, 61, 43, 0.14);
-  --transition: all 0.35s ease;
-}
-
 .register-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px 16px;
-  position: relative;
-  overflow: hidden;
+  box-sizing: border-box;
   background:
-    linear-gradient(rgba(28, 42, 57, 0.38), rgba(31, 61, 43, 0.30)),
+    linear-gradient(rgba(28, 42, 57, 0.35), rgba(31, 61, 43, 0.35)),
     linear-gradient(135deg, #1c2a39 0%, #1f3d2b 100%);
 }
 
-.register-overlay {
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at top left, rgba(244, 162, 97, 0.16), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(131, 131, 50, 0.14), transparent 30%);
-  pointer-events: none;
-}
-
 .register-card {
-  position: relative;
-  z-index: 1;
   width: 100%;
   max-width: 760px;
-  background: rgba(244, 237, 228, 0.92);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: #f4ede4;
   border-radius: 30px;
   padding: 36px 32px;
-  box-shadow: var(--shadow-main);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
   box-sizing: border-box;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  animation: fadeUp 0.8s ease;
 }
 
 .register-header {
@@ -65,37 +30,24 @@
   margin-bottom: 28px;
 }
 
-.register-badge {
-  width: fit-content;
-  margin: 0 auto 14px;
-  padding: 7px 16px;
-  border-radius: 999px;
-  background: rgba(131, 131, 50, 0.14);
-  color: var(--secondary);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.4px;
-}
-
 .register-icon {
-  width: 84px;
-  height: 84px;
+  width: 78px;
+  height: 78px;
   margin: 0 auto 16px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #1c2a39, #1f3d2b);
+  background: #1c2a39;
   color: #f4ede4;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34px;
-  box-shadow: 0 10px 24px rgba(28, 42, 57, 0.24);
-  animation: floatSoft 4s ease-in-out infinite;
+  font-size: 32px;
+  box-shadow: 0 8px 18px rgba(28, 42, 57, 0.2);
 }
 
 .register-header h1 {
   margin: 0;
   color: #1c2a39;
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 700;
 }
 
@@ -120,7 +72,6 @@
 .form-group {
   display: flex;
   flex-direction: column;
-  animation: fadeUp 0.7s ease both;
 }
 
 .form-group label {
@@ -132,15 +83,15 @@
 
 .form-group input,
 .form-group select {
-  height: 50px;
+  height: 48px;
   padding: 0 16px;
-  border: 1.5px solid rgba(28, 42, 57, 0.12);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.75);
+  border: 2px solid rgba(28, 42, 57, 0.14);
+  border-radius: 14px;
+  background: #fffdf9;
   color: #1c2a39;
   font-size: 14px;
   outline: none;
-  transition: var(--transition);
+  transition: 0.25s ease;
   box-sizing: border-box;
 }
 
@@ -152,29 +103,6 @@
 .form-group select:focus {
   border-color: #838332;
   box-shadow: 0 0 0 4px rgba(131, 131, 50, 0.12);
-  background: #ffffff;
-  transform: translateY(-1px);
-}
-
-.password-wrapper {
-  position: relative;
-}
-
-.password-wrapper input {
-  padding-right: 72px;
-}
-
-.password-toggle {
-  position: absolute;
-  top: 50%;
-  right: 14px;
-  transform: translateY(-50%);
-  border: none;
-  background: transparent;
-  color: var(--secondary);
-  font-weight: 700;
-  font-size: 12px;
-  cursor: pointer;
 }
 
 .checkbox-group {
@@ -188,13 +116,11 @@
 
 .checkbox-group input {
   accent-color: #1f3d2b;
-  width: 16px;
-  height: 16px;
 }
 
 .register-btn {
   margin-top: 8px;
-  height: 52px;
+  height: 50px;
   border: none;
   border-radius: 16px;
   background: linear-gradient(135deg, #1f3d2b 0%, #838332 100%);
@@ -202,72 +128,12 @@
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: 0 12px 24px rgba(31, 61, 43, 0.20);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.register-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 30px rgba(31, 61, 43, 0.24);
-}
-
-.register-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.message-box {
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 13px;
-  text-align: center;
-  animation: fadeIn 0.3s ease;
-}
-
-.error-box {
-  background: rgba(198, 40, 40, 0.10);
-  color: var(--danger);
-  border: 1px solid rgba(198, 40, 40, 0.18);
-}
-
-.success-box {
-  background: rgba(31, 61, 43, 0.10);
-  color: var(--success);
-  border: 1px solid rgba(31, 61, 43, 0.18);
-}
-
-.text-danger {
-  color: #c62828;
-  font-size: 13px;
-  margin-top: 6px;
-  display: block;
-}
-
-.text-success {
-  color: #1f3d2b;
-  font-size: 13px;
-  margin-top: 10px;
-  display: block;
-  text-align: center;
-}
-
-.back-home-btn {
-  display: block;
-  text-align: center;
-  margin-top: 4px;
-  padding: 12px;
-  border-radius: 50px;
-  text-decoration: none;
-  background: rgba(28, 42, 57, 0.90);
-  color: #ffffff;
-  font-weight: 600;
-  transition: var(--transition);
-  box-shadow: 0 10px 22px rgba(28, 42, 57, 0.16);
-}
-
-.back-home-btn:hover {
-  background: var(--accent);
-  transform: translateY(-2px);
+.register-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(31, 61, 43, 0.22);
 }
 
 .register-footer {
@@ -283,41 +149,11 @@
   font-weight: 700;
   text-decoration: none;
   border-bottom: 1px solid #1f3d2b;
-  transition: var(--transition);
 }
 
 .register-footer a:hover {
   color: #838332;
   border-bottom-color: #838332;
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes floatSoft {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
 }
 
 @media (max-width: 768px) {
@@ -333,17 +169,5 @@
 
   .register-header h1 {
     font-size: 26px;
-  }
-}
-
-@media (max-width: 575px) {
-  .register-icon {
-    width: 76px;
-    height: 76px;
-    font-size: 30px;
-  }
-
-  .register-header p {
-    font-size: 14px;
   }
 }

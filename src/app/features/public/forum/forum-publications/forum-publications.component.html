@@ -1,0 +1,553 @@
+<div class="fp-page">
+  <div class="fp-loading" *ngIf="!forum">
+    <p>Chargement du forum...</p>
+  </div>
+
+  <ng-container *ngIf="forum">
+    <section class="hero-section">
+      <div class="hero-overlay">
+        <div class="hero-content-wrapper">
+          <span class="hero-badge">
+            <span class="hero-badge-icon" aria-hidden="true">
+              <app-admin-icon name="tent" [size]="16"></app-admin-icon>
+            </span>
+            <span>CampConnect Forum</span>
+          </span>
+
+          <h1 class="hero-title">{{ forum.nom }}</h1>
+          <p class="hero-subtitle">{{ forum.description }}</p>
+
+          <div class="hero-quick-actions">
+            <button class="hero-quick-btn secondary" type="button" (click)="retour()">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
+              </span>
+              <span>Retour forums</span>
+            </button>
+            <button class="hero-quick-btn secondary" type="button" (click)="showForm = !showForm">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon [name]="showForm ? 'close' : 'plus'" [size]="16"></app-admin-icon>
+              </span>
+              <span>{{ showForm ? 'Fermer publication' : 'Nouvelle publication' }}</span>
+            </button>
+            <button class="hero-quick-btn ghost" type="button" (click)="toggleFilters()">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="filter" [size]="16"></app-admin-icon>
+              </span>
+              <span>{{ showFilters ? 'Masquer filtres' : 'Afficher filtres' }}</span>
+            </button>
+          </div>
+
+          <div class="hero-search">
+            <div class="search-input-wrapper">
+              <input
+                type="text"
+                class="search-input"
+                [(ngModel)]="searchTerm"
+                placeholder="Rechercher une publication..."
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="main-content" [class.filters-open]="showFilters">
+      <div class="filters-overlay" *ngIf="showFilters" (click)="closeFilters()"></div>
+
+      <aside class="filters-sidebar" [class.active]="showFilters">
+        <button class="sidebar-close-btn" type="button" (click)="closeFilters()">
+          <app-admin-icon name="close" [size]="16"></app-admin-icon>
+        </button>
+
+        <div class="filter-header">
+          <h2>Filtres publication</h2>
+        </div>
+
+        <div class="filter-group">
+          <h3>Affichage</h3>
+          <div class="filter-options">
+            <button type="button" class="filter-option" [class.active]="filterMode === 'all'" (click)="setFilter('all')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="public" [size]="16"></app-admin-icon>
+              </span>
+              <span>Tout</span>
+            </button>
+            <button type="button" class="filter-option" [class.active]="filterMode === 'mine'" (click)="setFilter('mine')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="profile" [size]="16"></app-admin-icon>
+              </span>
+              <span>Mes posts</span>
+            </button>
+            <button type="button" class="filter-option" [class.active]="filterMode === 'popular'" (click)="setFilter('popular')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="star" [size]="16"></app-admin-icon>
+              </span>
+              <span>Populaires</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <h3>Tri</h3>
+          <div class="filter-options">
+            <button type="button" class="filter-option" [class.active]="tri === 'smart'" (click)="setTri('smart')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+              </span>
+              <span>Intelligence</span>
+            </button>
+            <button type="button" class="filter-option" [class.active]="tri === 'recent'" (click)="setTri('recent')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="clock" [size]="16"></app-admin-icon>
+              </span>
+              <span>Recents</span>
+            </button>
+            <button type="button" class="filter-option" [class.active]="tri === 'likes'" (click)="setTri('likes')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+              </span>
+              <span>Likes</span>
+            </button>
+            <button type="button" class="filter-option" [class.active]="tri === 'vues'" (click)="setTri('vues')">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="eye" [size]="16"></app-admin-icon>
+              </span>
+              <span>Vues</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-stats">
+          <div class="stat">
+            <span class="stat-label">Publications</span>
+            <span class="stat-value">{{ publicationsView.length }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Le plus vu</span>
+            <span class="stat-value">{{ topViewed?.vuesCount || 0 }}</span>
+          </div>
+        </div>
+      </aside>
+
+      <section class="publications-section">
+        <div class="section-header">
+          <div class="header-left">
+            <button class="filter-toggle-btn" type="button" (click)="toggleFilters()">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="filter" [size]="16"></app-admin-icon>
+              </span>
+              <span>Filtres</span>
+            </button>
+
+            <div class="header-info">
+              <h2 class="section-title">Publications du forum</h2>
+              <span class="results-count">{{ publicationsView.length }} publications visibles</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="success-toast" *ngIf="successMsg">{{ successMsg }}</p>
+        <p class="error-toast" *ngIf="formError">{{ formError }}</p>
+
+        <div class="fp-form" *ngIf="showForm">
+          <div class="fp-form-title-row">
+            <h3>Nouvelle publication</h3>
+            <button type="button" class="mini-btn" (click)="suggestTitleIA()" [disabled]="aiTitleLoading">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+              </span>
+              <span>{{ aiTitleLoading ? 'Titre...' : 'IA titre' }}</span>
+            </button>
+          </div>
+
+          <input
+            [(ngModel)]="nouveauTitre"
+            (ngModelChange)="onDraftChange()"
+            placeholder="Titre de la publication..."
+            class="fp-input"
+          />
+
+          <div class="ai-box">
+            <span class="ai-tag">Assistant IA avance</span>
+
+            <div class="ai-row">
+              <input
+                [(ngModel)]="aiTheme"
+                (ngModelChange)="onDraftChange()"
+                placeholder="Theme ou idee..."
+                class="fp-input small"
+              />
+
+              <button type="button" class="ai-btn" (click)="suggestIA()" [disabled]="aiLoading">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+                </span>
+                <span>{{ aiLoading ? 'Generation...' : 'IA contenu' }}</span>
+              </button>
+
+              <button type="button" class="ai-btn purple" (click)="improveIA()" [disabled]="aiLoading || !nouveauContenu.trim()">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="edit" [size]="16"></app-admin-icon>
+                </span>
+                <span>Ameliorer</span>
+              </button>
+
+              <button type="button" class="ai-btn" (click)="summarizeDraftIA()" [disabled]="aiSummaryLoading || !nouveauContenu.trim()">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="list" [size]="16"></app-admin-icon>
+                </span>
+                <span>{{ aiSummaryLoading ? 'Resume...' : 'Resumer' }}</span>
+              </button>
+
+              <button type="button" class="ai-btn" (click)="analyzeDraftIA()" [disabled]="aiAnalysisLoading || (!nouveauTitre.trim() && !nouveauContenu.trim())">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="target" [size]="16"></app-admin-icon>
+                </span>
+                <span>{{ aiAnalysisLoading ? 'Analyse...' : 'Analyser' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <textarea
+            [(ngModel)]="nouveauContenu"
+            (ngModelChange)="onDraftChange()"
+            placeholder="Contenu de la publication..."
+            rows="5"
+            class="fp-textarea"
+          ></textarea>
+
+          <div class="draft-meta">
+            <span>{{ draftWordCount }} mots</span>
+            <span *ngIf="draftQuality">Score qualite: {{ draftQuality.score }}/100</span>
+            <span *ngIf="draftQuality">Risque: {{ draftQuality.risk }}</span>
+          </div>
+
+          <div class="summary-box" *ngIf="draftSummary">
+            <h4>Resume IA</h4>
+            <p>{{ draftSummary }}</p>
+          </div>
+
+          <div class="quality-box" *ngIf="draftQuality">
+            <h4>Audit IA</h4>
+            <p>Sentiment: <strong>{{ draftQuality.sentiment }}</strong></p>
+            <div class="chips" *ngIf="draftQuality.tags.length">
+              <span class="chip" *ngFor="let tag of draftQuality.tags">#{{ tag }}</span>
+            </div>
+            <ul>
+              <li *ngFor="let tip of draftQuality.suggestions">{{ tip }}</li>
+            </ul>
+          </div>
+
+          <button type="button" class="publish-btn" (click)="publier()" [disabled]="publishing">
+            <span class="btn-icon" aria-hidden="true">
+              <app-admin-icon name="arrow-right" [size]="16"></app-admin-icon>
+            </span>
+            <span>{{ publishing ? 'Publication en cours...' : 'Publier' }}</span>
+          </button>
+        </div>
+
+        <div class="empty-msg" *ngIf="publicationsView.length === 0">
+          <p>{{ emptyStateMessage }}</p>
+          <button
+            type="button"
+            class="mini-btn"
+            *ngIf="!isLoadingPublications && !searchTerm.trim() && filterMode === 'all'"
+            (click)="showForm = true">
+            <span class="btn-icon" aria-hidden="true">
+              <app-admin-icon name="plus" [size]="16"></app-admin-icon>
+            </span>
+            <span>Nouvelle publication</span>
+          </button>
+        </div>
+
+        <article
+          class="fp-card"
+          *ngFor="let pub of publicationsView; trackBy: trackByPublication"
+          [attr.id]="getPublicationCardId(pub)"
+          (mouseenter)="ouvrir(pub)">
+
+          <div class="fp-card-body">
+            <ng-container *ngIf="!isEditingPublication(pub); else publicationEditTpl">
+              <h3>{{ pub.titre }}</h3>
+              <p>{{ getContentPreview(pub) }}</p>
+              <button type="button"
+                *ngIf="pub.contenu.length > 260"
+                class="link-btn"
+                (click)="toggleExpand(pub, $event)">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon [name]="isExpanded(pub) ? 'minus' : 'plus'" [size]="14"></app-admin-icon>
+                </span>
+                <span>{{ isExpanded(pub) ? 'Voir moins' : 'Voir plus' }}</span>
+              </button>
+            </ng-container>
+            <ng-template #publicationEditTpl>
+              <input
+                class="comment-input"
+                [(ngModel)]="editPublicationTitre"
+                placeholder="Titre"
+                (click)="$event.stopPropagation()"
+              />
+              <textarea
+                class="comment-input"
+                rows="4"
+                [(ngModel)]="editPublicationContenu"
+                placeholder="Contenu"
+                (click)="$event.stopPropagation()"
+              ></textarea>
+            </ng-template>
+            <small>{{ pub.dateCreation | date:'dd/MM/yyyy HH:mm' }}</small>
+          </div>
+
+          <div class="fp-card-meta">
+            <span><app-admin-icon name="heart" [size]="14"></app-admin-icon> {{ pub.likesCount || 0 }}</span>
+            <span><app-admin-icon name="list" [size]="14"></app-admin-icon> {{ pub.commentairesCount || 0 }}</span>
+            <span><app-admin-icon name="eye" [size]="14"></app-admin-icon> {{ pub.vuesCount || 0 }}</span>
+            <span class="viewed-badge" *ngIf="hasViewedPublication(pub)">Consultee</span>
+            <span class="score-badge">Score {{ score(pub) }}</span>
+          </div>
+
+          <div class="fp-card-actions" (click)="$event.stopPropagation()">
+            <button type="button"
+              class="mini-btn icon-only-btn"
+              (click)="ouvrir(pub)"
+              title="Consulter"
+              aria-label="Consulter">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="eye" [size]="16"></app-admin-icon>
+              </span>
+            </button>
+            <button type="button"
+              class="like-btn icon-only-btn"
+              (click)="liker(pub)"
+              [disabled]="hasLikedPublication(pub)"
+              [attr.title]="hasLikedPublication(pub) ? 'Déjà aimée' : 'Aimer'"
+              [attr.aria-label]="hasLikedPublication(pub) ? 'Déjà aimée' : 'Aimer'">
+              <ng-container *ngIf="hasLikedPublication(pub); else likePublicationLabel">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="check" [size]="16"></app-admin-icon>
+                </span>
+              </ng-container>
+              <ng-template #likePublicationLabel>
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+                </span>
+              </ng-template>
+            </button>
+            <button type="button"
+              class="mini-btn icon-only-btn"
+              *ngIf="canEditPublication(pub) && !isEditingPublication(pub)"
+              (click)="startPublicationEdit(pub, $event)"
+              title="Modifier"
+              aria-label="Modifier">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="edit" [size]="16"></app-admin-icon>
+              </span>
+            </button>
+            <button type="button"
+              class="mini-btn icon-only-btn"
+              *ngIf="isEditingPublication(pub)"
+              (click)="savePublicationEdit(pub, $event)"
+              title="Enregistrer"
+              aria-label="Enregistrer">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="check" [size]="16"></app-admin-icon>
+              </span>
+            </button>
+            <button type="button"
+              class="mini-btn icon-only-btn"
+              *ngIf="isEditingPublication(pub)"
+              (click)="cancelPublicationEdit($event)"
+              title="Annuler"
+              aria-label="Annuler">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="close" [size]="16"></app-admin-icon>
+              </span>
+            </button>
+            <button type="button"
+              class="delete-btn icon-only-btn"
+              *ngIf="canDeletePublication(pub)"
+              (click)="supprimer(pub)"
+              title="Supprimer"
+              aria-label="Supprimer">
+              <span class="btn-icon" aria-hidden="true">
+                <app-admin-icon name="delete" [size]="16"></app-admin-icon>
+              </span>
+            </button>
+          </div>
+
+          <div class="fp-comments" (click)="$event.stopPropagation()">
+            <div class="comment-item" *ngFor="let c of pub.commentaires || []">
+              <div class="comment-line">
+                <strong>{{ c.auteurNom || c.auteurEmail || 'Utilisateur' }}</strong>
+                <span *ngIf="!isEditingComment(pub, c)"> : {{ c.contenu }}</span>
+              </div>
+
+              <textarea
+                *ngIf="isEditingComment(pub, c)"
+                class="comment-input"
+                rows="2"
+                [(ngModel)]="editCommentContenu"
+                (click)="$event.stopPropagation()"
+              ></textarea>
+
+              <div class="comment-actions">
+                <button type="button"
+                  class="mini-btn icon-count-btn"
+                  (click)="likeComment(pub, c, $event)"
+                  [disabled]="hasLikedComment(c)"
+                  [attr.title]="hasLikedComment(c) ? 'Déjà aimé' : 'J aime'">
+                  <ng-container *ngIf="hasLikedComment(c); else likeCommentLabel">
+                    <span class="btn-icon" aria-hidden="true">
+                      <app-admin-icon name="check" [size]="16"></app-admin-icon>
+                    </span>
+                  </ng-container>
+                  <ng-template #likeCommentLabel>
+                    <span class="btn-icon" aria-hidden="true">
+                      <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+                    </span>
+                  </ng-template>
+                  <span>{{ c.likesCount || 0 }}</span>
+                </button>
+                <button type="button"
+                  class="mini-btn icon-only-btn"
+                  *ngIf="canManageComment(c) && !isEditingComment(pub, c)"
+                  (click)="startCommentEdit(pub, c, $event)"
+                  title="Modifier commentaire"
+                  aria-label="Modifier commentaire">
+                  <span class="btn-icon" aria-hidden="true">
+                    <app-admin-icon name="edit" [size]="16"></app-admin-icon>
+                  </span>
+                </button>
+                <button type="button"
+                  class="mini-btn icon-only-btn"
+                  *ngIf="canManageComment(c) && isEditingComment(pub, c)"
+                  (click)="saveCommentEdit(pub, c, $event)"
+                  title="Enregistrer commentaire"
+                  aria-label="Enregistrer commentaire">
+                  <span class="btn-icon" aria-hidden="true">
+                    <app-admin-icon name="check" [size]="16"></app-admin-icon>
+                  </span>
+                </button>
+                <button type="button"
+                  class="mini-btn icon-only-btn"
+                  *ngIf="canManageComment(c) && isEditingComment(pub, c)"
+                  (click)="cancelCommentEdit($event)"
+                  title="Annuler modification"
+                  aria-label="Annuler modification">
+                  <span class="btn-icon" aria-hidden="true">
+                    <app-admin-icon name="close" [size]="16"></app-admin-icon>
+                  </span>
+                </button>
+                <button type="button"
+                  class="delete-btn icon-only-btn"
+                  *ngIf="canManageComment(c)"
+                  (click)="deleteComment(pub, c, $event)"
+                  title="Supprimer commentaire"
+                  aria-label="Supprimer commentaire">
+                  <span class="btn-icon" aria-hidden="true">
+                    <app-admin-icon name="delete" [size]="16"></app-admin-icon>
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div class="comment-toolbar">
+              <select [(ngModel)]="commentTone" class="tone-select">
+                <option value="friendly">Ton amical</option>
+                <option value="curious">Ton curieux</option>
+                <option value="expert">Ton expert</option>
+              </select>
+
+              <button type="button"
+                class="mini-btn icon-only-btn"
+                (click)="suggestCommentIA(pub)"
+                [disabled]="commentAiLoadingId === pub.id"
+                [attr.title]="commentAiLoadingId === pub.id ? 'Suggestion IA en cours' : 'IA commentaire'"
+                [attr.aria-label]="commentAiLoadingId === pub.id ? 'Suggestion IA en cours' : 'IA commentaire'">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
+                </span>
+              </button>
+            </div>
+
+            <div class="comment-form">
+              <input
+                [(ngModel)]="pub.nouveauCommentaire"
+                (ngModelChange)="onCommentInput(pub)"
+                placeholder="Ajouter un commentaire..."
+                class="comment-input"
+              />
+              <button type="button"
+                class="comment-btn icon-only-btn"
+                (click)="ajouterCommentaire(pub)"
+                title="Commenter"
+                aria-label="Commenter">
+                <span class="btn-icon" aria-hidden="true">
+                  <app-admin-icon name="arrow-right" [size]="16"></app-admin-icon>
+                </span>
+              </button>
+            </div>
+
+            <p class="comment-error" *ngIf="pub.id && commentErrors[pub.id]">{{ commentErrors[pub.id] }}</p>
+          </div>
+        </article>
+
+        <div class="insights-panel">
+          <div
+            class="insight-card clickable-card"
+            [class.is-disabled]="!topViewed"
+            (click)="openPublicationFromInsight(topViewed)"
+            (keydown.enter)="openPublicationFromInsight(topViewed)"
+            (keydown.space)="openPublicationFromInsight(topViewed); $event.preventDefault()"
+            role="button"
+            tabindex="0">
+            <h4>Le plus vu</h4>
+            <p>{{ topViewed?.titre || '-' }}</p>
+          </div>
+          <div
+            class="insight-card clickable-card"
+            [class.is-disabled]="!topLiked"
+            (click)="openPublicationFromInsight(topLiked)"
+            (keydown.enter)="openPublicationFromInsight(topLiked)"
+            (keydown.space)="openPublicationFromInsight(topLiked); $event.preventDefault()"
+            role="button"
+            tabindex="0">
+            <h4>Le plus like</h4>
+            <p>{{ topLiked?.titre || '-' }}</p>
+          </div>
+          <div
+            class="insight-card clickable-card"
+            [class.is-disabled]="!topCommented"
+            (click)="openPublicationFromInsight(topCommented)"
+            (keydown.enter)="openPublicationFromInsight(topCommented)"
+            (keydown.space)="openPublicationFromInsight(topCommented); $event.preventDefault()"
+            role="button"
+            tabindex="0">
+            <h4>Le plus commente</h4>
+            <p>{{ topCommented?.titre || '-' }}</p>
+          </div>
+        </div>
+
+        <div class="similar-panel" *ngIf="similaires.length > 0">
+          <h4>Publications similaires</h4>
+          <div
+            class="sim-card clickable-card"
+            *ngFor="let sim of similaires"
+            (click)="openPublicationFromInsight(sim)"
+            (keydown.enter)="openPublicationFromInsight(sim)"
+            (keydown.space)="openPublicationFromInsight(sim); $event.preventDefault()"
+            role="button"
+            tabindex="0">
+            <p class="sim-titre">{{ sim.titre }}</p>
+            <div class="sim-meta">
+              <span>{{ sim.likesCount || 0 }} likes</span>
+              <span>{{ sim.vuesCount || 0 }} vues</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </ng-container>
+</div>
+

@@ -9,13 +9,6 @@ export interface Avis {
   dateCreation: string;
   siteId: number;
   siteNom?: string;
-  utilisateurEmail: string;
-}
-
-export interface SiteRating {
-  siteId: number;
-  averageRating: number;
-  totalRatings: number;
 }
 
 @Injectable({
@@ -41,16 +34,7 @@ export class SiteCampingAvisService {
   deleteAvis(idAvis: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${idAvis}`);
   }
-
-  getAllAdminAvis(): Observable<Avis[]> {
-    return this.http.get<Avis[]>(`${this.apiUrl}/admin/site-camping-avis`);
-  }
-
-  getMyCampAvis(): Observable<Avis[]> {
-    return this.http.get<Avis[]>(`${this.apiUrl}/my-camp-avis`);
-  }
-
-  getSiteRating(siteId: number): Observable<SiteRating> {
-    return this.http.get<SiteRating>(`${this.apiUrl}/site/${siteId}/rating`);
-  }
+  getAllAdminAvis() {
+  return this.http.get<Avis[]>(`${this.apiUrl}/admin/site-camping-avis`);
+}
 }
