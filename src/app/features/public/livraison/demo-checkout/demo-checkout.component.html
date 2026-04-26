@@ -1,0 +1,134 @@
+<div class="checkout-page">
+  <section class="hero-card">
+    <div>
+      <span class="eyebrow">CampConnect Checkout</span>
+      <h1>Order and Delivery</h1>
+      <p>Select products or meals, add your delivery details, then pay securely with Stripe.</p>
+    </div>
+  </section>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <section class="checkout-grid">
+    <div class="catalog-card">
+      <div class="section-header">
+        <h2>Choose Order Type</h2>
+        <span>Select one category per order</span>
+      </div>
+
+      <div class="type-tabs">
+        <button
+          type="button"
+          [class.active]="selectedType === 'CLASSIQUE'"
+          (click)="changeType('CLASSIQUE')"
+        >
+          Products
+        </button>
+
+        <button
+          type="button"
+          [class.active]="selectedType === 'REPAS'"
+          (click)="changeType('REPAS')"
+        >
+          Meals
+        </button>
+      </div>
+
+      <div class="items-grid">
+        <button
+          type="button"
+          class="item-card"
+          *ngFor="let item of items"
+          (click)="addToCart(item)"
+        >
+          <div class="item-icon">
+            {{ selectedType === 'CLASSIQUE' ? '🏕️' : '🍽️' }}
+          </div>
+
+          <div>
+            <h3>{{ item.nom }}</h3>
+            <p>{{ item.prix }} DT</p>
+            <small>Add to cart</small>
+          </div>
+        </button>
+      </div>
+    </div>
+
+    <div class="details-card">
+      <div class="section-header">
+        <h2>Delivery Details</h2>
+        <span>Information for the delivery person</span>
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Address</label>
+        <input
+          type="text"
+          [(ngModel)]="adresseLivraison"
+          placeholder="Enter your delivery address"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Delivery Note</label>
+        <textarea
+          rows="4"
+          [(ngModel)]="noteLivraison"
+          placeholder="Optional note for the delivery person"
+        ></textarea>
+      </div>
+
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+
+        <div class="empty-cart" *ngIf="cart.length === 0">
+          No items selected yet.
+        </div>
+
+        <div class="cart-row" *ngFor="let item of cart">
+          <div>
+            <strong>{{ item.nom }}</strong>
+            <span>{{ item.prix }} DT × {{ item.quantity }}</span>
+          </div>
+
+          <div class="qty-actions">
+            <button type="button" (click)="decreaseQuantity(item)">−</button>
+            <span>{{ item.quantity }}</span>
+            <button type="button" (click)="increaseQuantity(item)">+</button>
+          </div>
+        </div>
+
+        <div class="summary-row">
+          <span>Type</span>
+          <strong>{{ selectedType }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Address</span>
+          <strong>{{ adresseLivraison || '—' }}</strong>
+        </div>
+
+        <div class="summary-row">
+          <span>Note</span>
+          <strong>{{ noteLivraison || '—' }}</strong>
+        </div>
+
+        <div class="summary-total">
+          <span>Total</span>
+          <strong>{{ total }} DT</strong>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="pay-btn"
+        [disabled]="loading"
+        (click)="pay()"
+      >
+        {{ loading ? 'Redirecting to Stripe...' : 'Pay' }}
+      </button>
+    </div>
+  </section>
+</div>
