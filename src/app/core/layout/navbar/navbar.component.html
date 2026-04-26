@@ -55,6 +55,11 @@
              routerLink="/public/my-bookings" (click)="closeDropdown()">
               My Bookings
             </a>
+            <a
+            [class.disabled]="isAdmin()"
+             routerLink="/public/livraison/demo-checkout" (click)="closeDropdown()">
+              Order with Delivery
+            </a>
 
             <a routerLink="/public/profile" (click)="closeDropdown()">
               Profile

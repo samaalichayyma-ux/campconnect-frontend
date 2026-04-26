@@ -18,8 +18,6 @@ export class LivraisonService {
   private http = inject(HttpClient);
 
   private readonly apiUrl = 'http://localhost:8082/api/livraisons';
-  // If your backend has no /api prefix, use:
-  // private readonly apiUrl = 'http://localhost:8089/livraisons';
 
   createLivraison(payload: LivraisonCreateRequest): Observable<LivraisonResponse> {
     return this.http.post<LivraisonResponse>(this.apiUrl, payload);
@@ -72,4 +70,52 @@ export class LivraisonService {
   getLivreurs(): Observable<LivreurResponse[]> {
   return this.http.get<LivreurResponse[]>(`${this.apiUrl}/livreurs`);
 }
+
+
+checkout(payload: any) {
+  return this.http.post<any>(
+    '${this.apiUrl}/livraisons/demo/checkout',
+    payload
+  );
+}
+
+
+
+  getDemoProducts() {
+    return this.http.get<any[]>(`${this.apiUrl}/demo/products`);
+  }
+
+  getDemoRepas() {
+    return this.http.get<any[]>(`${this.apiUrl}/demo/repas`);
+  }
+
+  //  create order
+  checkoutClassic(payload: any) {
+    return this.http.post<any>(
+      `${this.apiUrl}/demo/checkout/classique`,
+      payload
+    );
+  }
+
+  checkoutRepas(payload: any) {
+    return this.http.post<any>(
+      `${this.apiUrl}/demo/checkout/repas`,
+      payload
+    );
+  }
+
+  //  Stripe session
+  createDemoPaymentSession(payload: any) {
+    return this.http.post<any>(
+      `${this.apiUrl}/demo/payment/create-session`,
+      payload
+    );
+  }
+
+  //  success
+  confirmStripePayment(sessionId: string) {
+    return this.http.get<LivraisonResponse>(
+      `${this.apiUrl}/demo/payment/success?session_id=${sessionId}`
+    );
+  }
 }

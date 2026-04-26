@@ -98,6 +98,9 @@ import { MyLivreurLivraisonsComponent } from './features/admin/livraison/my-livr
 import { LivreurDashboardComponent } from './features/admin/livraison/livreur-dashboard/livreur-dashboard.component';
 import { CreateLivraisonComponent } from './features/admin/livraison/create-livraison/create-livraison.component';
 import { AvailableOrdersComponent } from './features/admin/livraison/available-orders/available-orders.component';
+import { PaymentCommandSuccessComponent } from './features/public/livraison/payment-command-success/payment-command-success.component';
+import { PaymentCommandCancelComponent } from './features/public/livraison/payment-command-cancel/payment-command-cancel.component';
+import { DemoCheckoutComponent } from './features/public/livraison/demo-checkout/demo-checkout.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -229,6 +232,9 @@ export const routes: Routes = [
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+      { path: 'livraison/demo-checkout', component: DemoCheckoutComponent },
+        { path: 'payment-command-success', component: PaymentCommandSuccessComponent },
+        { path: 'payment-command-cancel',  component: PaymentCommandCancelComponent },
     ]
   },
 
