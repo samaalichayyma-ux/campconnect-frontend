@@ -1,0 +1,188 @@
+<div class="available-orders-page">
+  <div class="page-header">
+    <div>
+      <h2>Available Orders</h2>
+      <p>Select an existing order and create a delivery from it.</p>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">
+    Loading available orders...
+  </div>
+
+<div class="create-panel" *ngIf="selectedOrder">
+  <div class="panel-header">
+    <div>
+      <h3>Create Delivery</h3>
+      <p>
+        Order #{{ selectedOrder.commandeId }} -
+        {{ selectedOrder.typeCommande }}
+      </p>
+    </div>
+
+    <button class="close-btn" type="button" (click)="cancelCreate()">×</button>
+  </div>
+
+  <div class="client-info-box">
+    <div class="client-avatar">
+      {{ getClientInitial(selectedOrder) }}
+    </div>
+
+    <div class="client-details">
+      <strong>{{ getClientName(selectedOrder) }}</strong>
+
+      <span>
+        Email: {{ selectedOrder.clientEmail || 'No email provided' }}
+      </span>
+
+      <span class="phone">
+        Phone: {{ selectedOrder.clientTelephone || 'No phone provided' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Delivery Address</label>
+      <input
+        type="text"
+        [(ngModel)]="adresseLivraison"
+        placeholder="Enter delivery address"
+      />
+    </div>
+
+    <div class="form-group">
+      <label>Comment</label>
+      <input
+        type="text"
+        [(ngModel)]="commentaire"
+        placeholder="Optional comment"
+      />
+    </div>
+  </div>
+
+  <div class="panel-actions">
+    <button class="secondary-btn" type="button" (click)="cancelCreate()">
+      Cancel
+    </button>
+
+    <button class="primary-btn" type="button" (click)="createDelivery()">
+      Confirm Create Delivery
+    </button>
+  </div>
+</div>
+
+  <section class="orders-section" *ngIf="!loading">
+    <div class="section-card">
+      <div class="section-title">
+        <h3>Classic Orders</h3>
+        <span>{{ classicOrders.length }} available</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Client</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let order of classicOrders">
+              <td>#{{ order.commandeId }}</td>
+              <td>{{ order.dateCommande || '—' }}</td>
+              <td>
+                <span class="status-badge">{{ order.statut || '—' }}</span>
+              </td>
+              <td>{{ order.total }}</td>
+              <td>{{ order.clientEmail || order.clientId || '—' }}</td>
+              <td>
+                <button class="create-btn" type="button" (click)="openCreateForm(order)">
+                  Create Delivery
+                </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="classicOrders.length === 0">
+              <td colspan="6" class="empty-state">
+                No available classic orders.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">
+        <h3>Food Orders</h3>
+        <span>{{ repasOrders.length }} available</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Client</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let order of repasOrders">
+              <td>#{{ order.commandeId }}</td>
+              <td>{{ order.dateCommande || '—' }}</td>
+              <td>
+                <span class="status-badge">{{ order.statut || '—' }}</span>
+              </td>
+              <td>{{ order.total }}</td>
+              <td>{{ order.clientEmail || order.clientId || '—' }}</td>
+              <td>
+                <!-- <button
+                    class="create-btn"
+                    type="button"
+                    [disabled]="!canCreateDelivery(order)"
+                    [ngClass]="{ 'disabled-btn': !canCreateDelivery(order) }"
+                    (click)="openCreateForm(order)"
+                    >
+                    Create Delivery
+                    </button> -->
+                <button
+                    class="create-btn"
+                    type="button"
+    
+                    (click)="openCreateForm(order)"
+                    >
+                    Create Delivery
+                    </button>
+              </td>
+            </tr>
+
+            <tr *ngIf="repasOrders.length === 0">
+              <td colspan="6" class="empty-state">
+                No available food orders.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>

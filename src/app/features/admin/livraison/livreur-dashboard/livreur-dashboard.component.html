@@ -1,0 +1,105 @@
+<div class="dashboard-page">
+  <section class="hero-card">
+    <div>
+      <span class="eyebrow">Delivery Panel</span>
+      <h1>Welcome back, {{ livreurName }}</h1>
+      <p>Track your assigned deliveries, update progress, and review recent activity.</p>
+    </div>
+
+    <a routerLink="/admin/livraison/mine" class="hero-action">
+      View My Deliveries
+    </a>
+  </section>
+
+  <section class="stats-grid">
+    <div class="stat-card" *ngFor="let stat of stats" [ngClass]="stat.colorClass">
+      <div class="stat-icon">
+        <app-admin-icon [name]="stat.icon" [size]="24"></app-admin-icon>
+      </div>
+
+      <div class="stat-text">
+        <span>{{ stat.title }}</span>
+        <h3>{{ stat.value }}</h3>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-main-grid">
+    <div class="card-box">
+      <div class="section-header">
+        <div>
+          <h2>Quick Access</h2>
+          <span>Manage your delivery workflow</span>
+        </div>
+      </div>
+
+      <div class="modules-grid">
+        <a class="module-card" *ngFor="let module of modules" [routerLink]="module.link">
+          <div class="module-icon">
+            <app-admin-icon [name]="module.icon" [size]="24"></app-admin-icon>
+          </div>
+
+          <div class="module-content">
+            <h3>{{ module.title }}</h3>
+            <p>{{ module.subtitle }}</p>
+          </div>
+
+          <span class="module-arrow">→</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="card-box profile-section">
+      <div class="large-avatar">L</div>
+
+      <h3>{{ livreurName }}</h3>
+      <p class="role-pill">{{ livreurRole }}</p>
+
+      <div class="profile-meta">
+        <div>
+          <span>Email</span>
+          <strong>livreur&#64;campconnect.com</strong>
+        </div>
+
+        <div>
+          <span>Status</span>
+          <strong>{{ currentStatus }}</strong>
+        </div>
+
+        <div>
+          <span>Total Assigned</span>
+          <strong>{{ livraisons.length }}</strong>
+        </div>
+      </div>
+
+      <button class="profile-btn">View Profile</button>
+    </div>
+  </section>
+
+  <section class="card-box activity-section">
+    <div class="section-header">
+      <div>
+        <h2>Recent Activity</h2>
+        <span>Latest updates on your deliveries</span>
+      </div>
+    </div>
+
+    <div class="activity-table" *ngIf="recentActivities.length > 0">
+      <div class="activity-row activity-head">
+        <span>Action</span>
+        <span>Info</span>
+        <span>Date</span>
+      </div>
+
+      <div class="activity-row" *ngFor="let activity of recentActivities">
+        <span>{{ activity.action }}</span>
+        <span>{{ activity.user }}</span>
+        <span>{{ activity.date }}</span>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="recentActivities.length === 0">
+      No recent delivery activity yet.
+    </div>
+  </section>
+</div>
