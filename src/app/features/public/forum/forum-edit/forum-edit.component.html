@@ -1,12 +1,55 @@
-<div class="edit-page">
-  <div class="edit-card">
-    <h2>Modifier le forum</h2>
+<div class="container mt-4">
+  <h2>Modifier un forum</h2>
 
-    <input [(ngModel)]="forum.nom" type="text" placeholder="Nom du forum" />
-    <textarea [(ngModel)]="forum.description" placeholder="Description"></textarea>
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+    {{ errorMessage }}
+  </div>
 
-    <button class="save-btn" (click)="update()">Sauvegarder</button>
+  <div class="card mt-3">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Nom du forum</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="forum.nom"
+          name="nom"
+          [disabled]="!canEdit"
+        />
+      </div>
 
-    <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+      <div class="mb-3">
+        <label class="form-label">Categorie</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="forum.categorie"
+          name="categorie"
+          [disabled]="!canEdit"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Description</label>
+        <textarea
+          class="form-control"
+          rows="4"
+          [(ngModel)]="forum.description"
+          name="description"
+          [disabled]="!canEdit"
+        ></textarea>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-warning action-btn" [disabled]="!canEdit" (click)="update()" title="Mettre a jour" aria-label="Mettre a jour">
+          <span class="btn-icon" aria-hidden="true">&#128190;</span>
+          <span>Mettre a jour</span>
+        </button>
+        <a routerLink="/public/forums" class="btn btn-secondary action-btn" title="Annuler" aria-label="Annuler">
+          <span class="btn-icon" aria-hidden="true">&#10006;</span>
+          <span>Annuler</span>
+        </a>
+      </div>
+    </div>
   </div>
 </div>

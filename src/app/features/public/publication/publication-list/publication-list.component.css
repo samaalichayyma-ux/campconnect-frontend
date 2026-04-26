@@ -24,6 +24,15 @@
   font-size: 15px;
 }
 
+.feedback-msg {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
 .publication-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -58,13 +67,16 @@
 }
 
 .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: none;
   background: #f4efe6;
-  width: 40px;
-  height: 40px;
+  min-height: 40px;
   border-radius: 10px;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 14px;
+  padding: 0 12px;
 }
 
 .icon-btn:hover {
@@ -83,6 +95,9 @@
 
 .like-btn,
 .details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   border: none;
   padding: 10px 16px;
   border-radius: 10px;
@@ -95,6 +110,11 @@
   color: #2f6f57;
 }
 
+.like-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
 .details-btn {
   background: #2f6f57;
   color: white;
@@ -102,4 +122,12 @@
 
 .details-btn:hover {
   background: #285c49;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 0.95em;
 }

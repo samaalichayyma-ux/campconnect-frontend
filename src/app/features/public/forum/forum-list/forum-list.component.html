@@ -1,53 +1,243 @@
 <div class="forum-page">
-  <div class="hero-section">
-    <h1>Communauté camping</h1>
-    <p>Retrouvez les forums et les publications de la communauté.</p>
-    <button class="create-btn" (click)="goToCreate()">Créer un forum</button>
-  </div>
+  <section class="forum-hero">
+    <div class="forum-hero-content">
+      <span class="forum-badge">CampConnect Community</span>
+      <h1>Forums de discussion</h1>
+      <p>
+        Explorez les catégories, retrouvez les sujets les plus actifs
+        et accédez directement aux publications.
+      </p>
 
-  <section class="section-block">
-    <h2>Liste des forums</h2>
-
-    <div class="forum-list">
-      <div class="forum-card" *ngFor="let forum of forums">
-        <div class="forum-header">
-          <div>
-            <h3>{{ forum.nom }}</h3>
-            <p class="meta">{{ forum.dateCreation | date:'short' }}</p>
-          </div>
-
-          <div class="actions">
-            <button class="icon-btn" title="Modifier" (click)="goToEdit(forum.id)">✏️</button>
-            <button class="icon-btn danger-btn" title="Supprimer" (click)="deleteForum(forum.id)">🗑️</button>
-          </div>
-        </div>
-
-        <p class="description">{{ forum.description }}</p>
+      <div class="forum-hero-actions">
+        <a routerLink="/public/forums/create" class="forum-primary-btn">
+          + Créer un forum
+        </a>
+        <span class="forum-count">{{ filteredForums.length }} forums</span>
       </div>
     </div>
-
-    <p *ngIf="forums.length === 0">Aucun forum trouvé.</p>
   </section>
 
-  <section class="section-block">
-    <h2>Liste des publications</h2>
+  <section class="forum-stats">
+    <div class="stat-card clickable" (click)="topViewed && openPublication(topViewed)">
+      <span class="stat-icon">
+        <app-admin-icon name="eye" [size]="22"></app-admin-icon>
+      </span>
+      <span class="stat-label">Le plus consulté</span>
+      <h3
+        *ngIf="topViewed; else emptyTopViewed"
+        class="stat-title-link"
+        (click)="openPublication(topViewed); $event.stopPropagation()"
+        role="link"
+        tabindex="0"
+        (keydown.enter)="openPublication(topViewed); $event.preventDefault(); $event.stopPropagation()"
+        (keydown.space)="openPublication(topViewed); $event.preventDefault(); $event.stopPropagation()">
+        {{ topViewed.titre }}
+      </h3>
+      <ng-template #emptyTopViewed>
+        <h3>Aucune publication</h3>
+      </ng-template>
+      <p>{{ topViewed?.vuesCount || 0 }} vues</p>
+    </div>
 
-    <div class="forum-list">
-      <div class="forum-card" *ngFor="let publication of publications">
-        <div class="forum-header">
-          <div>
-            <h3>{{ publication.contenu }}</h3>
-            <p class="meta">{{ publication.dateCreation }}</p>
-          </div>
+    <div class="stat-card clickable" (click)="topCommented && openPublication(topCommented)">
+      <span class="stat-icon">
+        <app-admin-icon name="comments" [size]="22"></app-admin-icon>
+      </span>
+      <span class="stat-label">Le plus commenté</span>
+      <h3
+        *ngIf="topCommented; else emptyTopCommented"
+        class="stat-title-link"
+        (click)="openPublication(topCommented); $event.stopPropagation()"
+        role="link"
+        tabindex="0"
+        (keydown.enter)="openPublication(topCommented); $event.preventDefault(); $event.stopPropagation()"
+        (keydown.space)="openPublication(topCommented); $event.preventDefault(); $event.stopPropagation()">
+        {{ topCommented.titre }}
+      </h3>
+      <ng-template #emptyTopCommented>
+        <h3>Aucune publication</h3>
+      </ng-template>
+      <p>{{ topCommented?.commentairesCount || 0 }} commentaires</p>
+    </div>
 
-          <div class="actions">
-            <button class="icon-btn" title="Modifier" (click)="goToPublicationEdit(publication.id)">✏️</button>
-            <button class="icon-btn danger-btn" title="Supprimer" (click)="deletePublication(publication.id)">🗑️</button>
-          </div>
-        </div>
+    <div class="stat-card clickable" (click)="topLiked && openPublication(topLiked)">
+      <span class="stat-icon">
+        <app-admin-icon name="heart" [size]="22"></app-admin-icon>
+      </span>
+      <span class="stat-label">Le plus aimé</span>
+      <h3
+        *ngIf="topLiked; else emptyTopLiked"
+        class="stat-title-link"
+        (click)="openPublication(topLiked); $event.stopPropagation()"
+        role="link"
+        tabindex="0"
+        (keydown.enter)="openPublication(topLiked); $event.preventDefault(); $event.stopPropagation()"
+        (keydown.space)="openPublication(topLiked); $event.preventDefault(); $event.stopPropagation()">
+        {{ topLiked.titre }}
+      </h3>
+      <ng-template #emptyTopLiked>
+        <h3>Aucune publication</h3>
+      </ng-template>
+      <p>{{ topLiked?.likesCount || 0 }} likes</p>
+    </div>
+  </section>
+
+  <section class="forum-toolbar">
+    <div class="search-wrapper">
+      <input
+        type="text"
+        class="forum-search"
+        placeholder="Rechercher un forum (commence par...)"
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+        (blur)="hideSuggestions()"
+        autocomplete="off"
+      />
+      <ul class="suggestions-dropdown" *ngIf="showSuggestions">
+        <li *ngFor="let s of suggestions" class="suggestion-item" (mousedown)="selectSuggestion(s)">
+          {{ s }}
+        </li>
+      </ul>
+      <div class="search-results" *ngIf="isSearching">
+        <span *ngIf="activeTab === 'categories'">
+          {{ filteredForums.length }} forum{{ filteredForums.length > 1 ? 's' : '' }} trouvé{{ filteredForums.length > 1 ? 's' : '' }}
+        </span>
+        <span *ngIf="activeTab !== 'categories'">
+          {{ filteredPublications.length }} publication{{ filteredPublications.length > 1 ? 's' : '' }} trouvée{{ filteredPublications.length > 1 ? 's' : '' }}
+        </span>
       </div>
     </div>
 
-    <p *ngIf="publications.length === 0">Aucune publication trouvée.</p>
+    <div class="forum-tabs">
+      <button type="button"
+        class="tab-btn no-auto-icon"
+        [class.active]="activeTab === 'categories'"
+        (click)="setTab('categories')">
+        Catégories
+      </button>
+
+      <button type="button"
+        class="tab-btn no-auto-icon"
+        [class.active]="activeTab === 'recents'"
+        (click)="setTab('recents')">
+        Récents
+      </button>
+
+      <button type="button"
+        class="tab-btn no-auto-icon"
+        [class.active]="activeTab === 'top'"
+        (click)="setTab('top')">
+        Top
+      </button>
+    </div>
+  </section>
+
+  <section *ngIf="activeTab === 'categories'">
+    <div *ngIf="filteredForums.length === 0" class="forum-empty">
+      Aucun forum trouvé.
+    </div>
+
+    <div class="forum-grid" *ngIf="filteredForums.length > 0">
+      <article
+        class="forum-card clickable"
+        *ngFor="let forum of filteredForums"
+        (click)="openForum(forum.id)">
+
+        <div class="forum-card-body">
+          <div class="forum-top">
+            <span class="forum-icon">
+              <ng-container *ngIf="forum.icon; else defaultForumIcon">{{ forum.icon }}</ng-container>
+              <ng-template #defaultForumIcon>
+                <app-admin-icon name="folder" [size]="22"></app-admin-icon>
+              </ng-template>
+            </span>
+            <span class="forum-category">{{ forum.categorie }}</span>
+          </div>
+          <h2 class="forum-title">{{ forum.nom }}</h2>
+          <div class="forum-author">
+            <span class="author-avatar">{{ (forum.auteurNom || forum.auteurEmail || 'A')[0].toUpperCase() }}</span>
+            <span>{{ forum.auteurNom || forum.auteurEmail || 'Anonyme' }}</span>
+          </div>
+          <p class="forum-description">{{ forum.description }}</p>
+
+          <div class="forum-stats-row">
+            <span title="Publications">
+              <app-admin-icon name="list" [size]="14"></app-admin-icon>
+              {{ getForumPublicationCount(forum) }}
+            </span>
+            <span title="Date">
+              <app-admin-icon name="calendar" [size]="14"></app-admin-icon>
+              {{ forum.dateCreation | date:'dd/MM/yy' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="forum-actions" (click)="$event.stopPropagation()">
+          <button type="button" class="forum-btn edit-btn no-auto-icon"
+                  *ngIf="canDeleteForum(forum)"
+                  (click)="editForum(forum.id); $event.stopPropagation()"
+                  title="Modifier le forum"
+                  aria-label="Modifier le forum">
+            <app-admin-icon name="edit" [size]="16"></app-admin-icon>
+          </button>
+
+          <button type="button" class="forum-btn delete-btn no-auto-icon"
+                  *ngIf="canDeleteForum(forum)"
+                  (click)="deleteForum(forum.id!); $event.stopPropagation()"
+                  title="Supprimer le forum"
+                  aria-label="Supprimer le forum">
+            <app-admin-icon name="delete" [size]="16"></app-admin-icon>
+          </button>
+        </div>
+
+      </article>
+    </div>
+  </section>
+
+  <section *ngIf="activeTab === 'recents'">
+    <div class="publication-list">
+      <article
+        class="publication-row clickable"
+        *ngFor="let publication of (isSearching ? filteredPublications : recentPublications)"
+        (click)="openPublication(publication)">
+        <div class="publication-main">
+          <h3>{{ publication.titre }}</h3>
+          <p>{{ publication.contenu }}</p>
+        </div>
+
+        <div class="publication-meta">
+          <span><app-admin-icon name="comments" [size]="14"></app-admin-icon> {{ publication.commentairesCount }}</span>
+          <span><app-admin-icon name="eye" [size]="14"></app-admin-icon> {{ publication.vuesCount }}</span>
+          <span><app-admin-icon name="heart" [size]="14"></app-admin-icon> {{ publication.likesCount }}</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section *ngIf="activeTab === 'top'">
+    <p class="smart-ranking-info">
+      <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+      <strong>Classement intelligent</strong> : score basé sur likes, commentaires, vues et fraîcheur
+    </p>
+    <div class="publication-list">
+      <article
+        class="publication-row clickable"
+        *ngFor="let publication of (isSearching ? filteredPublications : topPublications)"
+        (click)="openPublication(publication)">
+        <div class="publication-main">
+          <h3>{{ publication.titre }}</h3>
+          <p>{{ publication.contenu }}</p>
+        </div>
+        <div class="publication-meta">
+          <span><app-admin-icon name="comments" [size]="14"></app-admin-icon> {{ publication.commentairesCount }}</span>
+          <span><app-admin-icon name="eye" [size]="14"></app-admin-icon> {{ publication.vuesCount }}</span>
+          <span><app-admin-icon name="heart" [size]="14"></app-admin-icon> {{ publication.likesCount }}</span>
+          <span class="smart-score">
+            <app-admin-icon name="sparkles" [size]="12"></app-admin-icon>
+            {{ getScore(publication) }}
+          </span>
+        </div>
+      </article>
+    </div>
   </section>
 </div>

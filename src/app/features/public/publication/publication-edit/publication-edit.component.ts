@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-import { PublicationAdminService } from '../../../admin/publication/publication-admin.service';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Publication } from '../models/publication';
+import { PublicationService } from '../services/publication.service';
 
 @Component({
   selector: 'app-publication-edit',
@@ -11,33 +13,76 @@ import { PublicationAdminService } from '../../../admin/publication/publication-
   templateUrl: './publication-edit.component.html',
   styleUrl: './publication-edit.component.css'
 })
-export class PublicationEditComponent {
+export class PublicationEditComponent implements OnInit {
+  publicationId = 0;
+  canEdit = false;
 
-  publication: any = {};
+  publication: Publication = {
+    contenu: '',
+    titre: ''
+  };
+
   successMessage = '';
   errorMessage = '';
 
   constructor(
     private route: ActivatedRoute,
-    private publicationService: PublicationAdminService
-  ) {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadPublication(+id);
+    private router: Router,
+    private publicationService: PublicationService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit(): void {
+    this.publicationId = Number(this.route.snapshot.paramMap.get('id'));
+
+    if (!this.publicationId || Number.isNaN(this.publicationId)) {
+      this.errorMessage = 'Publication invalide.';
+      return;
     }
+
+    this.loadPublication(this.publicationId);
   }
 
-  loadPublication(id: number) {
+  loadPublication(id: number): void {
     this.publicationService.getById(id).subscribe({
-      next: (data) => this.publication = data,
-      error: () => this.errorMessage = 'Erreur chargement'
+      next: (data) => {
+        this.publication = data;
+        this.canEdit = this.authService.isAdmin() || this.authService.ownsResource(data.auteurEmail);
+
+        if (!this.canEdit) {
+          this.errorMessage = 'Vous ne pouvez modifier que vos publications.';
+        }
+      },
+      error: (err) => {
+        console.error('Erreur chargement publication :', err);
+        this.errorMessage = 'Erreur chargement publication.';
+      }
     });
   }
 
-  update() {
-    this.publicationService.update(this.publication.id, this.publication).subscribe({
-      next: () => this.successMessage = 'Modifié avec succès',
-      error: () => this.errorMessage = 'Erreur modification'
+  update(): void {
+    if (!this.canEdit) {
+      this.errorMessage = 'Action non autorisee.';
+      return;
+    }
+
+    const titre = (this.publication.titre || '').trim();
+    const contenu = this.publication.contenu.trim();
+
+    if (!titre || !contenu) {
+      this.errorMessage = 'Titre et contenu sont obligatoires.';
+      return;
+    }
+
+    this.publicationService.update(this.publicationId, { ...this.publication, titre, contenu }).subscribe({
+      next: () => {
+        this.successMessage = 'Modifie avec succes.';
+        setTimeout(() => this.router.navigate(['/public/publications']), 700);
+      },
+      error: (err) => {
+        console.error('Erreur modification publication :', err);
+        this.errorMessage = 'Erreur modification publication.';
+      }
     });
   }
 }
