@@ -45,3 +45,17 @@ textarea {
   color: #2f6f57;
   margin-top: 14px;
 }
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 1rem;
+}

@@ -18,6 +18,14 @@
   color: #2f6f57;
 }
 
+.edit-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 15px;
+}
+
 textarea {
   width: 100%;
   min-height: 180px;
@@ -33,6 +41,9 @@ textarea {
 }
 
 .save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   background: #2f6f57;
   color: white;
   border: none;
@@ -46,6 +57,11 @@ textarea {
   background: #285c49;
 }
 
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .success-msg {
   color: #2f6f57;
   margin-top: 14px;
@@ -54,4 +70,12 @@ textarea {
 .error-msg {
   color: #c85c5c;
   margin-top: 14px;
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 0.95em;
 }

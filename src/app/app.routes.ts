@@ -154,7 +154,6 @@ export const routes: Routes = [
 
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
-      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] }
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
     ]
   },
@@ -230,7 +229,5 @@ export const routes: Routes = [
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password', component: ResetPasswordComponent },
 
-  { path: '**', component: NotFoundComponent }
-];
   { path: '**', component: NotFoundComponent }
 ];

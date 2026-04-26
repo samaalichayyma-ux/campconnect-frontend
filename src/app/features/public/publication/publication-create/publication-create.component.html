@@ -1,15 +1,75 @@
 <div class="create-page">
   <div class="create-card">
     <h2>Nouvelle publication</h2>
-    <p>Partagez votre expérience camping avec la communauté.</p>
+    <p>Partagez votre experience camping avec la communaute.</p>
+
+    <div class="field-row">
+      <label for="forumId">Forum</label>
+      <select id="forumId" [(ngModel)]="selectedForumId" name="forumId" class="forum-select">
+        <option [ngValue]="null">Choisir un forum</option>
+        <option *ngFor="let forum of forums" [ngValue]="forum.id">{{ forum.nom }}</option>
+      </select>
+    </div>
+
+    <div class="field-row">
+      <label for="titre">Titre</label>
+      <input
+        id="titre"
+        type="text"
+        [(ngModel)]="titre"
+        name="titre"
+        placeholder="Titre de la publication"
+      />
+    </div>
+
+    <div class="ai-assistant-box">
+      <div class="ai-header">
+        <span class="ai-badge">Assistant IA</span>
+        <small>Suggestion et amelioration du contenu</small>
+      </div>
+
+      <div class="ai-input-row">
+        <input
+          type="text"
+          [(ngModel)]="theme"
+          name="theme"
+          placeholder="Theme: meilleurs spots camping..."
+          class="ai-theme-input"
+        />
+        <button
+          type="button"
+          class="ai-btn suggest-btn"
+          (click)="suggestWithAI()"
+          [disabled]="aiLoading">
+          <span class="btn-icon" aria-hidden="true">&#129302;</span>
+          <span>{{ aiLoading ? 'Generation...' : 'Suggere' }}</span>
+        </button>
+      </div>
+
+      <button
+        type="button"
+        class="ai-btn improve-btn"
+        (click)="improveWithAI()"
+        [disabled]="aiLoading || !contenu.trim()">
+        <span class="btn-icon" aria-hidden="true">&#9998;</span>
+        <span>Ameliorer le texte</span>
+      </button>
+
+      <p *ngIf="aiError" class="ai-error">{{ aiError }}</p>
+    </div>
 
     <textarea
       [(ngModel)]="contenu"
-      placeholder="Écrivez votre publication ici..."
+      name="contenu"
+      placeholder="Ecrivez votre publication ici..."
+      rows="6"
     ></textarea>
 
     <div class="form-actions">
-      <button class="save-btn" (click)="create()">Publier</button>
+      <button class="save-btn" (click)="create()" [disabled]="!contenu.trim() || !selectedForumId">
+        <span class="btn-icon" aria-hidden="true">&#128640;</span>
+        <span>Publier</span>
+      </button>
     </div>
 
     <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
