@@ -1,1 +1,64 @@
-<p>assurance-details works!</p>
+<div class="assurance-page">
+  <div *ngIf="loading" class="assurance-loading">Chargement des détails...</div>
+  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+
+  <ng-container *ngIf="!loading && assurance">
+    <section class="assurance-hero">
+      <span class="assurance-badge badge-active">{{ typeLabels[assurance.typeAssurance] }}</span>
+      <h1 class="assurance-title" style="margin-top: 1rem;">{{ assurance.titre }}</h1>
+      <p class="assurance-subtitle">{{ assurance.description }}</p>
+    </section>
+
+    <section class="assurance-grid">
+      <article class="assurance-card">
+        <h3 class="assurance-card-title">Informations clés</h3>
+        <p><strong>Prime :</strong> {{ assurance.prime | number:'1.2-2' }} TND</p>
+        <p><strong>Montant couverture :</strong> {{ assurance.montantCouverture | number:'1.0-0' }} TND</p>
+        <p><strong>Durée validité :</strong> {{ assurance.dureeValidite }} jours</p>
+        <p><strong>Statut :</strong> {{ assurance.active ? 'Disponible' : 'Indisponible' }}</p>
+      </article>
+
+      <article class="assurance-card">
+        <h3 class="assurance-card-title">Conditions générales</h3>
+        <p style="line-height: 1.75; color: var(--assurance-text-soft);">
+          {{ assurance.conditionsGenerales }}
+        </p>
+      </article>
+    </section>
+
+    <section>
+      <h2 class="assurance-section-title">Garanties incluses</h2>
+
+      <div *ngIf="!garanties.length" class="assurance-empty">
+        Aucune garantie n’a été ajoutée pour cette offre.
+      </div>
+
+      <div class="assurance-grid" *ngIf="garanties.length">
+        <article class="assurance-card" *ngFor="let garantie of garanties">
+          <h3 class="assurance-card-title">{{ garantie.nom }}</h3>
+          <p style="color: var(--assurance-text-soft); line-height: 1.65;">
+            {{ garantie.description }}
+          </p>
+          <div style="margin-top: 1rem;">
+            <p><strong>Plafond :</strong> {{ garantie.plafond | number:'1.0-0' }} TND</p>
+            <p><strong>Franchise :</strong> {{ garantie.franchise | number:'1.2-2' }} TND</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <div style="margin-top: 1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
+      <a routerLink="/public/assurances" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
+        Retour à la liste
+      </a>
+
+      <a
+        [routerLink]="['/public/assurances', assurance.id, 'souscrire']"
+        class="assurance-btn assurance-btn-primary"
+        style="text-decoration:none;"
+      >
+        Souscrire maintenant
+      </a>
+    </div>
+  </ng-container>
+</div>

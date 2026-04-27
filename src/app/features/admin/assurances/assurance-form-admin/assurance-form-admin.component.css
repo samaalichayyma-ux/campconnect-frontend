@@ -1,0 +1,435 @@
+:host {
+  display: block;
+}
+
+:host * {
+  box-sizing: border-box;
+}
+
+.assurance-page {
+  --primary: #838332;
+  --secondary: #1F3D2B;
+  --surface: #F4EDE4;
+  --dark: #1C2A39;
+  --accent: #F4A261;
+  --white: #ffffff;
+  --text: #253126;
+  --text-soft: #617064;
+  --border: rgba(31, 61, 43, 0.14);
+  --shadow-lg: 0 24px 60px rgba(28, 42, 57, 0.16);
+  --shadow-md: 0 14px 30px rgba(28, 42, 57, 0.1);
+  --radius-xl: 30px;
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --transition: all 0.32s ease;
+
+  min-height: 100vh;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(244, 162, 97, 0.16), transparent 24%),
+    radial-gradient(circle at 85% 15%, rgba(131, 131, 50, 0.18), transparent 22%),
+    radial-gradient(circle at bottom right, rgba(31, 61, 43, 0.12), transparent 26%),
+    linear-gradient(135deg, #fdfaf6 0%, #f7f0e7 48%, #f4ede4 100%);
+  font-family: 'Raleway', sans-serif;
+  color: var(--text);
+}
+
+.assurance-page::before,
+.assurance-page::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(14px);
+  pointer-events: none;
+  z-index: 0;
+  animation: floatBlob 12s ease-in-out infinite;
+}
+
+.assurance-page::before {
+  width: 240px;
+  height: 240px;
+  top: -70px;
+  right: -70px;
+  background: rgba(244, 162, 97, 0.12);
+}
+
+.assurance-page::after {
+  width: 280px;
+  height: 280px;
+  bottom: -110px;
+  left: -90px;
+  background: rgba(131, 131, 50, 0.1);
+  animation-delay: 2.5s;
+}
+
+.assurance-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.assurance-hero {
+  position: relative;
+  padding: 34px 36px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(31, 61, 43, 0.98), rgba(28, 42, 57, 0.96));
+  box-shadow: var(--shadow-lg);
+  animation: fadeUp 0.8s ease both;
+}
+
+.assurance-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 20%, rgba(255, 255, 255, 0.08) 50%, transparent 80%);
+  transform: translateX(-120%);
+  animation: heroShine 6.8s linear infinite;
+}
+
+.assurance-hero::after {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  right: -60px;
+  top: -70px;
+  background: radial-gradient(circle, rgba(244, 162, 97, 0.22), transparent 70%);
+  border-radius: 50%;
+}
+
+.assurance-title {
+  margin: 0 0 12px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--white);
+  animation: fadeUp 0.9s ease both;
+}
+
+.assurance-subtitle {
+  margin: 0;
+  max-width: 760px;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255, 255, 255, 0.82);
+  animation: fadeUp 1s ease both;
+}
+
+.assurance-loading,
+.assurance-error,
+.assurance-empty {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  animation: fadeUp 0.5s ease both;
+  backdrop-filter: blur(8px);
+}
+
+.assurance-loading {
+  color: var(--dark);
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(28, 42, 57, 0.08);
+}
+
+.assurance-error {
+  color: #9d332c;
+  background: rgba(255, 236, 233, 0.88);
+  border: 1px solid rgba(157, 51, 44, 0.14);
+}
+
+.assurance-empty {
+  color: var(--primary);
+  background: rgba(131, 131, 50, 0.12);
+  border: 1px solid rgba(131, 131, 50, 0.14);
+}
+
+.assurance-card {
+  margin-top: 1.5rem;
+  position: relative;
+  padding: 30px;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(16px);
+  overflow: hidden;
+  animation: fadeUp 0.95s ease both;
+}
+
+.assurance-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,0.5), transparent 45%);
+  pointer-events: none;
+}
+
+.assurance-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 22px;
+}
+
+.assurance-field {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.assurance-field:nth-child(1) { animation-delay: 0.05s; }
+.assurance-field:nth-child(2) { animation-delay: 0.09s; }
+.assurance-field:nth-child(3) { animation-delay: 0.13s; }
+.assurance-field:nth-child(4) { animation-delay: 0.17s; }
+.assurance-field:nth-child(5) { animation-delay: 0.21s; }
+.assurance-field:nth-child(6) { animation-delay: 0.25s; }
+.assurance-field:nth-child(7) { animation-delay: 0.29s; }
+.assurance-field:nth-child(8) { animation-delay: 0.33s; }
+
+.assurance-field:nth-child(2),
+.assurance-field:nth-child(7),
+.assurance-field:nth-child(8),
+.assurance-form > div[style*="display:flex"] {
+  grid-column: 1 / -1;
+}
+
+.assurance-field label {
+  font-size: 0.96rem;
+  font-weight: 700;
+  color: var(--secondary);
+  letter-spacing: 0.2px;
+}
+
+.assurance-field input,
+.assurance-field textarea,
+.assurance-field select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.95), rgba(249,246,241,0.95));
+  color: var(--text);
+  font-size: 0.97rem;
+  font-family: inherit;
+  padding: 15px 16px;
+  outline: none;
+  transition: var(--transition);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+}
+
+.assurance-field textarea {
+  resize: vertical;
+  min-height: 130px;
+}
+
+.assurance-field input::placeholder,
+.assurance-field textarea::placeholder {
+  color: #8a948d;
+}
+
+.assurance-field input:hover,
+.assurance-field textarea:hover,
+.assurance-field select:hover {
+  border-color: rgba(131, 131, 50, 0.3);
+  box-shadow: 0 10px 25px rgba(28, 42, 57, 0.05);
+}
+
+.assurance-field input:focus,
+.assurance-field textarea:focus,
+.assurance-field select:focus {
+  border-color: rgba(131, 131, 50, 0.65);
+  box-shadow:
+    0 0 0 4px rgba(131, 131, 50, 0.12),
+    0 14px 28px rgba(28, 42, 57, 0.09);
+  transform: translateY(-1px);
+}
+
+.assurance-field input[type="checkbox"] {
+  accent-color: var(--primary);
+  transform: scale(1.18);
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.assurance-field label:has(input[type="checkbox"]) {
+  width: fit-content;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(131, 131, 50, 0.08);
+  border: 1px solid rgba(131, 131, 50, 0.12);
+  transition: var(--transition);
+}
+
+.assurance-field label:has(input[type="checkbox"]):hover {
+  background: rgba(131, 131, 50, 0.12);
+  transform: translateY(-1px);
+}
+
+.assurance-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 0.95rem 1.55rem;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.96rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  overflow: hidden;
+  transition: var(--transition);
+  box-shadow: var(--shadow-md);
+}
+
+.assurance-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.22) 50%, transparent 75%);
+  transform: translateX(-130%);
+  transition: transform 0.65s ease;
+}
+
+.assurance-btn:hover::before {
+  transform: translateX(130%);
+}
+
+.assurance-btn:hover {
+  transform: translateY(-3px);
+}
+
+.assurance-btn:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+.assurance-btn-primary {
+  color: #2f261b;
+  background: linear-gradient(135deg, #F4A261, #f7b57f);
+}
+
+.assurance-btn-primary:hover {
+  box-shadow: 0 18px 34px rgba(244, 162, 97, 0.28);
+}
+
+.assurance-btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.assurance-btn-secondary {
+  color: var(--white);
+  background: linear-gradient(135deg, var(--secondary), var(--dark));
+}
+
+.assurance-btn-secondary:hover {
+  box-shadow: 0 18px 34px rgba(28, 42, 57, 0.22);
+}
+
+.assurance-form > div[style*="display:flex"] {
+  margin-top: 6px;
+  animation: fadeUp 0.9s ease both;
+}
+
+a.assurance-btn {
+  white-space: nowrap;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes heroShine {
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes floatBlob {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-16px) scale(1.05);
+  }
+}
+
+@media (max-width: 991px) {
+  .assurance-page {
+    padding: 24px;
+  }
+
+  .assurance-hero,
+  .assurance-card {
+    padding: 26px;
+  }
+
+  .assurance-form {
+    grid-template-columns: 1fr;
+  }
+
+  .assurance-field:nth-child(2),
+  .assurance-field:nth-child(7),
+  .assurance-field:nth-child(8),
+  .assurance-form > div[style*="display:flex"] {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .assurance-page {
+    padding: 18px;
+  }
+
+  .assurance-hero,
+  .assurance-card {
+    padding: 22px 18px;
+    border-radius: 24px;
+  }
+
+  .assurance-title {
+    font-size: 2.1rem;
+  }
+
+  .assurance-subtitle {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+
+  .assurance-field input,
+  .assurance-field textarea,
+  .assurance-field select {
+    padding: 14px 14px;
+    border-radius: 16px;
+  }
+
+  .assurance-btn {
+    width: 100%;
+  }
+
+  .assurance-form > div[style*="display:flex"] {
+    flex-direction: column;
+  }
+}

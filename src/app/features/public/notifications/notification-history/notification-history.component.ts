@@ -9,7 +9,7 @@ import { NotificationUser } from '../../../../core/models/notification.model';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './notification-history.component.html',
-  styleUrl: './notification-history.component.css'
+  styleUrls: ['./notification-history.component.css']
 })
 export class NotificationHistoryComponent implements OnInit {
   notifications: NotificationUser[] = [];
@@ -31,7 +31,8 @@ export class NotificationHistoryComponent implements OnInit {
         this.notifications = data;
         this.loading = false;
       },
-      error: () => {
+      error: (error) => {
+        console.error('Erreur historique notifications', error);
         this.errorMessage = 'Impossible de charger l’historique des notifications';
         this.loading = false;
       }
@@ -43,9 +44,12 @@ export class NotificationHistoryComponent implements OnInit {
 
     this.notificationService.markAsRead(notification.id).subscribe({
       next: () => {
-        this.notifications = this.notifications.map(n =>
+        this.notifications = this.notifications.map((n) =>
           n.id === notification.id ? { ...n, read: true } : n
         );
+      },
+      error: (error) => {
+        console.error('Erreur markAsRead historique', error);
       }
     });
   }
@@ -53,12 +57,23 @@ export class NotificationHistoryComponent implements OnInit {
   markAllAsRead(): void {
     this.notificationService.markAllAsRead().subscribe({
       next: () => {
-        this.notifications = this.notifications.map(notification => ({
+        this.notifications = this.notifications.map((notification) => ({
           ...notification,
           read: true
         }));
+      },
+      error: (error) => {
+        console.error('Erreur markAllAsRead historique', error);
       }
     });
+  }
+
+  get unreadCount(): number {
+    return this.notifications.filter((notification) => !notification.read).length;
+  }
+
+  trackByNotificationId(index: number, notification: NotificationUser): number {
+    return notification.id;
   }
 
   getNotificationLabel(type: string): string {

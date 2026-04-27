@@ -1,0 +1,101 @@
+<div class="assurance-page">
+  <section class="assurance-hero">
+    <h1 class="assurance-title">Mes sinistres</h1>
+    <p class="assurance-subtitle">
+      Suivez l’avancement de vos déclarations, vos montants estimés et ajoutez vos documents justificatifs.
+    </p>
+  </section>
+
+  <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
+  <div *ngIf="loading" class="assurance-loading">Chargement de vos sinistres...</div>
+  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+  <div *ngIf="!loading && !sinistres.length" class="assurance-empty">
+    Aucun sinistre n’a encore été déclaré.
+  </div>
+
+  <section class="assurance-grid" *ngIf="sinistres.length">
+    <article class="assurance-card" *ngFor="let sinistre of sinistres">
+      <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
+        <h3 class="assurance-card-title">{{ typeLabels[sinistre.typeSinistre] }}</h3>
+        <span class="assurance-badge" [ngClass]="getStatusClass(sinistre.statut)">
+          {{ statusLabels[sinistre.statut] }}
+        </span>
+      </div>
+
+      <p><strong>Date déclaration :</strong> {{ sinistre.dateDeclaration || '-' }}</p>
+      <p><strong>Lieu :</strong> {{ sinistre.lieuIncident }}</p>
+      <p><strong>Montant estimé :</strong> {{ sinistre.montantEstime | number:'1.2-2' }} TND</p>
+      <p><strong>Montant remboursé :</strong> {{ sinistre.montantRembourse || 0 | number:'1.2-2' }} TND</p>
+
+      <p style="margin-top: .8rem; color: var(--assurance-text-soft); line-height:1.65;">
+        {{ sinistre.description }}
+      </p>
+
+      <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
+        <button class="assurance-btn assurance-btn-secondary" (click)="openDocuments(sinistre.id)">
+          {{ selectedSinistreId === sinistre.id ? 'Masquer documents' : 'Voir / Ajouter documents' }}
+        </button>
+      </div>
+
+      <section
+        class="assurance-card"
+        *ngIf="selectedSinistreId === sinistre.id"
+        style="margin-top:1rem; background:rgba(244,237,228,0.6);"
+      >
+        <h4 class="assurance-card-title">Mes documents justificatifs</h4>
+
+        <div *ngIf="documentsLoading" class="assurance-loading">Chargement des documents...</div>
+
+        <div *ngIf="documents.length">
+          <div
+            *ngFor="let doc of documents"
+            style="padding:.9rem 0; border-bottom:1px solid rgba(31,61,43,.08);"
+          >
+            <p><strong>{{ doc.nomFichier }}</strong></p>
+            <p>{{ typeDocumentLabels[doc.typeDocument] }}</p>
+            <p>
+              <a [href]="doc.url" target="_blank" rel="noopener noreferrer">Ouvrir le document</a>
+            </p>
+
+            <button
+              class="assurance-btn"
+              style="background:#f6d7d3; color:#8d2f28;"
+              (click)="deleteDocument(doc.id)"
+            >
+              Supprimer
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!documentsLoading && !documents.length" class="assurance-empty">
+          Aucun document ajouté pour ce sinistre.
+        </div>
+
+        <form [formGroup]="documentForm" (ngSubmit)="addDocument()" class="assurance-form" style="margin-top:1rem;">
+          <div class="assurance-field">
+            <label>Nom du fichier</label>
+            <input type="text" formControlName="nomFichier" placeholder="Ex: facture-reparation.pdf" />
+          </div>
+
+          <div class="assurance-field">
+            <label>Type document</label>
+            <select formControlName="typeDocument">
+              <option *ngFor="let type of typeDocumentOptions" [value]="type">
+                {{ typeDocumentLabels[type] }}
+              </option>
+            </select>
+          </div>
+
+          <div class="assurance-field">
+            <label>URL du document</label>
+            <input type="text" formControlName="url" placeholder="Collez l’URL du document" />
+          </div>
+
+          <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submittingDocument">
+            {{ submittingDocument ? 'Ajout...' : 'Ajouter document' }}
+          </button>
+        </form>
+      </section>
+    </article>
+  </section>
+</div>

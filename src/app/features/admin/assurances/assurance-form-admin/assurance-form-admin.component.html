@@ -1,0 +1,80 @@
+<div class="assurance-page">
+  <section class="assurance-hero">
+    <h1 class="assurance-title">
+      {{ isEditMode ? 'Modifier une assurance' : 'Créer une assurance' }}
+    </h1>
+    <p class="assurance-subtitle">
+      Gérez vos offres avec une interface élégante, claire et professionnelle.
+    </p>
+  </section>
+
+  <div *ngIf="loading" class="assurance-loading">Chargement...</div>
+  <div *ngIf="errorMessage && loading" class="assurance-error">{{ errorMessage }}</div>
+
+  <section class="assurance-card" style="margin-top: 1.5rem;" *ngIf="!loading">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
+      <div class="assurance-field">
+        <label>Titre</label>
+        <input type="text" formControlName="titre" placeholder="Ex: Assurance Camping Premium" />
+      </div>
+
+      <div class="assurance-field">
+        <label>Description</label>
+        <textarea rows="4" formControlName="description"></textarea>
+      </div>
+
+      <div class="assurance-field">
+        <label>Type d’assurance</label>
+        <select formControlName="typeAssurance">
+          <option *ngFor="let type of typeOptions" [value]="type">
+            {{ typeLabels[type] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="assurance-field">
+        <label>Montant de couverture</label>
+        <input type="number" formControlName="montantCouverture" />
+      </div>
+
+      <div class="assurance-field">
+        <label>Prime</label>
+        <input type="number" formControlName="prime" />
+      </div>
+
+      <div class="assurance-field">
+        <label>Durée de validité (jours)</label>
+        <input type="number" formControlName="dureeValidite" />
+      </div>
+
+      <div class="assurance-field">
+        <label>Conditions générales</label>
+        <textarea rows="5" formControlName="conditionsGenerales"></textarea>
+      </div>
+
+      <div class="assurance-field">
+        <label style="display:flex; align-items:center; gap:.75rem;">
+          <input type="checkbox" formControlName="active" style="width:auto;" />
+          Assurance active
+        </label>
+      </div>
+
+      <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
+      <div *ngIf="errorMessage && !loading" class="assurance-error">{{ errorMessage }}</div>
+
+      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+        <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submitting">
+          {{
+            submitting
+              ? 'Enregistrement...'
+              : (isEditMode ? 'Mettre à jour' : 'Créer l’assurance')
+          }}
+        </button>
+
+        <a routerLink="/admin/assurances" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
+          Retour
+        </a>
+      </div>
+    </form>
+  </section>
+</div>

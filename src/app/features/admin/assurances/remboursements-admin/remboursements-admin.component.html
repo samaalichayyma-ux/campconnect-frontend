@@ -1,0 +1,45 @@
+<div class="assurance-page">
+  <section class="assurance-hero">
+    <h1 class="assurance-title">Gestion des remboursements</h1>
+    <p class="assurance-subtitle">
+      Suivez tous les remboursements et mettez à jour leur statut facilement.
+    </p>
+  </section>
+
+  <div *ngIf="successMessage" class="assurance-empty" style="margin-top:1rem;">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="assurance-error" style="margin-top:1rem;">{{ errorMessage }}</div>
+  <div *ngIf="loading" class="assurance-loading" style="margin-top:1rem;">Chargement des remboursements...</div>
+
+  <section class="assurance-grid" *ngIf="remboursements.length">
+    <article class="assurance-card" *ngFor="let remboursement of remboursements">
+      <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <h3 class="assurance-card-title">Remboursement #{{ remboursement.id }}</h3>
+
+        <span class="assurance-badge" [ngClass]="getStatusClass(remboursement.statut)">
+          {{ statusLabels[remboursement.statut] }}
+        </span>
+      </div>
+
+      <p><strong>Montant :</strong> {{ remboursement.montant | number:'1.2-2' }} TND</p>
+      <p><strong>Date :</strong> {{ remboursement.dateRemboursement || '-' }}</p>
+      <p><strong>Motif :</strong> {{ remboursement.motif }}</p>
+
+      <div class="assurance-field" style="margin-top:1rem;">
+        <label>Changer le statut</label>
+        <select
+          [ngModel]="remboursement.statut"
+          (ngModelChange)="updateStatus(remboursement, $event)"
+          [ngModelOptions]="{ standalone: true }"
+        >
+          <option *ngFor="let status of statusOptions" [value]="status">
+            {{ statusLabels[status] }}
+          </option>
+        </select>
+      </div>
+    </article>
+  </section>
+
+  <div *ngIf="!loading && !remboursements.length" class="assurance-empty" style="margin-top:1rem;">
+    Aucun remboursement trouvé.
+  </div>
+</div>

@@ -20,9 +20,6 @@ import { UserCreateComponent } from './features/admin/users/user-create/user-cre
 import { UserEditComponent } from './features/admin/users/user-edit/user-edit.component';
 import { UserDetailsComponent } from './features/admin/users/user-details/user-details.component';
 
-import { AssuranceCreateComponent } from './features/admin/assurances/assurance-create/assurance-create.component';
-import { AssuranceEditComponent } from './features/admin/assurances/assurance-edit/assurance-edit.component';
-
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { authGuard } from './core/guards/auth.guards';
 import { adminGuard } from './core/guards/admin.guard';
@@ -93,6 +90,20 @@ import { NotificationHistoryComponent } from './features/public/notifications/no
 
 import { ReservationInsightsComponent } from './features/admin/reservations/reservation-insights/reservation-insights.component';
 import {NotificationBellComponent} from './features/public/reclamation/notification-bell/notification-bell.component';
+import { SouscriptionsAdminComponent } from './features/admin/assurances/souscriptions-admin/souscriptions-admin.component';
+import { SinistresAdminComponent } from './features/admin/assurances/sinistres-admin/sinistres-admin.component';
+import { RemboursementsAdminComponent } from './features/admin/assurances/remboursements-admin/remboursements-admin.component';
+import { GarantiesAdminComponent } from './features/admin/assurances/garanties-admin/garanties-admin.component';
+import { MesSouscriptionsComponent } from './features/public/assurances/mes-souscriptions/mes-souscriptions.component';
+import { MesSinistresComponent } from './features/public/assurances/mes-sinistres/mes-sinistres.component';
+import { SinistreFormComponent } from './features/public/assurances/sinistre-form/sinistre-form.component';
+import { SouscriptionFormComponent } from './features/public/assurances/souscription-form/souscription-form.component';
+import { AssuranceListComponent } from './features/admin/assurances/assurance-list-admin/assurance-list-admin.component';
+import { AssuranceFormAdminComponent } from './features/admin/assurances/assurance-form-admin/assurance-form-admin.component';
+import { InsuranceAgentLayoutComponent } from './core/layout/insurance-agent-layout/insurance-agent-layout.component';
+import { InsuranceAgentDashboardComponent } from './features/insurance-agent/dashboard/insurance-agent-dashboard/insurance-agent-dashboard.component';
+import { insuranceAgentGuard } from './core/guards/insurance-agent.guard';
+import { AgentAssuranceListComponent } from './features/insurance-agent/assurances/agent-assurance-list/agent-assurance-list.component';
 import { LivraisonListComponent } from './features/admin/livraison/livraison-list/livraison-list.component';
 import { MyLivreurLivraisonsComponent } from './features/admin/livraison/my-livreur-livraisons/my-livreur-livraisons.component';
 import { LivreurDashboardComponent } from './features/admin/livraison/livreur-dashboard/livreur-dashboard.component';
@@ -117,9 +128,6 @@ export const routes: Routes = [
       { path: 'users/create', component: UserCreateComponent },
       { path: 'users/edit/:id', component: UserEditComponent },
       { path: 'users/details/:id', component: UserDetailsComponent },
-
-      { path: 'assurances/new', component: AssuranceCreateComponent },
-      { path: 'assurances/:id/edit', component: AssuranceEditComponent },
 
       { path: 'owner-dashboard', component: CampingOwnerDashboardComponent },
 
@@ -164,6 +172,14 @@ export const routes: Routes = [
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+
+      { path: 'assurances', component: AssuranceListComponent },
+      { path: 'assurances/new', component: AssuranceFormAdminComponent },
+{ path: 'assurances/:id/edit', component: AssuranceFormAdminComponent },
+{ path: 'assurances/sinistres', component: SinistresAdminComponent },
+{ path: 'assurances/remboursements', component: RemboursementsAdminComponent },
+{ path: 'assurances/:id/garanties', component: GarantiesAdminComponent },
+{ path: 'assurances/souscriptions', component: SouscriptionsAdminComponent },
       { path: 'livraison/dashboard', component: LivreurDashboardComponent},
       { path: 'livraison/all', component: LivraisonListComponent },
       { path: 'livraison/mine', component: MyLivreurLivraisonsComponent },
@@ -179,9 +195,6 @@ export const routes: Routes = [
       { path: '', component: LandingPageComponent, pathMatch: 'full' },
 
       { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-
-      { path: 'assurances', component: PublicAssuranceListComponent },
-      { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
 
       { path: 'camping-sites', component: CampingSitesComponent },
       { path: 'site-booking/:id', component: SiteBookingComponent },
@@ -232,11 +245,33 @@ export const routes: Routes = [
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+      
+      { path: 'assurances', component: PublicAssuranceListComponent },
+{ path: 'assurances/mes-souscriptions', component: MesSouscriptionsComponent, canActivate: [authGuard] },
+{ path: 'assurances/mes-sinistres', component: MesSinistresComponent, canActivate: [authGuard] },
+{ path: 'assurances/sinistre/nouveau', component: SinistreFormComponent, canActivate: [authGuard] },
+{ path: 'assurances/:id/souscrire', component: SouscriptionFormComponent, canActivate: [authGuard] },
+{ path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
       { path: 'livraison/demo-checkout', component: DemoCheckoutComponent },
         { path: 'payment-command-success', component: PaymentCommandSuccessComponent },
         { path: 'payment-command-cancel',  component: PaymentCommandCancelComponent },
     ]
   },
+
+  {
+  path: 'insurance-agent',
+  component: InsuranceAgentLayoutComponent,
+  canActivate: [insuranceAgentGuard],
+  children: [
+    { path: 'dashboard', component: InsuranceAgentDashboardComponent },
+    { path: 'assurances', component: AgentAssuranceListComponent },
+    { path: 'souscriptions', component: SouscriptionsAdminComponent },
+    { path: 'sinistres', component: SinistresAdminComponent },
+    { path: 'remboursements', component: RemboursementsAdminComponent },
+    { path: 'profile', component: AdminProfileComponent }
+  ]
+},
+
 
   { path: 'booking-payment-success', component: BookingPaymentSuccessComponent },
   { path: 'booking-payment-cancel', component: BookingPaymentCancelComponent },
