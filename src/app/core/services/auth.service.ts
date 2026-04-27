@@ -62,8 +62,13 @@ export interface CurrentUserResponse {
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/auth';
   private readonly currentUserFallbackUrl = 'http://localhost:8082/api/auth/me';
-  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'GUIDE', 'LIVREUR', 'GERANT_RESTAU']);
-  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
+private readonly adminPanelRoles = new Set([
+  'ADMINISTRATEUR',
+  'GUIDE',
+  'LIVREUR',
+  'GERANT_RESTAU',
+  'AGENT_ASSURANCE'
+]);  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
 
   constructor(private http: HttpClient) {}
 
@@ -76,6 +81,10 @@ export class AuthService {
       })
     );
   }
+
+  isInsuranceAgent(role = this.getRole()): boolean {
+  return this.normalizeRole(role) === 'AGENT_ASSURANCE';
+}
 
   login(data: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, data).pipe(
@@ -202,6 +211,9 @@ export class AuthService {
       case 'GUIDE':
         router.navigate(['/admin/owner-dashboard']);
         break;
+        case 'AGENT_ASSURANCE':
+      router.navigate(['/insurance-agent/dashboard']);
+      break;
       case 'LIVREUR':
         router.navigate(['/admin']);
         break;

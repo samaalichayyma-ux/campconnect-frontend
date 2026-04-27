@@ -17,23 +17,27 @@ export class NavbarComponent implements OnInit {
   userName = '';
   userRole = '';
   isDropdownOpen = false;
-    cartCount$: Observable<number>;
-
+  cartCount$: Observable<number>;
 
   constructor(
     public authService: AuthService,
     private router: Router,
     private panierService: PanierService
-
-  ) {this.cartCount$ = this.panierService.cartCount$;}
+  ) {
+    this.cartCount$ = this.panierService.cartCount$;
+  }
 
   ngOnInit(): void {
     this.userName = this.authService.getUserName();
     this.userRole = this.authService.getRole();
   }
 
-    isAdmin(): boolean {
+  isAdmin(): boolean {
     return this.userRole === 'ADMINISTRATEUR';
+  }
+
+  isInsuranceAgent(): boolean {
+    return this.userRole === 'AGENT_ASSURANCE';
   }
 
   logout(): void {
@@ -42,39 +46,42 @@ export class NavbarComponent implements OnInit {
     this.router.navigate(['/public']);
   }
 
-getUserInitial(): string {
-  const rawName = this.authService.getUserName();
+  getUserInitial(): string {
+    const rawName = this.authService.getUserName();
 
-  if (!rawName) return '?';
+    if (!rawName) return '?';
 
-  const name = rawName.trim();
+    const name = rawName.trim();
 
-  if (!name) return '?';
+    if (!name) return '?';
 
-  const cleanName = name.includes('@') ? name.split('@')[0] : name;
+    const cleanName = name.includes('@') ? name.split('@')[0] : name;
 
-  return cleanName.charAt(0).toUpperCase();
-}
-
-getAvatarColor(): string {
-  const colors = ['#1f5c36','#96952f','#172b44','#b64141','#3d5a2a','#6b5b95','#ff7f50'];
-
-  const name = this.authService.getUserName()?.trim() || '';
-  let hash = 0;
-
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return cleanName.charAt(0).toUpperCase();
   }
 
-  return colors[Math.abs(hash) % colors.length];
-}
+  getAvatarColor(): string {
+    const colors = ['#1f5c36','#96952f','#172b44','#b64141','#3d5a2a','#6b5b95','#ff7f50'];
 
-toggleDropdown(): void {
-  this.isDropdownOpen = !this.isDropdownOpen;
-}
+    const name = this.authService.getUserName()?.trim() || '';
+    let hash = 0;
 
-closeDropdown(): void {
-  this.isDropdownOpen = false;
-}
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
 
+    return colors[Math.abs(hash) % colors.length];
+  }
+
+  toggleDropdown(): void {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  closeDropdown(): void {
+    this.isDropdownOpen = false;
+  }
+
+  isClient(): boolean {
+  return this.userRole === 'CLIENT';
+}
 }

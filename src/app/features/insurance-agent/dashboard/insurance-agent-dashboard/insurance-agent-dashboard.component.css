@@ -1,0 +1,247 @@
+:host {
+  display: block;
+  color: #1c2a39;
+  font-family: Arial, sans-serif;
+}
+
+.agent-dashboard {
+  animation: fadeIn 0.45s ease-in-out;
+}
+
+.dashboard-hero {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.5fr 0.8fr;
+  gap: 28px;
+  align-items: center;
+  background: linear-gradient(135deg, #1c2a39 0%, #1f3d2b 55%, #838332 100%);
+  color: #fff;
+  border-radius: 30px;
+  padding: 38px;
+  box-shadow: 0 20px 45px rgba(28, 42, 57, 0.18);
+}
+
+.dashboard-hero::before {
+  content: "";
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  top: -90px;
+  right: -70px;
+  background: rgba(244, 162, 97, 0.26);
+}
+
+.dashboard-hero::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  bottom: -120px;
+  left: 35%;
+  background: rgba(244, 237, 228, 0.12);
+}
+
+.dashboard-hero > div {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-badge {
+  display: inline-flex;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(244, 237, 228, 0.16);
+  color: #f4ede4;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.dashboard-hero h1 {
+  margin: 0 0 12px;
+  font-size: 38px;
+  font-weight: 900;
+  letter-spacing: -0.8px;
+}
+
+.dashboard-hero p {
+  margin: 0;
+  max-width: 680px;
+  color: #f4ede4;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.hero-actions {
+  margin-top: 26px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 13px 20px;
+  font-weight: 800;
+  transition: 0.25s ease;
+}
+
+.btn-primary {
+  background: #f4a261;
+  color: #1c2a39;
+  box-shadow: 0 10px 22px rgba(244, 162, 97, 0.3);
+}
+
+.btn-primary:hover {
+  background: #e8914f;
+  transform: translateY(-3px);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+.btn-secondary:hover {
+  background: #1f3d2b;
+  transform: translateY(-3px);
+}
+
+.hero-card {
+  background: rgba(255, 250, 245, 0.14);
+  border: 1px solid rgba(255, 250, 245, 0.24);
+  border-radius: 26px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.14);
+}
+
+.hero-card span {
+  color: #f4a261;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.hero-card h2 {
+  margin: 12px 0;
+  font-size: 34px;
+  color: #fff;
+}
+
+.hero-card p {
+  font-size: 14px;
+  color: #f4ede4;
+}
+
+.stats-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px;
+}
+
+.stat-card {
+  background: #fffaf5;
+  border: 1px solid rgba(31, 61, 43, 0.08);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 28px rgba(28, 42, 57, 0.08);
+  transition: 0.25s ease;
+  animation: fadeUp 0.45s ease both;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 42px rgba(28, 42, 57, 0.14);
+  border-color: rgba(131, 131, 50, 0.35);
+}
+
+.stat-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 18px;
+  background: rgba(131, 131, 50, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin-bottom: 16px;
+}
+
+.stat-card h3 {
+  margin: 0 0 10px;
+  color: #1f3d2b;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.stat-card p {
+  margin: 0 0 18px;
+  color: #5d6874;
+  line-height: 1.6;
+}
+
+.stat-card a {
+  color: #838332;
+  text-decoration: none;
+  font-weight: 900;
+}
+
+.stat-card a:hover {
+  color: #1f3d2b;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .dashboard-hero {
+    grid-template-columns: 1fr;
+    padding: 28px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-hero {
+    border-radius: 24px;
+    padding: 24px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 26px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .btn {
+    text-align: center;
+  }
+}

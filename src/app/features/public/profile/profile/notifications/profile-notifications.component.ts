@@ -43,7 +43,9 @@ export class ProfileNotificationsComponent implements OnInit {
 
     this.notificationService.markAsRead(notification.id).subscribe({
       next: (updatedNotification) => {
-        const index = this.notifications.findIndex(n => n.id === updatedNotification.id);
+        const index = this.notifications.findIndex(
+          (n) => n.id === updatedNotification.id
+        );
         if (index !== -1) {
           this.notifications[index] = updatedNotification;
         }
@@ -57,7 +59,7 @@ export class ProfileNotificationsComponent implements OnInit {
   markAllAsRead(): void {
     this.notificationService.markAllAsRead().subscribe({
       next: () => {
-        this.notifications = this.notifications.map(notification => ({
+        this.notifications = this.notifications.map((notification) => ({
           ...notification,
           read: true
         }));
@@ -69,7 +71,7 @@ export class ProfileNotificationsComponent implements OnInit {
   }
 
   get unreadCount(): number {
-    return this.notifications.filter(notification => !notification.read).length;
+    return this.notifications.filter((notification) => !notification.read).length;
   }
 
   trackByNotificationId(index: number, notification: NotificationUser): number {

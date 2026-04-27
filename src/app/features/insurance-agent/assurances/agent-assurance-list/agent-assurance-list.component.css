@@ -1,0 +1,216 @@
+:host {
+  display: block;
+  min-height: 100%;
+  color: #1c2a39;
+  font-family: Arial, sans-serif;
+}
+
+.assurance-page {
+  animation: pageFade 0.45s ease-in-out;
+}
+
+.assurance-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1c2a39 0%, #1f3d2b 55%, #838332 100%);
+  color: #fff;
+  border-radius: 26px;
+  padding: 34px 36px;
+  box-shadow: 0 18px 38px rgba(28, 42, 57, 0.18);
+}
+
+.assurance-hero::before {
+  content: "";
+  position: absolute;
+  top: -70px;
+  right: -60px;
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  background: rgba(244, 162, 97, 0.25);
+}
+
+.assurance-hero::after {
+  content: "";
+  position: absolute;
+  bottom: -80px;
+  left: 30%;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(244, 237, 228, 0.12);
+}
+
+.assurance-title {
+  position: relative;
+  margin: 0 0 10px;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  z-index: 1;
+}
+
+.assurance-subtitle {
+  position: relative;
+  margin: 0;
+  max-width: 720px;
+  color: #f4ede4;
+  font-size: 16px;
+  line-height: 1.7;
+  z-index: 1;
+}
+
+.assurance-loading,
+.assurance-error {
+  margin-top: 22px;
+  border-radius: 18px;
+  padding: 16px 18px;
+  font-weight: 700;
+  animation: fadeUp 0.35s ease;
+}
+
+.assurance-loading {
+  background: #fffaf5;
+  color: #838332;
+  border: 1px solid rgba(131, 131, 50, 0.18);
+}
+
+.assurance-error {
+  background: #f6d7d3;
+  color: #8d2f28;
+  border: 1px solid rgba(141, 47, 40, 0.18);
+}
+
+.assurance-grid {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(285px, 1fr));
+  gap: 22px;
+}
+
+.assurance-card {
+  background: #fffaf5;
+  border: 1px solid rgba(31, 61, 43, 0.08);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 12px 28px rgba(28, 42, 57, 0.08);
+  transition: 0.25s ease;
+  animation: fadeUp 0.45s ease both;
+}
+
+.assurance-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 42px rgba(28, 42, 57, 0.14);
+  border-color: rgba(131, 131, 50, 0.35);
+}
+
+.assurance-card-title {
+  color: #1f3d2b;
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.assurance-card p {
+  margin: 6px 0;
+  color: #5d6874;
+}
+
+.assurance-card strong {
+  color: #1c2a39;
+}
+
+.assurance-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 8px 13px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+.badge-active {
+  background: rgba(131, 131, 50, 0.14);
+  color: #838332;
+}
+
+.badge-rejete {
+  background: #f6d7d3;
+  color: #8d2f28;
+}
+
+.assurance-btn {
+  border: none;
+  cursor: pointer;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-weight: 800;
+  font-size: 14px;
+  transition: 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assurance-btn-primary {
+  background: #f4a261;
+  color: #1c2a39;
+  box-shadow: 0 8px 18px rgba(244, 162, 97, 0.28);
+}
+
+.assurance-btn-primary:hover {
+  background: #e8914f;
+  transform: translateY(-2px);
+}
+
+.assurance-btn-secondary {
+  background: #1f3d2b;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(31, 61, 43, 0.18);
+}
+
+.assurance-btn-secondary:hover {
+  background: #1c2a39;
+  transform: translateY(-2px);
+}
+
+@keyframes pageFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 700px) {
+  .assurance-hero {
+    padding: 26px 22px;
+    border-radius: 22px;
+  }
+
+  .assurance-title {
+    font-size: 26px;
+  }
+
+  .assurance-subtitle {
+    font-size: 14px;
+  }
+
+  .assurance-card {
+    padding: 20px;
+  }
+}

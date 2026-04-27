@@ -1,36 +1,65 @@
-<p>notification-history works!</p>
 <section class="history-page">
+  <div class="history-overlay"></div>
+
   <div class="history-card">
     <div class="history-header">
-      <div>
+      <div class="history-header-left">
+        <span class="section-badge">CampConnect</span>
         <h1>Historique des notifications</h1>
         <p>Toutes vos notifications sont affichées ici</p>
       </div>
 
       <div class="history-actions">
-        <button class="btn primary-btn" (click)="markAllAsRead()">Tout marquer comme lu</button>
-        <button class="btn secondary-btn" routerLink="/public/profile">Retour profil</button>
+        <span class="badge" *ngIf="unreadCount > 0">
+          {{ unreadCount }} non lue(s)
+        </span>
+
+        <button
+          class="btn primary-btn"
+          (click)="markAllAsRead()"
+          [disabled]="unreadCount === 0"
+        >
+          Tout marquer comme lu
+        </button>
+
+        <button class="btn secondary-btn" routerLink="/public/profile">
+          Retour profil
+        </button>
       </div>
     </div>
 
-    <div *ngIf="loading">Chargement...</div>
-    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+    <div *ngIf="loading" class="state-box info-message">
+      Chargement...
+    </div>
 
-    <div *ngIf="!loading && notifications.length === 0">
+    <div *ngIf="errorMessage" class="state-box error-message">
+      {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!loading && notifications.length === 0" class="state-box info-message">
       Aucune notification.
     </div>
 
     <div class="history-list" *ngIf="!loading && notifications.length > 0">
-      <div class="history-item" *ngFor="let notification of notifications" [class.unread]="!notification.read">
+      <div
+        class="history-item"
+        *ngFor="let notification of notifications; trackBy: trackByNotificationId"
+        [class.unread]="!notification.read"
+      >
         <div class="history-top">
-          <h3>{{ notification.titre }}</h3>
-          <span>{{ getNotificationLabel(notification.type) }}</span>
+          <div class="history-title-group">
+            <h3>{{ notification.titre }}</h3>
+            <span class="history-type">
+              {{ getNotificationLabel(notification.type) }}
+            </span>
+          </div>
         </div>
 
         <p>{{ notification.message }}</p>
 
         <div class="history-bottom">
           <small>{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+
           <button
             *ngIf="!notification.read"
             class="link-btn"
@@ -39,6 +68,10 @@
           >
             Marquer comme lu
           </button>
+
+          <span class="read-pill" *ngIf="notification.read">
+            Lue
+          </span>
         </div>
       </div>
     </div>

@@ -251,6 +251,47 @@
       {{ notificationErrorMessage }}
     </div>
 
+    <div class="profile-insurance-links">
+  <div class="section-title">
+    <h2>My Insurance Space</h2>
+    <p>Access your subscriptions, claims and insurance services</p>
+  </div>
+
+  <div class="insurance-links-grid">
+    <a routerLink="/public/assurances" class="insurance-link-card">
+      <span>🛡️</span>
+      <div>
+        <strong>Explore Insurance</strong>
+        <p>Discover available insurance offers</p>
+      </div>
+    </a>
+
+    <a routerLink="/public/assurances/mes-souscriptions" class="insurance-link-card">
+      <span>📄</span>
+      <div>
+        <strong>My Subscriptions</strong>
+        <p>View your active and past contracts</p>
+      </div>
+    </a>
+
+    <a routerLink="/public/assurances/mes-sinistres" class="insurance-link-card">
+      <span>⚠️</span>
+      <div>
+        <strong>My Claims</strong>
+        <p>Track your claim requests and reimbursements</p>
+      </div>
+    </a>
+
+    <a routerLink="/public/assurances/sinistre/nouveau" class="insurance-link-card">
+      <span>➕</span>
+      <div>
+        <strong>Declare a Claim</strong>
+        <p>Submit a new insurance claim quickly</p>
+      </div>
+    </a>
+  </div>
+</div>
+
     <div class="profile-actions">
       <button class="btn secondary-btn" routerLink="/public">
         Back to Home

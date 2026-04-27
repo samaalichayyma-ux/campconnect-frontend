@@ -1,0 +1,85 @@
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">CC</div>
+      <div>
+        <h2>CampConnect</h2>
+        <span>Insurance Agent Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <a routerLink="/public" class="public-link">
+        <app-admin-icon name="public" [size]="18"></app-admin-icon>
+        <span>Back to Public Site</span>
+      </a>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a
+        routerLink="/insurance-agent/dashboard"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <app-admin-icon name="dashboard" [size]="18"></app-admin-icon>
+        </span>
+        <span>Dashboard</span>
+      </a>
+
+      <a
+        routerLink="/insurance-agent/assurances"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <app-admin-icon name="assurances" [size]="18"></app-admin-icon>
+        </span>
+        <span>Insurance Offers</span>
+      </a>
+
+      <a
+        routerLink="/insurance-agent/profile"
+        routerLinkActive="active"
+        class="nav-item"
+      >
+        <span class="nav-icon">
+          <app-admin-icon name="profile" [size]="18"></app-admin-icon>
+        </span>
+        <span>Profile</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="layout-content">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1>{{ getPageTitle() }}</h1>
+        <p>{{ getPageSubtitle() }}</p>
+      </div>
+
+      <div class="topbar-right">
+        <div class="admin-profile">
+          <div class="profile-avatar">
+            {{ agentName.charAt(0) || 'I' }}
+          </div>
+
+          <div class="profile-info">
+            <h4>{{ agentName }}</h4>
+            <span>{{ agentRole }}</span>
+          </div>
+
+          <button class="logout-btn" (click)="logout()">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="page-container">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

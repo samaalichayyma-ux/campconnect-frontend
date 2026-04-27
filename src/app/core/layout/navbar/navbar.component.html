@@ -5,24 +5,63 @@
     </a>
 
     <nav class="cc-menu">
-      <a routerLink="/public" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-      <a routerLink="/public/camping-sites" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Destinations</a>
+      <a
+        routerLink="/public"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Home
+      </a>
+
+      <a
+        routerLink="/public/camping-sites"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Destinations
+      </a>
+
       <a routerLink="/public/Accueil-Market">Shop</a>
-      <a routerLink="/public/repas" routerLinkActive="active">Restaurant</a>
-      <a routerLink="/public/events" routerLinkActive="active">Events</a>
-      <a routerLink="/public/forums">Forums</a>
+
+      <a
+        routerLink="/public/repas"
+        routerLinkActive="active"
+      >
+        Restaurant
+      </a>
+
+      <a
+        routerLink="/public/events"
+        routerLinkActive="active"
+      >
+        Events
+      </a>
+
+      <a
+        routerLink="/public/forums"
+        routerLinkActive="active"
+      >
+        Forums
+      </a>
+
       <a href="#">Formations</a>
-      <a routerLink="/public/reclamation" routerLinkActive="active">Complains</a>
-     
+
+      <a
+        routerLink="/public/reclamation"
+        routerLinkActive="active"
+      >
+        Complains
+      </a>
     </nav>
 
     <div class="cc-actions">
- <a routerLink="/public/panier" class="cc-cart-btn" aria-label="Cart">
-  🛒
-  <span class="cc-cart-count" *ngIf="(cartCount$ | async)! > 0">
-    {{ cartCount$ | async }}
-  </span>
-</a>
+      <a routerLink="/public/panier" class="cc-cart-btn" aria-label="Cart">
+        🛒
+        <span class="cc-cart-count" *ngIf="(cartCount$ | async)! > 0">
+          {{ cartCount$ | async }}
+        </span>
+      </a>
+
       <ng-container *ngIf="!authService.isLoggedIn(); else loggedInBlock">
         <a routerLink="/login" class="cc-login-btn">Login</a>
       </ng-container>
@@ -36,7 +75,10 @@
           Camp Host
         </a>
 
-        <!-- ═══ Cloche notifications réclamation ═══ -->
+        <a *ngIf="userRole === 'AGENT_ASSURANCE'" routerLink="/insurance-agent/dashboard" class="cc-role-btn">
+          Agent
+        </a>
+
         <app-notification-bell></app-notification-bell>
 
         <div class="cc-user-box" (click)="toggleDropdown()">
@@ -49,22 +91,49 @@
           <div
             class="cc-dropdown"
             *ngIf="isDropdownOpen"
-            (click)="$event.stopPropagation()">
+            (click)="$event.stopPropagation()"
+          >
             <a
-            [class.disabled]="isAdmin()"
-             routerLink="/public/my-bookings" (click)="closeDropdown()">
+              [class.disabled]="isAdmin()"
+              routerLink="/public/my-bookings"
+              (click)="closeDropdown()"
+            >
               My Bookings
             </a>
 
             <a routerLink="/public/profile" (click)="closeDropdown()">
-              Profile
-            </a>
+  Profile
+</a>
 
-            <div class="dropdown-divider"></div>
+<a
+  *ngIf="isClient()"
+  routerLink="/public/assurances"
+  (click)="closeDropdown()"
+>
+  Assurances
+</a>
 
-            <button (click)="logout()">
-              Logout
-            </button>
+<a
+  *ngIf="isClient()"
+  routerLink="/public/assurances/mes-souscriptions"
+  (click)="closeDropdown()"
+>
+  My Insurance
+</a>
+
+<a
+  *ngIf="isClient()"
+  routerLink="/public/assurances/mes-sinistres"
+  (click)="closeDropdown()"
+>
+  My Claims
+</a>
+
+<div class="dropdown-divider"></div>
+
+<button (click)="logout()">
+  Logout
+</button>
           </div>
         </div>
       </ng-template>

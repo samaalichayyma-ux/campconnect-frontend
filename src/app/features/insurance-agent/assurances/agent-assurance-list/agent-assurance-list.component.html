@@ -1,0 +1,52 @@
+<div class="assurance-page">
+  <section class="assurance-hero">
+    <h1 class="assurance-title">Consultation des offres d’assurance</h1>
+    <p class="assurance-subtitle">
+      Consultez les offres disponibles et suivez les souscriptions, sinistres et remboursements.
+    </p>
+  </section>
+
+  <div *ngIf="loading" class="assurance-loading">Chargement des offres...</div>
+  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+
+  <section class="assurance-grid" *ngIf="assurances.length">
+    <article class="assurance-card" *ngFor="let assurance of assurances">
+      <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <span class="assurance-badge badge-active">
+          {{ typeLabels[assurance.typeAssurance] }}
+        </span>
+
+        <span class="assurance-badge" [ngClass]="assurance.active ? 'badge-active' : 'badge-rejete'">
+          {{ assurance.active ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      <h3 class="assurance-card-title" style="margin-top:1rem;">
+        {{ assurance.titre }}
+      </h3>
+
+      <p style="color: var(--assurance-text-soft); line-height:1.65;">
+        {{ assurance.description }}
+      </p>
+
+      <div style="margin-top:1rem;">
+        <p><strong>Prime :</strong> {{ assurance.prime }} TND</p>
+        <p><strong>Couverture :</strong> {{ assurance.montantCouverture }} TND</p>
+      </div>
+
+      <div style="display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1rem;">
+        <a routerLink="/insurance-agent/souscriptions" class="assurance-btn assurance-btn-primary" style="text-decoration:none;">
+          Souscriptions
+        </a>
+
+        <a routerLink="/insurance-agent/sinistres" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
+          Sinistres
+        </a>
+
+        <a routerLink="/insurance-agent/remboursements" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
+          Remboursements
+        </a>
+      </div>
+    </article>
+  </section>
+</div>

@@ -1,0 +1,43 @@
+<div class="assurance-page">
+  <section class="assurance-hero">
+    <h1 class="assurance-title">Déclarer un sinistre</h1>
+    <p class="assurance-subtitle">
+      Décrivez précisément l’incident pour accélérer l’étude de votre dossier.
+    </p>
+  </section>
+
+  <section class="assurance-card" style="margin-top:1.5rem;">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
+      <div class="assurance-field">
+        <label>Type de sinistre</label>
+        <select formControlName="typeSinistre">
+          <option *ngFor="let item of typeOptions" [value]="item">
+            {{ typeLabels[item] }}
+          </option>
+        </select>
+      </div>
+
+      <div class="assurance-field">
+        <label>Description</label>
+        <textarea rows="5" formControlName="description" placeholder="Décrivez ce qui s’est passé..."></textarea>
+      </div>
+
+      <div class="assurance-field">
+        <label>Lieu de l’incident</label>
+        <input type="text" formControlName="lieuIncident" />
+      </div>
+
+      <div class="assurance-field">
+        <label>Montant estimé</label>
+        <input type="number" formControlName="montantEstime" />
+      </div>
+
+      <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
+      <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+
+      <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Envoi en cours...' : 'Déclarer le sinistre' }}
+      </button>
+    </form>
+  </section>
+</div>

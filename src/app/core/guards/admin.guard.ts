@@ -12,7 +12,7 @@ export const adminGuard: CanActivateFn = () => {
   }
 
   return authService.fetchCurrentUser().pipe(
-    map(() => authService.canAccessAdminPanel()
+    map(() => authService.getRole() === 'ADMINISTRATEUR'
       ? true
       : router.createUrlTree(['/public'])),
     catchError((error) => {
@@ -21,7 +21,7 @@ export const adminGuard: CanActivateFn = () => {
         return of(router.createUrlTree(['/login']));
       }
 
-      return of(authService.canAccessAdminPanel()
+      return of(authService.getRole() === 'ADMINISTRATEUR'
         ? true
         : router.createUrlTree(['/public']));
     })
