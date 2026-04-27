@@ -1,0 +1,180 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f4ede4;
+  padding: 40px;
+}
+
+.payment-page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-card {
+  width: 100%;
+  max-width: 520px;
+  background: #fffaf5;
+  border-radius: 28px;
+  padding: 34px;
+  text-align: center;
+  box-shadow: 0 16px 38px rgba(28, 42, 57, 0.12);
+}
+
+.icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #1f3d2b;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  font-size: 38px;
+  font-weight: 900;
+}
+
+h2 {
+  margin: 0 0 12px;
+  color: #1c2a39;
+  font-size: 32px;
+}
+
+p {
+  color: #5d6874;
+  margin: 0 0 14px;
+}
+
+.delivery-id {
+  color: #1f3d2b;
+  font-weight: 800;
+}
+
+.alert-danger {
+  background: #fde3e3;
+  color: #8f2525;
+  border-radius: 14px;
+  padding: 12px;
+  margin: 18px 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.btn {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 800;
+}
+
+.primary-btn {
+  background: #1f3d2b;
+  color: white;
+}
+
+.secondary-btn {
+  background: #f4ede4;
+  color: #1c2a39;
+}
+
+.success-page {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  background: #f4ede4;
+  min-height: 100vh;
+}
+
+.success-card {
+  background: #fffaf5;
+  padding: 30px;
+  border-radius: 20px;
+  width: 500px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.success-card h1 {
+  margin-bottom: 10px;
+  color: #1f3d2b;
+}
+
+.subtitle {
+  color: #6c756f;
+  margin-bottom: 20px;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.info-grid span {
+  font-size: 12px;
+  color: #6c756f;
+}
+
+.info-grid strong {
+  display: block;
+  font-size: 15px;
+  color: #1c2a39;
+}
+
+.next-step {
+  margin-top: 20px;
+  background: #e9ead4;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 600;
+  color: #1f3d2b;
+}
+
+.loading-box,
+.error-box {
+  text-align: center;
+  font-size: 18px;
+}
+
+.actions {
+  margin-top: 25px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.return-btn {
+  background: #1f3d2b;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 2px solid #1f3d2b;
+  color: #1f3d2b;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.return-btn:hover {
+  background: #173021;
+}
+
+.secondary-btn:hover {
+  background: #1f3d2b;
+  color: white;
+}

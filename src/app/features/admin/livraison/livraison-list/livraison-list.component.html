@@ -1,0 +1,93 @@
+<div class="livraison-list-page">
+ <div class="page-header">
+    <div>
+      <h2>Delivery Management</h2>
+      <p>View all deliveries, create new deliveries, and assign a delivery person.</p>
+    </div>
+
+  <a routerLink="/admin/livraison/orders" class="create-delivery-btn">
+  + Select Order
+</a>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">
+    Loading deliveries...
+  </div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="livraison-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Order ID</th>
+          <th>Type</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Delivery Person</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let livraison of livraisons">
+          <td>{{ livraison.idLivraison }}</td>
+          <td>{{ livraison.commandeId }}</td>
+          <td>{{ livraison.typeCommande }}</td>
+          <td>{{ livraison.adresseLivraison }}</td>
+          <td>
+            <span class="status-badge" [ngClass]="livraison.statut.toLowerCase()">
+              {{ livraison.statut }}
+            </span>
+          </td>
+         <td>
+          <div class="delivery-person" *ngIf="livraison.livreurId; else notAssigned">
+            <div class="avatar">
+              {{ getInitials(livraison) }}
+            </div>
+
+            <div>
+              <strong>{{ livraison.livreurPrenom }} {{ livraison.livreurNom }}</strong>
+              <span>{{ livraison.livreurEmail }}</span>
+            </div>
+          </div>
+
+          <ng-template #notAssigned>
+            <span class="not-assigned">Not assigned</span>
+          </ng-template>
+        </td>
+          <td>
+            <div class="assign-box" *ngIf="!livraison.livreurId">
+             <select
+                class="assign-input"
+                [(ngModel)]="livreurInputs[livraison.idLivraison]"
+              >
+                <option [ngValue]="null">Select delivery person</option>
+                <option *ngFor="let livreur of livreurs" [ngValue]="livreur.id">
+                  {{ getLivreurDisplayName(livreur) }}
+                </option>
+              </select>
+              <button class="assign-btn" (click)="assignLivreur(livraison.idLivraison)">
+                Assign
+              </button>
+            </div>
+
+            <span class="already-assigned" *ngIf="livraison.livreurId">
+              Already assigned
+            </span>
+          </td>
+        </tr>
+
+        <tr *ngIf="livraisons.length === 0">
+          <td colspan="7" class="empty-state">No deliveries found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

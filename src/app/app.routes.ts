@@ -104,6 +104,14 @@ import { InsuranceAgentLayoutComponent } from './core/layout/insurance-agent-lay
 import { InsuranceAgentDashboardComponent } from './features/insurance-agent/dashboard/insurance-agent-dashboard/insurance-agent-dashboard.component';
 import { insuranceAgentGuard } from './core/guards/insurance-agent.guard';
 import { AgentAssuranceListComponent } from './features/insurance-agent/assurances/agent-assurance-list/agent-assurance-list.component';
+import { LivraisonListComponent } from './features/admin/livraison/livraison-list/livraison-list.component';
+import { MyLivreurLivraisonsComponent } from './features/admin/livraison/my-livreur-livraisons/my-livreur-livraisons.component';
+import { LivreurDashboardComponent } from './features/admin/livraison/livreur-dashboard/livreur-dashboard.component';
+import { CreateLivraisonComponent } from './features/admin/livraison/create-livraison/create-livraison.component';
+import { AvailableOrdersComponent } from './features/admin/livraison/available-orders/available-orders.component';
+import { PaymentCommandSuccessComponent } from './features/public/livraison/payment-command-success/payment-command-success.component';
+import { PaymentCommandCancelComponent } from './features/public/livraison/payment-command-cancel/payment-command-cancel.component';
+import { DemoCheckoutComponent } from './features/public/livraison/demo-checkout/demo-checkout.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -111,6 +119,7 @@ export const routes: Routes = [
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
+    // data: { roles: ['ADMINISTRATEUR', 'LIVREUR', 'GUIDE'] },
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'profile', component: AdminProfileComponent },
@@ -171,6 +180,11 @@ export const routes: Routes = [
 { path: 'assurances/remboursements', component: RemboursementsAdminComponent },
 { path: 'assurances/:id/garanties', component: GarantiesAdminComponent },
 { path: 'assurances/souscriptions', component: SouscriptionsAdminComponent },
+      { path: 'livraison/dashboard', component: LivreurDashboardComponent},
+      { path: 'livraison/all', component: LivraisonListComponent },
+      { path: 'livraison/mine', component: MyLivreurLivraisonsComponent },
+       { path: 'livraison/create', component: CreateLivraisonComponent },
+       { path: 'livraison/orders', component: AvailableOrdersComponent },
     ]
   },
 
@@ -238,6 +252,9 @@ export const routes: Routes = [
 { path: 'assurances/sinistre/nouveau', component: SinistreFormComponent, canActivate: [authGuard] },
 { path: 'assurances/:id/souscrire', component: SouscriptionFormComponent, canActivate: [authGuard] },
 { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
+      { path: 'livraison/demo-checkout', component: DemoCheckoutComponent },
+        { path: 'payment-command-success', component: PaymentCommandSuccessComponent },
+        { path: 'payment-command-cancel',  component: PaymentCommandCancelComponent },
     ]
   },
 

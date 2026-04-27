@@ -261,7 +261,16 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
   }
 
   canMarkNoShow(reservation: ReservationResponseDTO): boolean {
-    return reservation.statut === 'CONFIRMED' || reservation.statut === 'PAID';
+    if (reservation.estEnAttente) {
+      return false;
+    }
+
+    const isEligibleStatus = reservation.statut === 'CONFIRMED' || reservation.statut === 'PAID';
+    if (!isEligibleStatus) {
+      return false;
+    }
+
+    return this.isReservationEventCompleted(reservation);
   }
 
   canRefund(reservation: ReservationResponseDTO): boolean {
@@ -553,6 +562,15 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
     return reservation.statut === 'REFUNDED'
       || reservation.statutPaiement === 'REFUNDED'
       || reservation.statutPaiement === 'PARTIALLY_REFUNDED';
+  }
+
+  private isReservationEventCompleted(reservation: ReservationResponseDTO): boolean {
+    const linkedEventStatus = String(this.eventById.get(reservation.eventId)?.statut || '').toUpperCase();
+    if (linkedEventStatus) {
+      return linkedEventStatus === 'COMPLETED';
+    }
+
+    return Boolean(reservation.attendanceRecordable);
   }
 
   private updatePagination(resetPage = false): void {

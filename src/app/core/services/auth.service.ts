@@ -410,4 +410,14 @@ private readonly adminPanelRoles = new Set([
       return null;
     }
   }
+
+   isAdmin(): boolean {
+    return this.canAccessAdminPanel();
+  }
+  
+  ownsResource(authorEmail?: string): boolean {
+    const currentEmail = this.getUserEmail().trim().toLowerCase();
+    const targetEmail = (authorEmail || '').trim().toLowerCase();
+    return currentEmail !== '' && currentEmail === targetEmail;
+  }
 }

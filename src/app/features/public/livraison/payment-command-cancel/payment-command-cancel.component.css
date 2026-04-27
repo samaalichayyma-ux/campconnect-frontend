@@ -1,0 +1,72 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f4ede4;
+  padding: 40px;
+}
+
+.payment-page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.payment-card {
+  width: 100%;
+  max-width: 520px;
+  background: #fffaf5;
+  border-radius: 28px;
+  padding: 34px;
+  text-align: center;
+  box-shadow: 0 16px 38px rgba(28, 42, 57, 0.12);
+}
+
+.icon {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #8f2525;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  font-size: 42px;
+  font-weight: 900;
+}
+
+h2 {
+  margin: 0 0 12px;
+  color: #1c2a39;
+  font-size: 32px;
+}
+
+p {
+  color: #5d6874;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.btn {
+  text-decoration: none;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 800;
+}
+
+.primary-btn {
+  background: #1f3d2b;
+  color: white;
+}
+
+.secondary-btn {
+  background: #f4ede4;
+  color: #1c2a39;
+}

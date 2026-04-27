@@ -1,0 +1,96 @@
+<div class="my-livraisons-page">
+  <div class="page-header">
+    <h2>My Deliveries</h2>
+    <p>Start assigned deliveries and mark them as delivered.</p>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">
+    Loading your deliveries...
+  </div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="deliveries-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Order</th>
+          <th>Type</th>
+          <th>Address</th>
+          <th>Status</th>
+          <th>Departure Date</th>
+          <th>Delivery Date</th>
+          <th>Proof</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let livraison of livraisons">
+          <td>#{{ livraison.idLivraison }}</td>
+          <td>{{ livraison.commandeId }}</td>
+          <td>{{ livraison.typeCommande }}</td>
+          <td class="address-cell">{{ livraison.adresseLivraison }}</td>
+
+          <td>
+            <span class="status-badge" [ngClass]="livraison.statut.toLowerCase()">
+              {{ livraison.statut }}
+            </span>
+          </td>
+
+          <td>{{ livraison.dateDepart || '—' }}</td>
+          <td>{{ livraison.dateLivraisonEffective || '—' }}</td>
+          <td>{{ livraison.preuveLivraison || '—' }}</td>
+
+          <td>
+            <button
+              *ngIf="canStart(livraison)"
+              class="start-btn"
+              (click)="startDelivery(livraison.idLivraison)"
+            >
+              Start
+            </button>
+
+            <div *ngIf="canDeliver(livraison)" class="deliver-box">
+              <input
+                type="text"
+                placeholder="Delivery proof"
+                [(ngModel)]="preuveInputs[livraison.idLivraison]"
+              />
+
+              <input
+                type="text"
+                placeholder="Comment"
+                [(ngModel)]="commentaireInputs[livraison.idLivraison]"
+              />
+
+              <button
+                class="deliver-btn"
+                (click)="markAsDelivered(livraison.idLivraison)"
+              >
+                Mark Delivered
+              </button>
+            </div>
+
+            <span *ngIf="isDelivered(livraison)" class="done-text">
+              Completed
+            </span>
+          </td>
+        </tr>
+
+        <tr *ngIf="livraisons.length === 0">
+          <td colspan="9" class="empty-state">
+            No assigned deliveries.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

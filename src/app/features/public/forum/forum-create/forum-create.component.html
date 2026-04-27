@@ -1,12 +1,74 @@
-<div class="create-page">
-  <div class="create-card">
-    <h2>Créer un forum</h2>
+<div class="forum-create-page">
+  <div class="forum-create-header">
+    <h1>Créer un forum</h1>
+    <p>Lancez un nouvel espace de discussion pour la communauté CampConnect.</p>
+  </div>
 
-    <input [(ngModel)]="nom" type="text" placeholder="Nom du forum" />
-    <textarea [(ngModel)]="description" placeholder="Description du forum"></textarea>
+  <div *ngIf="errorMessage" class="forum-alert">{{ errorMessage }}</div>
 
-    <button class="save-btn" (click)="create()">Créer</button>
+  <div class="forum-create-grid">
+    <section class="forum-create-card form-panel">
+      <div class="form-group">
+        <label>Nom du forum *</label>
+        <input type="text" [(ngModel)]="forum.nom" name="nom" placeholder="Ex: Camping en montagne" />
+      </div>
 
-    <p *ngIf="successMessage" class="success-msg">{{ successMessage }}</p>
+      <div class="form-group">
+        <label>Catégorie *</label>
+        <div class="category-grid">
+          <button
+            type="button"
+            *ngFor="let cat of categories"
+            class="category-chip"
+            [class.selected]="forum.categorie === cat.value"
+            (click)="forum.categorie = cat.value">
+            <span class="chip-icon">{{ cat.icon }}</span>
+            <span>{{ cat.label }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Icône du forum</label>
+        <div class="icon-picker">
+          <span *ngFor="let ic of icons"
+            class="icon-option"
+            [class.selected]="forum.icon === ic"
+            (click)="forum.icon = ic">{{ ic }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Description *</label>
+        <textarea rows="6" [(ngModel)]="forum.description" name="description" placeholder="Décris ce forum..."></textarea>
+      </div>
+
+      <div class="forum-create-actions">
+        <button class="save-btn" (click)="save()">💾 Enregistrer</button>
+        <a routerLink="/public/forums" class="cancel-btn">Annuler</a>
+      </div>
+    </section>
+
+    <aside class="preview-panel">
+      <div class="preview-card">
+        <div class="preview-header">
+          <div class="preview-icon">{{ forum.icon }}</div>
+          <div>
+            <h2>{{ forum.nom || 'Titre du forum' }}</h2>
+            <p class="preview-category">{{ forum.categorie || 'Catégorie' }}</p>
+          </div>
+        </div>
+        <p class="preview-description">{{ forum.description || 'La description du forum s’affichera ici pour te montrer le résultat en direct.' }}</p>
+      </div>
+
+      <div class="preview-tip">
+        <h3>Conseils avancés</h3>
+        <ul>
+          <li>Choisis une icône claire pour te différencier.</li>
+          <li>Sélectionne une catégorie précise et utile.</li>
+          <li>Rédige une description concise et engageante.</li>
+        </ul>
+      </div>
+    </aside>
   </div>
 </div>

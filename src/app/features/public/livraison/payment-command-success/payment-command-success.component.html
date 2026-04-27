@@ -1,0 +1,27 @@
+<div class="payment-page">
+  <div class="payment-card success-card">
+    <div class="icon">✓</div>
+
+    <h2>Payment Successful</h2>
+
+    <p *ngIf="loading">Confirming your order and creating your delivery...</p>
+
+    <p *ngIf="successMessage">
+      {{ successMessage }}
+    </p>
+
+    <p *ngIf="livraisonId" class="delivery-id">
+      Delivery ID: #{{ livraisonId }}
+    </p>
+
+    <div *ngIf="errorMessage" class="alert alert-danger">
+      {{ errorMessage }}
+    </div>
+
+     <div class="actions">
+      <button routerLink="/public/livraison/demo-checkout" class="return-btn">
+        ← Order Again
+      </button>
+    </div>
+  </div>
+</div>
