@@ -1,0 +1,244 @@
+.delivery-detail-page {
+  min-height: 100vh;
+  padding: 28px;
+  background: #efe6d8;
+  color: #102033;
+}
+
+.back-btn {
+  border: none;
+  background: #fffaf4;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-bottom: 18px;
+  color: #1f4b32;
+  box-shadow: 0 8px 20px rgba(34, 31, 27, 0.08);
+}
+
+.detail-header {
+  background: linear-gradient(135deg, #172b2d, #183f2a);
+  color: white;
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  color: #d8cfc4;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.detail-header h1 {
+  margin: 6px 0;
+  font-size: 30px;
+}
+
+.detail-header p {
+  margin: 0;
+  color: #eee6dc;
+}
+
+.status-badge {
+  padding: 7px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+  background: white;
+  color: #102033;
+}
+
+.status-badge.planifiee {
+  background: #f3eadf;
+  color: #7c6f62;
+}
+
+.status-badge.en_cours {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.status-badge.livree {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.echouee {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-badge.retournee {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.info-card,
+.map-card {
+  background: #fffaf4;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 14px 30px rgba(34, 31, 27, 0.09);
+  border: 1px solid #eadfd2;
+}
+
+.info-card h2,
+.map-card h2 {
+  margin: 0 0 14px;
+  font-size: 22px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(16, 32, 51, 0.08);
+}
+
+.detail-row span {
+  color: #697168;
+  font-size: 14px;
+}
+
+.detail-row strong {
+  text-align: right;
+  font-size: 14px;
+}
+
+.tracking-box {
+  margin-top: 16px;
+  background: #f3eadf;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.tracking-box strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.tracking-box p {
+  margin: 0 0 6px;
+  color: #697168;
+}
+
+.tracking-box small {
+  color: #697168;
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.map-header span {
+  color: #697168;
+  font-size: 13px;
+}
+
+#deliveryDetailMap {
+  height: 420px;
+  width: 100%;
+  min-height: 420px;
+  display: block;
+}
+
+.alert {
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.alert.info {
+  background: #e8f1ff;
+  color: #2563eb;
+}
+
+.alert.danger {
+  background: #fde3e3;
+  color: #8f2525;
+}
+
+@media (max-width: 900px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-header {
+    flex-direction: column;
+  }
+
+  #deliveryDetailMap {
+    height: 320px;
+  }
+}
+
+.tracking-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.tracking-stat {
+  background: #f3eadf;
+  border-radius: 16px;
+  padding: 12px;
+  border: 1px solid #eadfd2;
+}
+
+.tracking-stat span {
+  display: block;
+  color: #697168;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.tracking-stat strong {
+  color: #102033;
+  font-size: 15px;
+}
+
+@media (max-width: 800px) {
+  .tracking-stats {
+    grid-template-columns: 1fr;
+  }
+  
+}
+
+.custom-map-marker {
+  width: 42px !important;
+  height: 42px !important;
+  font-size: 24px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+}
+
+.destination-marker {
+  border: 3px solid #dc2626;
+}
+
+.livreur-marker {
+  border: 3px solid #1f4b32;
+}

@@ -1,9 +1,8 @@
 <div class="checkout-page">
   <section class="hero-card">
     <div>
-      <span class="eyebrow">CampConnect Checkout</span>
       <h1>Order and Delivery</h1>
-      <p>Select products or meals, add your delivery details, then pay securely with Stripe.</p>
+      <p>Select items, enter delivery details, choose the exact map location, then pay securely with Stripe.</p>
     </div>
   </section>
 
@@ -49,7 +48,7 @@
 
           <div>
             <h3>{{ item.nom }}</h3>
-            <p>{{ item.prix }} DT</p>
+            <p>{{ item.prix | number:'1.2-2' }} DT</p>
             <small>Add to cart</small>
           </div>
         </button>
@@ -59,24 +58,51 @@
     <div class="details-card">
       <div class="section-header">
         <h2>Delivery Details</h2>
-        <span>Information for the delivery person</span>
+        <span>Type an address, then select the exact point on the map</span>
       </div>
 
-      <div class="form-group">
+      <div class="form-group address-wrapper">
         <label>Delivery Address</label>
+
         <input
           type="text"
           [(ngModel)]="adresseLivraison"
-          placeholder="Enter your delivery address"
+          placeholder="Start typing your delivery address"
+          (ngModelChange)="onAddressInputChange()"
+          autocomplete="off"
         />
+
+        <div class="address-suggestions" *ngIf="showAddressSuggestions">
+          <button
+            type="button"
+            class="address-suggestion"
+            *ngFor="let suggestion of addressSuggestions"
+            (click)="selectAddressSuggestion(suggestion)"
+          >
+            <span class="suggestion-icon">📍</span>
+            <span class="suggestion-text">{{ suggestion.displayName }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="map-box">
+        <div id="deliveryMap"></div>
+        <small>
+          Click on the map to choose the exact delivery point.
+          <ng-container *ngIf="selectedLatitude && selectedLongitude">
+            Selected: {{ selectedLatitude | number:'1.5-5' }},
+            {{ selectedLongitude | number:'1.5-5' }}
+          </ng-container>
+        </small>
       </div>
 
       <div class="form-group">
         <label>Delivery Note</label>
         <textarea
-          rows="4"
+          rows="3"
           [(ngModel)]="noteLivraison"
           placeholder="Optional note for the delivery person"
+          (ngModelChange)="onDeliveryDetailsChange()"
         ></textarea>
       </div>
 
@@ -90,7 +116,7 @@
         <div class="cart-row" *ngFor="let item of cart">
           <div>
             <strong>{{ item.nom }}</strong>
-            <span>{{ item.prix }} DT × {{ item.quantity }}</span>
+            <span>{{ item.prix | number:'1.2-2' }} DT × {{ item.quantity }}</span>
           </div>
 
           <div class="qty-actions">
@@ -111,24 +137,127 @@
         </div>
 
         <div class="summary-row">
+          <span>Exact Location</span>
+          <strong>
+            <ng-container *ngIf="selectedLatitude && selectedLongitude; else noLocation">
+              Selected
+            </ng-container>
+            <ng-template #noLocation>—</ng-template>
+          </strong>
+        </div>
+
+        <div class="summary-row">
           <span>Note</span>
           <strong>{{ noteLivraison || '—' }}</strong>
         </div>
 
         <div class="summary-total">
-          <span>Total</span>
-          <strong>{{ total }} DT</strong>
+          <span>Items Total</span>
+          <strong>{{ total | number:'1.2-2' }} DT</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="payment-card">
+      <div *ngIf="loading && !lastCheckout" class="auto-fee-loading">
+        Calculating delivery fees automatically...
+      </div>
+
+      <div *ngIf="!lastCheckout && !loading" class="fee-box empty-fee-box">
+        <h3>Delivery Fee</h3>
+        <p class="empty-cart">
+          Add items, enter an address, and click the exact delivery point on the map.
+        </p>
+      </div>
+
+      <div *ngIf="lastCheckout" class="fee-box compact-fee-box">
+        <h3>Payment Summary</h3>
+
+        <div class="summary-row">
+          <span>Items Total</span>
+          <strong>{{ lastCheckout.itemsTotal | number:'1.2-2' }} DT</strong>
+        </div>
+
+        <!-- <div class="summary-row">
+          <span>Delivery Distance</span>
+          <strong>{{ lastCheckout.distanceKm | number:'1.2-2' }} km</strong>
+        </div> -->
+
+       <div class="summary-row">
+          <span>Base Delivery Fee</span>
+          <strong>{{ lastCheckout.deliveryFee | number:'1.2-2' }} DT</strong>
+        </div>
+
+      <div class="fee-reason">
+        <div class="reason-line">
+          🚚 Delivery zone:
+          <strong>
+            {{
+              lastCheckout.deliveryZone === 'GREATER_TUNIS' ? 'Greater Tunis' :
+              lastCheckout.deliveryZone === 'NEARBY' ? 'Nearby Area' :
+              'Long Distance'
+            }}
+          </strong>
+        </div>
+
+        <div class="reason-line">
+          📍 Zone price:
+          +{{ lastCheckout.deliveryFee | number:'1.2-2' }} DT
+          <small>
+            Distance: {{ lastCheckout.distanceKm | number:'1.1-2' }} km
+          </small>
+        </div>
+
+        <div
+          class="reason-line"
+          [ngClass]="{ 'weight-extra': lastCheckout.weightFee > 0 }"
+        >
+          ⚖️ Weight surcharge:
+
+          <span *ngIf="lastCheckout.weightFee > 0">
+            +{{ lastCheckout.weightFee | number:'1.2-2' }} DT
+          </span>
+
+          <span *ngIf="lastCheckout.weightFee === 0">
+            No extra fee
+          </span>
+
+          <small>
+            {{ lastCheckout.poidsKg | number:'1.1-2' }} kg total weight
+          </small>
+        </div>
+
+        <div class="reason-line" [ngClass]="getWeatherClass()">
+          🌦 Weather extra:
+          <span *ngIf="lastCheckout.weatherSurcharge > 0">
+            +{{ lastCheckout.weatherSurcharge | number:'1.2-2' }} DT
+          </span>
+
+          <span *ngIf="lastCheckout.weatherSurcharge === 0">
+            No extra fee
+          </span>
+
+          <small>
+            {{ lastCheckout.weatherCondition }} ·
+            {{ lastCheckout.temperature | number:'1.0-1' }} °C
+          </small>
         </div>
       </div>
 
-      <button
-        type="button"
-        class="pay-btn"
-        [disabled]="loading"
-        (click)="pay()"
-      >
-        {{ loading ? 'Redirecting to Stripe...' : 'Pay' }}
-      </button>
+        <div class="summary-total final-payment-total">
+          <span>Total to Pay</span>
+          <strong>{{ lastCheckout.finalTotal | number:'1.2-2' }} DT</strong>
+        </div>
+
+        <button
+          type="button"
+          class="pay-btn"
+          [disabled]="loading || !lastCheckout"
+          (click)="pay()"
+        >
+          {{ loading && lastCheckout ? 'Redirecting to Stripe...' : 'Pay with Stripe' }}
+        </button>
+      </div>
     </div>
   </section>
 </div>

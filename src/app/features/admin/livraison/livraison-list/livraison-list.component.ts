@@ -38,7 +38,7 @@ export class LivraisonListComponent implements OnInit {
 
     this.livraisonService.getAllLivraisons().subscribe({
       next: (data) => {
-        this.livraisons = data;
+        this.livraisons = data.reverse();
         this.loading = false;
       },
       error: (err) => {

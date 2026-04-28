@@ -112,6 +112,8 @@ import { AvailableOrdersComponent } from './features/admin/livraison/available-o
 import { PaymentCommandSuccessComponent } from './features/public/livraison/payment-command-success/payment-command-success.component';
 import { PaymentCommandCancelComponent } from './features/public/livraison/payment-command-cancel/payment-command-cancel.component';
 import { DemoCheckoutComponent } from './features/public/livraison/demo-checkout/demo-checkout.component';
+import { ClientMyDeliveriesComponent } from './features/public/livraison/client-my-deliveries/client-my-deliveries.component';
+import { ClientDeliveryDetailComponent } from './features/public/livraison/client-delivery-detail/client-delivery-detail.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -255,6 +257,8 @@ export const routes: Routes = [
       { path: 'livraison/demo-checkout', component: DemoCheckoutComponent },
         { path: 'payment-command-success', component: PaymentCommandSuccessComponent },
         { path: 'payment-command-cancel',  component: PaymentCommandCancelComponent },
+        { path: 'my-deliveries', component: ClientMyDeliveriesComponent },
+      { path: 'my-deliveries/:id', component: ClientDeliveryDetailComponent }
     ]
   },
 

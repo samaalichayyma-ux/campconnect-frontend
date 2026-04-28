@@ -72,12 +72,12 @@ export class LivraisonService {
 }
 
 
-checkout(payload: any) {
-  return this.http.post<any>(
-    '${this.apiUrl}/livraisons/demo/checkout',
-    payload
-  );
-}
+// checkout(payload: any) {
+//   return this.http.post<any>(
+//     '${this.apiUrl}/livraisons/demo/checkout',
+//     payload
+//   );
+// }
 
 
 
@@ -118,4 +118,33 @@ checkout(payload: any) {
       `${this.apiUrl}/demo/payment/success?session_id=${sessionId}`
     );
   }
+
+  getAddressSuggestions(query: string) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/demo/address-suggestions`,
+    {
+      params: { query }
+    }
+  );
+}
+
+updateLivreurLocation(idLivraison: number, payload: any) {
+  return this.http.patch(
+    `${this.apiUrl}/${idLivraison}/livreur-location`,
+    payload
+  );
+}
+
+  getMyClientLivraisons() {
+  return this.http.get<any[]>(`${this.apiUrl}/client/mine`);
+}
+
+getLivraisonById(id: number) {
+  return this.http.get<any>(`${this.apiUrl}/${id}`);
+}
+
+getLivreurLocation(id: number) {
+  return this.http.get<any>(`${this.apiUrl}/${id}/livreur-location`);
+}
+
 }

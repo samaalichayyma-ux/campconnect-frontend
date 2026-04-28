@@ -1,0 +1,123 @@
+<div class="delivery-detail-page">
+  <button class="back-btn" type="button" (click)="back()">
+    ← Back to deliveries
+  </button>
+
+  <div *ngIf="loading" class="alert info">
+    Loading delivery details...
+  </div>
+
+  <div *ngIf="errorMessage" class="alert danger">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="livraison && !loading">
+    <section class="detail-header">
+      <div>
+        <span class="eyebrow">Delivery #{{ livraison.idLivraison }}</span>
+        <h1>{{ getStatusLabel() }}</h1>
+        <p>{{ livraison.adresseLivraison }}</p>
+      </div>
+
+      <span class="status-badge" [ngClass]="livraison.statut.toLowerCase()">
+        {{ livraison.statut }}
+      </span>
+    </section>
+
+    <section class="detail-grid">
+      <div class="info-card">
+        <h2>Delivery Details</h2>
+
+        <div class="detail-row">
+          <span>Order ID</span>
+          <strong>#{{ livraison.commandeId }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Order Type</span>
+          <strong>{{ livraison.typeCommande }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Address</span>
+          <strong>{{ livraison.adresseLivraison }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Departure Date</span>
+          <strong>{{ livraison.dateDepart || 'Not started yet' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Delivery Date</span>
+          <strong>{{ livraison.dateLivraisonEffective || 'Not delivered yet' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Proof</span>
+          <strong>{{ livraison.preuveLivraison || '—' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Comment</span>
+          <strong>{{ livraison.commentaire || '—' }}</strong>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <h2>Livreur</h2>
+
+        <div class="detail-row">
+          <span>Name</span>
+          <strong>{{ livraison.livreurNom || 'Not assigned yet' }}</strong>
+        </div>
+
+        <div class="detail-row">
+          <span>Email</span>
+          <strong>{{ livraison.livreurEmail || '—' }}</strong>
+        </div>
+
+        <div class="tracking-box">
+          <strong>Tracking</strong>
+          <p>{{ getTrackingText() }}</p>
+
+          <small *ngIf="lastLivreurLocation">
+            Last update:
+            {{ lastLivreurLocation.updatedAt | date:'short' }}
+          </small>
+        </div>
+      </div>
+    </section>
+
+    <section class="map-card">
+      <div class="map-header">
+        <h2>Live Map</h2>
+        <span>{{ getTrackingText() }}</span>
+      </div>
+
+      <div id="deliveryDetailMap">
+        <div class="tracking-stats">
+  <div class="tracking-stat">
+    <span>Distance</span>
+    <strong>{{ formatLiveDistance() }}</strong>
+  </div>
+
+  <div class="tracking-stat">
+    <span>ETA</span>
+    <strong>
+      <ng-container *ngIf="etaMinutes; else noEta">
+        ~{{ etaMinutes }} min
+      </ng-container>
+      <ng-template #noEta>—</ng-template>
+    </strong>
+  </div>
+
+  <div class="tracking-stat">
+    <span>Status</span>
+    <strong>{{ getTrackingText() }}</strong>
+  </div>
+</div>
+      </div>
+    </section>
+  </ng-container>
+</div>

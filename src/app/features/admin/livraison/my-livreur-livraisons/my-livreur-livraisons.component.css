@@ -155,3 +155,63 @@
     width: 100%;
   }
 }
+
+.live-distance {
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.distance-near {
+  background: rgba(37, 145, 88, 0.12);
+  color: #1f7a46;
+  border: 1px solid rgba(37, 145, 88, 0.22);
+}
+
+.distance-far {
+  background: rgba(214, 69, 69, 0.1);
+  color: #c03939;
+  border: 1px solid rgba(214, 69, 69, 0.2);
+}
+
+.distance-unknown {
+  background: rgba(120, 120, 120, 0.1);
+  color: #666;
+  border: 1px solid rgba(120, 120, 120, 0.2);
+}
+
+.near-message {
+  color: #1f7a46;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.far-message {
+  color: #a94442;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.deliver-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.simulate-btn {
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: #2563eb;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.simulate-btn:hover {
+  background: #1e40af;
+}
