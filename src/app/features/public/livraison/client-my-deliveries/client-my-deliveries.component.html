@@ -1,0 +1,55 @@
+<div class="my-deliveries-page">
+  <div class="page-header">
+    <h2>My Deliveries</h2>
+    <p>Track your orders in real time</p>
+  </div>
+
+  <div class="deliveries-grid">
+    <div
+      class="delivery-card"
+      *ngFor="let l of livraisons"
+      (click)="openDetails(l.idLivraison)"
+    >
+      <div class="card-header">
+        <span class="delivery-id">#{{ l.idLivraison }}</span>
+
+        <span class="status-badge" [ngClass]="l.statut.toLowerCase()">
+          {{ l.statut }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <div class="info-row">
+          <span class="icon">📍</span>
+          <span class="text">{{ l.adresseLivraison }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="icon">🚚</span>
+          <span class="text">
+            {{
+              l.statut === 'PLANIFIEE' ? 'Waiting for delivery' :
+              l.statut === 'EN_COURS' ? 'On the way' :
+              l.statut === 'LIVREE' ? 'Delivered' :
+              l.statut === 'ECHOUEE' ? 'Failed' :
+              'Returned'
+            }}
+          </span>
+        </div>
+      </div>
+
+      <div
+        class="mini-map"
+        [id]="'miniMap-' + l.idLivraison"
+      ></div>
+
+      <div class="card-footer">
+        View Details →
+      </div>
+    </div>
+
+    <div *ngIf="livraisons.length === 0" class="empty-state">
+      No deliveries yet.
+    </div>
+  </div>
+</div>

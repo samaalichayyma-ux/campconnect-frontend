@@ -1,7 +1,7 @@
 <div class="my-livraisons-page">
   <div class="page-header">
     <h2>My Deliveries</h2>
-    <p>Start assigned deliveries and mark them as delivered.</p>
+    <p>Start assigned deliveries. Delivery is automatically confirmed when you reach the destination.</p>
   </div>
 
   <div *ngIf="successMessage" class="alert alert-success">
@@ -25,6 +25,7 @@
           <th>Type</th>
           <th>Address</th>
           <th>Status</th>
+          <th>Live Distance</th>
           <th>Departure Date</th>
           <th>Delivery Date</th>
           <th>Proof</th>
@@ -45,6 +46,18 @@
             </span>
           </td>
 
+          <td>
+            <div
+              *ngIf="canDeliver(livraison)"
+              class="live-distance"
+              [ngClass]="getDistanceClass(livraison)"
+            >
+              📍 {{ getDistanceLabel(livraison) }}
+            </div>
+
+            <span *ngIf="!canDeliver(livraison)">—</span>
+          </td>
+
           <td>{{ livraison.dateDepart || '—' }}</td>
           <td>{{ livraison.dateLivraisonEffective || '—' }}</td>
           <td>{{ livraison.preuveLivraison || '—' }}</td>
@@ -59,26 +72,22 @@
             </button>
 
             <div *ngIf="canDeliver(livraison)" class="deliver-box">
-              <input
-                type="text"
-                placeholder="Delivery proof"
-                [(ngModel)]="preuveInputs[livraison.idLivraison]"
-              />
+              <div class="near-message" *ngIf="isNearDestination(livraison)">
+                Destination reached. Confirming automatically...
+              </div>
 
-              <input
-                type="text"
-                placeholder="Comment"
-                [(ngModel)]="commentaireInputs[livraison.idLivraison]"
-              />
-
-              <button
-                class="deliver-btn"
-                (click)="markAsDelivered(livraison.idLivraison)"
-              >
-                Mark Delivered
-              </button>
+              <div class="far-message" *ngIf="!isNearDestination(livraison)">
+                Continue delivery. Confirmation unlocks within 100m.
+              </div>
             </div>
 
+              <button
+                type="button"
+                class="simulate-btn"
+                (click)="startSimulation(livraison)"
+              >
+               Simulate Movement
+              </button>
             <span *ngIf="isDelivered(livraison)" class="done-text">
               Completed
             </span>
@@ -86,7 +95,7 @@
         </tr>
 
         <tr *ngIf="livraisons.length === 0">
-          <td colspan="9" class="empty-state">
+          <td colspan="10" class="empty-state">
             No assigned deliveries.
           </td>
         </tr>
