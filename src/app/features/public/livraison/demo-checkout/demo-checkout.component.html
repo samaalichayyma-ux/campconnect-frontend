@@ -43,7 +43,7 @@
           (click)="addToCart(item)"
         >
           <div class="item-icon">
-            {{ selectedType === 'CLASSIQUE' ? '🏕️' : '🍽️' }}
+            <i [class]="selectedType === 'CLASSIQUE' ? 'ri-shopping-bag-3-line' : 'ri-restaurant-line'"></i>
           </div>
 
           <div>
@@ -79,7 +79,9 @@
             *ngFor="let suggestion of addressSuggestions"
             (click)="selectAddressSuggestion(suggestion)"
           >
-            <span class="suggestion-icon">📍</span>
+            <span class="suggestion-icon">
+  <i class="ri-map-pin-line"></i>
+</span>
             <span class="suggestion-text">{{ suggestion.displayName }}</span>
           </button>
         </div>
@@ -189,7 +191,7 @@
         </div>
 
       <div class="fee-reason">
-        <div class="reason-line">
+        <!-- <div class="reason-line">
           🚚 Delivery zone:
           <strong>
             {{
@@ -198,10 +200,10 @@
               'Long Distance'
             }}
           </strong>
-        </div>
+        </div> -->
 
         <div class="reason-line">
-          📍 Zone price:
+        <i class="ri-map-pin-range-line"></i> Zone price:
           +{{ lastCheckout.deliveryFee | number:'1.2-2' }} DT
           <small>
             Distance: {{ lastCheckout.distanceKm | number:'1.1-2' }} km
@@ -212,7 +214,7 @@
           class="reason-line"
           [ngClass]="{ 'weight-extra': lastCheckout.weightFee > 0 }"
         >
-          ⚖️ Weight surcharge:
+          <i class="ri-scales-3-line"></i> Weight surcharge:
 
           <span *ngIf="lastCheckout.weightFee > 0">
             +{{ lastCheckout.weightFee | number:'1.2-2' }} DT
@@ -228,7 +230,7 @@
         </div>
 
         <div class="reason-line" [ngClass]="getWeatherClass()">
-          🌦 Weather extra:
+         <i class="ri-sun-cloudy-line"></i> Weather extra:
           <span *ngIf="lastCheckout.weatherSurcharge > 0">
             +{{ lastCheckout.weatherSurcharge | number:'1.2-2' }} DT
           </span>

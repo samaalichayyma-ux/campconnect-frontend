@@ -95,29 +95,34 @@
         <span>{{ getTrackingText() }}</span>
       </div>
 
-      <div id="deliveryDetailMap">
-        <div class="tracking-stats">
-  <div class="tracking-stat">
-    <span>Distance</span>
-    <strong>{{ formatLiveDistance() }}</strong>
-  </div>
+      <div class="tracking-stats">
+        <div class="tracking-stat">
+          <span>Distance</span>
+          <strong>{{ formatLiveDistance() }}</strong>
+        </div>
 
-  <div class="tracking-stat">
-    <span>ETA</span>
-    <strong>
-      <ng-container *ngIf="etaMinutes; else noEta">
-        ~{{ etaMinutes }} min
-      </ng-container>
-      <ng-template #noEta>—</ng-template>
-    </strong>
-  </div>
+        <!-- <div class="tracking-stat">
+          <span>ETA</span>
+          <strong>
+            <ng-container *ngIf="etaMinutes; else noEta">
+              ~{{ etaMinutes }} min
+            </ng-container>
+            <ng-template #noEta>—</ng-template>
+          </strong>
+        </div> -->
 
-  <div class="tracking-stat">
-    <span>Status</span>
-    <strong>{{ getTrackingText() }}</strong>
-  </div>
-</div>
+        <div class="tracking-stat">
+          <span>Status</span>
+          <strong>{{ getTrackingText() }}</strong>
+        </div>
       </div>
+
+      <div id="deliveryDetailMap"></div>
     </section>
+
+    <app-rating-tip
+      [livraisonId]="livraison.idLivraison"
+      [statut]="livraison.statut"
+    ></app-rating-tip>
   </ng-container>
 </div>

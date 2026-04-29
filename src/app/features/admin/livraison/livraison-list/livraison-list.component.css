@@ -212,3 +212,50 @@
 .assign-input {
   min-width: 190px;
 }
+
+.actions-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.status-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.status-btn.start {
+  background: #fff7db;
+  color: #8b6b00;
+}
+
+.status-btn.deliver {
+  background: #dff3e7;
+  color: #1f5133;
+}
+
+.status-btn.cancel {
+  background: #fde3e3;
+  color: #8f2525;
+}
+
+button:disabled,
+select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.status-badge.annulee {
+  background: #eeeeee;
+  color: #555555;
+}

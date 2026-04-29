@@ -1,13 +1,9 @@
 <div class="livraison-list-page">
- <div class="page-header">
+  <div class="page-header">
     <div>
       <h2>Delivery Management</h2>
-      <p>View all deliveries, create new deliveries, and assign a delivery person.</p>
+      <p>View all deliveries, assign delivery people, and update delivery status.</p>
     </div>
-
-  <a routerLink="/admin/livraison/orders" class="create-delivery-btn">
-  + Select Order
-</a>
   </div>
 
   <div *ngIf="successMessage" class="alert alert-success">
@@ -35,52 +31,89 @@
           <th>Action</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let livraison of livraisons">
           <td>{{ livraison.idLivraison }}</td>
           <td>{{ livraison.commandeId }}</td>
           <td>{{ livraison.typeCommande }}</td>
           <td>{{ livraison.adresseLivraison }}</td>
+
           <td>
             <span class="status-badge" [ngClass]="livraison.statut.toLowerCase()">
               {{ livraison.statut }}
             </span>
           </td>
-         <td>
-          <div class="delivery-person" *ngIf="livraison.livreurId; else notAssigned">
-            <div class="avatar">
-              {{ getInitials(livraison) }}
-            </div>
 
-            <div>
-              <strong>{{ livraison.livreurPrenom }} {{ livraison.livreurNom }}</strong>
-              <span>{{ livraison.livreurEmail }}</span>
-            </div>
-          </div>
-
-          <ng-template #notAssigned>
-            <span class="not-assigned">Not assigned</span>
-          </ng-template>
-        </td>
           <td>
-            <div class="assign-box" *ngIf="!livraison.livreurId">
-             <select
-                class="assign-input"
-                [(ngModel)]="livreurInputs[livraison.idLivraison]"
-              >
-                <option [ngValue]="null">Select delivery person</option>
-                <option *ngFor="let livreur of livreurs" [ngValue]="livreur.id">
-                  {{ getLivreurDisplayName(livreur) }}
-                </option>
-              </select>
-              <button class="assign-btn" (click)="assignLivreur(livraison.idLivraison)">
-                Assign
-              </button>
+            <div class="delivery-person" *ngIf="livraison.livreurId; else notAssigned">
+              <div class="avatar">
+                {{ getInitials(livraison) }}
+              </div>
+
+              <div>
+                <strong>{{ livraison.livreurPrenom }} {{ livraison.livreurNom }}</strong>
+                <span>{{ livraison.livreurEmail }}</span>
+              </div>
             </div>
 
-            <span class="already-assigned" *ngIf="livraison.livreurId">
-              Already assigned
-            </span>
+            <ng-template #notAssigned>
+              <span class="not-assigned">Not assigned</span>
+            </ng-template>
+          </td>
+
+          <td>
+            <div class="actions-wrapper">
+              <div class="assign-box">
+                <select
+                  class="assign-input"
+                  [(ngModel)]="livreurInputs[livraison.idLivraison]"
+                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
+                >
+                  <option [ngValue]="null">
+                    {{ livraison.livreurId ? 'Reassign delivery person' : 'Select delivery person' }}
+                  </option>
+
+                  <option *ngFor="let livreur of livreurs" [ngValue]="livreur.id">
+                    {{ getLivreurDisplayName(livreur) }}
+                  </option>
+                </select>
+
+                <button
+                  class="assign-btn"
+                  (click)="assignLivreur(livraison.idLivraison)"
+                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
+                >
+                  {{ livraison.livreurId ? 'Reassign' : 'Assign' }}
+                </button>
+              </div>
+
+              <div class="status-actions">
+                <button
+                  class="status-btn start"
+                  (click)="updateStatus(livraison.idLivraison, 'EN_COURS')"
+                  [disabled]="livraison.statut === 'EN_COURS' || livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
+                >
+                  Start
+                </button>
+
+                <button
+                  class="status-btn deliver"
+                  (click)="updateStatus(livraison.idLivraison, 'LIVREE')"
+                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
+                >
+                  Deliver
+                </button>
+
+                <button
+                  class="status-btn cancel"
+                  (click)="cancelLivraison(livraison.idLivraison)"
+                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </td>
         </tr>
 

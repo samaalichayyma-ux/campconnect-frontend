@@ -415,3 +415,138 @@
     text-align: left;
   }
 }
+
+.wallet-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 18px;
+}
+
+.wallet-card {
+  text-decoration: none;
+  background: rgba(255, 250, 245, 0.92);
+  border-radius: 24px;
+  padding: 22px;
+  box-shadow: 0 12px 28px rgba(28, 42, 57, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  transition: 0.25s ease;
+}
+
+.wallet-card:hover {
+  transform: translateY(-4px);
+}
+
+.wallet-card span {
+  display: block;
+  font-size: 13px;
+  color: #6c756f;
+  margin-bottom: 8px;
+}
+
+.wallet-card h3 {
+  margin: 0;
+  font-size: 28px;
+  color: #1c2a39;
+}
+
+.wallet-card p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #6c756f;
+}
+
+.balance-card h3 {
+  color: #1f3d2b;
+}
+
+.tip-card h3 {
+  color: #2f6042;
+}
+
+.rating-card h3 {
+  color: #f59e0b;
+}
+
+.wallet-link-card {
+  background: linear-gradient(135deg, #1f3d2b, #2f6042);
+}
+
+.wallet-link-card span,
+.wallet-link-card p {
+  color: #dce8df;
+}
+
+.wallet-link-card h3 {
+  color: #fff;
+}
+
+.small-link {
+  text-decoration: none;
+  color: #1f3d2b;
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.tips-section {
+  margin-top: 0;
+}
+
+.tip-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tip-preview-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 0.8fr;
+  align-items: center;
+  gap: 14px;
+  background: #f4ede4;
+  border-radius: 16px;
+  padding: 14px 16px;
+}
+
+.tip-preview-row strong {
+  display: block;
+  color: #1c2a39;
+}
+
+.tip-preview-row span {
+  display: block;
+  margin-top: 4px;
+  color: #6c756f;
+  font-size: 12px;
+}
+
+.tip-stars {
+  color: #f59e0b;
+  font-weight: 900;
+}
+
+.tip-amount {
+  text-align: right;
+  color: #1f3d2b;
+  font-weight: 900;
+}
+
+@media (max-width: 1200px) {
+  .wallet-summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .wallet-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tip-preview-row {
+    grid-template-columns: 1fr;
+    text-align: left;
+  }
+
+  .tip-amount {
+    text-align: left;
+  }
+}

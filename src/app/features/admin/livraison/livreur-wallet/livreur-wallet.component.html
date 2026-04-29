@@ -1,0 +1,74 @@
+<div class="wallet-page">
+
+  <div class="header">
+    <h1>💰 My Wallet</h1>
+    <p>Track your earnings, tips and performance</p>
+  </div>
+
+  <div *ngIf="loading" class="alert info">
+    Loading wallet...
+  </div>
+
+  <div *ngIf="errorMessage" class="alert danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="stats-grid" *ngIf="wallet && !loading">
+
+    <div class="stat-card balance">
+      <span>Wallet Balance</span>
+      <strong>{{ wallet.balance | number:'1.2-2' }} DT</strong>
+    </div>
+
+    <div class="stat-card tips">
+      <span>Total Tips</span>
+      <strong>{{ totalTips | number:'1.2-2' }} DT</strong>
+    </div>
+
+    <div class="stat-card rating">
+      <span>Average Rating</span>
+      <strong>
+        <ng-container *ngIf="avgRating > 0; else noRating">
+          {{ avgRating | number:'1.1-1' }} ⭐
+        </ng-container>
+        <ng-template #noRating>—</ng-template>
+      </strong>
+    </div>
+
+  </div>
+
+  <!-- TIP HISTORY -->
+  <div class="history-card" *ngIf="tips.length > 0">
+    <h2>Tip & Rating History</h2>
+
+    <div class="history-row" *ngFor="let tip of tips">
+
+      <div class="left">
+        <strong>#{{ tip.livraisonId }}</strong>
+        <small>{{ tip.createdAt | date:'short' }}</small>
+      </div>
+
+      <div class="center">
+        <span class="rating" *ngIf="tip.rating">
+          {{ getStars(tip.rating) }}
+        </span>
+        <span class="comment" *ngIf="tip.comment">
+          "{{ tip.comment }}"
+        </span>
+      </div>
+
+      <div class="right">
+        <strong class="amount">
+          +{{ tip.amount | number:'1.2-2' }} DT
+        </strong>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="tips.length === 0 && !loading" class="empty-state">
+    No tips received yet.
+  </div>
+
+</div>

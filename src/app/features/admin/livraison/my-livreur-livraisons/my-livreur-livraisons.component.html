@@ -52,7 +52,7 @@
               class="live-distance"
               [ngClass]="getDistanceClass(livraison)"
             >
-              📍 {{ getDistanceLabel(livraison) }}
+               {{ getDistanceLabel(livraison) }}
             </div>
 
             <span *ngIf="!canDeliver(livraison)">—</span>
@@ -73,7 +73,7 @@
 
             <div *ngIf="canDeliver(livraison)" class="deliver-box">
               <div class="near-message" *ngIf="isNearDestination(livraison)">
-                Destination reached. Confirming automatically...
+                Destination reached. Delivery will be confirmed automatically.
               </div>
 
               <div class="far-message" *ngIf="!isNearDestination(livraison)">

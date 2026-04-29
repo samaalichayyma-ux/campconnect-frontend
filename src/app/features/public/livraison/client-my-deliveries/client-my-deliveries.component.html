@@ -1,34 +1,86 @@
 <div class="my-deliveries-page">
-  <div class="page-header">
-    <h2>My Deliveries</h2>
-    <p>Track your orders in real time</p>
-  </div>
+  <section class="deliveries-hero">
+    <div>
+      <span class="eyebrow">
+  <i class="ri-truck-line"></i> Live Delivery Hub
+</span>
+      <h1>My Deliveries</h1>
+      <p>Follow your orders, track the driver, and check what’s already arrived.</p>
+    </div>
 
-  <div class="deliveries-grid">
-    <div
-      class="delivery-card"
-      *ngFor="let l of livraisons"
-      (click)="openDetails(l.idLivraison)"
-    >
-      <div class="card-header">
-        <span class="delivery-id">#{{ l.idLivraison }}</span>
+    <div class="hero-count">
+      <strong>{{ filteredLivraisons.length }}</strong>
+      <span>Showing now</span>
+    </div>
+  </section>
 
-        <span class="status-badge" [ngClass]="l.statut.toLowerCase()">
-          {{ l.statut }}
-        </span>
+  <section class="deliveries-panel">
+    <div class="panel-header">
+      <div>
+        <h2>Delivery Timeline</h2>
+        <p>Tap a delivery to open tracking details.</p>
       </div>
+    </div>
 
-      <div class="card-body">
-        <div class="info-row">
-          <span class="icon">📍</span>
-          <span class="text">{{ l.adresseLivraison }}</span>
+    <div class="filter-tabs">
+      <button
+        type="button"
+        [class.active]="selectedStatus === 'ALL'"
+        (click)="setStatusFilter('ALL')"
+      >
+        All
+      </button>
+
+      <button
+        type="button"
+        [class.active]="selectedStatus === 'PLANIFIEE'"
+        (click)="setStatusFilter('PLANIFIEE')"
+      >
+        Planned
+      </button>
+
+      <button
+        type="button"
+        [class.active]="selectedStatus === 'EN_COURS'"
+        (click)="setStatusFilter('EN_COURS')"
+      >
+        On the way
+      </button>
+
+      <button
+        type="button"
+        [class.active]="selectedStatus === 'LIVREE'"
+        (click)="setStatusFilter('LIVREE')"
+      >
+        Delivered
+      </button>
+    </div>
+
+    <div class="deliveries-table" *ngIf="filteredLivraisons.length > 0">
+      <div
+        class="delivery-row"
+        *ngFor="let l of filteredLivraisons"
+        (click)="openDetails(l.idLivraison)"
+      >
+        <div class="delivery-main">
+       <div class="delivery-icon" [ngClass]="getStatusIconClass(l.statut)">
+  <i [class]="getStatusIcon(l.statut)"></i>
+</div>
+
+          <div>
+            <strong>Delivery #{{ l.idLivraison }}</strong>
+            <small>{{ l.typeCommande || 'Order' }}</small>
+          </div>
         </div>
 
-        <div class="info-row">
-          <span class="icon">🚚</span>
-          <span class="text">
+        <div class="address">
+          <i class="ri-map-pin-line"></i> {{ l.adresseLivraison }}
+        </div>
+
+        <div>
+          <span class="status-badge" [ngClass]="l.statut.toLowerCase()">
             {{
-              l.statut === 'PLANIFIEE' ? 'Waiting for delivery' :
+              l.statut === 'PLANIFIEE' ? 'Planned' :
               l.statut === 'EN_COURS' ? 'On the way' :
               l.statut === 'LIVREE' ? 'Delivered' :
               l.statut === 'ECHOUEE' ? 'Failed' :
@@ -36,20 +88,26 @@
             }}
           </span>
         </div>
-      </div>
 
-      <div
-        class="mini-map"
-        [id]="'miniMap-' + l.idLivraison"
-      ></div>
+        <div class="progress-text">
+          {{
+            l.statut === 'PLANIFIEE' ? 'Your order is waiting for a driver.' :
+            l.statut === 'EN_COURS' ? 'Driver is moving toward you.' :
+            l.statut === 'LIVREE' ? 'Arrived safely. Time to rate!' :
+            l.statut === 'ECHOUEE' ? 'Something went wrong.' :
+            'Returned delivery.'
+          }}
+        </div>
 
-      <div class="card-footer">
-        View Details →
+        <div class="view-action">
+         <i class="ri-navigation-line"></i> Track
+        </div>
       </div>
     </div>
 
-    <div *ngIf="livraisons.length === 0" class="empty-state">
-      No deliveries yet.
+    <div *ngIf="filteredLivraisons.length === 0" class="empty-state">
+      <h3>No deliveries here</h3>
+      <p>Try another status filter.</p>
     </div>
-  </div>
+  </section>
 </div>

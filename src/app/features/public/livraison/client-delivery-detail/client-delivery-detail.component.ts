@@ -3,11 +3,12 @@ import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import * as L from 'leaflet';
 import { LivraisonService } from '../../../../core/services/livraison.service';
+import { RatingTipComponent } from '../rating-tip/rating-tip.component';
 
 @Component({
   selector: 'app-client-delivery-detail',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RatingTipComponent],
   templateUrl: './client-delivery-detail.component.html',
   styleUrl: './client-delivery-detail.component.css'
 })

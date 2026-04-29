@@ -1,0 +1,25 @@
+<div class="payment-result-page">
+  <div class="result-card success">
+    <div class="icon">
+      <i class="ri-checkbox-circle-line"></i>
+    </div>
+
+    <h1>Payment Successful</h1>
+
+    <p *ngIf="loading">
+      Confirming your tip and rating...
+    </p>
+
+    <p *ngIf="!loading && !errorMessage">
+      Your tip and rating were saved successfully.
+    </p>
+
+    <p *ngIf="errorMessage" class="error-text">
+      {{ errorMessage }}
+    </p>
+
+    <a routerLink="/public/my-deliveries" class="back-btn">
+      Back to My Deliveries
+    </a>
+  </div>
+</div>
