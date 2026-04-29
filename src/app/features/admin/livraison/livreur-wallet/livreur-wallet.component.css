@@ -1,0 +1,152 @@
+.wallet-page {
+  padding: 18px;
+  background: #efe6d8;
+  min-height: 100vh;
+}
+
+/* HEADER */
+.header {
+  margin-bottom: 18px;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 26px;
+}
+
+.header p {
+  margin-top: 6px;
+  color: #697168;
+}
+
+/* ALERTS */
+.alert {
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.alert.info {
+  background: #e6f0f5;
+}
+
+.alert.danger {
+  background: #fde3e3;
+  color: #8f2525;
+}
+
+/* STATS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: #fffaf4;
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+}
+
+.stat-card span {
+  display: block;
+  font-size: 13px;
+  color: #697168;
+}
+
+.stat-card strong {
+  font-size: 22px;
+  margin-top: 6px;
+  display: block;
+}
+
+.balance strong {
+  color: #1f4b32;
+}
+
+.tips strong {
+  color: #2f6b4f;
+}
+
+.rating strong {
+  color: #f59e0b;
+}
+
+/* HISTORY */
+.history-card {
+  background: #fffaf4;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+}
+
+.history-card h2 {
+  margin: 0 0 12px;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.history-row:last-child {
+  border-bottom: none;
+}
+
+.left small {
+  display: block;
+  color: #697168;
+}
+
+.center {
+  text-align: center;
+}
+
+.rating {
+  color: #f59e0b;
+  font-size: 16px;
+}
+
+.comment {
+  display: block;
+  font-size: 13px;
+  color: #555;
+}
+
+.right {
+  text-align: right;
+}
+
+.amount {
+  color: #1f4b32;
+  font-weight: 900;
+}
+
+/* EMPTY */
+.empty-state {
+  margin-top: 20px;
+  text-align: center;
+  color: #697168;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .history-row {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    text-align: center;
+  }
+
+  .right {
+    text-align: center;
+  }
+}

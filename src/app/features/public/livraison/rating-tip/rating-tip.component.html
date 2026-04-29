@@ -1,0 +1,61 @@
+<div class="rating-tip-card" *ngIf="statut === 'LIVREE'">
+  <h2>Rate & Tip your livreur</h2>
+  <p>How was your delivery experience?</p>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div class="stars">
+    <button
+      type="button"
+      *ngFor="let star of [1,2,3,4,5]"
+      [class.active]="star <= rating"
+      (click)="setRating(star)"
+    >
+      ★
+    </button>
+  </div>
+
+  <div class="tip-options">
+    <button
+      type="button"
+      *ngFor="let amount of tipOptions"
+      [class.active]="tipAmount === amount"
+      (click)="selectTip(amount)"
+    >
+      {{ amount }} DT
+    </button>
+  </div>
+
+  <input
+    type="number"
+    min="0"
+    [(ngModel)]="tipAmount"
+    placeholder="Custom tip amount"
+  />
+
+  <textarea
+    rows="3"
+    [(ngModel)]="comment"
+    placeholder="Optional comment"
+  ></textarea>
+
+  <button
+    type="button"
+    class="submit-btn"
+    [disabled]="loading"
+    (click)="submit()"
+  >
+    {{ loading ? 'Sending...' : 'Submit Rating & Tip' }}
+  </button>
+
+  <div class="tip-history" *ngIf="tipHistory.length > 0">
+    <h3>Tip history</h3>
+
+    <div class="tip-row" *ngFor="let tip of tipHistory">
+      <span>{{ tip.amount | number:'1.2-2' }} DT</span>
+      <small>{{ tip.createdAt | date:'short' }}</small>
+    </div>
+  </div>
+</div>

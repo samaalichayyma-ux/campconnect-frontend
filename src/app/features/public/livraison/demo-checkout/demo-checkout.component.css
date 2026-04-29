@@ -552,3 +552,21 @@
 .weight-extra span {
   font-weight: 900;
 }
+
+.item-icon,
+
+.reason-line i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: #eef2ff;
+  color: #3548a3;
+  font-size: 23px;
+}
+

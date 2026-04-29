@@ -14,46 +14,40 @@ import {
   templateUrl: './my-livreur-livraisons.component.html',
   styleUrl: './my-livreur-livraisons.component.css'
 })
+
 export class MyLivreurLivraisonsComponent implements OnInit, OnDestroy {
   private livraisonService = inject(LivraisonService);
 
   livraisons: LivraisonResponse[] = [];
 
   loading = false;
-  successMessage = '';
   errorMessage = '';
+  successMessage = '';
 
-  currentLatitude?: number;
-  currentLongitude?: number;
-  watchId?: number;
+  currentLat: Record<number, number> = {};
+  currentLng: Record<number, number> = {};
+  liveDistanceMeters: Record<number, number> = {};
 
-  readonly confirmationRadiusMeters = 100;
-
-  simulationTimers: Record<number, any> = {};
-  autoConfirming: Record<number, boolean> = {};
-
-  private readonly TUNIS_START_LAT = 36.8065;
-  private readonly TUNIS_START_LNG = 10.1815;
+  private simulationIntervals: Record<number, any> = {};
 
   ngOnInit(): void {
-    this.loadMyLivraisons();
+    this.loadLivraisons();
   }
 
   ngOnDestroy(): void {
-    if (this.watchId !== undefined) {
-      navigator.geolocation.clearWatch(this.watchId);
-    }
-
-    Object.values(this.simulationTimers).forEach(timer => clearInterval(timer));
+    Object.values(this.simulationIntervals).forEach(interval => {
+      clearInterval(interval);
+    });
   }
 
-  loadMyLivraisons(): void {
+  loadLivraisons(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.livraisonService.getMyLivraisons().subscribe({
       next: (data) => {
-        this.livraisons = data.reverse();
+        this.livraisons = [...data].reverse();
         this.loading = false;
       },
       error: (err) => {
@@ -66,250 +60,6 @@ export class MyLivreurLivraisonsComponent implements OnInit, OnDestroy {
     });
   }
 
-  startDelivery(livraisonId: number): void {
-    const payload: LivraisonStatusUpdateRequest = {
-      statut: 'EN_COURS',
-      commentaire: 'Delivery started',
-      preuveLivraison: ''
-    };
-
-    this.updateDeliveryStatus(livraisonId, payload);
-  }
-
-  startRealTracking(livraisonId: number): void {
-    if (!navigator.geolocation) {
-      this.errorMessage = 'GPS is not supported by this browser';
-      return;
-    }
-
-    this.watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        this.currentLatitude = position.coords.latitude;
-        this.currentLongitude = position.coords.longitude;
-
-        this.sendLivreurLocation(
-          livraisonId,
-          position.coords.latitude,
-          position.coords.longitude
-        );
-
-        const livraison = this.livraisons.find(l => l.idLivraison === livraisonId);
-        if (livraison && this.isNearDestination(livraison)) {
-          this.autoMarkAsDelivered(
-            livraison,
-            position.coords.latitude,
-            position.coords.longitude
-          );
-        }
-      },
-      () => {
-        this.errorMessage = 'Please allow GPS access to track delivery distance';
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 3000,
-        timeout: 10000
-      }
-    );
-  }
-
-  startSimulation(livraison: any): void {
-    const destinationLat = livraison.latitudeLivraison;
-    const destinationLng = livraison.longitudeLivraison;
-
-    if (destinationLat == null || destinationLng == null) {
-      this.errorMessage =
-        'Destination GPS is missing. Please create a new delivery with map location selected.';
-      return;
-    }
-
-    if (livraison.statut !== 'EN_COURS') {
-      this.errorMessage = 'Start the delivery before simulation';
-      return;
-    }
-
-    if (this.simulationTimers[livraison.idLivraison]) {
-      clearInterval(this.simulationTimers[livraison.idLivraison]);
-    }
-
-    this.successMessage = '';
-    this.errorMessage = '';
-
-    let step = 0;
-    const totalSteps = 30;
-
-    const startLat = this.TUNIS_START_LAT;
-    const startLng = this.TUNIS_START_LNG;
-
-    this.currentLatitude = startLat;
-    this.currentLongitude = startLng;
-
-    this.sendLivreurLocation(livraison.idLivraison, startLat, startLng);
-
-    this.simulationTimers[livraison.idLivraison] = setInterval(() => {
-      step++;
-
-      const lat = startLat + ((destinationLat - startLat) * step) / totalSteps;
-      const lng = startLng + ((destinationLng - startLng) * step) / totalSteps;
-
-      this.currentLatitude = lat;
-      this.currentLongitude = lng;
-
-      this.sendLivreurLocation(livraison.idLivraison, lat, lng);
-
-      if (step >= totalSteps) {
-        clearInterval(this.simulationTimers[livraison.idLivraison]);
-        delete this.simulationTimers[livraison.idLivraison];
-
-        this.autoMarkAsDelivered(livraison, lat, lng);
-      }
-    }, 2000);
-  }
-
-  stopSimulation(livraisonId: number): void {
-    if (this.simulationTimers[livraisonId]) {
-      clearInterval(this.simulationTimers[livraisonId]);
-      delete this.simulationTimers[livraisonId];
-      this.successMessage = `Simulation stopped for delivery #${livraisonId}`;
-    }
-  }
-
-  sendLivreurLocation(
-    livraisonId: number,
-    latitude: number,
-    longitude: number
-  ): void {
-    this.livraisonService.updateLivreurLocation(livraisonId, {
-      latitude,
-      longitude
-    }).subscribe({
-      error: (err) => {
-        this.errorMessage =
-          err?.error?.message ||
-          err?.error ||
-          'Location update failed';
-      }
-    });
-  }
-
-  autoMarkAsDelivered(
-    livraison: any,
-    latitude: number,
-    longitude: number
-  ): void {
-    if (this.autoConfirming[livraison.idLivraison]) {
-      return;
-    }
-
-    this.autoConfirming[livraison.idLivraison] = true;
-
-    const payload: LivraisonStatusUpdateRequest = {
-      statut: 'LIVREE',
-      preuveLivraison: 'GPS_SIMULATION_CONFIRMED',
-      commentaire: 'Delivery automatically confirmed by GPS simulation',
-      currentLatitude: latitude,
-      currentLongitude: longitude
-    };
-
-    this.livraisonService.updateStatus(livraison.idLivraison, payload).subscribe({
-      next: () => {
-        this.successMessage =
-          `Delivery #${livraison.idLivraison} completed automatically`;
-        this.loadMyLivraisons();
-      },
-      error: (err) => {
-        this.autoConfirming[livraison.idLivraison] = false;
-        this.errorMessage =
-          err?.error?.message ||
-          err?.error ||
-          'Auto delivery confirmation failed';
-      }
-    });
-  }
-
-  private updateDeliveryStatus(
-    livraisonId: number,
-    payload: LivraisonStatusUpdateRequest
-  ): void {
-    this.successMessage = '';
-    this.errorMessage = '';
-
-    this.livraisonService.updateStatus(livraisonId, payload).subscribe({
-      next: () => {
-        this.successMessage = `Delivery #${livraisonId} updated successfully`;
-        this.loadMyLivraisons();
-      },
-      error: (err) => {
-        this.errorMessage =
-          err?.error?.message ||
-          err?.error ||
-          'Error while updating delivery';
-      }
-    });
-  }
-
-  calculateDistanceMeters(livraison: any): number | null {
-    if (
-      this.currentLatitude == null ||
-      this.currentLongitude == null ||
-      livraison.latitudeLivraison == null ||
-      livraison.longitudeLivraison == null
-    ) {
-      return null;
-    }
-
-    const earthRadiusMeters = 6371000;
-
-    const dLat = this.toRadians(livraison.latitudeLivraison - this.currentLatitude);
-    const dLon = this.toRadians(livraison.longitudeLivraison - this.currentLongitude);
-
-    const lat1 = this.toRadians(this.currentLatitude);
-    const lat2 = this.toRadians(livraison.latitudeLivraison);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1) *
-        Math.cos(lat2) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-    return Math.round(earthRadiusMeters * c);
-  }
-
-  getDistanceLabel(livraison: any): string {
-    const meters = this.calculateDistanceMeters(livraison);
-
-    if (meters === null) {
-      return 'Simulation not started';
-    }
-
-    if (meters >= 1000) {
-      return `${(meters / 1000).toFixed(2)} km away`;
-    }
-
-    return `${meters} m away`;
-  }
-
-  isNearDestination(livraison: any): boolean {
-    const meters = this.calculateDistanceMeters(livraison);
-    return meters !== null && meters <= this.confirmationRadiusMeters;
-  }
-
-  getDistanceClass(livraison: any): string {
-    const meters = this.calculateDistanceMeters(livraison);
-
-    if (meters === null) return 'distance-unknown';
-    if (meters <= this.confirmationRadiusMeters) return 'distance-near';
-
-    return 'distance-far';
-  }
-
-  private toRadians(value: number): number {
-    return value * Math.PI / 180;
-  }
-
   canStart(livraison: LivraisonResponse): boolean {
     return livraison.statut === 'PLANIFIEE';
   }
@@ -320,5 +70,164 @@ export class MyLivreurLivraisonsComponent implements OnInit, OnDestroy {
 
   isDelivered(livraison: LivraisonResponse): boolean {
     return livraison.statut === 'LIVREE';
+  }
+
+  startDelivery(idLivraison: number): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.livraisonService.updateStatus(idLivraison, {
+      statut: 'EN_COURS',
+      commentaire: 'Delivery started'
+    }).subscribe({
+      next: () => {
+        this.successMessage = `Delivery #${idLivraison} started`;
+        this.loadLivraisons();
+      },
+      error: (err) => {
+        this.errorMessage =
+          err?.error?.message ||
+          err?.error ||
+          'Error while starting delivery';
+      }
+    });
+  }
+
+  startSimulation(livraison: LivraisonResponse): void {
+    if (!livraison.latitudeLivraison || !livraison.longitudeLivraison) {
+      this.errorMessage = 'Destination coordinates are missing';
+      return;
+    }
+
+    if (livraison.statut !== 'EN_COURS') {
+      this.errorMessage = 'Start the delivery before simulation';
+      return;
+    }
+
+    const id = livraison.idLivraison;
+
+    if (this.simulationIntervals[id]) {
+      clearInterval(this.simulationIntervals[id]);
+    }
+
+    let lat = livraison.latitudeLivraison + 0.02;
+    let lng = livraison.longitudeLivraison + 0.02;
+
+    this.currentLat[id] = lat;
+    this.currentLng[id] = lng;
+
+    this.simulationIntervals[id] = setInterval(() => {
+      const destLat = livraison.latitudeLivraison!;
+      const destLng = livraison.longitudeLivraison!;
+
+      lat += (destLat - lat) * 0.25;
+      lng += (destLng - lng) * 0.25;
+
+      this.currentLat[id] = lat;
+      this.currentLng[id] = lng;
+
+      const distance = this.calculateDistanceMeters(
+        lat,
+        lng,
+        destLat,
+        destLng
+      );
+
+      this.liveDistanceMeters[id] = distance;
+
+      this.livraisonService.updateLivreurLocation(id, {
+        latitude: lat,
+        longitude: lng
+      }).subscribe({
+        error: (err) => {
+          console.error('Error updating livreur location', err);
+        }
+      });
+
+      if (distance <= 100) {
+        clearInterval(this.simulationIntervals[id]);
+        delete this.simulationIntervals[id];
+
+        this.confirmDeliveryAutomatically(livraison);
+      }
+    }, 2000);
+  }
+
+  confirmDeliveryAutomatically(livraison: LivraisonResponse): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.livraisonService.updateStatus(livraison.idLivraison, {
+      statut: 'LIVREE',
+      preuveLivraison: 'Delivery confirmed automatically by GPS simulation',
+      commentaire: 'Livreur reached destination'
+    }).subscribe({
+      next: () => {
+        this.successMessage = `Delivery #${livraison.idLivraison} completed`;
+        this.loadLivraisons();
+      },
+      error: (err) => {
+        this.errorMessage =
+          err?.error?.message ||
+          err?.error ||
+          'Error while confirming delivery';
+      }
+    });
+  }
+
+  isNearDestination(livraison: LivraisonResponse): boolean {
+    const distance = this.liveDistanceMeters[livraison.idLivraison];
+    return distance !== undefined && distance <= 100;
+  }
+
+  getDistanceLabel(livraison: LivraisonResponse): string {
+    const distance = this.liveDistanceMeters[livraison.idLivraison];
+
+    if (distance === undefined) {
+      return 'Waiting for movement';
+    }
+
+    if (distance < 1000) {
+      return `${Math.round(distance)} m away`;
+    }
+
+    return `${(distance / 1000).toFixed(2)} km away`;
+  }
+
+  getDistanceClass(livraison: LivraisonResponse): string {
+    const distance = this.liveDistanceMeters[livraison.idLivraison];
+
+    if (distance === undefined) {
+      return 'distance-unknown';
+    }
+
+    return distance <= 100 ? 'distance-near' : 'distance-far';
+  }
+
+  private calculateDistanceMeters(
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ): number {
+    const earthRadiusMeters = 6371000;
+
+    const latDistance = this.toRadians(lat2 - lat1);
+    const lonDistance = this.toRadians(lon2 - lon1);
+
+    const a =
+      Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+      Math.cos(this.toRadians(lat1)) *
+        Math.cos(this.toRadians(lat2)) *
+        Math.sin(lonDistance / 2) *
+        Math.sin(lonDistance / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return earthRadiusMeters * c;
+  }
+
+  private toRadians(value: number): number {
+    return value * Math.PI / 180;
   }
 }

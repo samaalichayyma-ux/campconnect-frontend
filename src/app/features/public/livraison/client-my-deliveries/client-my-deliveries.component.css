@@ -1,61 +1,218 @@
 .my-deliveries-page {
-  padding: 20px;
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(72, 187, 120, 0.20), transparent 28%),
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 26%),
+    linear-gradient(135deg, #fff7ed 0%, #f5efe7 100%);
+  color: #102033;
+  font-family: Arial, sans-serif;
 }
 
-.page-header h2 {
-  margin: 0;
-  font-size: 26px;
-}
-
-.page-header p {
-  margin: 6px 0 20px;
-  color: #6b7280;
-}
-
-/* GRID */
-.deliveries-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-/* CARD */
-.delivery-card {
-  background: #fffaf4;
-  border-radius: 18px;
-  padding: 16px;
-  cursor: pointer;
-  transition: 0.25s;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.06);
-}
-
-.delivery-card:hover {
-  transform: translateY(-4px);
-}
-
-/* HEADER */
-.card-header {
+.deliveries-hero {
+  background: linear-gradient(135deg, #102033, #1f4b32);
+  color: white;
+  border-radius: 32px;
+  padding: 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 22px;
+  box-shadow: 0 18px 40px rgba(28, 42, 57, 0.18);
+  position: relative;
+  overflow: hidden;
 }
 
-.delivery-id {
+.deliveries-hero::after {
+  content: "✨";
+  position: absolute;
+  right: 26px;
+  top: 18px;
+  font-size: 38px;
+  opacity: 0.25;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 12px;
   font-weight: 900;
-  font-size: 16px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
-/* STATUS */
+.deliveries-hero h1 {
+  margin: 0;
+  font-size: 38px;
+  letter-spacing: -0.6px;
+}
+
+.deliveries-hero p {
+  margin: 10px 0 0;
+  color: #eee6dc;
+  max-width: 560px;
+}
+
+.hero-count {
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  padding: 18px 24px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.hero-count strong {
+  display: block;
+  font-size: 36px;
+}
+
+.hero-count span {
+  color: #eee6dc;
+  font-size: 13px;
+}
+
+.deliveries-panel {
+  background: rgba(255, 250, 244, 0.92);
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: 0 14px 30px rgba(34, 31, 27, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+.panel-header {
+  margin-bottom: 14px;
+}
+
+.panel-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.panel-header p {
+  margin: 6px 0 0;
+  color: #697168;
+  font-size: 14px;
+}
+
+/* Filters */
+.filter-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.filter-tabs button {
+  border: none;
+  background: #f1e7dc;
+  color: #334155;
+  border-radius: 999px;
+  padding: 10px 15px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.22s ease;
+}
+
+.filter-tabs button:hover {
+  transform: translateY(-2px);
+  background: #fff;
+}
+
+.filter-tabs button.active {
+  background: #1f4b32;
+  color: white;
+  box-shadow: 0 10px 22px rgba(31, 75, 50, 0.22);
+}
+
+/* Rows */
+.deliveries-table {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.delivery-row {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr 0.9fr 1.4fr 0.6fr;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
+  border-radius: 22px;
+  background: #f4ede4;
+  cursor: pointer;
+  transition: 0.22s ease;
+  border: 1px solid rgba(28, 42, 57, 0.06);
+}
+
+.delivery-row:hover {
+  background: #fffaf4;
+  transform: translateX(5px) scale(1.005);
+  box-shadow: 0 10px 22px rgba(34, 31, 27, 0.1);
+}
+
+.delivery-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delivery-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 8px 18px rgba(34, 31, 27, 0.08);
+}
+
+.delivery-row strong {
+  display: block;
+  font-size: 15px;
+}
+
+.delivery-row small {
+  display: block;
+  margin-top: 4px;
+  color: #697168;
+  font-size: 12px;
+}
+
+.address {
+  color: #374151;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.progress-text {
+  color: #697168;
+  font-size: 14px;
+}
+
+.view-action {
+  color: #1f4b32;
+  font-weight: 900;
+  text-align: right;
+}
+
 .status-badge {
-  padding: 4px 10px;
+  display: inline-block;
+  padding: 8px 13px;
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 900;
 }
 
-/* COLORS */
 .status-badge.planifiee {
   background: #e5e7eb;
+  color: #4b5563;
 }
 
 .status-badge.en_cours {
@@ -73,37 +230,73 @@
   color: #dc2626;
 }
 
-/* BODY */
-.card-body {
-  margin-top: 12px;
+.status-badge.retournee {
+  background: #fef3c7;
+  color: #b45309;
 }
 
-.info-row {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.icon {
-  font-size: 16px;
-}
-
-.text {
-  font-size: 14px;
-  color: #374151;
-}
-
-/* FOOTER */
-.card-footer {
-  margin-top: 12px;
-  font-size: 13px;
-  color: #1f4b32;
-  font-weight: 600;
-}
-
-/* EMPTY */
 .empty-state {
+  background: #f4ede4;
+  border-radius: 22px;
+  padding: 42px;
   text-align: center;
-  padding: 40px;
-  color: #777;
+  color: #697168;
+}
+
+.empty-state h3 {
+  margin: 0 0 8px;
+  color: #102033;
+}
+
+@media (max-width: 1000px) {
+  .delivery-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .view-action {
+    text-align: left;
+  }
+
+  .deliveries-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-count {
+    width: 100%;
+    margin-top: 16px;
+  }
+}
+
+.delivery-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+/* ADMIN COLOR SYSTEM */
+.delivery-icon.planifiee {
+  background: #eef2ff;
+  color: #3548a3;
+}
+
+.delivery-icon.en_cours {
+  background: #fff4cf;
+  color: #8b6500;
+}
+
+.delivery-icon.livree {
+  background: #dcf7e7;
+  color: #1f6d3d;
+}
+
+.delivery-icon.echouee,
+.delivery-icon.retournee {
+  background: #fde3e3;
+  color: #8f2525;
 }

@@ -147,4 +147,33 @@ getLivreurLocation(id: number) {
   return this.http.get<any>(`${this.apiUrl}/${id}/livreur-location`);
 }
 
+
+getLivreurTipHistory(idLivraison: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/${idLivraison}/tips`
+  );
+}
+
+getMyLivreurWallet() {
+  return this.http.get<any>(`${this.apiUrl}/livreur/wallet`);
+}
+
+getMyLivreurTips() {
+  return this.http.get<any[]>(`${this.apiUrl}/livreur/tips`);
+}
+
+createTipPaymentSession(idLivraison: number, payload: any) {
+  return this.http.post<any>(
+    `${this.apiUrl}/${idLivraison}/tip/create-session`,
+    payload
+  );
+}
+
+confirmTipPayment(sessionId: string) {
+  return this.http.get(
+    `${this.apiUrl}/tip/success?session_id=${sessionId}`,
+    { responseType: 'text' }
+  );
+}
+
 }
