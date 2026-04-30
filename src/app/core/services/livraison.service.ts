@@ -176,4 +176,19 @@ confirmTipPayment(sessionId: string) {
   );
 }
 
+  getAllLivreurWallets() {
+  return this.http.get<any[]>(`${this.apiUrl}/admin/livreur-wallets`);
+}
+
+  markLivreurWalletAsPaid(livreurId: number) {
+    return this.http.patch<any>(
+      `${this.apiUrl}/admin/livreurs/${livreurId}/wallet/pay`,
+      {}
+    );
+  }
+
+  getMyWithdrawHistory() {
+    return this.http.get<any[]>(`${this.apiUrl}/livreur/withdraw-history`);
+  }
+
 }

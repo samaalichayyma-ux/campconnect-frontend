@@ -105,7 +105,7 @@ export class LivraisonListComponent implements OnInit {
 
     Swal.fire({
       title: 'Assign delivery person?',
-      text: `Are you sure you want to assign this livreur to delivery #${livraisonId}?`,
+      text: `Are you sure you want to assign this Delivery person to delivery #${livraisonId}?`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Yes, assign',

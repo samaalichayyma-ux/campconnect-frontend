@@ -14,16 +14,19 @@ export class LivreurWalletComponent implements OnInit {
 
   wallet: any = null;
   tips: any[] = [];
+  withdrawHistory: any[] = [];
 
   loading = false;
   errorMessage = '';
 
   totalTips = 0;
   avgRating = 0;
+  totalWithdrawn = 0;
 
   ngOnInit(): void {
     this.loadWallet();
     this.loadTips();
+    this.loadWithdrawHistory();
   }
 
   loadWallet(): void {
@@ -44,17 +47,31 @@ export class LivreurWalletComponent implements OnInit {
   loadTips(): void {
     this.livraisonService.getMyLivreurTips().subscribe({
       next: (data) => {
-        this.tips = data;
+        this.tips = data || [];
+        this.totalTips = this.tips.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-        this.totalTips = data.reduce((sum, t) => sum + (t.amount || 0), 0);
-
-        const ratings = data.filter(t => t.rating);
+        const ratings = this.tips.filter(t => t.rating);
         this.avgRating = ratings.length
           ? ratings.reduce((sum, t) => sum + t.rating, 0) / ratings.length
           : 0;
       },
       error: () => {
         this.tips = [];
+      }
+    });
+  }
+
+  loadWithdrawHistory(): void {
+    this.livraisonService.getMyWithdrawHistory().subscribe({
+      next: (data) => {
+        this.withdrawHistory = data || [];
+        this.totalWithdrawn = this.withdrawHistory.reduce(
+          (sum, w) => sum + (w.amount || 0),
+          0
+        );
+      },
+      error: () => {
+        this.withdrawHistory = [];
       }
     });
   }

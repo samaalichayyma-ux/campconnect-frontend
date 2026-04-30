@@ -2,7 +2,13 @@
   <div class="page-header">
     <div>
       <h2>Delivery Management</h2>
-      <p>View all deliveries, assign delivery people, and update delivery status.</p>
+      <p>Monitor all deliveries, open details, or cancel problematic deliveries.</p>
+    </div>
+
+    <div class="header-actions">
+      <a routerLink="/admin/livraison/wallets" class="wallet-btn">
+        <i class="ri-wallet-3-line"></i> Wallets
+      </a>
     </div>
   </div>
 
@@ -23,21 +29,30 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Order ID</th>
+          <th>Order</th>
           <th>Type</th>
           <th>Address</th>
           <th>Status</th>
           <th>Delivery Person</th>
-          <th>Action</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let livraison of livraisons">
-          <td>{{ livraison.idLivraison }}</td>
+          <td class="id-cell">#{{ livraison.idLivraison }}</td>
+
           <td>{{ livraison.commandeId }}</td>
-          <td>{{ livraison.typeCommande }}</td>
-          <td>{{ livraison.adresseLivraison }}</td>
+
+          <td>
+            <span class="type-pill">
+              {{ livraison.typeCommande }}
+            </span>
+          </td>
+
+          <td class="address-cell">
+            {{ livraison.adresseLivraison }}
+          </td>
 
           <td>
             <span class="status-badge" [ngClass]="livraison.statut.toLowerCase()">
@@ -63,56 +78,23 @@
           </td>
 
           <td>
-            <div class="actions-wrapper">
-              <div class="assign-box">
-                <select
-                  class="assign-input"
-                  [(ngModel)]="livreurInputs[livraison.idLivraison]"
-                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
-                >
-                  <option [ngValue]="null">
-                    {{ livraison.livreurId ? 'Reassign delivery person' : 'Select delivery person' }}
-                  </option>
-
-                  <option *ngFor="let livreur of livreurs" [ngValue]="livreur.id">
-                    {{ getLivreurDisplayName(livreur) }}
-                  </option>
-                </select>
-
-                <button
-                  class="assign-btn"
-                  (click)="assignLivreur(livraison.idLivraison)"
-                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
-                >
-                  {{ livraison.livreurId ? 'Reassign' : 'Assign' }}
-                </button>
-              </div>
-
-              <div class="status-actions">
-                <button
-                  class="status-btn start"
-                  (click)="updateStatus(livraison.idLivraison, 'EN_COURS')"
-                  [disabled]="livraison.statut === 'EN_COURS' || livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
-                >
-                  Start
-                </button>
-
-                <button
-                  class="status-btn deliver"
-                  (click)="updateStatus(livraison.idLivraison, 'LIVREE')"
-                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
-                >
-                  Deliver
-                </button>
-
-                <button
-                  class="status-btn cancel"
-                  (click)="cancelLivraison(livraison.idLivraison)"
-                  [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
-                >
-                  Cancel
-                </button>
-              </div>
+            <div class="row-actions">
+           <a
+                class="details-btn"
+                [routerLink]="['/admin/detail-livraison', livraison.idLivraison]"
+              >
+                <i class="ri-eye-line"></i>
+                Details
+              </a>
+              <button
+                class="cancel-btn"
+                type="button"
+                (click)="cancelLivraison(livraison.idLivraison)"
+                [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
+              >
+                <i class="ri-close-circle-line"></i>
+                Cancel
+              </button>
             </div>
           </td>
         </tr>
