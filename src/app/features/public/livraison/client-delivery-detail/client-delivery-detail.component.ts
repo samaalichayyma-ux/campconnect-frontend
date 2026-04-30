@@ -192,7 +192,7 @@ calculateEtaMinutes(distanceMeters: number | null): number | null {
 }
 
 formatLiveDistance(): string {
-  if (this.liveDistanceMeters == null) return 'Waiting for livreur location';
+  if (this.liveDistanceMeters == null) return 'Waiting for Delivery person location';
 
   if (this.liveDistanceMeters >= 1000) {
     return `${(this.liveDistanceMeters / 1000).toFixed(2)} km away`;
@@ -214,7 +214,7 @@ updateLivreurMarker(latitude: number, longitude: number): void {
     this.livraison.longitudeLivraison
   );
 
-  // 🚚 Livreur marker
+  //  Livreur marker
   if (this.livreurMarker) {
     this.livreurMarker.setLatLng(livreurLatLng);
   } else {
@@ -222,7 +222,7 @@ updateLivreurMarker(latitude: number, longitude: number): void {
       icon: this.livreurIcon
     })
       .addTo(this.map)
-      .bindPopup('Livreur current location');
+      .bindPopup('Delivery person current location');
   }
 
   // ➖ Route line
@@ -253,8 +253,8 @@ updateLivreurMarker(latitude: number, longitude: number): void {
   getStatusLabel(): string {
     if (!this.livraison) return '';
 
-    if (this.livraison.statut === 'PLANIFIEE') return 'Waiting for livreur';
-    if (this.livraison.statut === 'EN_COURS') return 'Livreur is on the way';
+    if (this.livraison.statut === 'PLANIFIEE') return 'Waiting for Delivery';
+    if (this.livraison.statut === 'EN_COURS') return 'Delivery is on the way';
     if (this.livraison.statut === 'LIVREE') return 'Delivered';
     if (this.livraison.statut === 'ECHOUEE') return 'Delivery failed';
     if (this.livraison.statut === 'RETOURNEE') return 'Returned';
@@ -266,13 +266,13 @@ updateLivreurMarker(latitude: number, longitude: number): void {
     if (!this.livraison) return '';
 
     if (this.livraison.statut === 'PLANIFIEE') {
-      return 'Tracking will start when the livreur starts delivery.';
+      return 'Tracking will start when the Delivery starts delivery.';
     }
 
     if (this.livraison.statut === 'EN_COURS') {
       return this.lastLivreurLocation
         ? 'Live tracking active.'
-        : 'Waiting for livreur GPS location...';
+        : 'Waiting for Delivery person GPS location...';
     }
 
     if (this.livraison.statut === 'LIVREE') {

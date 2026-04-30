@@ -4,6 +4,11 @@
       <h2>Delivery Management</h2>
       <p>View all deliveries, assign delivery people, and update delivery status.</p>
     </div>
+
+    <a routerLink="/admin/livraison/wallets" class="wallet-btn">
+      <i class="ri-wallet-3-line"></i> Wallets
+    </a>
+
   </div>
 
   <div *ngIf="successMessage" class="alert alert-success">
@@ -89,7 +94,7 @@
               </div>
 
               <div class="status-actions">
-                <button
+                <!-- <button
                   class="status-btn start"
                   (click)="updateStatus(livraison.idLivraison, 'EN_COURS')"
                   [disabled]="livraison.statut === 'EN_COURS' || livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
@@ -103,7 +108,7 @@
                   [disabled]="livraison.statut === 'LIVREE' || livraison.statut === 'ANNULEE'"
                 >
                   Deliver
-                </button>
+                </button> -->
 
                 <button
                   class="status-btn cancel"

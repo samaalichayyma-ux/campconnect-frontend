@@ -115,6 +115,7 @@ import { DemoCheckoutComponent } from './features/public/livraison/demo-checkout
 import { ClientMyDeliveriesComponent } from './features/public/livraison/client-my-deliveries/client-my-deliveries.component';
 import { ClientDeliveryDetailComponent } from './features/public/livraison/client-delivery-detail/client-delivery-detail.component';
 import { LivreurWalletComponent } from './features/admin/livraison/livreur-wallet/livreur-wallet.component';
+import { AdminLivreurWalletsComponent } from './features/admin/livraison/admin-livreur-wallets/admin-livreur-wallets.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -188,7 +189,8 @@ export const routes: Routes = [
       { path: 'livraison/mine', component: MyLivreurLivraisonsComponent },
        { path: 'livraison/create', component: CreateLivraisonComponent },
        { path: 'livraison/orders', component: AvailableOrdersComponent },
-       { path: 'livraison/wallet', component: LivreurWalletComponent }
+       { path: 'livraison/wallet', component: LivreurWalletComponent },
+       { path: 'livraison/wallets', component: AdminLivreurWalletsComponent }
     ]
   },
 

@@ -259,3 +259,20 @@ select:disabled {
   background: #eeeeee;
   color: #555555;
 }
+
+.wallet-btn {
+  text-decoration: none;
+  background: #1f3d2b;
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(31, 61, 43, 0.18);
+  transition: 0.25s ease;
+  white-space: nowrap;
+}
+
+.wallet-btn:hover {
+  background: #163022;
+  transform: translateY(-2px);
+}
