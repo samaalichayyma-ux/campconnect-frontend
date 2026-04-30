@@ -1,0 +1,187 @@
+<div class="detail-page">
+  <div class="page-header">
+    <div>
+      <button type="button" class="back-btn" (click)="goBack()">
+        <i class="ri-arrow-left-line"></i>
+        Back
+      </button>
+
+      <h2>Delivery Details</h2>
+      <p>View delivery information, assign a delivery person, or cancel the delivery.</p>
+    </div>
+
+    <a routerLink="/admin/livraison/wallets" class="wallet-btn">
+      <i class="ri-wallet-3-line"></i>
+      Wallets
+    </a>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">
+    Loading delivery details...
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="livraison && !loading">
+    <section class="hero-card">
+      <div>
+        <span class="eyebrow">Delivery #{{ livraison.idLivraison }}</span>
+        <h1>{{ livraison.adresseLivraison }}</h1>
+        <p>
+          Order #{{ livraison.commandeId }} · {{ livraison.typeCommande || 'Order' }}
+        </p>
+      </div>
+
+      <span class="status-badge" [ngClass]="livraison.statut.toLowerCase()">
+        {{ livraison.statut }}
+      </span>
+    </section>
+
+    <section class="content-grid">
+      <div class="card-box">
+        <div class="section-header">
+          <h3>Delivery Information</h3>
+          <span>General order and delivery metadata</span>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <span>Delivery ID</span>
+            <strong>#{{ livraison.idLivraison }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Order ID</span>
+            <strong>{{ livraison.commandeId || '—' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Order Type</span>
+            <strong>{{ livraison.typeCommande || '—' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Status</span>
+            <strong>{{ livraison.statut }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Departure Date</span>
+            <strong>{{ livraison.dateDepart || '—' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Delivery Date</span>
+            <strong>{{ livraison.dateLivraisonEffective || '—' }}</strong>
+          </div>
+
+          <div class="info-item full">
+            <span>Address</span>
+            <strong>{{ livraison.adresseLivraison }}</strong>
+          </div>
+
+          <div class="info-item full">
+            <span>Comment</span>
+            <strong>{{ livraison.commentaire || '—' }}</strong>
+          </div>
+
+          <div class="info-item full">
+            <span>Proof</span>
+            <strong>{{ livraison.preuveLivraison || '—' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Latitude</span>
+            <strong>{{ livraison.latitudeLivraison || '—' }}</strong>
+          </div>
+
+          <div class="info-item">
+            <span>Longitude</span>
+            <strong>{{ livraison.longitudeLivraison || '—' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-column">
+        <div class="card-box">
+          <div class="section-header">
+            <h3>Delivery Person</h3>
+            <span>Assign or reassign livreur</span>
+          </div>
+
+          <div class="current-livreur" *ngIf="livraison.livreurId; else noLivreur">
+            <div class="avatar">
+              {{ getInitials() }}
+            </div>
+
+            <div>
+              <strong>{{ livraison.livreurPrenom }} {{ livraison.livreurNom }}</strong>
+              <span>{{ livraison.livreurEmail }}</span>
+            </div>
+          </div>
+
+          <ng-template #noLivreur>
+            <div class="no-livreur">
+              <i class="ri-user-unfollow-line"></i>
+              <strong>No livreur assigned</strong>
+              <span>Select one below.</span>
+            </div>
+          </ng-template>
+
+          <div class="assign-form">
+            <label>Choose livreur</label>
+
+            <select
+              [(ngModel)]="selectedLivreurId"
+              [disabled]="!canEdit() || assigning"
+            >
+              <option [ngValue]="null">Select delivery person</option>
+
+              <option *ngFor="let livreur of livreurs" [ngValue]="livreur.id">
+                {{ getLivreurDisplayName(livreur) }}
+              </option>
+            </select>
+
+            <button
+              type="button"
+              class="assign-btn"
+              (click)="assignLivreur()"
+              [disabled]="!canEdit() || assigning"
+            >
+              <i class="ri-user-add-line"></i>
+              {{ livraison.livreurId ? 'Reassign Livreur' : 'Assign Livreur' }}
+            </button>
+
+            <small *ngIf="!canEdit()" class="locked-message">
+              Assignment is disabled for delivered or cancelled deliveries.
+            </small>
+          </div>
+        </div>
+
+        <div class="card-box danger-card">
+          <div class="section-header">
+            <h3>Danger Zone</h3>
+            <span>Cancel delivery if needed</span>
+          </div>
+
+          <p>
+            Cancelling marks this delivery as <strong>ANNULEE</strong>.
+            This action should only be used when the delivery cannot continue.
+          </p>
+
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="cancelLivraison()"
+            [disabled]="!canEdit() || cancelling"
+          >
+            <i class="ri-close-circle-line"></i>
+            Cancel Delivery
+          </button>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+</div>

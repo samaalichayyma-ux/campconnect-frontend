@@ -110,8 +110,9 @@ export class MyLivreurLivraisonsComponent implements OnInit, OnDestroy {
       clearInterval(this.simulationIntervals[id]);
     }
 
-    let lat = livraison.latitudeLivraison + 0.02;
-    let lng = livraison.longitudeLivraison + 0.02;
+    //tunis values inital values
+    let lat = 36.8065 + (Math.random() - 0.5) * 0.02;
+    let lng = 10.1815 + (Math.random() - 0.5) * 0.02;
 
     this.currentLat[id] = lat;
     this.currentLng[id] = lng;
