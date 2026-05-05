@@ -22,6 +22,19 @@
         <textarea rows="5" formControlName="description" placeholder="Décrivez ce qui s’est passé..."></textarea>
       </div>
 
+      <button
+  type="button"
+  class="assurance-btn assurance-btn-secondary"
+  (click)="analyserDescriptionAvecIA()"
+  [disabled]="aiLoading"
+>
+  {{ aiLoading ? 'Analyse IA...' : 'Analyser avec IA' }}
+</button>
+
+<div *ngIf="aiResult" class="assurance-empty" style="margin-top:1rem; white-space:pre-wrap;">
+  {{ aiResult }}
+</div>
+
       <div class="assurance-field">
         <label>Lieu de l’incident</label>
         <input type="text" formControlName="lieuIncident" />
@@ -32,8 +45,86 @@
         <input type="number" formControlName="montantEstime" />
       </div>
 
+      <section class="weather-card">
+  <div class="weather-card-header">
+    <div>
+      <p class="weather-kicker">Vérification météo</p>
+      <h3>Contrôler la météo du jour</h3>
+      <p>
+        Vérifie si la météo du lieu et de la date correspond au sinistre déclaré.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="weather-btn"
+      (click)="verifierMeteoAvantDeclaration()"
+      [disabled]="weatherLoading"
+    >
+      {{ weatherLoading ? 'Vérification...' : 'Vérifier météo' }}
+    </button>
+  </div>
+
+  <div *ngIf="weatherError" class="weather-error">
+    {{ weatherError }}
+  </div>
+
+  <div *ngIf="weatherResult" class="weather-result">
+    <div class="weather-status" [ngClass]="weatherResult.meteoCompatible ? 'compatible' : 'warning'">
+      {{ weatherResult.meteoCompatible ? 'Météo compatible' : 'À vérifier manuellement' }}
+    </div>
+
+    <div class="weather-grid">
+      <div>
+        <span>Lieu</span>
+        <strong>{{ weatherResult.lieu }}</strong>
+      </div>
+
+      <div>
+        <span>Date</span>
+        <strong>{{ weatherResult.date }}</strong>
+      </div>
+
+      <div>
+        <span>Condition</span>
+        <strong>{{ weatherResult.condition }}</strong>
+      </div>
+
+      <div>
+        <span>Vent max</span>
+        <strong>{{ weatherResult.ventMaxKph }} km/h</strong>
+      </div>
+
+      <div>
+        <span>Précipitations</span>
+        <strong>{{ weatherResult.precipitationMm }} mm</strong>
+      </div>
+
+      <div>
+        <span>Risque météo</span>
+        <strong>{{ weatherResult.niveauRisqueMeteo }}</strong>
+      </div>
+    </div>
+
+    <p class="weather-conclusion">
+      {{ weatherResult.conclusion }}
+    </p>
+  </div>
+</section>
+
       <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
       <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+
+      <div class="assurance-field">
+  <label>Réclamation liée</label>
+  <select formControlName="reclamationId">
+    <option [ngValue]="null">Aucune réclamation</option>
+
+    <option *ngFor="let reclamation of reclamations" [ngValue]="reclamation.id">
+      Réclamation #{{ reclamation.id }} - {{ reclamation.statut }}
+    </option>
+  </select>
+</div>
 
       <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submitting">
         {{ submitting ? 'Envoi en cours...' : 'Déclarer le sinistre' }}

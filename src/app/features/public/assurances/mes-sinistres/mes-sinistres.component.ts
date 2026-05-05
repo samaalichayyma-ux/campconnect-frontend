@@ -153,17 +153,20 @@ export class MesSinistresComponent implements OnInit {
   }
 
   getStatusClass(status: string | undefined): string {
-    switch (status) {
-      case 'ACCEPTE':
-      case 'INDEMNISE':
-        return 'badge-accepte';
-      case 'DECLARE':
-      case 'EN_COURS':
-        return 'badge-en-cours';
-      case 'REJETE':
-        return 'badge-rejete';
-      default:
-        return 'badge-pending';
-    }
+  switch (status) {
+    case 'ACCEPTE':
+    case 'REMBOURSE':
+      return 'badge-accepte';
+
+    case 'EN_ATTENTE':
+    case 'EN_COURS':
+      return 'badge-en-cours';
+
+    case 'REFUSE':
+      return 'badge-rejete';
+
+    default:
+      return 'badge-pending';
   }
+}
 }

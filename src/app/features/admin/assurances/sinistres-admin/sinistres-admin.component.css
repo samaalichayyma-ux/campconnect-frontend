@@ -385,6 +385,159 @@ div[style*="justify-content:space-between"] {
   flex-wrap: wrap !important;
 }
 
+.weather-card,
+.weather-admin-panel {
+  margin-top: 1rem;
+  padding: 1.2rem;
+  border-radius: 1.6rem;
+  background:
+    radial-gradient(circle at top left, rgba(79, 140, 255, 0.14), transparent 35%),
+    rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(79, 140, 255, 0.18);
+  box-shadow: 0 18px 42px rgba(28, 42, 57, 0.1);
+  animation: weatherFade 0.35s ease both;
+}
+
+.weather-card-header,
+.weather-admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.weather-kicker {
+  margin: 0 0 0.35rem;
+  color: #4f8cff;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.weather-card h3,
+.weather-admin-header h4 {
+  margin: 0;
+  color: #1F3D2B;
+  font-weight: 900;
+}
+
+.weather-card p,
+.weather-admin-header p {
+  margin: 0.45rem 0 0;
+  color: #667367;
+  line-height: 1.6;
+}
+
+.weather-btn,
+.ai-btn-blue {
+  border: none;
+  border-radius: 999px;
+  min-height: 46px;
+  padding: 0.8rem 1.2rem;
+  background: linear-gradient(135deg, #4f8cff, #1C2A39) !important;
+  color: white !important;
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.weather-btn:hover:not(:disabled),
+.ai-btn-blue:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(79, 140, 255, 0.25);
+}
+
+.weather-btn:disabled,
+.ai-btn-blue:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.weather-error {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  background: #fdeaea;
+  color: #9d332c;
+  font-weight: 700;
+}
+
+.weather-result,
+.weather-admin-grid {
+  margin-top: 1rem;
+}
+
+.weather-status,
+.weather-admin-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 0.82rem;
+}
+
+.weather-status.compatible,
+.weather-admin-status.compatible {
+  color: #1F3D2B;
+  background: rgba(47, 143, 91, 0.14);
+}
+
+.weather-status.warning,
+.weather-admin-status.warning {
+  color: #8a5a17;
+  background: rgba(244, 162, 97, 0.2);
+}
+
+.weather-grid,
+.weather-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.weather-grid div,
+.weather-admin-grid div {
+  padding: 0.9rem;
+  border-radius: 1rem;
+  background: rgba(244, 237, 228, 0.6);
+  border: 1px solid rgba(31, 61, 43, 0.06);
+}
+
+.weather-grid span,
+.weather-admin-grid span {
+  display: block;
+  color: #6b7280;
+  font-size: 0.78rem;
+  margin-bottom: 0.25rem;
+}
+
+.weather-grid strong,
+.weather-admin-grid strong {
+  color: #1F3D2B;
+  font-weight: 900;
+}
+
+.weather-conclusion,
+.weather-admin-conclusion {
+  grid-column: 1 / -1;
+}
+
+@keyframes weatherFade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -460,4 +613,196 @@ div[style*="justify-content:space-between"] {
     flex-direction: column;
     align-items: stretch;
   }
+
+  .ai-info-box {
+  padding: 1rem;
+  border-radius: 1.2rem;
+  background: rgba(244, 237, 228, 0.7);
+  border: 1px solid rgba(31, 61, 43, 0.08);
 }
+
+.ai-info-box span {
+  display: block;
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+}
+
+.ai-info-box strong {
+  display: block;
+  color: #1F3D2B;
+  font-weight: 800;
+}
+
+.ai-btn-orange {
+  background: #F4A261 !important;
+  color: white !important;
+}
+
+.ai-btn-green {
+  background: #838332 !important;
+  color: white !important;
+}
+
+.ai-btn-orange:hover,
+.ai-btn-green:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 14px 35px rgba(28, 42, 57, 0.18);
+}
+
+.ai-panel {
+  margin-top: 1rem;
+  padding: 1.2rem;
+  border-radius: 1.6rem;
+  animation: aiFadeIn 0.35s ease both;
+}
+
+.ai-panel-orange {
+  background: linear-gradient(135deg, rgba(244, 162, 97, 0.16), rgba(255, 255, 255, 0.95));
+  border: 1px solid rgba(244, 162, 97, 0.35);
+}
+
+.ai-panel-green {
+  background: linear-gradient(135deg, rgba(131, 131, 50, 0.15), rgba(255, 255, 255, 0.95));
+  border: 1px solid rgba(131, 131, 50, 0.28);
+}
+
+.ai-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ai-panel-header h4 {
+  margin: 0.2rem 0 0;
+  color: #1F3D2B;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.ai-kicker {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.ai-kicker.orange {
+  color: #F4A261;
+}
+
+.ai-kicker.green {
+  color: #838332;
+}
+
+.ai-score {
+  min-width: 72px;
+  text-align: center;
+  border-radius: 999px;
+  background: white;
+  color: #1F3D2B;
+  padding: 0.55rem 0.9rem;
+  font-weight: 900;
+  box-shadow: 0 10px 25px rgba(31, 61, 43, 0.12);
+}
+
+.ai-risk-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  background: white;
+}
+
+.ai-risk-row span {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.ai-risk-row strong {
+  color: #F4A261;
+  font-weight: 900;
+}
+
+.ai-label {
+  margin: 0 0 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #1F3D2B;
+}
+
+.ai-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.ai-recommendation {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1.2rem;
+  background: white;
+  color: #374151;
+  line-height: 1.7;
+}
+
+.ai-recommendation p:last-child {
+  margin: 0;
+}
+
+.ai-summary {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 1.2rem;
+  background: white;
+  color: #1C2A39;
+  line-height: 1.8;
+  white-space: pre-line;
+}
+
+.ai-summary p {
+  margin: 0;
+}
+
+.document-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(31, 61, 43, 0.08);
+  margin-bottom: 0.8rem;
+}
+
+.document-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: #838332;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.document-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes aiFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+}
+

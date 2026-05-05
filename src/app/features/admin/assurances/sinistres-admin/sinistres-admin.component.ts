@@ -12,6 +12,14 @@ import {
   TYPE_DOCUMENT_ASSURANCE_LABELS,
   StatutRemboursement
 } from '../../../../core/models/assurance.models';
+import { WeatherVerificationResponse } from '../../../../core/models/assurance.models';
+
+interface AiFraudeResult {
+  scoreFraude: number;
+  niveauRisque: 'FAIBLE' | 'MOYEN' | 'ELEVE';
+  raisons: string[];
+  recommandationAdmin: string;
+}
 
 @Component({
   selector: 'app-sinistres-admin',
@@ -33,6 +41,19 @@ export class SinistresAdminComponent implements OnInit {
 
   errorMessage = '';
   successMessage = '';
+  weatherResults: Record<number, WeatherVerificationResponse> = {};
+weatherErrors: Record<number, string> = {};
+weatherLoadings: Record<number, boolean> = {};
+
+  fraudeResults: Record<number, AiFraudeResult> = {};
+fraudeErrors: Record<number, string> = {};
+fraudeLoadings: Record<number, boolean> = {};
+
+resumeResults: Record<number, string> = {};
+resumeErrors: Record<number, string> = {};
+resumeLoadings: Record<number, boolean> = {};
+
+  
 
   readonly statusOptions = Object.values(StatutSinistre);
   readonly statusLabels = STATUT_SINISTRE_LABELS;
@@ -184,4 +205,168 @@ export class SinistresAdminComponent implements OnInit {
         return 'badge-pending';
     }
   }
+
+  rembourserSinistre(sinistreId?: number): void {
+  if (!sinistreId) return;
+
+  const confirmed = confirm('Confirmer le remboursement de ce sinistre ?');
+  if (!confirmed) return;
+
+  const payload: Remboursement = {
+  montant: 0,
+  statut: StatutRemboursement.EFFECTUE,
+  motif: 'Remboursement assurance validé.'
+};
+
+  this.assuranceService.addRemboursement(sinistreId, payload).subscribe({
+    next: () => {
+      this.successMessage = 'Remboursement effectué. Le client a été notifié par email.';
+      this.loadSinistres();
+    },
+    error: (error) => {
+      console.error(error);
+      this.errorMessage = 'Impossible de rembourser ce sinistre.';
+    }
+  });
+}
+
+
+detecterFraude(sinistreId?: number): void {
+  if (!sinistreId) {
+    return;
+  }
+
+  this.fraudeLoadings[sinistreId] = true;
+  this.fraudeErrors[sinistreId] = '';
+  delete this.fraudeResults[sinistreId];
+
+  this.assuranceService.detectFraudeBySinistreAi(sinistreId).subscribe({
+    next: (response) => {
+      try {
+        this.fraudeResults[sinistreId] =
+          this.assuranceService.parseAiJson<AiFraudeResult>(response);
+      } catch (error) {
+        console.error('Erreur parsing fraude IA', error);
+        this.fraudeErrors[sinistreId] = 'La réponse IA fraude n’est pas lisible.';
+      }
+
+      this.fraudeLoadings[sinistreId] = false;
+    },
+    error: (error) => {
+      console.error('Erreur détection fraude IA', error);
+
+      this.fraudeErrors[sinistreId] =
+        error?.error?.message ||
+        'Impossible de détecter le risque de fraude.';
+
+      this.fraudeLoadings[sinistreId] = false;
+    }
+  });
+}
+
+genererResumeSinistre(sinistreId?: number): void {
+  if (!sinistreId) {
+    return;
+  }
+
+  this.resumeLoadings[sinistreId] = true;
+  this.resumeErrors[sinistreId] = '';
+  this.resumeResults[sinistreId] = '';
+
+  this.assuranceService.resumeSinistreAi(sinistreId).subscribe({
+    next: (response) => {
+      this.resumeResults[sinistreId] = response;
+      this.resumeLoadings[sinistreId] = false;
+    },
+    error: (error) => {
+      console.error('Erreur résumé IA', error);
+
+      this.resumeErrors[sinistreId] =
+        error?.error?.message ||
+        'Impossible de générer le résumé IA.';
+
+      this.resumeLoadings[sinistreId] = false;
+    }
+  });
+}
+
+getFraudeResult(sinistreId?: number): AiFraudeResult | null {
+  if (!sinistreId) return null;
+  return this.fraudeResults[sinistreId] || null;
+}
+
+getFraudeError(sinistreId?: number): string {
+  if (!sinistreId) return '';
+  return this.fraudeErrors[sinistreId] || '';
+}
+
+isFraudeLoading(sinistreId?: number): boolean {
+  if (!sinistreId) return false;
+  return !!this.fraudeLoadings[sinistreId];
+}
+
+getResumeResult(sinistreId?: number): string {
+  if (!sinistreId) return '';
+  return this.resumeResults[sinistreId] || '';
+}
+
+getResumeError(sinistreId?: number): string {
+  if (!sinistreId) return '';
+  return this.resumeErrors[sinistreId] || '';
+}
+
+isResumeLoading(sinistreId?: number): boolean {
+  if (!sinistreId) return false;
+  return !!this.resumeLoadings[sinistreId];
+}
+
+
+
+
+
+
+
+
+
+
+verifierMeteoSinistre(sinistreId?: number): void {
+  if (!sinistreId) {
+    return;
+  }
+
+  this.weatherLoadings[sinistreId] = true;
+  this.weatherErrors[sinistreId] = '';
+  delete this.weatherResults[sinistreId];
+
+  this.assuranceService.verifierMeteoBySinistre(sinistreId).subscribe({
+    next: (result) => {
+      this.weatherResults[sinistreId] = result;
+      this.weatherLoadings[sinistreId] = false;
+    },
+    error: (error) => {
+      console.error('Erreur vérification météo', error);
+      this.weatherErrors[sinistreId] =
+        error?.error?.message ||
+        'Impossible de vérifier la météo du sinistre.';
+      this.weatherLoadings[sinistreId] = false;
+    }
+  });
+}
+
+getWeatherResult(sinistreId?: number): WeatherVerificationResponse | null {
+  if (!sinistreId) return null;
+  return this.weatherResults[sinistreId] || null;
+}
+
+getWeatherError(sinistreId?: number): string {
+  if (!sinistreId) return '';
+  return this.weatherErrors[sinistreId] || '';
+}
+
+isWeatherLoading(sinistreId?: number): boolean {
+  if (!sinistreId) return false;
+  return !!this.weatherLoadings[sinistreId];
+}
+
+
 }

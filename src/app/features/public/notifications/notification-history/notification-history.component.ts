@@ -77,19 +77,29 @@ export class NotificationHistoryComponent implements OnInit {
   }
 
   getNotificationLabel(type: string): string {
-    switch (type) {
-      case 'WELCOME':
-        return 'Bienvenue';
-      case 'SECURITY':
-        return 'Sécurité';
-      case 'PASSWORD_RESET':
-        return 'Mot de passe';
-      case 'PROFILE_UPDATED':
-        return 'Profil';
-      case 'GOOGLE_LOGIN':
-        return 'Google';
-      default:
-        return type;
-    }
+  switch (type) {
+    case 'WELCOME':
+      return 'Bienvenue';
+    case 'SECURITY':
+      return 'Sécurité';
+    case 'PASSWORD_RESET':
+      return 'Mot de passe';
+    case 'PROFILE_UPDATED':
+      return 'Profil';
+    case 'GOOGLE_LOGIN':
+      return 'Google';
+    case 'ASSURANCE_REMBOURSEMENT':
+      return 'Assurance';
+
+      case 'ASSURANCE_SOUSCRIPTION_ACCEPTEE':
+  return 'Souscription';
+case 'ASSURANCE_EXPIRATION':
+  return 'Expiration';
+case 'ASSURANCE_SINISTRE_EN_COURS':
+  return 'Sinistre';
+
+    default:
+      return type;
   }
+}
 }

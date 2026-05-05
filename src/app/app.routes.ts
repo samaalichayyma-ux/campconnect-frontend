@@ -287,8 +287,15 @@ export const routes: Routes = [
   component: InsuranceAgentLayoutComponent,
   canActivate: [insuranceAgentGuard],
   children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     { path: 'dashboard', component: InsuranceAgentDashboardComponent },
+    { path: 'statistiques', component: InsuranceAgentDashboardComponent },
+
     { path: 'assurances', component: AgentAssuranceListComponent },
+    { path: 'assurances/new', component: AssuranceFormAdminComponent },
+    { path: 'assurances/:id/edit', component: AssuranceFormAdminComponent },
+    { path: 'assurances/:id/garanties', component: GarantiesAdminComponent },
+
     { path: 'souscriptions', component: SouscriptionsAdminComponent },
     { path: 'sinistres', component: SinistresAdminComponent },
     { path: 'remboursements', component: RemboursementsAdminComponent },

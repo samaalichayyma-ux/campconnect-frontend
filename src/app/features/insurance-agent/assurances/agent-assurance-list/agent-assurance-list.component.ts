@@ -15,6 +15,7 @@ export class AgentAssuranceListComponent implements OnInit {
   assurances: Assurance[] = [];
   loading = false;
   errorMessage = '';
+  successMessage = '';
 
   readonly typeLabels = TYPE_ASSURANCE_LABELS;
 
@@ -27,6 +28,7 @@ export class AgentAssuranceListComponent implements OnInit {
   loadAssurances(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.assuranceService.getAllAssurances().subscribe({
       next: (data) => {
@@ -37,6 +39,24 @@ export class AgentAssuranceListComponent implements OnInit {
         console.error(error);
         this.errorMessage = 'Impossible de charger les offres.';
         this.loading = false;
+      }
+    });
+  }
+
+  deleteAssurance(id?: number): void {
+    if (!id) return;
+
+    const confirmed = confirm('Supprimer cette assurance ?');
+    if (!confirmed) return;
+
+    this.assuranceService.deleteAssurance(id).subscribe({
+      next: () => {
+        this.successMessage = 'Assurance supprimée avec succès.';
+        this.loadAssurances();
+      },
+      error: (error) => {
+        console.error(error);
+        this.errorMessage = 'Suppression impossible.';
       }
     });
   }

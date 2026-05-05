@@ -25,11 +25,11 @@ export enum TypeSinistre {
 }
 
 export enum StatutSinistre {
-  DECLARE = 'DECLARE',
+  EN_ATTENTE = 'EN_ATTENTE',
   EN_COURS = 'EN_COURS',
   ACCEPTE = 'ACCEPTE',
-  REJETE = 'REJETE',
-  INDEMNISE = 'INDEMNISE'
+  REFUSE = 'REFUSE',
+  REMBOURSE = 'REMBOURSE'
 }
 
 export enum StatutRemboursement {
@@ -83,6 +83,7 @@ export interface Garantie {
   description: string;
   plafond: number;
   franchise: number;
+  tauxRemboursement: number;
 }
 
 export interface Assurance {
@@ -112,7 +113,7 @@ export interface SouscriptionAssurance {
   assurance?: Assurance;
   utilisateur?: UtilisateurLight;
   reservation?: ReservationLight | null;
-  paiements?: PaiementLight[];
+  inscriptionSite?: InscriptionSiteLight | null;
 }
 
 export interface Sinistre {
@@ -126,7 +127,7 @@ export interface Sinistre {
   statut: StatutSinistre;
 
   souscriptionAssurance?: SouscriptionAssurance;
-  reclamations?: ReclamationLight[];
+reclamation?: ReclamationLight | null;
   documents?: DocumentAssurance[];
   remboursements?: Remboursement[];
 }
@@ -148,6 +149,13 @@ export interface Remboursement {
   sinistre?: Sinistre;
 }
 
+export interface InscriptionSiteLight {
+  idInscription?: number;
+  dateDebut?: string;
+  dateFin?: string;
+  numberOfGuests?: number;
+  statut?: string;
+}
 export const TYPE_ASSURANCE_LABELS: Record<TypeAssurance, string> = {
   [TypeAssurance.ANNULATION]: 'Annulation',
   [TypeAssurance.ACCIDENT]: 'Accident',
@@ -175,11 +183,11 @@ export const TYPE_SINISTRE_LABELS: Record<TypeSinistre, string> = {
 };
 
 export const STATUT_SINISTRE_LABELS: Record<StatutSinistre, string> = {
-  [StatutSinistre.DECLARE]: 'Déclaré',
+  [StatutSinistre.EN_ATTENTE]: 'En attente',
   [StatutSinistre.EN_COURS]: 'En cours',
   [StatutSinistre.ACCEPTE]: 'Accepté',
-  [StatutSinistre.REJETE]: 'Rejeté',
-  [StatutSinistre.INDEMNISE]: 'Indemnisé'
+  [StatutSinistre.REFUSE]: 'Refusé',
+  [StatutSinistre.REMBOURSE]: 'Remboursé'
 };
 
 export const STATUT_REMBOURSEMENT_LABELS: Record<StatutRemboursement, string> = {
@@ -197,3 +205,35 @@ export const TYPE_DOCUMENT_ASSURANCE_LABELS: Record<TypeDocumentAssurance, strin
   [TypeDocumentAssurance.RAPPORT_MEDICAL]: 'Rapport médical',
   [TypeDocumentAssurance.AUTRE]: 'Autre'
 };
+
+export interface WeatherVerificationRequest {
+  lieu: string;
+  date: string;
+  description: string;
+}
+
+export interface WeatherVerificationResponse {
+  lieu: string;
+  date: string;
+  condition: string;
+  temperatureMoyenne: number;
+  ventMaxKph: number;
+  precipitationMm: number;
+  meteoCompatible: boolean;
+  niveauRisqueMeteo: 'FAIBLE' | 'MOYEN' | 'ELEVE';
+  conclusion: string;
+}
+
+export interface CurrentWeatherResponse {
+  ville: string;
+  pays: string;
+  localtime: string;
+  condition: string;
+  icon: string;
+  temperatureC: number;
+  feelsLikeC: number;
+  windKph: number;
+  humidity: number;
+  precipitationMm: number;
+  conseilAssurance: string;
+}

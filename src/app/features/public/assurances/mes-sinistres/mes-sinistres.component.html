@@ -26,10 +26,20 @@
       <p><strong>Lieu :</strong> {{ sinistre.lieuIncident }}</p>
       <p><strong>Montant estimé :</strong> {{ sinistre.montantEstime | number:'1.2-2' }} TND</p>
       <p><strong>Montant remboursé :</strong> {{ sinistre.montantRembourse || 0 | number:'1.2-2' }} TND</p>
-
+<p *ngIf="sinistre.statut === 'REMBOURSE'">
+  Ce sinistre a été remboursé. Consultez vos notifications pour plus de détails.
+</p>
       <p style="margin-top: .8rem; color: var(--assurance-text-soft); line-height:1.65;">
         {{ sinistre.description }}
       </p>
+
+      <div *ngIf="sinistre.reclamation" style="margin-top:.8rem;">
+        <p><strong>Réclamation liée :</strong> #{{ sinistre.reclamation.id }}</p>
+        <p><strong>Statut réclamation :</strong> {{ sinistre.reclamation.statut }}</p>
+        <p style="color: var(--assurance-text-soft);">
+          {{ sinistre.reclamation.description }}
+        </p>
+      </div>
 
       <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
         <button class="assurance-btn assurance-btn-secondary" (click)="openDocuments(sinistre.id)">
