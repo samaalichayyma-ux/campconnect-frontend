@@ -17,6 +17,10 @@
         <p><strong>Prime :</strong> {{ assurance.prime | number:'1.2-2' }} TND</p>
         <p><strong>Couverture :</strong> {{ assurance.montantCouverture | number:'1.0-0' }} TND</p>
         <p><strong>Durée :</strong> {{ assurance.dureeValidite }} jours</p>
+        <p><strong>Statut après validation :</strong> En attente de paiement</p>
+<p style="color: var(--assurance-text-soft); line-height:1.65;">
+  Le numéro de contrat, le montant payé et la date de fin seront générés automatiquement après la validation.
+</p>
         <p style="color: var(--assurance-text-soft); line-height:1.65;">
           {{ assurance.description }}
         </p>
@@ -26,25 +30,14 @@
         <h3 class="assurance-card-title">Informations de souscription</h3>
 
         <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
-          <div class="assurance-field">
-            <label>Numéro de contrat</label>
-            <input type="text" formControlName="numeroContrat" placeholder="Ex: CC-2026-0012" />
-          </div>
+          
 
           <div class="assurance-field">
             <label>Date de début</label>
             <input type="date" formControlName="dateDebut" />
           </div>
 
-          <div class="assurance-field">
-            <label>Date de fin</label>
-            <input type="date" formControlName="dateFin" />
-          </div>
-
-          <div class="assurance-field">
-            <label>Montant payé</label>
-            <input type="number" formControlName="montantPaye" />
-          </div>
+          
 
           <div class="assurance-field">
             <label>Nom du bénéficiaire</label>
@@ -60,8 +53,8 @@
           <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
 
           <button type="submit" class="assurance-btn assurance-btn-primary" [disabled]="submitting">
-            {{ submitting ? 'Envoi en cours...' : 'Confirmer la souscription' }}
-          </button>
+  {{ submitting ? 'Redirection vers paiement...' : 'Continuer vers le paiement' }}
+</button>
         </form>
       </article>
     </div>

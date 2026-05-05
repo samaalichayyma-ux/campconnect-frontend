@@ -38,7 +38,7 @@ export class SouscriptionFormComponent implements OnInit {
     this.loadAssurance();
   }
 
-  initForm(): void {
+  /*initForm(): void {
     this.form = this.fb.group({
       numeroContrat: ['', [Validators.required, Validators.minLength(4)]],
       dateDebut: ['', Validators.required],
@@ -47,7 +47,15 @@ export class SouscriptionFormComponent implements OnInit {
       beneficiaireNom: ['', [Validators.required, Validators.minLength(2)]],
       beneficiaireTelephone: ['', [Validators.required, Validators.minLength(8)]]
     });
-  }
+  }*/
+
+    initForm(): void {
+  this.form = this.fb.group({
+    dateDebut: ['', Validators.required],
+    beneficiaireNom: ['', [Validators.required, Validators.minLength(2)]],
+    beneficiaireTelephone: ['', [Validators.required, Validators.minLength(8)]]
+  });
+}
 
   loadAssurance(): void {
     this.loading = true;
@@ -55,9 +63,7 @@ export class SouscriptionFormComponent implements OnInit {
     this.assuranceService.getAssuranceById(this.assuranceId).subscribe({
       next: (assurance) => {
         this.assurance = assurance;
-        this.form.patchValue({
-          montantPaye: assurance.prime
-        });
+       
         this.loading = false;
       },
       error: (error) => {
@@ -69,33 +75,53 @@ export class SouscriptionFormComponent implements OnInit {
   }
 
   submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
-    const payload: SouscriptionAssurance = {
-      ...this.form.value,
-      statut: StatutSouscription.EN_ATTENTE
-    };
-
-    this.submitting = true;
-    this.successMessage = '';
-    this.errorMessage = '';
-
-    this.assuranceService.addSouscription(this.assuranceId, payload).subscribe({
-      next: () => {
-        this.successMessage = 'Votre demande de souscription a été enregistrée avec succès.';
-        this.submitting = false;
-        setTimeout(() => this.router.navigate(['/public/assurances/mes-souscriptions']), 1200);
-      },
-      error: (error) => {
-        console.error(error);
-        this.errorMessage = 'Échec de la souscription. Veuillez réessayer.';
-        this.submitting = false;
-      }
-    });
+  if (this.form.invalid) {
+    this.form.markAllAsTouched();
+    return;
   }
+
+  const payload: SouscriptionAssurance = {
+    numeroContrat: '',
+    dateDebut: this.form.value.dateDebut,
+    dateFin: '',
+    montantPaye: 0,
+    beneficiaireNom: this.form.value.beneficiaireNom,
+    beneficiaireTelephone: this.form.value.beneficiaireTelephone,
+    statut: StatutSouscription.EN_ATTENTE
+  };
+
+  this.submitting = true;
+  this.successMessage = '';
+  this.errorMessage = '';
+
+  this.assuranceService.addSouscription(this.assuranceId, payload).subscribe({
+    next: (souscription) => {
+      if (!souscription.id) {
+        this.errorMessage = 'Souscription créée, mais identifiant introuvable.';
+        this.submitting = false;
+        return;
+      }
+
+      this.assuranceService.createAssuranceCheckoutSession(souscription.id).subscribe({
+        next: (checkout) => {
+          window.location.href = checkout.checkoutUrl;
+        },
+        error: (error) => {
+          console.error(error);
+          this.errorMessage = 'Souscription créée, mais impossible de lancer le paiement.';
+          this.submitting = false;
+        }
+      });
+    },
+    error: (error) => {
+      console.error(error);
+      this.errorMessage =
+        error?.error?.message ||
+        'Échec de la souscription. Vérifiez que vous n’avez pas déjà une assurance active.';
+      this.submitting = false;
+    }
+  });
+}
 
   get f() {
     return this.form.controls;

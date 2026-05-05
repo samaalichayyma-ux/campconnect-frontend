@@ -7,10 +7,15 @@ import {
   SouscriptionAssurance,
   Sinistre,
   Remboursement,
-  DocumentAssurance
+  DocumentAssurance,
+  ReclamationLight,
+  StatutSouscription,
+  WeatherVerificationRequest,
+  WeatherVerificationResponse
 } from '../models/assurance.models';
 import { forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
+import { CurrentWeatherResponse } from '../models/assurance.models';
 
 @Injectable({
   providedIn: 'root'
@@ -128,6 +133,40 @@ export class AssuranceService {
     );
   }
 
+  addSouscriptionForReservation(
+  assuranceId: number,
+  reservationId: number,
+  payload: SouscriptionAssurance
+): Observable<SouscriptionAssurance> {
+  const userId = this.getUserIdFromToken();
+
+  if (!userId) {
+    throw new Error('Utilisateur non authentifié ou userId introuvable dans le token.');
+  }
+
+  return this.http.post<SouscriptionAssurance>(
+    `${this.apiUrl}/souscription-assurance/add/reservation/${userId}/${assuranceId}/${reservationId}`,
+    payload
+  );
+}
+
+addSouscriptionForInscriptionSite(
+  assuranceId: number,
+  inscriptionSiteId: number,
+  payload: SouscriptionAssurance
+): Observable<SouscriptionAssurance> {
+  const userId = this.getUserIdFromToken();
+
+  if (!userId) {
+    throw new Error('Utilisateur non authentifié ou userId introuvable dans le token.');
+  }
+
+  return this.http.post<SouscriptionAssurance>(
+    `${this.apiUrl}/souscription-assurance/add/inscription-site/${userId}/${assuranceId}/${inscriptionSiteId}`,
+    payload
+  );
+}
+
   updateSouscription(payload: SouscriptionAssurance): Observable<SouscriptionAssurance> {
     return this.http.put<SouscriptionAssurance>(
       `${this.apiUrl}/souscription-assurance/update`,
@@ -179,6 +218,17 @@ export class AssuranceService {
   addSinistre(souscriptionId: number, payload: Sinistre): Observable<Sinistre> {
     return this.http.post<Sinistre>(`${this.apiUrl}/sinistre/add/${souscriptionId}`, payload);
   }
+
+  addSinistreFromReclamation(
+  souscriptionId: number,
+  reclamationId: number,
+  payload: Sinistre
+): Observable<Sinistre> {
+  return this.http.post<Sinistre>(
+    `${this.apiUrl}/sinistre/add/reclamation/${souscriptionId}/${reclamationId}`,
+    payload
+  );
+}
 
   updateSinistre(payload: Sinistre): Observable<Sinistre> {
     return this.http.put<Sinistre>(`${this.apiUrl}/sinistre/update`, payload);
@@ -240,4 +290,132 @@ export class AssuranceService {
   deleteRemboursement(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/remboursement/delete/${id}`);
   }
+
+  getMyReclamations(): Observable<ReclamationLight[]> {
+  const userId = this.getUserIdFromToken();
+
+  if (!userId) {
+    throw new Error('Utilisateur non authentifié ou userId introuvable dans le token.');
+  }
+
+  return this.http.get<ReclamationLight[]>(
+    `${this.apiUrl}/reclamation/user/${userId}`
+  );
+}
+
+createAssuranceCheckoutSession(souscriptionId: number): Observable<{ sessionId: string; checkoutUrl: string }> {
+  return this.http.post<{ sessionId: string; checkoutUrl: string }>(
+    `${this.apiUrl}/souscription-assurance/${souscriptionId}/checkout-session`,
+    {}
+  );
+}
+
+syncAssuranceCheckoutSession(sessionId: string): Observable<SouscriptionAssurance> {
+  return this.http.post<SouscriptionAssurance>(
+    `${this.apiUrl}/souscription-assurance/checkout-session/sync`,
+    { sessionId }
+  );
+}
+
+updateSouscriptionStatut(
+  souscriptionId: number,
+  statut: StatutSouscription
+): Observable<SouscriptionAssurance> {
+  return this.http.put<SouscriptionAssurance>(
+    `${this.apiUrl}/souscription-assurance/${souscriptionId}/statut`,
+    {},
+    { params: { statut } }
+  );
+}
+
+
+
+// =========================
+// AI
+// =========================
+
+analyseSinistreAi(description: string): Observable<string> {
+  return this.http.post(
+    `${this.apiUrl}/assurance-ai/analyse-sinistre`,
+    { description },
+    { responseType: 'text' }
+  );
+}
+
+detectFraudeAi(utilisateurId: number): Observable<string> {
+  return this.http.post(
+    `${this.apiUrl}/assurance-ai/fraude-sinistre/${utilisateurId}`,
+    {},
+    { responseType: 'text' }
+  );
+}
+
+askAssistantAssurance(question: string): Observable<string> {
+  return this.http.post(
+    `${this.apiUrl}/assurance-ai/assistant`,
+    { question },
+    { responseType: 'text' }
+  );
+}
+
+resumeSinistreAi(sinistreId: number): Observable<string> {
+  return this.http.post(
+    `${this.apiUrl}/assurance-ai/resume-sinistre/${sinistreId}`,
+    {},
+    { responseType: 'text' }
+  );
+}
+
+detectFraudeBySinistreAi(sinistreId: number): Observable<string> {
+  return this.http.post(
+    `${this.apiUrl}/assurance-ai/fraude-sinistre-by-sinistre/${sinistreId}`,
+    {},
+    { responseType: 'text' }
+  );
+}
+
+parseAiJson<T>(response: string): T {
+  try {
+    const cleaned = response
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
+
+    return JSON.parse(cleaned) as T;
+  } catch (error) {
+    console.error('Réponse IA non JSON :', response);
+    throw new Error('La réponse IA n’est pas un JSON valide.');
+  }
+}
+
+
+
+verifierMeteoSinistre(
+  payload: WeatherVerificationRequest
+): Observable<WeatherVerificationResponse> {
+  return this.http.post<WeatherVerificationResponse>(
+    `${this.apiUrl}/assurance-weather/verifier`,
+    payload
+  );
+}
+
+verifierMeteoBySinistre(
+  sinistreId: number
+): Observable<WeatherVerificationResponse> {
+  return this.http.post<WeatherVerificationResponse>(
+    `${this.apiUrl}/assurance-weather/verifier-sinistre/${sinistreId}`,
+    {}
+  );
+}
+
+
+getCurrentWeather(city: string): Observable<CurrentWeatherResponse> {
+  return this.http.get<CurrentWeatherResponse>(
+    `${this.apiUrl}/assurance-weather/current`,
+    {
+      params: { city }
+    }
+  );
+}
+
 }

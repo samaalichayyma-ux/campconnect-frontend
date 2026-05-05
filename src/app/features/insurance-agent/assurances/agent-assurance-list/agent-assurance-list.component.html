@@ -1,52 +1,128 @@
-<div class="assurance-page">
-  <section class="assurance-hero">
-    <h1 class="assurance-title">Consultation des offres d’assurance</h1>
-    <p class="assurance-subtitle">
-      Consultez les offres disponibles et suivez les souscriptions, sinistres et remboursements.
-    </p>
+<div class="agent-page">
+  <!-- HERO -->
+  <section class="agent-hero">
+    <div>
+      <p class="agent-kicker">Module assurance</p>
+
+      <h1>Gestion des offres d’assurance</h1>
+
+      <p>
+        L’agent assurance peut gérer les offres, garanties, souscriptions,
+        sinistres et remboursements comme l’administrateur.
+      </p>
+    </div>
+
+    <a
+      routerLink="/insurance-agent/assurances/new"
+      class="agent-primary-btn"
+    >
+      + Nouvelle assurance
+    </a>
   </section>
 
-  <div *ngIf="loading" class="assurance-loading">Chargement des offres...</div>
-  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+  <!-- RACCOURCIS -->
+  <section class="agent-shortcuts">
+    <a routerLink="/insurance-agent/souscriptions">
+      <span>📄</span>
+      Souscriptions
+    </a>
 
-  <section class="assurance-grid" *ngIf="assurances.length">
-    <article class="assurance-card" *ngFor="let assurance of assurances">
-      <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-        <span class="assurance-badge badge-active">
+    <a routerLink="/insurance-agent/sinistres">
+      <span>⚠️</span>
+      Sinistres
+    </a>
+
+    <a routerLink="/insurance-agent/remboursements">
+      <span>💰</span>
+      Remboursements
+    </a>
+
+    <a routerLink="/insurance-agent/statistiques">
+      <span>📊</span>
+      Statistiques
+    </a>
+  </section>
+
+  <!-- MESSAGES -->
+  <div *ngIf="successMessage" class="agent-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="agent-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="agent-loading">
+    Chargement des offres...
+  </div>
+
+  <!-- LISTE ASSURANCES -->
+  <section class="agent-grid" *ngIf="!loading && assurances.length">
+    <article class="agent-card" *ngFor="let assurance of assurances">
+      <div class="agent-card-top">
+        <span class="agent-badge">
           {{ typeLabels[assurance.typeAssurance] }}
         </span>
 
-        <span class="assurance-badge" [ngClass]="assurance.active ? 'badge-active' : 'badge-rejete'">
+        <span
+          class="agent-status"
+          [ngClass]="assurance.active ? 'active' : 'inactive'"
+        >
           {{ assurance.active ? 'Active' : 'Inactive' }}
         </span>
       </div>
 
-      <h3 class="assurance-card-title" style="margin-top:1rem;">
-        {{ assurance.titre }}
-      </h3>
+      <h3>{{ assurance.titre }}</h3>
 
-      <p style="color: var(--assurance-text-soft); line-height:1.65;">
+      <p class="agent-description">
         {{ assurance.description }}
       </p>
 
-      <div style="margin-top:1rem;">
-        <p><strong>Prime :</strong> {{ assurance.prime }} TND</p>
-        <p><strong>Couverture :</strong> {{ assurance.montantCouverture }} TND</p>
+      <div class="agent-info-grid">
+        <div>
+          <span>Prime</span>
+          <strong>{{ assurance.prime | number:'1.2-2' }} TND</strong>
+        </div>
+
+        <div>
+          <span>Couverture</span>
+          <strong>{{ assurance.montantCouverture | number:'1.0-0' }} TND</strong>
+        </div>
+
+        <div>
+          <span>Durée</span>
+          <strong>{{ assurance.dureeValidite }} jours</strong>
+        </div>
       </div>
 
-      <div style="display:flex; gap:.7rem; flex-wrap:wrap; margin-top:1rem;">
-        <a routerLink="/insurance-agent/souscriptions" class="assurance-btn assurance-btn-primary" style="text-decoration:none;">
-          Souscriptions
+      <div class="agent-actions">
+        <a
+          [routerLink]="['/insurance-agent/assurances', assurance.id, 'edit']"
+          class="agent-btn secondary"
+        >
+          Modifier
         </a>
 
-        <a routerLink="/insurance-agent/sinistres" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
-          Sinistres
+        <a
+          [routerLink]="['/insurance-agent/assurances', assurance.id, 'garanties']"
+          class="agent-btn olive"
+        >
+          Garanties
         </a>
 
-        <a routerLink="/insurance-agent/remboursements" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
-          Remboursements
-        </a>
+        <button
+          type="button"
+          class="agent-btn danger"
+          (click)="deleteAssurance(assurance.id)"
+        >
+          Supprimer
+        </button>
       </div>
     </article>
   </section>
+
+  <!-- EMPTY -->
+  <div *ngIf="!loading && !assurances.length" class="agent-empty">
+    Aucune assurance disponible.
+  </div>
 </div>

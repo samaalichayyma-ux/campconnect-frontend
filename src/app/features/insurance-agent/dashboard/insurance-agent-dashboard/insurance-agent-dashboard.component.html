@@ -1,57 +1,287 @@
-<div class="agent-dashboard">
-  <section class="dashboard-hero">
+<div class="stats-dashboard">
+  <section class="stats-hero">
     <div>
-      <span class="hero-badge">CampConnect Insurance</span>
-      <h1>Insurance Agent Dashboard</h1>
+      <p class="stats-kicker">Insurance Analytics</p>
+      <h1>Insurance Dashboard</h1>
       <p>
-        Manage insurance follow-up, monitor subscriptions, claims and refunds from one professional workspace.
+        Monitor active insurance offers, subscriptions, claims, reimbursements,
+        weather risks and AI fraud indicators from one place.
       </p>
+    </div>
 
-      <div class="hero-actions">
-        <a routerLink="/insurance-agent/assurances" class="btn btn-primary">
-          View Offers
-        </a>
+    <button
+      type="button"
+      class="stats-refresh-btn"
+      (click)="loadDashboardStats(); loadCurrentWeather()"
+      [disabled]="loading || weatherLoading"
+    >
+      {{ loading || weatherLoading ? 'Refreshing...' : 'Refresh data' }}
+    </button>
+  </section>
 
-        <a routerLink="/insurance-agent/souscriptions" class="btn btn-secondary">
-          Subscriptions
-        </a>
+  <div *ngIf="loading" class="stats-loading">
+    Loading insurance statistics...
+  </div>
+
+  <div *ngIf="errorMessage" class="stats-error">
+    {{ errorMessage }}
+  </div>
+
+  <section class="stats-grid" *ngIf="!loading">
+    <article class="stats-card olive">
+      <div class="stats-icon">🛡️</div>
+      <div>
+        <p>Active insurance offers</p>
+        <h2>{{ activeAssurancesCount }}</h2>
+        <span>Total offers: {{ assurances.length }}</span>
+      </div>
+    </article>
+
+    <article class="stats-card green">
+      <div class="stats-icon">📄</div>
+      <div>
+        <p>Subscriptions</p>
+        <h2>{{ souscriptionsCount }}</h2>
+        <span>All customer subscriptions</span>
+      </div>
+    </article>
+
+    <article class="stats-card success">
+      <div class="stats-icon">✅</div>
+      <div>
+        <p>Accepted claims</p>
+        <h2>{{ sinistresAcceptesCount }}</h2>
+        <span>{{ getAcceptedRate() }}% of all claims</span>
+      </div>
+    </article>
+
+    <article class="stats-card danger">
+      <div class="stats-icon">❌</div>
+      <div>
+        <p>Rejected claims</p>
+        <h2>{{ sinistresRefusesCount }}</h2>
+        <span>{{ getRefusedRate() }}% of all claims</span>
+      </div>
+    </article>
+
+    <article class="stats-card orange">
+      <div class="stats-icon">💰</div>
+      <div>
+        <p>Total reimbursed amount</p>
+        <h2>{{ montantTotalRembourse | number:'1.2-2' }} TND</h2>
+        <span>Confirmed reimbursements</span>
+      </div>
+    </article>
+
+    <article class="stats-card dark">
+      <div class="stats-icon">⭐</div>
+      <div>
+        <p>Most used insurance</p>
+        <h2 class="small-title">{{ assurancePlusUtilisee }}</h2>
+        <span>{{ assurancePlusUtiliseeCount }} subscription(s)</span>
+      </div>
+    </article>
+  </section>
+
+  <!-- Weather current section -->
+  <section class="weather-dashboard-panel" *ngIf="!loading">
+    <div class="weather-top">
+      <div>
+        <p class="stats-kicker">Live Weather API</p>
+        <h2>Current weather risk</h2>
+        <p>
+          Check current weather conditions for a camping destination and monitor
+          possible insurance-related risks.
+        </p>
+      </div>
+
+      <div class="weather-search">
+        <input
+          type="text"
+          [(ngModel)]="weatherCity"
+          placeholder="City, e.g. Tabarka"
+          (keydown.enter)="loadCurrentWeather()"
+        />
+
+        <button
+          type="button"
+          (click)="loadCurrentWeather()"
+          [disabled]="weatherLoading"
+        >
+          {{ weatherLoading ? 'Loading...' : 'Check weather' }}
+        </button>
       </div>
     </div>
 
-    <div class="hero-card">
-      <span>Agent Space</span>
-      <h2>Insurance</h2>
-      <p>Secure access for insurance operations</p>
+    <div *ngIf="weatherError" class="stats-error">
+      {{ weatherError }}
+    </div>
+
+    <div *ngIf="weatherLoading" class="stats-loading">
+      Loading current weather...
+    </div>
+
+    <div *ngIf="currentWeather && !weatherLoading" class="weather-content">
+      <div class="weather-main-card" [ngClass]="getWeatherRiskClass()">
+        <div class="weather-location">
+          <div>
+            <p>{{ currentWeather.ville }}, {{ currentWeather.pays }}</p>
+            <span>{{ currentWeather.localtime }}</span>
+          </div>
+
+          <img
+            *ngIf="currentWeather.icon"
+            [src]="'https:' + currentWeather.icon"
+            alt="Weather icon"
+          />
+        </div>
+
+        <div class="weather-temperature">
+          <strong>{{ currentWeather.temperatureC | number:'1.0-0' }}°C</strong>
+          <span>Feels like {{ currentWeather.feelsLikeC | number:'1.0-0' }}°C</span>
+        </div>
+
+        <p class="weather-condition">
+          {{ currentWeather.condition }}
+        </p>
+      </div>
+
+      <div class="weather-metrics">
+        <div>
+          <span>Wind speed</span>
+          <strong>{{ currentWeather.windKph | number:'1.0-0' }} km/h</strong>
+        </div>
+
+        <div>
+          <span>Humidity</span>
+          <strong>{{ currentWeather.humidity | number:'1.0-0' }}%</strong>
+        </div>
+
+        <div>
+          <span>Precipitation</span>
+          <strong>{{ currentWeather.precipitationMm | number:'1.1-1' }} mm</strong>
+        </div>
+
+        <div>
+          <span>Insurance advice</span>
+          <strong>{{ currentWeather.conseilAssurance }}</strong>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="stats-grid">
-    <article class="stat-card">
-      <div class="stat-icon">🛡️</div>
-      <h3>Insurance Offers</h3>
-      <p>View all available insurance offers.</p>
-      <a routerLink="/insurance-agent/assurances">Open offers →</a>
+  <section class="stats-main-grid" *ngIf="!loading">
+    <!-- IA Fraud -->
+    <article class="stats-ai-panel">
+      <div class="stats-panel-header">
+        <div>
+          <p class="stats-kicker">AI Fraud Detection</p>
+          <h2>Fraud risk rate</h2>
+          <p>
+            Run an AI analysis on existing claims to calculate the percentage
+            of high-risk fraud cases.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="stats-ai-btn"
+          (click)="analyserTauxFraudeIa()"
+          [disabled]="fraudeLoading || !sinistres.length"
+        >
+          {{ fraudeLoading ? 'Analyzing...' : 'Run AI fraud scan' }}
+        </button>
+      </div>
+
+      <div *ngIf="fraudeError" class="stats-error">
+        {{ fraudeError }}
+      </div>
+
+      <div class="fraud-result">
+        <div class="fraud-circle">
+          <span>{{ getFraudeDisplayValue() }}</span>
+        </div>
+
+        <div class="fraud-details">
+          <div>
+            <strong>{{ fraudeAnalyzedCount }}</strong>
+            <span>Analyzed claims</span>
+          </div>
+
+          <div>
+            <strong>{{ fraudeHighRiskCount }}</strong>
+            <span>High-risk cases</span>
+          </div>
+
+          <div>
+            <strong>{{ sinistres.length }}</strong>
+            <span>Total claims</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="stats-note">
+        Note: the AI fraud rate is calculated only after running the scan.
+        A claim is considered high risk when the AI score is greater than or equal to 70%.
+      </p>
     </article>
 
-    <article class="stat-card">
-      <div class="stat-icon">📄</div>
-      <h3>Subscriptions</h3>
-      <p>Follow client insurance subscriptions.</p>
-      <a routerLink="/insurance-agent/souscriptions">Open subscriptions →</a>
-    </article>
+    <!-- Recent claims -->
+    <article class="stats-table-panel">
+      <div class="stats-panel-header">
+        <div>
+          <p class="stats-kicker">Recent Claims</p>
+          <h2>Latest claim activity</h2>
+        </div>
 
-    <article class="stat-card">
-      <div class="stat-icon">⚠️</div>
-      <h3>Claims</h3>
-      <p>Process and monitor insurance claims.</p>
-      <a routerLink="/insurance-agent/sinistres">Open claims →</a>
-    </article>
+        <a routerLink="/insurance-agent/sinistres" class="stats-link">
+          View all claims
+        </a>
+      </div>
 
-    <article class="stat-card">
-      <div class="stat-icon">💰</div>
-      <h3>Refunds</h3>
-      <p>Manage refunds and reimbursement requests.</p>
-      <a routerLink="/insurance-agent/remboursements">Open refunds →</a>
+      <div *ngIf="!recentSinistres.length" class="stats-empty">
+        No claims available.
+      </div>
+
+      <div class="claim-list" *ngIf="recentSinistres.length">
+        <div class="claim-row" *ngFor="let sinistre of recentSinistres">
+          <div>
+            <strong>{{ sinistre.typeSinistre || 'Claim' }}</strong>
+            <span>{{ sinistre.dateDeclaration || '-' }}</span>
+          </div>
+
+          <div>
+            <span>{{ sinistre.montantEstime || 0 | number:'1.2-2' }} TND</span>
+          </div>
+
+          <span
+            class="claim-status"
+            [ngClass]="getSinistreStatusClass(sinistre.statut)"
+          >
+            {{ getSinistreStatusLabel(sinistre.statut) }}
+          </span>
+        </div>
+      </div>
     </article>
+  </section>
+
+  <section class="stats-actions" *ngIf="!loading">
+    <a routerLink="/insurance-agent/assurances" class="stats-action-card">
+      <span>🛡️</span>
+      <strong>Manage offers</strong>
+      <p>Create, update and organize insurance offers.</p>
+    </a>
+
+    <a routerLink="/insurance-agent/souscriptions" class="stats-action-card">
+      <span>📄</span>
+      <strong>Review subscriptions</strong>
+      <p>Follow customer subscriptions and status updates.</p>
+    </a>
+
+    <a routerLink="/insurance-agent/remboursements" class="stats-action-card">
+      <span>💰</span>
+      <strong>Manage reimbursements</strong>
+      <p>Track reimbursement operations and claim payments.</p>
+    </a>
   </section>
 </div>

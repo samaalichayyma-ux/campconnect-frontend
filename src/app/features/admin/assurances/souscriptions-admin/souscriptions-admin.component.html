@@ -6,10 +6,19 @@
     </p>
   </section>
 
-  <div *ngIf="loading" class="assurance-loading">Chargement des souscriptions...</div>
-  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+  <div *ngIf="loading" class="assurance-loading">
+    Chargement des souscriptions...
+  </div>
 
-  <section class="assurance-grid" *ngIf="souscriptions.length">
+  <div *ngIf="successMessage" class="assurance-empty">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="assurance-error">
+    {{ errorMessage }}
+  </div>
+
+  <section class="assurance-grid" *ngIf="!loading && souscriptions.length">
     <article class="assurance-card" *ngFor="let souscription of souscriptions">
       <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
         <h3 class="assurance-card-title">
@@ -21,7 +30,7 @@
         </span>
       </div>
 
-      <p><strong>N° contrat :</strong> {{ souscription.numeroContrat }}</p>
+      <p><strong>N° contrat :</strong> {{ souscription.numeroContrat || 'En attente' }}</p>
       <p><strong>Client :</strong> {{ souscription.utilisateur?.nom || '-' }}</p>
       <p><strong>Email :</strong> {{ souscription.utilisateur?.email || '-' }}</p>
       <p><strong>Date début :</strong> {{ souscription.dateDebut }}</p>
@@ -29,6 +38,22 @@
       <p><strong>Montant payé :</strong> {{ souscription.montantPaye | number:'1.2-2' }} TND</p>
       <p><strong>Bénéficiaire :</strong> {{ souscription.beneficiaireNom }}</p>
       <p><strong>Téléphone :</strong> {{ souscription.beneficiaireTelephone }}</p>
+
+      <div class="assurance-field" style="margin-top:1rem;">
+        <label>Modifier le statut</label>
+
+        <select
+          [value]="souscription.statut"
+          (change)="changeStatut(souscription.id, $event)"
+        >
+          <option value="EN_ATTENTE">En attente</option>
+          <option value="ACTIVE">Active</option>
+          <option value="EXPIREE">Expirée</option>
+          <option value="ANNULEE">Annulée</option>
+          <option value="SUSPENDUE">Suspendue</option>
+          <option value="REFUSEE">Refusée</option>
+        </select>
+      </div>
     </article>
   </section>
 

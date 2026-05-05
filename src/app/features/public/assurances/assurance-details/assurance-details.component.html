@@ -47,18 +47,37 @@
       </div>
     </section>
 
+    <div *ngIf="!canSubscribe" class="assurance-error" style="margin-top: 1.5rem;">
+  Vous devez d’abord réserver un événement ou vous inscrire à un site de camping avant de souscrire une assurance.
+</div>
+
+<div *ngIf="canSubscribe" class="assurance-success" style="margin-top: 1.5rem;">
+  Vous êtes éligible à la souscription d’une assurance.
+</div>
+
     <div style="margin-top: 1.5rem; display:flex; gap:1rem; flex-wrap:wrap;">
       <a routerLink="/public/assurances" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
         Retour à la liste
       </a>
 
       <a
-        [routerLink]="['/public/assurances', assurance.id, 'souscrire']"
-        class="assurance-btn assurance-btn-primary"
-        style="text-decoration:none;"
-      >
-        Souscrire maintenant
-      </a>
+  *ngIf="canSubscribe"
+  [routerLink]="['/public/assurances', assurance.id, 'souscrire']"
+  class="assurance-btn assurance-btn-primary"
+  style="text-decoration:none;"
+>
+  Souscrire maintenant
+</a>
+
+<button
+  *ngIf="!canSubscribe"
+  class="assurance-btn assurance-btn-primary"
+  disabled
+  style="opacity: 0.5; cursor: not-allowed;"
+  title="Vous devez d'abord réserver un événement ou vous inscrire à un site."
+>
+  Souscrire maintenant
+</button>
     </div>
   </ng-container>
 </div>

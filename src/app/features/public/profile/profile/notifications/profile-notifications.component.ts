@@ -79,19 +79,21 @@ export class ProfileNotificationsComponent implements OnInit {
   }
 
   getTypeLabel(type: string): string {
-    switch (type) {
-      case 'WELCOME':
-        return 'Bienvenue';
-      case 'SECURITY':
-        return 'Sécurité';
-      case 'PASSWORD_RESET':
-        return 'Mot de passe';
-      case 'PROFILE_UPDATED':
-        return 'Profil';
-      case 'GOOGLE_LOGIN':
-        return 'Google';
-      default:
-        return type;
-    }
+  switch (type) {
+    case 'WELCOME':
+      return 'Bienvenue';
+    case 'SECURITY':
+      return 'Sécurité';
+    case 'PASSWORD_RESET':
+      return 'Mot de passe';
+    case 'PROFILE_UPDATED':
+      return 'Profil';
+    case 'GOOGLE_LOGIN':
+      return 'Google';
+    case 'ASSURANCE_REMBOURSEMENT':
+      return 'Assurance';
+    default:
+      return type;
   }
+}
 }

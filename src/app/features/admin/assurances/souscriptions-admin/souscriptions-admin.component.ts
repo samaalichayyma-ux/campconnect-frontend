@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AssuranceService } from '../../../../core/services/assurance.service';
+import { StatutSouscription } from '../../../../core/models/assurance.models';
 import {
   SouscriptionAssurance,
   STATUT_SOUSCRIPTION_LABELS
@@ -17,6 +18,7 @@ export class SouscriptionsAdminComponent implements OnInit {
   souscriptions: SouscriptionAssurance[] = [];
   loading = false;
   errorMessage = '';
+  successMessage = '';
 
   readonly statusLabels = STATUT_SOUSCRIPTION_LABELS;
 
@@ -57,4 +59,22 @@ export class SouscriptionsAdminComponent implements OnInit {
         return 'badge-pending';
     }
   }
+
+  changeStatut(id: number | undefined, event: Event): void {
+  if (!id) return;
+
+  const statut = (event.target as HTMLSelectElement).value as StatutSouscription;
+
+  this.assuranceService.updateSouscriptionStatut(id, statut).subscribe({
+    next: () => {
+      this.successMessage = 'Statut de la souscription modifié avec succès.';
+      this.loadSouscriptions();
+    },
+    error: (error) => {
+      console.error(error);
+      this.errorMessage = 'Impossible de modifier le statut.';
+    }
+  });
+}
+
 }
