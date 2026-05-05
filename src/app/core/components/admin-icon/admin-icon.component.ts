@@ -284,7 +284,24 @@ import { Component, Input } from '@angular/core';
           <path d="M12 8v5"></path>
           <path d="M12 16h.01"></path>
         </ng-container>
+        <ng-container *ngSwitchCase="'camping'">
+          <path d="M3 20l9-16 9 16"></path>
+          <path d="M3 20h18"></path>
+          <path d="M12 8v12"></path>
+        </ng-container>
 
+        <ng-container *ngSwitchCase="'delivery'">
+            <path d="M1 3h15v13H1z"></path>
+            <path d="M16 8h4l3 3v5h-7z"></path>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="'complaints'">
+            <path d="M10.29 3.86l-7.4 12.8A1 1 0 003.75 18h16.5a1 1 0 00.86-1.54l-7.4-12.8a1 1 0 00-1.72 0z"></path>
+            <path d="M12 9v4"></path>
+            <circle cx="12" cy="15" r="1"></circle>
+          </ng-container>
         <ng-container *ngSwitchDefault>
           <circle cx="12" cy="12" r="9"></circle>
         </ng-container>

@@ -49,31 +49,40 @@ export class LivreurDashboardComponent implements OnInit {
   ];
 
   modules = [
-    {
-      title: 'My Delivery',
-      subtitle: 'View assigned deliveries',
-      icon: 'reservations',
-      link: '/admin/livraison/mine'
-    },
-    {
-      title: 'Update Status',
-      subtitle: 'Change delivery progress',
-      icon: 'events',
-      link: '/admin/livraison/mine'
-    },
-    {
-      title: 'History',
-      subtitle: 'See completed deliveries',
-      icon: 'guides',
-      link: '/admin/livraison/mine'
-    }
-  ];
+  {
+    title: 'My Delivery',
+    subtitle: 'View assigned deliveries',
+    icon: 'reservations',
+    link: '/admin/livraison/mine'
+  },
+  {
+    title: 'Wallet & Tips',
+    subtitle: 'View tips, ratings and balance',
+    icon: 'assurances',
+    link: '/admin/livraison/wallet'
+  },
+  {
+    title: 'History',
+    subtitle: 'See completed deliveries',
+    icon: 'guides',
+    link: '/admin/livraison/mine'
+  }
+];
 
   recentActivities: { action: string; user: string; date: string }[] = [];
+
+  wallet: any = null;
+  tips: any[] = [];
+
+  walletBalance = 0;
+  totalTips = 0;
+  avgRating = 0;
 
 ngOnInit(): void {
   this.loadStats();
   this.loadMyLivraisons();
+  this.loadWallet();
+  this.loadTips();
 }
 
 loadMyLivraisons(): void {
@@ -130,4 +139,41 @@ loadStats(): void {
     if (this.stats[2].value > 0) return 'On Delivery';
     return 'Available';
   }
+
+  loadWallet(): void {
+  this.livraisonService.getMyLivreurWallet().subscribe({
+    next: (data) => {
+      this.wallet = data;
+      this.walletBalance = data?.balance || 0;
+    },
+    error: (err) => {
+      console.error('Error while loading wallet', err);
+    }
+  });
+}
+
+loadTips(): void {
+  this.livraisonService.getMyLivreurTips().subscribe({
+    next: (data) => {
+      this.tips = data || [];
+
+      this.totalTips = this.tips.reduce(
+        (sum, tip) => sum + (tip.amount || 0),
+        0
+      );
+
+      const ratedTips = this.tips.filter(tip => tip.rating);
+      this.avgRating = ratedTips.length
+        ? ratedTips.reduce((sum, tip) => sum + tip.rating, 0) / ratedTips.length
+        : 0;
+    },
+    error: (err) => {
+      console.error('Error while loading tips', err);
+    }
+  });
+}
+
+getStars(rating: number): string {
+  return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+}
 }

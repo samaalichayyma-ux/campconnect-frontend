@@ -1,0 +1,51 @@
+.payment-result-page {
+  min-height: 100vh;
+  background: #f4ede4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.result-card {
+  width: 100%;
+  max-width: 460px;
+  background: #fffaf5;
+  border-radius: 26px;
+  padding: 34px;
+  text-align: center;
+  box-shadow: 0 18px 40px rgba(28, 42, 57, 0.12);
+}
+
+.icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #fde3e3;
+  color: #8f2525;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+}
+
+h1 {
+  margin: 0 0 10px;
+  color: #1c2a39;
+}
+
+p {
+  color: #68737f;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-top: 18px;
+  background: #1f3d2b;
+  color: white;
+  text-decoration: none;
+  padding: 11px 18px;
+  border-radius: 999px;
+  font-weight: 800;
+}

@@ -105,6 +105,11 @@
              routerLink="/public/livraison/demo-checkout" (click)="closeDropdown()">
               Order with Delivery
             </a>
+            <a
+            [class.disabled]="isAdmin()"
+             routerLink="my-deliveries" (click)="closeDropdown()">
+              My Deliveries
+            </a>
 
             <a routerLink="/public/profile" (click)="closeDropdown()">
   Profile

@@ -112,6 +112,11 @@ import { AvailableOrdersComponent } from './features/admin/livraison/available-o
 import { PaymentCommandSuccessComponent } from './features/public/livraison/payment-command-success/payment-command-success.component';
 import { PaymentCommandCancelComponent } from './features/public/livraison/payment-command-cancel/payment-command-cancel.component';
 import { DemoCheckoutComponent } from './features/public/livraison/demo-checkout/demo-checkout.component';
+import { ClientMyDeliveriesComponent } from './features/public/livraison/client-my-deliveries/client-my-deliveries.component';
+import { ClientDeliveryDetailComponent } from './features/public/livraison/client-delivery-detail/client-delivery-detail.component';
+import { LivreurWalletComponent } from './features/admin/livraison/livreur-wallet/livreur-wallet.component';
+import { AdminLivreurWalletsComponent } from './features/admin/livraison/admin-livreur-wallets/admin-livreur-wallets.component';
+import { AdminLivraisonDetailComponent } from './features/admin/livraison/admin-livraison-detail/admin-livraison-detail.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
 
@@ -182,9 +187,14 @@ export const routes: Routes = [
 { path: 'assurances/souscriptions', component: SouscriptionsAdminComponent },
       { path: 'livraison/dashboard', component: LivreurDashboardComponent},
       { path: 'livraison/all', component: LivraisonListComponent },
+       { path: 'detail-livraison/:id',component: AdminLivraisonDetailComponent },
+
+       
       { path: 'livraison/mine', component: MyLivreurLivraisonsComponent },
        { path: 'livraison/create', component: CreateLivraisonComponent },
        { path: 'livraison/orders', component: AvailableOrdersComponent },
+       { path: 'livraison/wallet', component: LivreurWalletComponent },
+       { path: 'livraison/wallets', component: AdminLivreurWalletsComponent }
     ]
   },
 
@@ -255,6 +265,20 @@ export const routes: Routes = [
       { path: 'livraison/demo-checkout', component: DemoCheckoutComponent },
         { path: 'payment-command-success', component: PaymentCommandSuccessComponent },
         { path: 'payment-command-cancel',  component: PaymentCommandCancelComponent },
+        { path: 'my-deliveries', component: ClientMyDeliveriesComponent },
+      {
+          path: 'my-deliveries/success',
+          loadComponent: () =>
+            import('./features/public/livraison/client-delivery-detail/tip-payment-success/tip-payment-success.component')
+              .then(m => m.TipPaymentSuccessComponent)
+        },
+        {
+          path: 'my-deliveries/cancel',
+          loadComponent: () =>
+            import('./features/public/livraison/client-delivery-detail/tip-payment-cancel/tip-payment-cancel.component')
+              .then(m => m.TipPaymentCancelComponent)
+        },
+        { path: 'my-deliveries/:id', component: ClientDeliveryDetailComponent },
     ]
   },
 

@@ -1,0 +1,68 @@
+<div class="wallets-page">
+  <div class="page-header">
+    <div>
+      <h2>Delivery Wallets</h2>
+      <p>View all delivery people balances and mark manual payouts as paid.</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="alert alert-info">
+    Loading wallets...
+  </div>
+
+  <div class="table-card" *ngIf="!loading">
+    <table class="wallets-table">
+      <thead>
+        <tr>
+          <th>Delivery</th>
+          <th>Email</th>
+          <th>Balance</th>
+          <th>Status</th>
+          <th>Withdraw / Payout</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let wallet of wallets">
+          <td>
+            <strong>{{ wallet.livreurNom }} {{ wallet.livreurPrenom }}</strong>
+          </td>
+
+          <td>{{ wallet.livreurEmail }}</td>
+
+          <td>
+            <span class="balance">
+              {{ wallet.balance | number:'1.2-2' }} DT
+            </span>
+          </td>
+
+          <td>
+            <span
+              class="status-badge"
+              [class.pending]="wallet.balance > 0"
+              [class.paid]="wallet.balance <= 0"
+            >
+              {{ wallet.balance > 0 ? 'Pending payout' : 'Paid' }}
+            </span>
+          </td>
+
+          <td>
+            <button
+              class="pay-btn"
+              [disabled]="wallet.balance <= 0"
+              (click)="markAsPaid(wallet.livreurId, wallet.balance)"
+            >
+              Mark as Paid
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="wallets.length === 0">
+          <td colspan="5" class="empty-state">
+            No wallets found.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

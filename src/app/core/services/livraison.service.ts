@@ -72,12 +72,12 @@ export class LivraisonService {
 }
 
 
-checkout(payload: any) {
-  return this.http.post<any>(
-    '${this.apiUrl}/livraisons/demo/checkout',
-    payload
-  );
-}
+// checkout(payload: any) {
+//   return this.http.post<any>(
+//     '${this.apiUrl}/livraisons/demo/checkout',
+//     payload
+//   );
+// }
 
 
 
@@ -118,4 +118,77 @@ checkout(payload: any) {
       `${this.apiUrl}/demo/payment/success?session_id=${sessionId}`
     );
   }
+
+  getAddressSuggestions(query: string) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/demo/address-suggestions`,
+    {
+      params: { query }
+    }
+  );
+}
+
+updateLivreurLocation(idLivraison: number, payload: any) {
+  return this.http.patch(
+    `${this.apiUrl}/${idLivraison}/livreur-location`,
+    payload
+  );
+}
+
+  getMyClientLivraisons() {
+  return this.http.get<any[]>(`${this.apiUrl}/client/mine`);
+}
+
+getLivraisonById(id: number) {
+  return this.http.get<any>(`${this.apiUrl}/${id}`);
+}
+
+getLivreurLocation(id: number) {
+  return this.http.get<any>(`${this.apiUrl}/${id}/livreur-location`);
+}
+
+
+getLivreurTipHistory(idLivraison: number) {
+  return this.http.get<any[]>(
+    `${this.apiUrl}/${idLivraison}/tips`
+  );
+}
+
+getMyLivreurWallet() {
+  return this.http.get<any>(`${this.apiUrl}/livreur/wallet`);
+}
+
+getMyLivreurTips() {
+  return this.http.get<any[]>(`${this.apiUrl}/livreur/tips`);
+}
+
+createTipPaymentSession(idLivraison: number, payload: any) {
+  return this.http.post<any>(
+    `${this.apiUrl}/${idLivraison}/tip/create-session`,
+    payload
+  );
+}
+
+confirmTipPayment(sessionId: string) {
+  return this.http.get(
+    `${this.apiUrl}/tip/success?session_id=${sessionId}`,
+    { responseType: 'text' }
+  );
+}
+
+  getAllLivreurWallets() {
+  return this.http.get<any[]>(`${this.apiUrl}/admin/livreur-wallets`);
+}
+
+  markLivreurWalletAsPaid(livreurId: number) {
+    return this.http.patch<any>(
+      `${this.apiUrl}/admin/livreurs/${livreurId}/wallet/pay`,
+      {}
+    );
+  }
+
+  getMyWithdrawHistory() {
+    return this.http.get<any[]>(`${this.apiUrl}/livreur/withdraw-history`);
+  }
+
 }

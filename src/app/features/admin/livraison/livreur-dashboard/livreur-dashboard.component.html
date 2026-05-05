@@ -3,7 +3,7 @@
     <div>
       <span class="eyebrow">Delivery Panel</span>
       <h1>Welcome back, {{ livreurName }}</h1>
-      <p>Track your assigned deliveries, update progress, and review recent activity.</p>
+      <p>Track your assigned deliveries, update progress, and review tips, ratings, and wallet balance.</p>
     </div>
 
     <a routerLink="/admin/livraison/mine" class="hero-action">
@@ -22,6 +22,37 @@
         <h3>{{ stat.value }}</h3>
       </div>
     </div>
+  </section>
+
+  <section class="wallet-summary-grid">
+    <div class="wallet-card balance-card">
+      <span>Wallet Balance</span>
+      <h3>{{ walletBalance | number:'1.2-2' }} DT</h3>
+      <p>Total available tips</p>
+    </div>
+
+    <div class="wallet-card tip-card">
+      <span>Total Tips</span>
+      <h3>{{ totalTips | number:'1.2-2' }} DT</h3>
+      <p>{{ tips.length }} received tips</p>
+    </div>
+
+    <div class="wallet-card rating-card">
+      <span>Average Rating</span>
+      <h3>
+        <ng-container *ngIf="avgRating > 0; else noRating">
+          {{ avgRating | number:'1.1-1' }} ⭐
+        </ng-container>
+        <ng-template #noRating>—</ng-template>
+      </h3>
+      <p>From client feedback</p>
+    </div>
+
+    <a routerLink="/admin/livraison/wallet" class="wallet-card wallet-link-card">
+      <span>Wallet Center</span>
+      <h3>Open →</h3>
+      <p>View full tip history</p>
+    </a>
   </section>
 
   <section class="dashboard-main-grid">
@@ -70,9 +101,60 @@
           <span>Total Assigned</span>
           <strong>{{ livraisons.length }}</strong>
         </div>
+
+        <div>
+          <span>Wallet</span>
+          <strong>{{ walletBalance | number:'1.2-2' }} DT</strong>
+        </div>
+
+        <div>
+          <span>Rating</span>
+          <strong>
+            <ng-container *ngIf="avgRating > 0; else noProfileRating">
+              {{ avgRating | number:'1.1-1' }} ⭐
+            </ng-container>
+            <ng-template #noProfileRating>—</ng-template>
+          </strong>
+        </div>
       </div>
 
-      <button class="profile-btn">View Profile</button>
+      <a routerLink="/admin/livraison/wallet" class="profile-btn">
+        View Wallet
+      </a>
+    </div>
+  </section>
+
+  <section class="card-box tips-section">
+    <div class="section-header">
+      <div>
+        <h2>Recent Tips & Ratings</h2>
+        <span>Latest client feedback</span>
+      </div>
+
+      <a routerLink="/admin/livraison/wallet" class="small-link">
+        View Wallet →
+      </a>
+    </div>
+
+    <div class="tip-preview-list" *ngIf="tips.length > 0">
+      <div class="tip-preview-row" *ngFor="let tip of tips.slice(0, 4)">
+        <div>
+          <strong>Delivery #{{ tip.livraisonId }}</strong>
+          <span>{{ tip.createdAt | date:'short' }}</span>
+        </div>
+
+        <div class="tip-stars">
+          {{ getStars(tip.rating || 0) }}
+        </div>
+
+        <div class="tip-amount">
+          +{{ tip.amount | number:'1.2-2' }} DT
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="tips.length === 0">
+      No tips or ratings yet.
     </div>
   </section>
 

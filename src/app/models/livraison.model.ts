@@ -5,7 +5,8 @@ export type StatutLivraison =
   | 'EN_COURS'
   | 'LIVREE'
   | 'ECHOUEE'
-  | 'RETOURNEE';
+  | 'RETOURNEE'
+  | 'ANNULEE';
 
 export interface LivraisonCreateRequest {
   commandeId: number;
@@ -22,6 +23,8 @@ export interface LivraisonStatusUpdateRequest {
   statut: StatutLivraison;
   preuveLivraison?: string;
   commentaire?: string;
+  currentLatitude?: number;
+  currentLongitude?: number;
 }
 
 export interface LivraisonResponse {
@@ -37,6 +40,9 @@ export interface LivraisonResponse {
   livreurNom: string | null;
   livreurPrenom: string | null;
   livreurEmail: string | null;
+
+  latitudeLivraison?: number;
+  longitudeLivraison?: number;
 
   commandeId: number | null;
   typeCommande: TypeCommandeLivraison | null;

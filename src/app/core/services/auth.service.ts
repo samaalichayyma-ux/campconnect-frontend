@@ -215,7 +215,7 @@ private readonly adminPanelRoles = new Set([
       router.navigate(['/insurance-agent/dashboard']);
       break;
       case 'LIVREUR':
-        router.navigate(['/admin']);
+        router.navigate(['/admin/livraison/dashboard']);
         break;
       case 'GERANT_RESTAU':
         router.navigate(['/admin']);
