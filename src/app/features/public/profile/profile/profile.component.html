@@ -1,10 +1,15 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
-  <div class="profile-card">
-    <div class="profile-top">
-      <div class="profile-header">
-        <div class="profile-header-left">
+  <div class="profile-card" @fadeSlideUp>
+
+    <!-- HEADER -->
+    <div class="profile-hero">
+      <div class="profile-hero__content">
+
+        <div class="profile-identity">
           <div class="avatar-wrapper">
-            <div class="profile-avatar" *ngIf="!imagePreview">👤</div>
+            <div class="profile-avatar" *ngIf="!imagePreview">
+              <span>👤</span>
+            </div>
 
             <img
               *ngIf="imagePreview"
@@ -12,43 +17,77 @@
               alt="Photo de profil"
               class="profile-image"
             />
+          </div>
 
-            <button
-              type="button"
-              class="notification-bubble"
-              *ngIf="unreadNotificationsCount > 0"
-              (click)="toggleNotificationsPanel()"
-            >
-              {{ unreadNotificationsCount }}
-            </button>
+          <div class="header-text">
+            <span class="profile-badge">Camper Account</span>
+            <h1 class="profile-title">My Profile</h1>
+            <p class="profile-subtitle">
+              Manage your personal information and account security
+            </p>
+          </div>
+        </div>
 
-            <div class="notification-panel" *ngIf="showNotificationsPanel">
-              <div class="notification-panel-header">
+        <!-- NOTIFICATIONS -->
+        <div class="notification-zone">
+          <button
+            type="button"
+            class="notification-button"
+            [class.notification-button--active]="showNotificationsPanel"
+            (click)="toggleNotificationsPanel()"
+            aria-label="Open notifications"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+
+            <span class="notification-count" *ngIf="unreadNotificationsCount > 0">
+              {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
+            </span>
+          </button>
+
+          <div class="notification-panel" *ngIf="showNotificationsPanel" @fadeScale>
+            <div class="notification-panel-header">
+              <div>
                 <h3>Notifications</h3>
-                <button
-                  type="button"
-                  class="link-btn"
-                  (click)="markAllNotificationsAsRead()"
-                >
-                  Tout lire
-                </button>
+                <p>{{ unreadNotificationsCount }} nouvelle(s) notification(s)</p>
               </div>
 
-              <div *ngIf="notificationsLoading" class="notification-empty">
-                Chargement...
-              </div>
-
-              <div
-                *ngIf="!notificationsLoading && unreadNotifications.length === 0"
-                class="notification-empty"
+              <button
+                type="button"
+                class="link-btn"
+                *ngIf="unreadNotificationsCount > 0"
+                (click)="markAllNotificationsAsRead()"
               >
-                Aucune nouvelle notification
+                Tout lire
+              </button>
+            </div>
+
+            <div *ngIf="notificationsLoading" class="notification-empty">
+              <div class="mini-loader"></div>
+              <span>Chargement...</span>
+            </div>
+
+            <div
+              *ngIf="!notificationsLoading && unreadNotifications.length === 0"
+              class="notification-empty"
+            >
+              <div class="notification-empty-icon">✓</div>
+              <span>Aucune nouvelle notification</span>
+            </div>
+
+            <div
+              class="notification-mini-item"
+              *ngFor="let notification of unreadNotifications"
+            >
+              <div class="notification-mini-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                  <path d="M20 6 9 17l-5-5"/>
+                </svg>
               </div>
 
-              <div
-                class="notification-mini-item"
-                *ngFor="let notification of unreadNotifications"
-              >
+              <div class="notification-mini-content">
                 <div class="notification-mini-top">
                   <strong>{{ notification.titre }}</strong>
                   <span>{{ getNotificationLabel(notification.type) }}</span>
@@ -58,6 +97,7 @@
 
                 <div class="notification-mini-actions">
                   <small>{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
+
                   <button
                     type="button"
                     class="link-btn"
@@ -67,27 +107,24 @@
                   </button>
                 </div>
               </div>
+            </div>
 
-              <div class="notification-history-btn">
-                <button
-                  class="btn secondary-btn"
-                  (click)="goToNotificationsHistory()"
-                >
-                  Voir historique des notifications
-                </button>
-              </div>
+            <div class="notification-history-btn">
+              <button
+                type="button"
+                class="btn secondary-btn"
+                (click)="goToNotificationsHistory()"
+              >
+                Voir l’historique
+              </button>
             </div>
           </div>
-
-          <div class="header-text">
-            <span class="profile-badge">Camper Account</span>
-            <h1 class="profile-title">My Profile</h1>
-            <p class="profile-subtitle">Manage your personal information</p>
-          </div>
         </div>
+
       </div>
     </div>
 
+    <!-- USER INFO -->
     <div class="profile-info-grid" *ngIf="user">
       <div class="info-card">
         <span class="info-label">Name</span>
@@ -110,96 +147,113 @@
       </div>
     </div>
 
+    <!-- CONTENT -->
     <div class="profile-content">
+
+      <!-- SECURITY -->
+      <div class="security-section">
+        <div class="section-title">
+          <span class="section-kicker">Security</span>
+          <h2>Two-Factor Authentication</h2>
+          <p>Manage your Google Authenticator settings</p>
+        </div>
+
+        <div class="security-status-box">
+          <div>
+            <strong>Google Authenticator</strong>
+            <p>Protect your account with an extra verification code.</p>
+          </div>
+
+          <span
+            class="security-status"
+            [class.security-status--enabled]="twoFactorEnabled"
+            [class.security-status--disabled]="!twoFactorEnabled"
+          >
+            {{ twoFactorEnabled ? 'Enabled' : 'Disabled' }}
+          </span>
+        </div>
+
+        <div *ngIf="twoFactorMessage" class="alert success-alert">
+          {{ twoFactorMessage }}
+        </div>
+
+        <div *ngIf="twoFactorError" class="alert error-alert">
+          {{ twoFactorError }}
+        </div>
+
+        <div
+          *ngIf="!twoFactorEnabled && !isSettingUp2FA"
+          class="security-actions"
+        >
+          <button
+            type="button"
+            class="btn primary-btn"
+            (click)="setupTwoFactor()"
+          >
+            Activate Google Authenticator
+          </button>
+        </div>
+
+        <div *ngIf="twoFactorEnabled" class="security-actions">
+          <button
+            type="button"
+            class="btn danger-btn"
+            (click)="disableTwoFactor()"
+          >
+            Disable 2FA
+          </button>
+        </div>
+
+        <div *ngIf="isSettingUp2FA" class="twofa-setup-box">
+          <div class="twofa-text">
+            <h3>Scan this QR Code</h3>
+            <p>Open Google Authenticator and scan this code to link your account.</p>
+          </div>
+
+          <div class="qr-box" *ngIf="twoFactorQrCode">
+            <img
+              [src]="twoFactorQrCode"
+              alt="QR Code Google Authenticator"
+              class="qr-image"
+            />
+          </div>
+
+          <div class="secret-box" *ngIf="twoFactorSecret">
+            <span>Secret key</span>
+            <strong>{{ twoFactorSecret }}</strong>
+          </div>
+
+          <div class="form-group otp-group">
+            <label>Enter the 6-digit code</label>
+            <input
+              type="text"
+              [(ngModel)]="otpCode"
+              maxlength="6"
+              placeholder="000000"
+            />
+          </div>
+
+          <div class="security-actions">
+            <button
+              type="button"
+              class="btn primary-btn"
+              (click)="verifyTwoFactor()"
+            >
+              Verify and Activate
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- EDIT PROFILE -->
       <div class="form-section">
         <div class="section-title">
+          <span class="section-kicker">Personal information</span>
           <h2>Edit Profile</h2>
-          <p>Update your account information</p>
+          <p>Update your profile information</p>
         </div>
 
         <div class="profile-form">
-          <div class="security-section full-width">
-            <div class="section-title">
-              <h2>Security</h2>
-              <p>Manage your Google Authenticator settings</p>
-            </div>
-
-            <div class="security-status-box">
-              <p>
-                <strong>Two-Factor Authentication:</strong>
-                <span *ngIf="twoFactorEnabled" class="status-enabled">Enabled</span>
-                <span *ngIf="!twoFactorEnabled" class="status-disabled">Disabled</span>
-              </p>
-            </div>
-
-            <div *ngIf="twoFactorMessage" class="alert success-alert">
-              {{ twoFactorMessage }}
-            </div>
-
-            <div *ngIf="twoFactorError" class="alert error-alert">
-              {{ twoFactorError }}
-            </div>
-
-            <div
-              *ngIf="!twoFactorEnabled && !isSettingUp2FA"
-              class="security-actions"
-            >
-              <button
-                type="button"
-                class="btn primary-btn"
-                (click)="setupTwoFactor()"
-              >
-                Activate Google Authenticator
-              </button>
-            </div>
-
-            <div *ngIf="twoFactorEnabled" class="security-actions">
-              <button
-                type="button"
-                class="btn danger-btn"
-                (click)="disableTwoFactor()"
-              >
-                Disable 2FA
-              </button>
-            </div>
-
-            <div *ngIf="isSettingUp2FA" class="twofa-setup-box">
-              <h3>Scan this QR Code</h3>
-
-              <div class="qr-box" *ngIf="twoFactorQrCode">
-                <img
-                  [src]="twoFactorQrCode"
-                  alt="QR Code Google Authenticator"
-                  class="qr-image"
-                />
-              </div>
-
-              <div class="secret-box" *ngIf="twoFactorSecret">
-                <p><strong>Secret:</strong> {{ twoFactorSecret }}</p>
-              </div>
-
-              <div class="form-group full-width otp-group">
-                <label>Enter the 6-digit code from Google Authenticator</label>
-                <input
-                  type="text"
-                  [(ngModel)]="otpCode"
-                  maxlength="6"
-                  placeholder="Enter OTP code"
-                />
-              </div>
-
-              <div class="security-actions">
-                <button
-                  type="button"
-                  class="btn primary-btn"
-                  (click)="verifyTwoFactor()"
-                >
-                  Verify and Activate
-                </button>
-              </div>
-            </div>
-          </div>
-
           <div class="form-group full-width">
             <label>Adresse</label>
             <input
@@ -217,6 +271,7 @@
                 [(ngModel)]="photoUrlInput"
                 placeholder="Paste image URL here"
               />
+
               <button
                 type="button"
                 class="btn primary-btn"
@@ -239,6 +294,7 @@
       </div>
     </div>
 
+    <!-- ALERTS -->
     <div *ngIf="successMessage" class="alert success-alert">
       {{ successMessage }}
     </div>
@@ -251,47 +307,7 @@
       {{ notificationErrorMessage }}
     </div>
 
-    <div class="profile-insurance-links">
-  <div class="section-title">
-    <h2>My Insurance Space</h2>
-    <p>Access your subscriptions, claims and insurance services</p>
-  </div>
-
-  <div class="insurance-links-grid">
-    <a routerLink="/public/assurances" class="insurance-link-card">
-      <span>🛡️</span>
-      <div>
-        <strong>Explore Insurance</strong>
-        <p>Discover available insurance offers</p>
-      </div>
-    </a>
-
-    <a routerLink="/public/assurances/mes-souscriptions" class="insurance-link-card">
-      <span>📄</span>
-      <div>
-        <strong>My Subscriptions</strong>
-        <p>View your active and past contracts</p>
-      </div>
-    </a>
-
-    <a routerLink="/public/assurances/mes-sinistres" class="insurance-link-card">
-      <span>⚠️</span>
-      <div>
-        <strong>My Claims</strong>
-        <p>Track your claim requests and reimbursements</p>
-      </div>
-    </a>
-
-    <a routerLink="/public/assurances/sinistre/nouveau" class="insurance-link-card">
-      <span>➕</span>
-      <div>
-        <strong>Declare a Claim</strong>
-        <p>Submit a new insurance claim quickly</p>
-      </div>
-    </a>
-  </div>
-</div>
-
+    <!-- ACTIONS -->
     <div class="profile-actions">
       <button class="btn secondary-btn" routerLink="/public">
         Back to Home
@@ -309,6 +325,7 @@
         Logout
       </button>
     </div>
+
   </div>
 </section>
 

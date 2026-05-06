@@ -2,17 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AssuranceService } from '../../../../core/services/assurance.service';
 import { StatutSouscription } from '../../../../core/models/assurance.models';
-import {
-  SouscriptionAssurance,
-  STATUT_SOUSCRIPTION_LABELS
-} from '../../../../core/models/assurance.models';
+import { SouscriptionAssurance } from '../../../../core/models/assurance.models';
 
 @Component({
   selector: 'app-souscriptions-admin',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './Souscriptions-admin.component.html',
-  styleUrls: ['./Souscriptions-admin.component.css']
+  styleUrls: ['./Souscriptions-admin.component.scss']
 })
 export class SouscriptionsAdminComponent implements OnInit {
   souscriptions: SouscriptionAssurance[] = [];
@@ -20,7 +17,14 @@ export class SouscriptionsAdminComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  readonly statusLabels = STATUT_SOUSCRIPTION_LABELS;
+  readonly statusLabels: Record<string, string> = {
+    EN_ATTENTE: 'Pending',
+    ACTIVE: 'Active',
+    EXPIREE: 'Expired',
+    ANNULEE: 'Cancelled',
+    SUSPENDUE: 'Suspended',
+    REFUSEE: 'Rejected'
+  };
 
   constructor(private assuranceService: AssuranceService) {}
 
@@ -31,6 +35,7 @@ export class SouscriptionsAdminComponent implements OnInit {
   loadSouscriptions(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.assuranceService.getAllSouscriptions().subscribe({
       next: (data) => {
@@ -39,42 +44,69 @@ export class SouscriptionsAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.errorMessage = 'Impossible de charger les souscriptions.';
+        this.errorMessage = 'Unable to load customer subscriptions.';
         this.loading = false;
       }
     });
+  }
+
+  get activeCount(): number {
+    return this.souscriptions.filter((s) => s.statut === 'ACTIVE').length;
+  }
+
+  get pendingCount(): number {
+    return this.souscriptions.filter((s) => s.statut === 'EN_ATTENTE').length;
+  }
+
+  get expiredOrCancelledCount(): number {
+    return this.souscriptions.filter(
+      (s) =>
+        s.statut === 'EXPIREE' ||
+        s.statut === 'ANNULEE' 
+    ).length;
   }
 
   getStatusClass(status: string | undefined): string {
     switch (status) {
       case 'ACTIVE':
         return 'badge-active';
+
       case 'EN_ATTENTE':
       case 'SUSPENDUE':
-        return 'badge-en-attente';
+        return 'badge-pending';
+
       case 'ANNULEE':
       case 'EXPIREE':
-        return 'badge-rejete';
+      case 'REFUSEE':
+        return 'badge-rejected';
+
       default:
-        return 'badge-pending';
+        return 'badge-neutral';
     }
   }
 
-  changeStatut(id: number | undefined, event: Event): void {
-  if (!id) return;
-
-  const statut = (event.target as HTMLSelectElement).value as StatutSouscription;
-
-  this.assuranceService.updateSouscriptionStatut(id, statut).subscribe({
-    next: () => {
-      this.successMessage = 'Statut de la souscription modifié avec succès.';
-      this.loadSouscriptions();
-    },
-    error: (error) => {
-      console.error(error);
-      this.errorMessage = 'Impossible de modifier le statut.';
+  getStatusLabel(status: string | undefined): string {
+    if (!status) {
+      return 'Unknown';
     }
-  });
-}
 
+    return this.statusLabels[status] || status;
+  }
+
+  changeStatut(id: number | undefined, event: Event): void {
+    if (!id) return;
+
+    const statut = (event.target as HTMLSelectElement).value as StatutSouscription;
+
+    this.assuranceService.updateSouscriptionStatut(id, statut).subscribe({
+      next: () => {
+        this.successMessage = 'Subscription status updated successfully.';
+        this.loadSouscriptions();
+      },
+      error: (error) => {
+        console.error(error);
+        this.errorMessage = 'Unable to update subscription status.';
+      }
+    });
+  }
 }

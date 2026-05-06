@@ -1,44 +1,160 @@
-  <div class="assurance-page">
-    <section class="assurance-hero">
-      <h1 class="assurance-title">Mes souscriptions</h1>
-      <p class="assurance-subtitle">
-        Retrouvez tous vos contrats d’assurance, leur statut, leurs dates et les prochaines actions possibles.
-      </p>
-    </section>
+<div class="ms">
 
-    <div *ngIf="loading" class="assurance-loading">Chargement de vos contrats...</div>
-    <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
-    <div *ngIf="!loading && !souscriptions.length" class="assurance-empty">
-      Vous n’avez encore aucune souscription.
+  <!-- ══ HERO ═══════════════════════════════════════════════ -->
+  <header class="ms__hero">
+    <div class="ms__hero-bg"></div>
+    <div class="ms__hero-content">
+      <span class="ms__eyebrow">CampConnect · My Contracts</span>
+      <h1 class="ms__hero-title">My Subscriptions</h1>
+      <p class="ms__hero-sub">View all your insurance contracts, their status, validity dates and available actions.</p>
+
+      <div class="ms__hero-stats">
+        <div class="ms__stat">
+          <strong>{{ souscriptions.length }}</strong>
+          <span>Total contracts</span>
+        </div>
+        <div class="ms__stat-sep"></div>
+        <div class="ms__stat">
+          <strong>{{ getActiveCount() }}</strong>
+          <span>Active</span>
+        </div>
+        <div class="ms__stat-sep"></div>
+        <div class="ms__stat">
+          <strong>{{ getPendingCount() }}</strong>
+          <span>Pending</span>
+        </div>
+      </div>
+    </div>
+    <div class="ms__hero-shape"></div>
+  </header>
+
+  <!-- ══ ALERTS ═════════════════════════════════════════════ -->
+  <div *ngIf="errorMessage" class="ms__alert ms__alert--error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <!-- ══ LOADING ════════════════════════════════════════════ -->
+  <div *ngIf="loading" class="ms__loading">
+    <div class="ms__spinner"></div>
+    <span>Loading your contracts…</span>
+  </div>
+
+  <!-- ══ EMPTY ══════════════════════════════════════════════ -->
+  <div *ngIf="!loading && !souscriptions.length && !errorMessage" class="ms__empty">
+    <div class="ms__empty-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+    </div>
+    <p class="ms__empty-title">No subscriptions yet</p>
+    <p class="ms__empty-sub">You have no active insurance contracts. Browse our plans to get covered.</p>
+    <a
+      routerLink="/public/assurances"
+      class="ms__btn ms__btn--primary"
+      style="text-decoration:none; margin-top:8px;"
+    >Browse plans</a>
+  </div>
+
+  <!-- ══ TABLE PRO ══════════════════════════════════════════ -->
+  <section class="ms__list" *ngIf="!loading && souscriptions.length">
+
+    <!-- Header colonnes -->
+    <div class="ms__list-header">
+      <span class="ms__col ms__col--plan">Insurance plan</span>
+      <span class="ms__col ms__col--contract">Contract No.</span>
+      <span class="ms__col ms__col--period">Validity period</span>
+      <span class="ms__col ms__col--amount">Amount paid</span>
+      <span class="ms__col ms__col--beneficiary">Beneficiary</span>
+      <span class="ms__col ms__col--status">Status</span>
+      <span class="ms__col ms__col--actions"></span>
     </div>
 
-    <section class="assurance-grid" *ngIf="souscriptions.length">
-      <article class="assurance-card" *ngFor="let souscription of souscriptions">
-        <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
-          <h3 class="assurance-card-title">
-            {{ souscription.assurance?.titre || 'Contrat assurance' }}
-          </h3>
+    <!-- Lignes souscriptions -->
+    <article
+      class="ms__row"
+      *ngFor="let souscription of souscriptions; let i = index"
+      [style.animation-delay]="(i * 0.06) + 's'"
+    >
+      <div class="ms__row-accent" [ngClass]="'ms__accent--' + getStatusClass(souscription.statut)"></div>
 
-          <span class="assurance-badge" [ngClass]="getStatusClass(souscription.statut)">
-            {{ statusLabels[souscription.statut] }}
-          </span>
+      <!-- Plan -->
+      <div class="ms__col ms__col--plan">
+        <div class="ms__plan-icon" [ngClass]="'ms__icon--' + getStatusClass(souscription.statut)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
         </div>
-
-        <p><strong>N° Contrat :</strong> {{ souscription.numeroContrat }}</p>
-        <p><strong>Période :</strong> {{ souscription.dateDebut }} → {{ souscription.dateFin }}</p>
-        <p><strong>Montant payé :</strong> {{ souscription.montantPaye | number:'1.2-2' }} TND</p>
-        <p><strong>Bénéficiaire :</strong> {{ souscription.beneficiaireNom }}</p>
-
-        <div style="display:flex; gap:.8rem; margin-top:1rem; flex-wrap:wrap;">
-          <a
-            [routerLink]="['/public/assurances/sinistre/nouveau']"
-            [queryParams]="{ souscriptionId: souscription.id }"
-            class="assurance-btn assurance-btn-primary"
-            style="text-decoration:none;"
-          >
-            Déclarer un sinistre
-          </a>
+        <div class="ms__plan-info">
+          <h3 class="ms__plan-name">{{ souscription.assurance?.titre || 'Insurance contract' }}</h3>
+          <p class="ms__plan-type" *ngIf="souscription.assurance?.typeAssurance">
+            {{ souscription.assurance?.typeAssurance }}
+          </p>
         </div>
-      </article>
-    </section>
-  </div>
+      </div>
+
+      <!-- N° Contrat -->
+      <div class="ms__col ms__col--contract">
+        <span class="ms__contract-no">{{ souscription.numeroContrat || '—' }}</span>
+      </div>
+
+      <!-- Période -->
+      <div class="ms__col ms__col--period">
+        <div class="ms__period">
+          <span class="ms__period-date">{{ souscription.dateDebut || '—' }}</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="ms__period-arrow">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+          <span class="ms__period-date">{{ souscription.dateFin || '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Montant payé -->
+      <div class="ms__col ms__col--amount">
+        <span class="ms__amount">{{ souscription.montantPaye | number:'1.2-2' }}</span>
+        <span class="ms__currency">TND</span>
+      </div>
+
+      <!-- Bénéficiaire -->
+      <div class="ms__col ms__col--beneficiary">
+        <div class="ms__beneficiary">
+          <div class="ms__beneficiary-avatar">
+            {{ (souscription.beneficiaireNom || 'U').charAt(0).toUpperCase() }}
+          </div>
+          <span class="ms__beneficiary-name">{{ souscription.beneficiaireNom || '—' }}</span>
+        </div>
+      </div>
+
+      <!-- Statut -->
+      <div class="ms__col ms__col--status">
+        <span class="ms__badge" [ngClass]="getStatusClass(souscription.statut)">
+          <span class="ms__badge-dot"></span>
+          {{ statusLabels[souscription.statut] }}
+        </span>
+      </div>
+
+      <!-- Action -->
+      <div class="ms__col ms__col--actions">
+        <a
+          [routerLink]="['/public/assurances/sinistre/nouveau']"
+          [queryParams]="{ souscriptionId: souscription.id }"
+          class="ms__btn ms__btn--primary"
+          style="text-decoration:none;"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          File a claim
+        </a>
+      </div>
+
+    </article>
+  </section>
+
+</div>

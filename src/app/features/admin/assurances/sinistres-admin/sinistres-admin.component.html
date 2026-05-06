@@ -1,87 +1,92 @@
 <div class="assurance-page">
+
   <!-- HERO -->
   <section class="assurance-hero">
     <div>
-      <p class="text-sm font-semibold text-[#838332] uppercase tracking-[0.25em]">
-        Administration assurance
-      </p>
+      <p class="assurance-kicker">Insurance Administration</p>
 
-      <h1 class="assurance-title">Gestion des sinistres</h1>
+      <h1 class="assurance-title">Claims Management</h1>
 
       <p class="assurance-subtitle">
-        Pilotez les déclarations, consultez les documents clients, gérez les remboursements
-        et utilisez l’IA pour analyser les risques.
+        Manage customer claims, review submitted documents, process reimbursements
+        and use AI tools to detect fraud, summarize cases and verify weather conditions.
       </p>
     </div>
   </section>
 
   <!-- MESSAGES -->
-  <div *ngIf="successMessage" class="assurance-empty" style="margin-top:1rem;">
+  <div *ngIf="successMessage" class="assurance-success">
     {{ successMessage }}
   </div>
 
-  <div *ngIf="errorMessage" class="assurance-error" style="margin-top:1rem;">
+  <div *ngIf="errorMessage" class="assurance-error">
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="loading" class="assurance-loading" style="margin-top:1rem;">
-    Chargement des sinistres...
+  <div *ngIf="loading" class="assurance-loading">
+    <div class="mini-loader"></div>
+    <div>
+      <strong>Loading claims...</strong>
+      <p>Please wait while the claims list is being updated.</p>
+    </div>
   </div>
 
-  <!-- LISTE SINISTRES -->
-  <section class="assurance-grid" *ngIf="sinistres.length">
+  <!-- LIST -->
+  <section class="assurance-grid" *ngIf="!loading && sinistres.length">
     <article class="assurance-card" *ngFor="let sinistre of sinistres">
 
-      <!-- HEADER CARD -->
-      <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; align-items:flex-start;">
+      <!-- HEADER -->
+      <div class="claim-header">
         <div>
-          <p class="text-sm font-semibold text-[#838332]">
-            Sinistre #{{ sinistre.id }}
-          </p>
+          <p class="claim-reference">Claim #{{ sinistre.id }}</p>
 
-          <h3 class="assurance-card-title" style="margin-top:.2rem;">
-            {{ typeLabels[sinistre.typeSinistre] }}
+          <h3 class="assurance-card-title">
+            {{ getTypeLabel(sinistre.typeSinistre) }}
           </h3>
         </div>
 
-        <span class="assurance-badge" [ngClass]="getStatusClass(sinistre.statut)">
-          {{ statusLabels[sinistre.statut] }}
+        <span
+          class="assurance-badge"
+          [ngClass]="getStatusClass(sinistre.statut)"
+        >
+          <span class="badge-dot"></span>
+          {{ getStatusLabel(sinistre.statut) }}
         </span>
       </div>
 
-      <!-- INFOS -->
-      <div style="margin-top:1rem; display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:.8rem;">
-        <div class="ai-info-box">
-          <span>Date déclaration</span>
+      <!-- INFO -->
+      <div class="claim-info-grid">
+        <div class="info-box">
+          <span>Declaration date</span>
           <strong>{{ sinistre.dateDeclaration || '-' }}</strong>
         </div>
 
-        <div class="ai-info-box">
-          <span>Lieu</span>
+        <div class="info-box">
+          <span>Location</span>
           <strong>{{ sinistre.lieuIncident || '-' }}</strong>
         </div>
 
-        <div class="ai-info-box">
-          <span>Montant estimé</span>
+        <div class="info-box">
+          <span>Estimated amount</span>
           <strong>{{ sinistre.montantEstime | number:'1.2-2' }} TND</strong>
         </div>
 
-        <div class="ai-info-box">
-          <span>Montant remboursé</span>
+        <div class="info-box">
+          <span>Reimbursed amount</span>
           <strong>{{ sinistre.montantRembourse || 0 | number:'1.2-2' }} TND</strong>
         </div>
       </div>
 
       <!-- DESCRIPTION -->
-      <div style="margin-top:1rem; padding:1rem; border-radius:1.2rem; background:rgba(244,237,228,0.55);">
-        <p style="margin:0; color:var(--assurance-text-soft); line-height:1.65;">
-          {{ sinistre.description || 'Aucune description disponible.' }}
+      <div class="claim-description">
+        <p>
+          {{ sinistre.description || 'No description available.' }}
         </p>
       </div>
 
-      <!-- STATUT -->
-      <div class="assurance-field" style="margin-top:1rem;">
-        <label>Changer le statut</label>
+      <!-- STATUS -->
+      <div class="assurance-field">
+        <label>Update claim status</label>
 
         <select
           [ngModel]="sinistre.statut"
@@ -89,208 +94,212 @@
           [ngModelOptions]="{ standalone: true }"
         >
           <option *ngFor="let status of statusOptions" [value]="status">
-            {{ statusLabels[status] }}
+            {{ getStatusLabel(status) }}
           </option>
         </select>
       </div>
 
-      <!-- ACTIONS PRINCIPALES -->
-      <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
-  <button
-    class="assurance-btn assurance-btn-secondary"
-    type="button"
-    (click)="openDocuments(sinistre.id)"
-  >
-    {{ selectedSinistreId === sinistre.id ? 'Masquer documents' : 'Voir documents' }}
-  </button>
+      <!-- MAIN ACTIONS -->
+      <div class="claim-actions">
+        <button
+          class="assurance-btn assurance-btn-secondary"
+          type="button"
+          (click)="openDocuments(sinistre.id)"
+        >
+          {{ selectedSinistreId === sinistre.id ? 'Hide documents' : 'View documents' }}
+        </button>
 
-  <button
-    class="assurance-btn ai-btn-orange"
-    type="button"
-    (click)="detecterFraude(sinistre.id)"
-    [disabled]="isFraudeLoading(sinistre.id)"
-  >
-    {{ isFraudeLoading(sinistre.id) ? 'Analyse fraude...' : 'Détecter fraude IA' }}
-  </button>
+        <button
+          class="assurance-btn ai-btn-orange"
+          type="button"
+          (click)="detecterFraude(sinistre.id)"
+          [disabled]="isFraudeLoading(sinistre.id)"
+        >
+          {{ isFraudeLoading(sinistre.id) ? 'Analyzing...' : 'Detect AI fraud' }}
+        </button>
 
-  <button
-    class="assurance-btn ai-btn-green"
-    type="button"
-    (click)="genererResumeSinistre(sinistre.id)"
-    [disabled]="isResumeLoading(sinistre.id)"
-  >
-    {{ isResumeLoading(sinistre.id) ? 'Génération...' : 'Générer résumé IA' }}
-  </button>
+        <button
+          class="assurance-btn ai-btn-green"
+          type="button"
+          (click)="genererResumeSinistre(sinistre.id)"
+          [disabled]="isResumeLoading(sinistre.id)"
+        >
+          {{ isResumeLoading(sinistre.id) ? 'Generating...' : 'Generate AI summary' }}
+        </button>
 
-  <button
-  type="button"
-  class="assurance-btn ai-btn-blue"
-  (click)="verifierMeteoSinistre(sinistre.id)"
-  [disabled]="isWeatherLoading(sinistre.id)"
->
-  {{ isWeatherLoading(sinistre.id) ? 'Vérification météo...' : 'Vérifier météo' }}
-</button>
-</div>
+        <button
+          type="button"
+          class="assurance-btn ai-btn-blue"
+          (click)="verifierMeteoSinistre(sinistre.id)"
+          [disabled]="isWeatherLoading(sinistre.id)"
+        >
+          {{ isWeatherLoading(sinistre.id) ? 'Checking weather...' : 'Verify weather' }}
+        </button>
+      </div>
 
-      <!-- RESULTAT IA FRAUDE -->
+      <!-- AI FRAUD RESULT -->
       <section
-  *ngIf="getFraudeResult(sinistre.id) || getFraudeError(sinistre.id)"
-  class="ai-panel ai-panel-orange"
->
-  <div class="ai-panel-header">
-    <div>
-      <p class="ai-kicker orange">IA anti-fraude</p>
-      <h4>Résultat de l’analyse fraude</h4>
-    </div>
-
-    <span *ngIf="getFraudeResult(sinistre.id)" class="ai-score">
-      {{ getFraudeResult(sinistre.id)?.scoreFraude }}%
-    </span>
-  </div>
-
-  <div *ngIf="getFraudeError(sinistre.id)" class="assurance-error" style="margin-top:1rem;">
-    {{ getFraudeError(sinistre.id) }}
-  </div>
-
-  <div *ngIf="getFraudeResult(sinistre.id) as fraude" style="margin-top:1rem;">
-    <div class="ai-risk-row">
-      <span>Niveau de risque</span>
-      <strong>{{ fraude.niveauRisque }}</strong>
-    </div>
-
-    <div style="margin-top:1rem;">
-      <p class="ai-label">Raisons détectées</p>
-
-      <ul class="ai-list">
-        <li *ngFor="let raison of fraude.raisons">
-          {{ raison }}
-        </li>
-      </ul>
-    </div>
-
-    <div class="ai-recommendation">
-      <p class="ai-label">Recommandation admin</p>
-      <p>{{ fraude.recommandationAdmin }}</p>
-    </div>
-  </div>
-</section>
-
-      <!-- RESULTAT IA RESUME -->
-      <section
-  *ngIf="getResumeResult(sinistre.id) || getResumeError(sinistre.id)"
-  class="ai-panel ai-panel-green"
->
-  <div class="ai-panel-header">
-    <div>
-      <p class="ai-kicker green">Résumé IA</p>
-      <h4>Synthèse automatique du sinistre</h4>
-    </div>
-  </div>
-
-  <div *ngIf="getResumeError(sinistre.id)" class="assurance-error" style="margin-top:1rem;">
-    {{ getResumeError(sinistre.id) }}
-  </div>
-
-  <div *ngIf="getResumeResult(sinistre.id)" class="ai-summary">
-    <p>{{ getResumeResult(sinistre.id) }}</p>
-  </div>
-</section>
-
-<section
-  *ngIf="getWeatherResult(sinistre.id) || getWeatherError(sinistre.id)"
-  class="weather-admin-panel"
->
-  <div class="weather-admin-header">
-    <div>
-      <p class="weather-kicker">API météo</p>
-      <h4>Vérification météo du sinistre</h4>
-    </div>
-
-    <span
-      *ngIf="getWeatherResult(sinistre.id) as weather"
-      class="weather-admin-status"
-      [ngClass]="weather.meteoCompatible ? 'compatible' : 'warning'"
-    >
-      {{ weather.meteoCompatible ? 'Compatible' : 'À vérifier' }}
-    </span>
-  </div>
-
-  <div *ngIf="getWeatherError(sinistre.id)" class="assurance-error" style="margin-top:1rem;">
-    {{ getWeatherError(sinistre.id) }}
-  </div>
-
-  <div *ngIf="getWeatherResult(sinistre.id) as weather" class="weather-admin-grid">
-    <div>
-      <span>Lieu</span>
-      <strong>{{ weather.lieu }}</strong>
-    </div>
-
-    <div>
-      <span>Date</span>
-      <strong>{{ weather.date }}</strong>
-    </div>
-
-    <div>
-      <span>Condition</span>
-      <strong>{{ weather.condition }}</strong>
-    </div>
-
-    <div>
-      <span>Température moyenne</span>
-      <strong>{{ weather.temperatureMoyenne }} °C</strong>
-    </div>
-
-    <div>
-      <span>Vent max</span>
-      <strong>{{ weather.ventMaxKph }} km/h</strong>
-    </div>
-
-    <div>
-      <span>Précipitations</span>
-      <strong>{{ weather.precipitationMm }} mm</strong>
-    </div>
-
-    <div>
-      <span>Risque météo</span>
-      <strong>{{ weather.niveauRisqueMeteo }}</strong>
-    </div>
-
-    <div class="weather-admin-conclusion">
-      <span>Conclusion</span>
-      <strong>{{ weather.conclusion }}</strong>
-    </div>
-  </div>
-</section>
-
-      <!-- DOCUMENTS + REMBOURSEMENT -->
-      <section
-        class="assurance-card"
-        *ngIf="selectedSinistreId === sinistre.id"
-        style="margin-top:1rem; background:rgba(244,237,228,0.6);"
+        *ngIf="getFraudeResult(sinistre.id) || getFraudeError(sinistre.id)"
+        class="ai-panel ai-panel-orange"
       >
-        <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+        <div class="ai-panel-header">
           <div>
-            <p class="text-sm font-semibold text-[#838332]">Documents</p>
-            <h4 class="assurance-card-title">Documents du client</h4>
+            <p class="ai-kicker orange">AI fraud detection</p>
+            <h4>Fraud analysis result</h4>
+          </div>
+
+          <span *ngIf="getFraudeResult(sinistre.id)" class="ai-score">
+            {{ getFraudeResult(sinistre.id)?.scoreFraude }}%
+          </span>
+        </div>
+
+        <div *ngIf="getFraudeError(sinistre.id)" class="assurance-error">
+          {{ getFraudeError(sinistre.id) }}
+        </div>
+
+        <div *ngIf="getFraudeResult(sinistre.id) as fraude" class="ai-result-body">
+          <div class="ai-risk-row">
+            <span>Risk level</span>
+            <strong>{{ getRiskLabel(fraude.niveauRisque) }}</strong>
+          </div>
+
+          <div>
+            <p class="ai-label">Detected reasons</p>
+
+            <ul class="ai-list">
+              <li *ngFor="let raison of fraude.raisons">
+                {{ raison }}
+              </li>
+            </ul>
+          </div>
+
+          <div class="ai-recommendation">
+            <p class="ai-label">Admin recommendation</p>
+            <p>{{ fraude.recommandationAdmin }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- AI SUMMARY RESULT -->
+      <section
+        *ngIf="getResumeResult(sinistre.id) || getResumeError(sinistre.id)"
+        class="ai-panel ai-panel-green"
+      >
+        <div class="ai-panel-header">
+          <div>
+            <p class="ai-kicker green">AI summary</p>
+            <h4>Automatic claim summary</h4>
           </div>
         </div>
 
-        <div *ngIf="documentsLoading" class="assurance-loading" style="margin-top:1rem;">
-          Chargement des documents...
+        <div *ngIf="getResumeError(sinistre.id)" class="assurance-error">
+          {{ getResumeError(sinistre.id) }}
         </div>
 
-        <div *ngIf="documents.length" style="margin-top:1rem;">
+        <div *ngIf="getResumeResult(sinistre.id)" class="ai-summary">
+          <p>{{ getResumeResult(sinistre.id) }}</p>
+        </div>
+      </section>
+
+      <!-- WEATHER RESULT -->
+      <section
+        *ngIf="getWeatherResult(sinistre.id) || getWeatherError(sinistre.id)"
+        class="weather-admin-panel"
+      >
+        <div class="weather-admin-header">
+          <div>
+            <p class="weather-kicker">Weather API</p>
+            <h4>Claim weather verification</h4>
+          </div>
+
+          <span
+            *ngIf="getWeatherResult(sinistre.id) as weather"
+            class="weather-admin-status"
+            [ngClass]="weather.meteoCompatible ? 'compatible' : 'warning'"
+          >
+            {{ weather.meteoCompatible ? 'Compatible' : 'Needs review' }}
+          </span>
+        </div>
+
+        <div *ngIf="getWeatherError(sinistre.id)" class="assurance-error">
+          {{ getWeatherError(sinistre.id) }}
+        </div>
+
+        <div *ngIf="getWeatherResult(sinistre.id) as weather" class="weather-admin-grid">
+          <div>
+            <span>Location</span>
+            <strong>{{ weather.lieu }}</strong>
+          </div>
+
+          <div>
+            <span>Date</span>
+            <strong>{{ weather.date }}</strong>
+          </div>
+
+          <div>
+            <span>Condition</span>
+            <strong>{{ weather.condition }}</strong>
+          </div>
+
+          <div>
+            <span>Average temperature</span>
+            <strong>{{ weather.temperatureMoyenne }} °C</strong>
+          </div>
+
+          <div>
+            <span>Max wind</span>
+            <strong>{{ weather.ventMaxKph }} km/h</strong>
+          </div>
+
+          <div>
+            <span>Precipitation</span>
+            <strong>{{ weather.precipitationMm }} mm</strong>
+          </div>
+
+          <div>
+            <span>Weather risk</span>
+            <strong>{{ weather.niveauRisqueMeteo }}</strong>
+          </div>
+
+          <div class="weather-admin-conclusion">
+            <span>Conclusion</span>
+            <strong>{{ weather.conclusion }}</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOCUMENTS + REIMBURSEMENT -->
+      <section
+        class="documents-panel"
+        *ngIf="selectedSinistreId === sinistre.id"
+      >
+        <div class="documents-header">
+          <div>
+            <p class="claim-reference">Documents</p>
+            <h4 class="assurance-card-title">Customer documents</h4>
+          </div>
+        </div>
+
+        <div *ngIf="documentsLoading" class="assurance-loading">
+          <div class="mini-loader"></div>
+          <div>
+            <strong>Loading documents...</strong>
+            <p>Please wait while claim documents are being retrieved.</p>
+          </div>
+        </div>
+
+        <div *ngIf="documents.length" class="documents-list">
           <div
             *ngFor="let doc of documents"
             class="document-card"
           >
             <div>
-              <p style="margin:0; font-weight:800; color:#1F3D2B;">
+              <p class="document-name">
                 {{ doc.nomFichier }}
               </p>
 
-              <p style="margin:.2rem 0 0; color:var(--assurance-text-soft);">
-                {{ typeDocumentLabels[doc.typeDocument] }}
+              <p class="document-type">
+                {{ getDocumentTypeLabel(doc.typeDocument) }}
               </p>
 
               <a
@@ -299,34 +308,33 @@
                 rel="noopener noreferrer"
                 class="document-link"
               >
-                Ouvrir le document
+                Open document
               </a>
             </div>
 
             <button
               type="button"
-              class="assurance-btn"
-              style="background:#f6d7d3; color:#8d2f28;"
+              class="assurance-btn danger-btn"
               (click)="deleteDocument(doc.id)"
             >
-              Supprimer
+              Delete
             </button>
           </div>
         </div>
 
-        <div *ngIf="!documentsLoading && !documents.length" class="assurance-empty" style="margin-top:1rem;">
-          Aucun document transmis par le client.
+        <div *ngIf="!documentsLoading && !documents.length" class="assurance-empty">
+          No document has been submitted by the customer.
         </div>
 
-        <!-- REMBOURSEMENT -->
-        <div class="assurance-form" style="margin-top:1.2rem;">
+        <!-- REIMBURSEMENT -->
+        <div class="reimbursement-panel">
           <div>
-            <p class="text-sm font-semibold text-[#838332]">Remboursement</p>
-            <h4 class="assurance-card-title">Gestion du remboursement</h4>
+            <p class="claim-reference">Reimbursement</p>
+            <h4 class="assurance-card-title">Reimbursement management</h4>
           </div>
 
-          <div class="ai-info-box" style="margin-top:1rem;">
-            <span>Montant calculé</span>
+          <div class="info-box reimbursement-amount">
+            <span>Calculated amount</span>
             <strong>{{ sinistre.montantRembourse || 0 | number:'1.2-2' }} TND</strong>
           </div>
 
@@ -335,21 +343,19 @@
             class="assurance-btn assurance-btn-primary"
             *ngIf="sinistre.statut === 'ACCEPTE'"
             (click)="rembourserSinistre(sinistre.id)"
-            style="margin-top:1rem;"
           >
-            Marquer comme remboursé
+            Mark as reimbursed
           </button>
 
-          <p *ngIf="sinistre.statut === 'REMBOURSE'" class="assurance-empty" style="margin-top:1rem;">
-            Ce sinistre est déjà remboursé.
+          <p *ngIf="sinistre.statut === 'REMBOURSE'" class="assurance-success">
+            This claim has already been compensated.
           </p>
 
           <p
             *ngIf="sinistre.statut !== 'ACCEPTE' && sinistre.statut !== 'REMBOURSE'"
             class="assurance-error"
-            style="margin-top:1rem;"
           >
-            Le remboursement est disponible seulement après acceptation du sinistre.
+            Reimbursement is available only after the claim has been accepted.
           </p>
         </div>
       </section>
@@ -357,7 +363,11 @@
   </section>
 
   <!-- EMPTY -->
-  <div *ngIf="!loading && !sinistres.length" class="assurance-empty" style="margin-top:1rem;">
-    Aucun sinistre trouvé.
+  <div *ngIf="!loading && !sinistres.length" class="assurance-empty">
+    <div class="empty-icon">⚠️</div>
+    <div>
+      <strong>No claims found</strong>
+      <p>Customer claims will appear here once they are submitted.</p>
+    </div>
   </div>
 </div>

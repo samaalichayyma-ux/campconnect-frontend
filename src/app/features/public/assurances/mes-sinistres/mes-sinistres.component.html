@@ -1,111 +1,293 @@
-<div class="assurance-page">
-  <section class="assurance-hero">
-    <h1 class="assurance-title">Mes sinistres</h1>
-    <p class="assurance-subtitle">
-      Suivez l’avancement de vos déclarations, vos montants estimés et ajoutez vos documents justificatifs.
-    </p>
-  </section>
+<div class="sp">
 
-  <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
-  <div *ngIf="loading" class="assurance-loading">Chargement de vos sinistres...</div>
-  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
-  <div *ngIf="!loading && !sinistres.length" class="assurance-empty">
-    Aucun sinistre n’a encore été déclaré.
+  <!-- ══ HERO ═══════════════════════════════════════════════ -->
+  <header class="sp__hero">
+    <div class="sp__hero-bg"></div>
+    <div class="sp__hero-content">
+      <span class="sp__eyebrow">CampConnect · Claims Center</span>
+      <h1 class="sp__hero-title">My Claims</h1>
+      <p class="sp__hero-sub">Track your declarations, estimated amounts, and manage your supporting documents.</p>
+
+      <div class="sp__hero-stats">
+        <div class="sp__stat">
+          <strong>{{ sinistres.length }}</strong>
+          <span>Total claims</span>
+        </div>
+        <div class="sp__stat-sep"></div>
+        <div class="sp__stat">
+          <strong>{{ getClaimsInProgress() }}</strong>
+<span>In progress</span>
+        </div>
+        <div class="sp__stat-sep"></div>
+        <div class="sp__stat">
+          <strong>{{ getClaimsResolved() }}</strong>
+<span>Resolved</span>
+        </div>
+      </div>
+    </div>
+    <div class="sp__hero-shape"></div>
+  </header>
+
+  <!-- ══ MESSAGES ═══════════════════════════════════════════ -->
+  <div *ngIf="successMessage" class="sp__alert sp__alert--success">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    {{ successMessage }}
   </div>
 
-  <section class="assurance-grid" *ngIf="sinistres.length">
-    <article class="assurance-card" *ngFor="let sinistre of sinistres">
-      <div style="display:flex; justify-content:space-between; gap:1rem; align-items:flex-start; flex-wrap:wrap;">
-        <h3 class="assurance-card-title">{{ typeLabels[sinistre.typeSinistre] }}</h3>
-        <span class="assurance-badge" [ngClass]="getStatusClass(sinistre.statut)">
+  <div *ngIf="errorMessage" class="sp__alert sp__alert--error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <!-- ══ CHARGEMENT ══════════════════════════════════════════ -->
+  <div *ngIf="loading" class="sp__loading">
+    <div class="sp__spinner"></div>
+    <span>Loading your claims…</span>
+  </div>
+
+  <!-- ══ VIDE ════════════════════════════════════════════════ -->
+  <div *ngIf="!loading && !sinistres.length && !errorMessage" class="sp__empty">
+    <div class="sp__empty-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M9 12l2 2 4-4" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <p class="sp__empty-title">No claims found</p>
+    <p class="sp__empty-sub">You have not filed any claims yet. They will appear here once submitted.</p>
+  </div>
+
+  <!-- ══ LISTE (style tableau pro) ══════════════════════════ -->
+  <section class="sp__list" *ngIf="!loading && sinistres.length">
+
+    <!-- Header colonnes -->
+    <div class="sp__list-header">
+      <span class="sp__col sp__col--type">Claim type</span>
+      <span class="sp__col sp__col--date">Date filed</span>
+      <span class="sp__col sp__col--location">Location</span>
+      <span class="sp__col sp__col--estimated">Estimated</span>
+      <span class="sp__col sp__col--reimbursed">Reimbursed</span>
+      <span class="sp__col sp__col--status">Status</span>
+      <span class="sp__col sp__col--actions"></span>
+    </div>
+
+    <!-- Lignes sinistre -->
+    <article
+      class="sp__claim-row"
+      *ngFor="let sinistre of sinistres; let i = index"
+      [style.animation-delay]="(i * 0.06) + 's'"
+      [class.sp__claim-row--open]="selectedSinistreId === sinistre.id"
+    >
+      <div class="sp__claim-accent" [ngClass]="'sp__accent--' + getStatusClass(sinistre.statut)"></div>
+
+      <!-- Type + description -->
+      <div class="sp__col sp__col--type">
+        <div class="sp__claim-icon" [ngClass]="'sp__icon--' + getStatusClass(sinistre.statut)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div class="sp__claim-info">
+          <h3 class="sp__claim-name">{{ typeLabels[sinistre.typeSinistre] }}</h3>
+          <p class="sp__claim-desc">{{ sinistre.description }}</p>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div class="sp__col sp__col--date">
+        <span class="sp__meta-value">{{ sinistre.dateDeclaration || '—' }}</span>
+      </div>
+
+      <!-- Lieu -->
+      <div class="sp__col sp__col--location">
+        <span class="sp__meta-value">{{ sinistre.lieuIncident || '—' }}</span>
+      </div>
+
+      <!-- Montant estimé -->
+      <div class="sp__col sp__col--estimated">
+        <span class="sp__amount">{{ sinistre.montantEstime | number:'1.2-2' }}</span>
+        <span class="sp__currency">TND</span>
+      </div>
+
+      <!-- Montant remboursé -->
+      <div class="sp__col sp__col--reimbursed">
+        <span class="sp__amount sp__amount--green">{{ sinistre.montantRembourse || 0 | number:'1.2-2' }}</span>
+        <span class="sp__currency">TND</span>
+      </div>
+
+      <!-- Statut -->
+      <div class="sp__col sp__col--status">
+        <span class="sp__badge" [ngClass]="getStatusClass(sinistre.statut)">
           {{ statusLabels[sinistre.statut] }}
         </span>
       </div>
 
-      <p><strong>Date déclaration :</strong> {{ sinistre.dateDeclaration || '-' }}</p>
-      <p><strong>Lieu :</strong> {{ sinistre.lieuIncident }}</p>
-      <p><strong>Montant estimé :</strong> {{ sinistre.montantEstime | number:'1.2-2' }} TND</p>
-      <p><strong>Montant remboursé :</strong> {{ sinistre.montantRembourse || 0 | number:'1.2-2' }} TND</p>
-<p *ngIf="sinistre.statut === 'REMBOURSE'">
-  Ce sinistre a été remboursé. Consultez vos notifications pour plus de détails.
-</p>
-      <p style="margin-top: .8rem; color: var(--assurance-text-soft); line-height:1.65;">
-        {{ sinistre.description }}
-      </p>
-
-      <div *ngIf="sinistre.reclamation" style="margin-top:.8rem;">
-        <p><strong>Réclamation liée :</strong> #{{ sinistre.reclamation.id }}</p>
-        <p><strong>Statut réclamation :</strong> {{ sinistre.reclamation.statut }}</p>
-        <p style="color: var(--assurance-text-soft);">
-          {{ sinistre.reclamation.description }}
-        </p>
-      </div>
-
-      <div style="display:flex; gap:.75rem; flex-wrap:wrap; margin-top:1rem;">
-        <button class="assurance-btn assurance-btn-secondary" (click)="openDocuments(sinistre.id)">
-          {{ selectedSinistreId === sinistre.id ? 'Masquer documents' : 'Voir / Ajouter documents' }}
+      <!-- Actions -->
+      <div class="sp__col sp__col--actions">
+        <button
+          class="sp__btn sp__btn--ghost"
+          (click)="openDocuments(sinistre.id)"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          {{ selectedSinistreId === sinistre.id ? 'Hide docs' : 'Documents' }}
         </button>
       </div>
 
-      <section
-        class="assurance-card"
-        *ngIf="selectedSinistreId === sinistre.id"
-        style="margin-top:1rem; background:rgba(244,237,228,0.6);"
-      >
-        <h4 class="assurance-card-title">Mes documents justificatifs</h4>
+      <!-- ── PANNEAU DOCUMENTS (expandable) ────────────────── -->
+      <div class="sp__docs-panel" *ngIf="selectedSinistreId === sinistre.id">
 
-        <div *ngIf="documentsLoading" class="assurance-loading">Chargement des documents...</div>
+        <!-- Réclamation liée -->
+        <div *ngIf="sinistre.reclamation" class="sp__linked-claim">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <span>Linked complaint <strong>#{{ sinistre.reclamation.id }}</strong> — {{ sinistre.reclamation.statut }}</span>
+        </div>
 
-        <div *ngIf="documents.length">
-          <div
-            *ngFor="let doc of documents"
-            style="padding:.9rem 0; border-bottom:1px solid rgba(31,61,43,.08);"
-          >
-            <p><strong>{{ doc.nomFichier }}</strong></p>
-            <p>{{ typeDocumentLabels[doc.typeDocument] }}</p>
-            <p>
-              <a [href]="doc.url" target="_blank" rel="noopener noreferrer">Ouvrir le document</a>
+        <!-- Remboursé notice -->
+        <div *ngIf="sinistre.statut === 'REMBOURSE'" class="sp__reimbursed-notice">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          This claim has been reimbursed. Check your notifications for details.
+        </div>
+
+        <div class="sp__docs-inner">
+
+          <!-- Colonne liste documents -->
+          <div class="sp__docs-list-col">
+            <p class="sp__docs-section-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              Supporting documents
             </p>
 
-            <button
-              class="assurance-btn"
-              style="background:#f6d7d3; color:#8d2f28;"
-              (click)="deleteDocument(doc.id)"
-            >
-              Supprimer
-            </button>
+            <div *ngIf="documentsLoading" class="sp__docs-loading">
+              <div class="sp__spinner sp__spinner--sm"></div>
+              <span>Loading documents…</span>
+            </div>
+
+            <div *ngIf="!documentsLoading && !documents.length" class="sp__docs-empty">
+              No documents attached to this claim yet.
+            </div>
+
+            <div class="sp__doc-items" *ngIf="documents.length">
+              <div class="sp__doc-item" *ngFor="let doc of documents">
+                <div class="sp__doc-icon">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <div class="sp__doc-info">
+                  <p class="sp__doc-name">{{ doc.nomFichier }}</p>
+                  <p class="sp__doc-type">{{ typeDocumentLabels[doc.typeDocument] }}</p>
+                </div>
+                <div class="sp__doc-actions">
+                  <a [href]="doc.url" target="_blank" rel="noopener noreferrer" class="sp__btn sp__btn--link">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                      <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                    </svg>
+                    Open
+                  </a>
+                  <button class="sp__btn sp__btn--danger" (click)="deleteDocument(doc.id)">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                      <path d="M10 11v6"/><path d="M14 11v6"/>
+                    </svg>
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <!-- Colonne formulaire -->
+          <div class="sp__docs-form-col">
+            <p class="sp__docs-section-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add a document
+            </p>
+
+            <form [formGroup]="documentForm" (ngSubmit)="addDocument()" class="sp__form">
+
+              <div class="sp__field">
+                <label for="nomFichier">File name</label>
+                <input
+                  id="nomFichier"
+                  type="text"
+                  formControlName="nomFichier"
+                  placeholder="e.g. repair-invoice.pdf"
+                  [class.sp__input--error]="documentForm.get('nomFichier')?.invalid && documentForm.get('nomFichier')?.touched"
+                />
+                <span class="sp__field-error" *ngIf="documentForm.get('nomFichier')?.invalid && documentForm.get('nomFichier')?.touched">
+                  File name is required
+                </span>
+              </div>
+
+              <div class="sp__field">
+                <label for="typeDocument">Document type</label>
+                <div class="sp__select-wrap">
+                  <select id="typeDocument" formControlName="typeDocument">
+                    <option *ngFor="let type of typeDocumentOptions" [value]="type">
+                      {{ typeDocumentLabels[type] }}
+                    </option>
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div class="sp__field">
+                <label for="url">Document URL</label>
+                <input
+                  id="url"
+                  type="text"
+                  formControlName="url"
+                  placeholder="Paste the document URL"
+                  [class.sp__input--error]="documentForm.get('url')?.invalid && documentForm.get('url')?.touched"
+                />
+                <span class="sp__field-error" *ngIf="documentForm.get('url')?.invalid && documentForm.get('url')?.touched">
+                  URL is required
+                </span>
+              </div>
+
+              <button
+                class="sp__btn sp__btn--primary"
+                type="submit"
+                [disabled]="submittingDocument"
+              >
+                <svg *ngIf="!submittingDocument" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                <div *ngIf="submittingDocument" class="sp__btn-dots">
+                  <span></span><span></span><span></span>
+                </div>
+                {{ submittingDocument ? 'Adding…' : 'Add document' }}
+              </button>
+
+            </form>
+          </div>
+
         </div>
+      </div>
+      <!-- ── FIN PANNEAU DOCUMENTS ────────────────────────── -->
 
-        <div *ngIf="!documentsLoading && !documents.length" class="assurance-empty">
-          Aucun document ajouté pour ce sinistre.
-        </div>
-
-        <form [formGroup]="documentForm" (ngSubmit)="addDocument()" class="assurance-form" style="margin-top:1rem;">
-          <div class="assurance-field">
-            <label>Nom du fichier</label>
-            <input type="text" formControlName="nomFichier" placeholder="Ex: facture-reparation.pdf" />
-          </div>
-
-          <div class="assurance-field">
-            <label>Type document</label>
-            <select formControlName="typeDocument">
-              <option *ngFor="let type of typeDocumentOptions" [value]="type">
-                {{ typeDocumentLabels[type] }}
-              </option>
-            </select>
-          </div>
-
-          <div class="assurance-field">
-            <label>URL du document</label>
-            <input type="text" formControlName="url" placeholder="Collez l’URL du document" />
-          </div>
-
-          <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submittingDocument">
-            {{ submittingDocument ? 'Ajout...' : 'Ajouter document' }}
-          </button>
-        </form>
-      </section>
     </article>
   </section>
+
 </div>

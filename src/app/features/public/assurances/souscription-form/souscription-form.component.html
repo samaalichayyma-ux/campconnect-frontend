@@ -1,62 +1,221 @@
-<div class="assurance-page">
-  <div *ngIf="loading" class="assurance-loading">Chargement de l’offre...</div>
-  <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+<div class="ins-page">
 
+  <!-- ── Loading State ─────────────────────────────────── -->
+  <div *ngIf="loading" class="ins-status ins-status--loading">
+    Loading insurance offer...
+  </div>
+
+  <!-- ── Error State ────────────────────────────────────── -->
+  <div *ngIf="errorMessage && !loading" class="ins-status ins-status--error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- ── Main Content ───────────────────────────────────── -->
   <ng-container *ngIf="!loading && assurance">
-    <section class="assurance-hero">
-      <span class="assurance-badge badge-active">{{ typeLabels[assurance.typeAssurance] }}</span>
-      <h1 class="assurance-title" style="margin-top: 1rem;">Souscrire à {{ assurance.titre }}</h1>
-      <p class="assurance-subtitle">
-        Finalisez votre contrat rapidement avec un formulaire simple, propre et sécurisé.
+
+    <!-- Hero ──────────────────────────────────────────────── -->
+    <section class="ins-hero">
+      <div class="ins-hero__orb" aria-hidden="true"></div>
+
+      <span class="ins-hero__badge">{{ typeLabels[assurance.typeAssurance] }}</span>
+
+      <span class="ins-hero__eyebrow">Camping Insurance</span>
+
+      <h1 class="ins-hero__title">
+        Subscribe to<br>
+        <em>{{ assurance.titre }}</em>
+      </h1>
+
+      <p class="ins-hero__subtitle">
+        Complete your contract in just a few steps. Our secure, streamlined form
+        gets you covered quickly — so you can focus on your next adventure.
       </p>
+
+      <div class="ins-hero__meta">
+        <span class="ins-hero__meta-item">Secure checkout</span>
+        <span class="ins-hero__meta-item">Instant confirmation</span>
+        <span class="ins-hero__meta-item">24/7 support</span>
+      </div>
     </section>
 
-    <div class="assurance-grid" style="align-items:start;">
-      <article class="assurance-card">
-        <h3 class="assurance-card-title">Résumé de l’offre</h3>
-        <p><strong>Prime :</strong> {{ assurance.prime | number:'1.2-2' }} TND</p>
-        <p><strong>Couverture :</strong> {{ assurance.montantCouverture | number:'1.0-0' }} TND</p>
-        <p><strong>Durée :</strong> {{ assurance.dureeValidite }} jours</p>
-        <p><strong>Statut après validation :</strong> En attente de paiement</p>
-<p style="color: var(--assurance-text-soft); line-height:1.65;">
-  Le numéro de contrat, le montant payé et la date de fin seront générés automatiquement après la validation.
-</p>
-        <p style="color: var(--assurance-text-soft); line-height:1.65;">
-          {{ assurance.description }}
-        </p>
+    <!-- Two-Column Layout ─────────────────────────────────── -->
+    <div class="ins-grid">
+
+      <!-- ── Left: Offer Summary ──────────────────────────── -->
+      <article class="ins-card ins-card--summary">
+        <span class="ins-card__label">Offer Details</span>
+        <h2 class="ins-card__title">Plan Summary</h2>
+
+        <ul class="ins-summary">
+          <li class="ins-summary__item">
+            <span class="ins-summary__key">Premium</span>
+            <span class="ins-summary__val ins-summary__val--highlight">
+              {{ assurance.prime | number:'1.2-2' }} TND
+            </span>
+          </li>
+          <li class="ins-summary__item">
+            <span class="ins-summary__key">Coverage</span>
+            <span class="ins-summary__val">{{ assurance.montantCouverture | number:'1.0-0' }} TND</span>
+          </li>
+          <li class="ins-summary__item">
+            <span class="ins-summary__key">Duration</span>
+            <span class="ins-summary__val">{{ assurance.dureeValidite }} days</span>
+          </li>
+          <li class="ins-summary__item">
+            <span class="ins-summary__key">Status after validation</span>
+            <span class="ins-summary__val ins-summary__val--status">
+              Pending payment
+            </span>
+          </li>
+        </ul>
+
+        <div class="ins-summary__note">
+          <strong>Auto-generated fields:</strong> contract number, amount paid, and end date
+          will be automatically set once your payment is confirmed.
+        </div>
+
+        <p class="ins-summary__desc">{{ assurance.description }}</p>
       </article>
 
-      <article class="assurance-card">
-        <h3 class="assurance-card-title">Informations de souscription</h3>
+      <!-- ── Right: Subscription Form ─────────────────────── -->
+      <article class="ins-card ins-card--form">
+        <span class="ins-card__label">Step 1 of 2</span>
+        <h2 class="ins-card__title">Your Information</h2>
 
-        <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
-          
+        <form [formGroup]="form" (ngSubmit)="submit()" class="ins-form" novalidate>
 
-          <div class="assurance-field">
-            <label>Date de début</label>
-            <input type="date" formControlName="dateDebut" />
+          <!-- Start Date ──────────────────────────── -->
+          <div class="ins-field">
+            <label class="ins-field__label" for="dateDebut">
+              Start Date
+              <span class="required">*</span>
+            </label>
+            <input
+              id="dateDebut"
+              class="ins-field__input"
+              type="date"
+              formControlName="dateDebut"
+              [min]="today"
+            />
+            <span
+              class="ins-field__error"
+              *ngIf="f['dateDebut'].invalid && f['dateDebut'].touched"
+            >
+              Please select a start date.
+            </span>
           </div>
 
-          
+          <div class="ins-divider"></div>
 
-          <div class="assurance-field">
-            <label>Nom du bénéficiaire</label>
-            <input type="text" formControlName="beneficiaireNom" />
+          <!-- Beneficiary Row ─────────────────────── -->
+          <div class="ins-form__row">
+
+            <div class="ins-field">
+              <label class="ins-field__label" for="beneficiaireNom">
+                Beneficiary Name
+                <span class="required">*</span>
+              </label>
+              <input
+                id="beneficiaireNom"
+                class="ins-field__input"
+                type="text"
+                formControlName="beneficiaireNom"
+                placeholder="Full name"
+                autocomplete="name"
+              />
+              <span
+                class="ins-field__error"
+                *ngIf="f['beneficiaireNom'].invalid && f['beneficiaireNom'].touched"
+              >
+                Name must be at least 2 characters.
+              </span>
+            </div>
+
+            <div class="ins-field">
+              <label class="ins-field__label" for="beneficiaireTelephone">
+                Phone Number
+                <span class="required">*</span>
+              </label>
+              <input
+                id="beneficiaireTelephone"
+                class="ins-field__input"
+                type="tel"
+                formControlName="beneficiaireTelephone"
+                placeholder="+216 XX XXX XXX"
+                autocomplete="tel"
+              />
+              <span
+                class="ins-field__error"
+                *ngIf="f['beneficiaireTelephone'].invalid && f['beneficiaireTelephone'].touched"
+              >
+                Please enter a valid phone number.
+              </span>
+            </div>
+
           </div>
 
-          <div class="assurance-field">
-            <label>Téléphone du bénéficiaire</label>
-            <input type="text" formControlName="beneficiaireTelephone" />
+          <!-- Feedback Messages ───────────────────── -->
+          <div *ngIf="successMessage" class="ins-status ins-status--success">
+            {{ successMessage }}
+          </div>
+          <div *ngIf="errorMessage" class="ins-status ins-status--error">
+            {{ errorMessage }}
           </div>
 
-          <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
-          <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+          <!-- Submit CTA ──────────────────────────── -->
+          <button
+            type="submit"
+            class="ins-btn ins-btn--primary"
+            [disabled]="submitting"
+          >
+            <span class="ins-btn__spinner" *ngIf="submitting"></span>
+            <span>{{ submitting ? 'Redirecting to payment…' : 'Continue to Payment' }}</span>
+            <svg
+              *ngIf="!submitting"
+              class="ins-btn__icon"
+              viewBox="0 0 20 20"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 10h12M11 5l5 5-5 5"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
 
-          <button type="submit" class="assurance-btn assurance-btn-primary" [disabled]="submitting">
-  {{ submitting ? 'Redirection vers paiement...' : 'Continuer vers le paiement' }}
-</button>
+          <!-- Trust Badges ────────────────────────── -->
+          <div class="ins-trust">
+            <span class="ins-trust__item">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M8 1L2 4v4c0 3.31 2.58 6.41 6 7 3.42-.59 6-3.69 6-7V4L8 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+              </svg>
+              SSL Encrypted
+            </span>
+            <span class="ins-trust__item">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <rect x="2" y="5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                <path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              Secure payment
+            </span>
+            <span class="ins-trust__item">
+              <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/>
+                <path d="M8 5v3.5l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              No commitment
+            </span>
+          </div>
+
         </form>
       </article>
+
     </div>
   </ng-container>
+
 </div>

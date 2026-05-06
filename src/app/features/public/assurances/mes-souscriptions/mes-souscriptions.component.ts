@@ -10,7 +10,7 @@ import { SouscriptionAssurance, STATUT_SOUSCRIPTION_LABELS } from '../../../../c
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './mes-souscriptions.component.html',
-  styleUrls: ['./mes-souscriptions.component.css']
+  styleUrls: ['./mes-souscriptions.component.scss']
 })
 export class MesSouscriptionsComponent implements OnInit {
   souscriptions: SouscriptionAssurance[] = [];
@@ -55,4 +55,14 @@ export class MesSouscriptionsComponent implements OnInit {
         return 'badge-pending';
     }
   }
+
+  getActiveCount(): number {
+  return this.souscriptions.filter(s => s.statut === 'ACTIVE').length;
+}
+
+getPendingCount(): number {
+  return this.souscriptions.filter(s =>
+    s.statut === 'EN_ATTENTE' || s.statut === 'SUSPENDUE'
+  ).length;
+}
 }

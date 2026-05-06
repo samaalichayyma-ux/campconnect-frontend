@@ -15,7 +15,7 @@ import { CampingService } from '../../services/camping.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './assurance-details.component.html',
-  styleUrls: ['./assurance-details.component.css']
+  styleUrls: ['./assurance-details.component.scss']
 })
 export class AssuranceDetailsComponent implements OnInit {
   assuranceId!: number;

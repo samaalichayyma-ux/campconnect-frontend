@@ -1,45 +1,126 @@
 <div class="assurance-page">
+
+  <!-- HERO -->
   <section class="assurance-hero">
-    <h1 class="assurance-title">Gestion des remboursements</h1>
-    <p class="assurance-subtitle">
-      Suivez tous les remboursements et mettez à jour leur statut facilement.
-    </p>
+    <div class="assurance-hero__content">
+      <p class="assurance-kicker">Insurance Administration</p>
+
+      <h1 class="assurance-title">Reimbursements Management</h1>
+
+      <p class="assurance-subtitle">
+        Track all insurance reimbursements, monitor payment status and update
+        reimbursement processing information from one professional dashboard.
+      </p>
+    </div>
   </section>
 
-  <div *ngIf="successMessage" class="assurance-empty" style="margin-top:1rem;">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="assurance-error" style="margin-top:1rem;">{{ errorMessage }}</div>
-  <div *ngIf="loading" class="assurance-loading" style="margin-top:1rem;">Chargement des remboursements...</div>
+  <!-- SUMMARY -->
+  <section class="reimbursement-summary" *ngIf="!loading">
+    <article class="summary-card">
+      <span>Total reimbursements</span>
+      <strong>{{ remboursements.length }}</strong>
+    </article>
 
-  <section class="assurance-grid" *ngIf="remboursements.length">
-    <article class="assurance-card" *ngFor="let remboursement of remboursements">
-      <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-        <h3 class="assurance-card-title">Remboursement #{{ remboursement.id }}</h3>
+    <article class="summary-card summary-card--completed">
+      <span>Completed</span>
+      <strong>{{ completedCount }}</strong>
+    </article>
 
-        <span class="assurance-badge" [ngClass]="getStatusClass(remboursement.statut)">
-          {{ statusLabels[remboursement.statut] }}
+    <article class="summary-card summary-card--pending">
+      <span>Pending</span>
+      <strong>{{ pendingCount }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--amount">
+      <span>Total paid</span>
+      <strong>{{ totalAmount | number:'1.2-2' }} TND</strong>
+    </article>
+  </section>
+
+  <!-- MESSAGES -->
+  <div *ngIf="successMessage" class="assurance-success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="assurance-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="assurance-loading">
+    <div class="mini-loader"></div>
+    <div>
+      <strong>Loading reimbursements...</strong>
+      <p>Please wait while reimbursement records are being loaded.</p>
+    </div>
+  </div>
+
+  <!-- LIST -->
+  <section class="assurance-grid" *ngIf="!loading && remboursements.length">
+    <article
+      class="assurance-card"
+      *ngFor="let remboursement of remboursements"
+    >
+      <div class="reimbursement-header">
+        <div>
+          <span class="reimbursement-reference">
+            Reimbursement #{{ remboursement.id }}
+          </span>
+
+          <h3 class="assurance-card-title">
+            {{ remboursement.montant | number:'1.2-2' }} TND
+          </h3>
+        </div>
+
+        <span
+          class="assurance-badge"
+          [ngClass]="getStatusClass(remboursement.statut)"
+        >
+          <span class="badge-dot"></span>
+          {{ getStatusLabel(remboursement.statut) }}
         </span>
       </div>
 
-      <p><strong>Montant :</strong> {{ remboursement.montant | number:'1.2-2' }} TND</p>
-      <p><strong>Date :</strong> {{ remboursement.dateRemboursement || '-' }}</p>
-      <p><strong>Motif :</strong> {{ remboursement.motif }}</p>
+      <div class="reimbursement-details">
+        <div>
+          <span>Amount</span>
+          <strong>{{ remboursement.montant | number:'1.2-2' }} TND</strong>
+        </div>
 
-      <div class="assurance-field" style="margin-top:1rem;">
-        <label>Changer le statut</label>
+        <div>
+          <span>Date</span>
+          <strong>{{ remboursement.dateRemboursement || '-' }}</strong>
+        </div>
+
+        <div class="detail-full">
+          <span>Reason</span>
+          <strong>{{ remboursement.motif || 'No reason provided' }}</strong>
+        </div>
+      </div>
+
+      <div class="assurance-field">
+        <label>Update status</label>
+
         <select
           [ngModel]="remboursement.statut"
           (ngModelChange)="updateStatus(remboursement, $event)"
           [ngModelOptions]="{ standalone: true }"
         >
           <option *ngFor="let status of statusOptions" [value]="status">
-            {{ statusLabels[status] }}
+            {{ getStatusLabel(status) }}
           </option>
         </select>
       </div>
     </article>
   </section>
 
-  <div *ngIf="!loading && !remboursements.length" class="assurance-empty" style="margin-top:1rem;">
-    Aucun remboursement trouvé.
+  <!-- EMPTY -->
+  <div *ngIf="!loading && !remboursements.length" class="assurance-empty">
+    <div class="empty-icon">💰</div>
+
+    <div>
+      <strong>No reimbursements found</strong>
+      <p>Insurance reimbursement records will appear here once created.</p>
+    </div>
   </div>
+
 </div>
