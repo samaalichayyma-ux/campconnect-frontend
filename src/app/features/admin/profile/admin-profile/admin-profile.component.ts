@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
+
 import { CurrentUser } from '../../../public/profile/models/current-user.model';
 import { Profile } from '../../../public/profile/models/profile.model';
 
@@ -12,7 +14,7 @@ import { Profile } from '../../../public/profile/models/profile.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-profile.component.html',
-  styleUrl: './admin-profile.component.css'
+  styleUrl: './admin-profile.component.scss'
 })
 export class AdminProfileComponent implements OnInit {
   user: CurrentUser | null = null;
@@ -66,13 +68,13 @@ export class AdminProfileComponent implements OnInit {
             this.loading = false;
           },
           error: () => {
-            this.errorMessage = 'Impossible de charger le profil';
+            this.errorMessage = 'Unable to load profile details.';
             this.loading = false;
           }
         });
       },
       error: () => {
-        this.errorMessage = 'Impossible de charger le profil admin';
+        this.errorMessage = 'Unable to load administrator profile.';
         this.loading = false;
       }
     });
@@ -82,12 +84,12 @@ export class AdminProfileComponent implements OnInit {
     const url = this.photoUrlInput.trim();
 
     if (!url) {
-      this.errorMessage = 'Veuillez saisir une URL d’image';
+      this.errorMessage = 'Please enter an image URL.';
       return;
     }
 
     if (url.startsWith('file:///')) {
-      this.errorMessage = 'Les chemins locaux ne sont pas autorisés';
+      this.errorMessage = 'Local file paths are not allowed.';
       return;
     }
 
@@ -115,11 +117,11 @@ export class AdminProfileComponent implements OnInit {
             ? this.profile.photo
             : null;
 
-        this.successMessage = 'Profil mis à jour avec succès';
+        this.successMessage = 'Profile updated successfully.';
         this.saving = false;
       },
       error: () => {
-        this.errorMessage = 'Erreur lors de la mise à jour du profil';
+        this.errorMessage = 'Unable to update profile.';
         this.saving = false;
       }
     });

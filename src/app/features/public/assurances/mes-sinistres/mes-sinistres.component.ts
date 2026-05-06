@@ -16,7 +16,7 @@ import {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './mes-sinistres.component.html',
-  styleUrls: ['./mes-sinistres.component.css']
+  styleUrls: ['./mes-sinistres.component.scss']
 })
 export class MesSinistresComponent implements OnInit {
   sinistres: Sinistre[] = [];
@@ -168,5 +168,17 @@ export class MesSinistresComponent implements OnInit {
     default:
       return 'badge-pending';
   }
+}
+
+getClaimsInProgress(): number {
+  return this.sinistres.filter(s =>
+    s.statut === 'EN_ATTENTE' || s.statut === 'EN_COURS'
+  ).length;
+}
+
+getClaimsResolved(): number {
+  return this.sinistres.filter(s =>
+    s.statut === 'REMBOURSE' || s.statut === 'ACCEPTE'
+  ).length;
 }
 }

@@ -22,7 +22,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
   standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css',
+  styleUrl: './profile.component.scss',
   animations: [
     trigger('fadeSlideUp', [
       transition(':enter', [

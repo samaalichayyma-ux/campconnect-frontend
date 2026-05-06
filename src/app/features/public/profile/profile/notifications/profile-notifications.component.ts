@@ -8,7 +8,7 @@ import { NotificationService } from '../../../../../core/services/notification.s
   standalone: true,
   imports: [CommonModule],
   templateUrl: './profile-notifications.component.html',
-  styleUrls: ['./profile-notifications.component.css']
+  styleUrls: ['./profile-notifications.component.scss']
 })
 export class ProfileNotificationsComponent implements OnInit {
   notifications: NotificationUser[] = [];
@@ -31,8 +31,8 @@ export class ProfileNotificationsComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur chargement notifications', error);
-        this.errorMessage = 'Impossible de charger les notifications';
+        console.error('Error loading notifications', error);
+        this.errorMessage = 'Unable to load notifications. Please try again later.';
         this.loading = false;
       }
     });
@@ -46,12 +46,13 @@ export class ProfileNotificationsComponent implements OnInit {
         const index = this.notifications.findIndex(
           (n) => n.id === updatedNotification.id
         );
+
         if (index !== -1) {
           this.notifications[index] = updatedNotification;
         }
       },
       error: (error) => {
-        console.error('Erreur markAsRead', error);
+        console.error('Error marking notification as read', error);
       }
     });
   }
@@ -65,7 +66,7 @@ export class ProfileNotificationsComponent implements OnInit {
         }));
       },
       error: (error) => {
-        console.error('Erreur markAllAsRead', error);
+        console.error('Error marking all notifications as read', error);
       }
     });
   }
@@ -74,26 +75,30 @@ export class ProfileNotificationsComponent implements OnInit {
     return this.notifications.filter((notification) => !notification.read).length;
   }
 
+  get readCount(): number {
+    return this.notifications.filter((notification) => notification.read).length;
+  }
+
   trackByNotificationId(index: number, notification: NotificationUser): number {
     return notification.id;
   }
 
   getTypeLabel(type: string): string {
-  switch (type) {
-    case 'WELCOME':
-      return 'Bienvenue';
-    case 'SECURITY':
-      return 'Sécurité';
-    case 'PASSWORD_RESET':
-      return 'Mot de passe';
-    case 'PROFILE_UPDATED':
-      return 'Profil';
-    case 'GOOGLE_LOGIN':
-      return 'Google';
-    case 'ASSURANCE_REMBOURSEMENT':
-      return 'Assurance';
-    default:
-      return type;
+    switch (type) {
+      case 'WELCOME':
+        return 'Welcome';
+      case 'SECURITY':
+        return 'Security';
+      case 'PASSWORD_RESET':
+        return 'Password';
+      case 'PROFILE_UPDATED':
+        return 'Profile';
+      case 'GOOGLE_LOGIN':
+        return 'Google Login';
+      case 'ASSURANCE_REMBOURSEMENT':
+        return 'Insurance';
+      default:
+        return type;
+    }
   }
-}
 }

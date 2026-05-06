@@ -1,78 +1,182 @@
 <div class="assurance-page">
+
+  <!-- HERO -->
   <section class="assurance-hero">
-    <h1 class="assurance-title">
-      {{ isEditMode ? 'Modifier une assurance' : 'Créer une assurance' }}
-    </h1>
-    <p class="assurance-subtitle">
-      Gérez vos offres avec une interface élégante, claire et professionnelle.
-    </p>
+    <div class="assurance-hero__content">
+      <p class="assurance-kicker">Insurance Administration</p>
+
+      <h1 class="assurance-title">
+        {{ isEditMode ? 'Update Insurance Offer' : 'Create Insurance Offer' }}
+      </h1>
+
+      <p class="assurance-subtitle">
+        Build professional insurance products with clear pricing, coverage limits,
+        validity rules and general conditions.
+      </p>
+    </div>
+
+    <a
+      routerLink="/admin/assurances"
+      class="assurance-btn assurance-btn-secondary hero-back-btn"
+    >
+      Back to offers
+    </a>
   </section>
 
-  <div *ngIf="loading" class="assurance-loading">Chargement...</div>
-  <div *ngIf="errorMessage && loading" class="assurance-error">{{ errorMessage }}</div>
+  <!-- LOADING -->
+  <div *ngIf="loading" class="assurance-loading">
+    <div class="mini-loader"></div>
 
-  <section class="assurance-card" style="margin-top: 1.5rem;" *ngIf="!loading">
+    <div>
+      <strong>Loading insurance offer...</strong>
+      <p>Please wait while the offer details are being loaded.</p>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage && loading" class="assurance-error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- FORM CARD -->
+  <section class="assurance-card" *ngIf="!loading">
+    <div class="form-header">
+      <div>
+        <p class="form-kicker">
+          {{ isEditMode ? 'Edit mode' : 'Create mode' }}
+        </p>
+
+        <h2>
+          {{ isEditMode ? 'Edit insurance product' : 'New insurance product' }}
+        </h2>
+
+        <p>
+          Fill in the insurance offer details. These values will be visible to customers
+          when they browse available insurance plans.
+        </p>
+      </div>
+
+      <div class="form-status" [class.form-status--active]="form.get('active')?.value">
+        <span></span>
+        {{ form.get('active')?.value ? 'Active offer' : 'Inactive offer' }}
+      </div>
+    </div>
+
     <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
+
       <div class="assurance-field">
-        <label>Titre</label>
-        <input type="text" formControlName="titre" placeholder="Ex: Assurance Camping Premium" />
+        <label>Title</label>
+        <input
+          type="text"
+          formControlName="titre"
+          placeholder="Example: Premium Camping Insurance"
+        />
+
+        <small *ngIf="f['titre'].touched && f['titre'].invalid">
+          Title is required and must contain at least 3 characters.
+        </small>
       </div>
 
       <div class="assurance-field">
-        <label>Description</label>
-        <textarea rows="4" formControlName="description"></textarea>
-      </div>
-
-      <div class="assurance-field">
-        <label>Type d’assurance</label>
+        <label>Insurance type</label>
         <select formControlName="typeAssurance">
           <option *ngFor="let type of typeOptions" [value]="type">
-            {{ typeLabels[type] }}
+            {{ getTypeLabel(type) }}
           </option>
         </select>
       </div>
 
-      <div class="assurance-field">
-        <label>Montant de couverture</label>
-        <input type="number" formControlName="montantCouverture" />
+      <div class="assurance-field full-width">
+        <label>Description</label>
+        <textarea
+          rows="4"
+          formControlName="description"
+          placeholder="Describe the main benefits of this insurance offer..."
+        ></textarea>
+
+        <small *ngIf="f['description'].touched && f['description'].invalid">
+          Description is required and must contain at least 10 characters.
+        </small>
       </div>
 
-      <div class="assurance-field">
-        <label>Prime</label>
-        <input type="number" formControlName="prime" />
+      <div class="pricing-grid full-width">
+        <div class="assurance-field">
+          <label>Coverage amount</label>
+          <input
+            type="number"
+            formControlName="montantCouverture"
+            placeholder="0"
+          />
+        </div>
+
+        <div class="assurance-field">
+          <label>Premium</label>
+          <input
+            type="number"
+            formControlName="prime"
+            placeholder="0"
+          />
+        </div>
+
+        <div class="assurance-field">
+          <label>Validity duration</label>
+          <input
+            type="number"
+            formControlName="dureeValidite"
+            placeholder="30"
+          />
+          <span class="field-hint">Duration in days</span>
+        </div>
       </div>
 
-      <div class="assurance-field">
-        <label>Durée de validité (jours)</label>
-        <input type="number" formControlName="dureeValidite" />
+      <div class="assurance-field full-width">
+        <label>General conditions</label>
+        <textarea
+          rows="5"
+          formControlName="conditionsGenerales"
+          placeholder="Add the general conditions, exclusions and important rules..."
+        ></textarea>
+
+        <small *ngIf="f['conditionsGenerales'].touched && f['conditionsGenerales'].invalid">
+          General conditions are required and must contain at least 10 characters.
+        </small>
       </div>
 
-      <div class="assurance-field">
-        <label>Conditions générales</label>
-        <textarea rows="5" formControlName="conditionsGenerales"></textarea>
-      </div>
-
-      <div class="assurance-field">
-        <label style="display:flex; align-items:center; gap:.75rem;">
-          <input type="checkbox" formControlName="active" style="width:auto;" />
-          Assurance active
+      <div class="active-field full-width">
+        <label>
+          <input type="checkbox" formControlName="active" />
+          <span>
+            <strong>Publish this insurance offer</strong>
+            <small>Customers can subscribe to this offer when it is active.</small>
+          </span>
         </label>
       </div>
 
-      <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
-      <div *ngIf="errorMessage && !loading" class="assurance-error">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="assurance-success">
+        {{ successMessage }}
+      </div>
 
-      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-        <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submitting">
+      <div *ngIf="errorMessage && !loading" class="assurance-error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button
+          class="assurance-btn assurance-btn-primary"
+          type="submit"
+          [disabled]="submitting"
+        >
           {{
             submitting
-              ? 'Enregistrement...'
-              : (isEditMode ? 'Mettre à jour' : 'Créer l’assurance')
+              ? 'Saving...'
+              : (isEditMode ? 'Update insurance offer' : 'Create insurance offer')
           }}
         </button>
 
-        <a routerLink="/admin/assurances" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
-          Retour
+        <a
+          routerLink="/admin/assurances"
+          class="assurance-btn assurance-btn-secondary"
+        >
+          Cancel
         </a>
       </div>
     </form>

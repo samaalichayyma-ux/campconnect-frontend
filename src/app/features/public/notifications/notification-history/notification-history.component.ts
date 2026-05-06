@@ -9,7 +9,7 @@ import { NotificationUser } from '../../../../core/models/notification.model';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './notification-history.component.html',
-  styleUrls: ['./notification-history.component.css']
+  styleUrls: ['./notification-history.component.scss']
 })
 export class NotificationHistoryComponent implements OnInit {
   notifications: NotificationUser[] = [];
@@ -32,8 +32,8 @@ export class NotificationHistoryComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Erreur historique notifications', error);
-        this.errorMessage = 'Impossible de charger l’historique des notifications';
+        console.error('Error loading notification history', error);
+        this.errorMessage = 'Unable to load notification history. Please try again later.';
         this.loading = false;
       }
     });
@@ -49,7 +49,7 @@ export class NotificationHistoryComponent implements OnInit {
         );
       },
       error: (error) => {
-        console.error('Erreur markAsRead historique', error);
+        console.error('Error marking notification as read', error);
       }
     });
   }
@@ -63,7 +63,7 @@ export class NotificationHistoryComponent implements OnInit {
         }));
       },
       error: (error) => {
-        console.error('Erreur markAllAsRead historique', error);
+        console.error('Error marking all notifications as read', error);
       }
     });
   }
@@ -72,34 +72,49 @@ export class NotificationHistoryComponent implements OnInit {
     return this.notifications.filter((notification) => !notification.read).length;
   }
 
+  get readCount(): number {
+    return this.notifications.filter((notification) => notification.read).length;
+  }
+
+  get totalCount(): number {
+    return this.notifications.length;
+  }
+
   trackByNotificationId(index: number, notification: NotificationUser): number {
     return notification.id;
   }
 
   getNotificationLabel(type: string): string {
-  switch (type) {
-    case 'WELCOME':
-      return 'Bienvenue';
-    case 'SECURITY':
-      return 'Sécurité';
-    case 'PASSWORD_RESET':
-      return 'Mot de passe';
-    case 'PROFILE_UPDATED':
-      return 'Profil';
-    case 'GOOGLE_LOGIN':
-      return 'Google';
-    case 'ASSURANCE_REMBOURSEMENT':
-      return 'Assurance';
+    switch (type) {
+      case 'WELCOME':
+        return 'Welcome';
+
+      case 'SECURITY':
+        return 'Security';
+
+      case 'PASSWORD_RESET':
+        return 'Password';
+
+      case 'PROFILE_UPDATED':
+        return 'Profile';
+
+      case 'GOOGLE_LOGIN':
+        return 'Google Login';
+
+      case 'ASSURANCE_REMBOURSEMENT':
+        return 'Insurance Refund';
 
       case 'ASSURANCE_SOUSCRIPTION_ACCEPTEE':
-  return 'Souscription';
-case 'ASSURANCE_EXPIRATION':
-  return 'Expiration';
-case 'ASSURANCE_SINISTRE_EN_COURS':
-  return 'Sinistre';
+        return 'Subscription';
 
-    default:
-      return type;
+      case 'ASSURANCE_EXPIRATION':
+        return 'Expiration';
+
+      case 'ASSURANCE_SINISTRE_EN_COURS':
+        return 'Claim';
+
+      default:
+        return type;
+    }
   }
-}
 }

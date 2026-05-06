@@ -1,0 +1,597 @@
+// ================================================================
+// MES SOUSCRIPTIONS — SCSS professionnel & élégant
+// Même design system : assurance-list · mes-sinistres
+// Charte : vert forêt #1F3D2B · olive #838332 · ocre #F4A261 · crème #F4EDE4
+// ================================================================
+
+// ── Variables ──────────────────────────────────────────────────
+$c-forest:    #1F3D2B;
+$c-olive:     #838332;
+$c-dark:      #1C2A39;
+$c-accent:    #F4A261;
+$c-cream:     #F4EDE4;
+$c-white:     #ffffff;
+$c-text:      #1e2b20;
+$c-muted:     #6b7a6e;
+$c-border:    rgba(31, 61, 43, 0.10);
+$c-border-md: rgba(31, 61, 43, 0.16);
+
+$c-success:   #2e7d4f;
+$c-warning:   #b96b21;
+$c-danger:    #9b3a2e;
+$c-neutral:   #4a5568;
+
+$r-xl:    28px;
+$r-lg:    18px;
+$r-md:    12px;
+$r-sm:    8px;
+$r-pill:  999px;
+
+$sh-soft:   0 2px 12px rgba(28, 42, 57, 0.07);
+$sh-card:   0 4px 24px rgba(28, 42, 57, 0.09);
+$sh-hover:  0 12px 40px rgba(28, 42, 57, 0.14);
+$sh-strong: 0 24px 64px rgba(28, 42, 57, 0.16);
+
+$ease:  cubic-bezier(0.4, 0, 0.2, 1);
+$trans: all 0.28s $ease;
+
+// ── Keyframes ──────────────────────────────────────────────────
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-14px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes heroShine {
+  from { transform: translateX(-100%) skewX(-20deg); }
+  to   { transform: translateX(200%)  skewX(-20deg); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+// ── Host ───────────────────────────────────────────────────────
+:host {
+  display: block;
+  *, *::before, *::after { box-sizing: border-box; }
+}
+
+// ── Page wrapper ───────────────────────────────────────────────
+.ms {
+  min-height: 100vh;
+  background: #f8f5f0;
+  font-family: 'Raleway', sans-serif;
+  color: $c-text;
+  padding-bottom: 60px;
+}
+
+// ── HERO ───────────────────────────────────────────────────────
+.ms__hero {
+  position: relative;
+  overflow: hidden;
+  padding: 56px 48px 52px;
+  background: linear-gradient(130deg, $c-forest 0%, darken($c-forest, 8%) 55%, $c-dark 100%);
+  animation: fadeUp 0.7s ease both;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.07) 50%, transparent 70%);
+    animation: heroShine 9s linear infinite;
+    pointer-events: none;
+  }
+
+  &-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 80% 50%, rgba($c-accent, 0.18), transparent 55%),
+      radial-gradient(ellipse at 10% 80%, rgba($c-olive, 0.20), transparent 45%);
+    pointer-events: none;
+  }
+
+  &-shape {
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 380px; height: 380px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+  }
+
+  &-content { position: relative; z-index: 1; }
+}
+
+.ms__eyebrow {
+  display: inline-block;
+  margin-bottom: 14px;
+  color: rgba($c-accent, 0.95);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+}
+
+.ms__hero-title {
+  margin: 0 0 14px;
+  color: $c-white;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(2.4rem, 4vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+}
+
+.ms__hero-sub {
+  margin: 0 0 36px;
+  color: rgba(255,255,255,0.72);
+  font-size: 0.98rem;
+  line-height: 1.85;
+  max-width: 580px;
+}
+
+// Stats hero
+.ms__hero-stats {
+  display: flex;
+  align-items: center;
+}
+
+.ms__stat {
+  padding: 0 28px 0 0;
+
+  strong {
+    display: block;
+    color: $c-white;
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  span {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+
+  &:first-child { padding-left: 0; }
+}
+
+.ms__stat-sep {
+  width: 1px;
+  height: 40px;
+  background: rgba(255,255,255,0.14);
+  margin: 0 28px 0 0;
+  flex-shrink: 0;
+}
+
+// ── ALERT ──────────────────────────────────────────────────────
+.ms__alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 48px 0;
+  padding: 14px 18px;
+  border-radius: $r-lg;
+  font-size: 0.9rem;
+  font-weight: 700;
+  animation: fadeUp 0.4s ease both;
+
+  &--error {
+    background: rgba($c-danger, 0.07);
+    border: 1.5px solid rgba($c-danger, 0.18);
+    color: $c-danger;
+    svg { color: $c-danger; }
+  }
+}
+
+// ── LOADING ────────────────────────────────────────────────────
+.ms__loading {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 24px 48px 0;
+  padding: 20px 24px;
+  background: $c-white;
+  border-radius: $r-lg;
+  border: 1px solid $c-border;
+  color: $c-muted;
+  font-weight: 600;
+  animation: fadeUp 0.4s ease both;
+}
+
+.ms__spinner {
+  width: 22px; height: 22px;
+  border: 2.5px solid rgba($c-olive, 0.20);
+  border-top-color: $c-olive;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
+// ── EMPTY ──────────────────────────────────────────────────────
+.ms__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 48px 48px 0;
+  padding: 52px 32px;
+  background: $c-white;
+  border-radius: $r-xl;
+  border: 1px solid $c-border;
+  text-align: center;
+  animation: fadeUp 0.5s ease both;
+
+  &-icon {
+    width: 64px; height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba($c-forest, 0.07);
+    color: $c-forest;
+  }
+
+  &-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: $c-dark;
+  }
+
+  &-sub {
+    margin: 0;
+    color: $c-muted;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    max-width: 380px;
+  }
+}
+
+// ── LIST ───────────────────────────────────────────────────────
+.ms__list {
+  margin: 24px 48px 0;
+  background: $c-white;
+  border-radius: $r-xl;
+  border: 1px solid $c-border;
+  overflow: hidden;
+  box-shadow: $sh-card;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+// Header colonnes
+.ms__list-header {
+  display: grid;
+  grid-template-columns: minmax(200px,1fr) 150px 200px 130px 160px 130px 160px;
+  align-items: center;
+  padding: 0 28px;
+  height: 46px;
+  background: #f5f2ed;
+  border-bottom: 1px solid $c-border;
+
+  .ms__col {
+    font-size: 0.70rem;
+    font-weight: 800;
+    color: $c-muted;
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+  }
+}
+
+// ── Colonnes ───────────────────────────────────────────────────
+.ms__col {
+  &--plan        { display: flex; align-items: center; gap: 14px; }
+  &--contract    {}
+  &--period      {}
+  &--amount      { display: flex; align-items: baseline; gap: 4px; }
+  &--beneficiary {}
+  &--status      {}
+  &--actions     { display: flex; align-items: center; justify-content: flex-end; }
+}
+
+// ── Ligne souscription ─────────────────────────────────────────
+.ms__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(200px,1fr) 150px 200px 130px 160px 130px 160px;
+  align-items: center;
+  padding: 20px 28px;
+  border-bottom: 1px solid $c-border;
+  transition: $trans;
+  animation: rowIn 0.45s ease both;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover {
+    background: #fdfaf7;
+    .ms__row-accent  { opacity: 1; }
+    .ms__plan-name   { color: $c-forest; }
+    .ms__plan-icon   { filter: brightness(1.05); }
+  }
+}
+
+// Barre accent gauche
+.ms__row-accent {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  opacity: 0;
+  transition: $trans;
+}
+
+.ms__accent--badge-active    { background: linear-gradient(180deg, $c-olive, $c-success); }
+.ms__accent--badge-en-attente { background: linear-gradient(180deg, $c-accent, lighten($c-accent, 10%)); }
+.ms__accent--badge-expiree   { background: linear-gradient(180deg, #c0392b, #e74c3c); }
+.ms__accent--badge-pending   { background: linear-gradient(180deg, $c-neutral, lighten($c-neutral, 12%)); }
+
+// Icône plan
+.ms__plan-icon {
+  width: 42px; height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $r-md;
+  transition: $trans;
+}
+
+.ms__icon--badge-active     { background: rgba($c-olive, 0.10);   color: $c-olive; }
+.ms__icon--badge-en-attente  { background: rgba($c-accent, 0.12);  color: darken($c-accent, 20%); }
+.ms__icon--badge-expiree    { background: rgba($c-danger, 0.10);  color: $c-danger; }
+.ms__icon--badge-pending    { background: rgba($c-neutral, 0.08); color: $c-neutral; }
+
+.ms__plan-name {
+  margin: 0 0 3px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: $c-dark;
+  line-height: 1.3;
+  transition: $trans;
+}
+
+.ms__plan-type {
+  margin: 0;
+  font-size: 0.76rem;
+  color: $c-muted;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+// Numéro contrat
+.ms__contract-no {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: $c-dark;
+  font-family: 'Courier New', monospace;
+  background: rgba($c-forest, 0.05);
+  padding: 4px 10px;
+  border-radius: $r-sm;
+  border: 1px solid rgba($c-forest, 0.08);
+  white-space: nowrap;
+}
+
+// Période
+.ms__period {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ms__period-date {
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: $c-dark;
+  white-space: nowrap;
+}
+
+.ms__period-arrow {
+  color: $c-muted;
+  flex-shrink: 0;
+}
+
+// Montant
+.ms__amount {
+  font-weight: 800;
+  font-size: 0.97rem;
+  color: $c-forest;
+}
+
+.ms__currency {
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: $c-muted;
+  letter-spacing: 0.04em;
+}
+
+// Bénéficiaire
+.ms__beneficiary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.ms__beneficiary-avatar {
+  width: 30px; height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $c-forest, $c-olive);
+  color: $c-white;
+  font-size: 0.72rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0;
+}
+
+.ms__beneficiary-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: $c-dark;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+
+// ── BADGES STATUT ──────────────────────────────────────────────
+.ms__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: $r-pill;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ms__badge-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ms__badge {
+  &.badge-active {
+    background: rgba($c-olive, 0.12);
+    color: darken($c-olive, 12%);
+    border: 1px solid rgba($c-olive, 0.20);
+    .ms__badge-dot {
+      background: $c-success;
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+  }
+
+  &.badge-en-attente {
+    background: rgba($c-accent, 0.13);
+    color: darken($c-accent, 28%);
+    border: 1px solid rgba($c-accent, 0.22);
+    .ms__badge-dot { background: $c-accent; }
+  }
+
+  &.badge-expiree {
+    background: rgba($c-danger, 0.08);
+    color: $c-danger;
+    border: 1px solid rgba($c-danger, 0.16);
+    .ms__badge-dot { background: $c-danger; }
+  }
+
+  &.badge-pending {
+    background: rgba($c-neutral, 0.08);
+    color: $c-neutral;
+    border: 1px solid rgba($c-neutral, 0.14);
+    .ms__badge-dot { background: $c-neutral; }
+  }
+}
+
+// ── BOUTONS ────────────────────────────────────────────────────
+.ms__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: $r-pill;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: $trans;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  position: relative;
+  overflow: hidden;
+
+  // Shimmer
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.22) 50%, transparent 70%);
+    transform: translateX(-130%);
+    transition: transform 0.55s ease;
+  }
+
+  &:hover::after { transform: translateX(130%); }
+
+  &--primary {
+    background: linear-gradient(135deg, $c-forest, darken($c-forest, 6%));
+    color: $c-white;
+    box-shadow: 0 4px 14px rgba($c-forest, 0.28);
+    &:hover { box-shadow: 0 8px 24px rgba($c-forest, 0.38); transform: translateY(-2px); }
+    &:active { transform: translateY(0); }
+  }
+}
+
+// ── Responsive ─────────────────────────────────────────────────
+@media (max-width: 1280px) {
+  .ms__list-header,
+  .ms__row {
+    grid-template-columns: minmax(180px,1fr) 130px 180px 120px 140px 120px 150px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .ms__hero    { padding: 40px 28px 36px; }
+  .ms__alert, .ms__loading, .ms__empty, .ms__list { margin-left: 28px; margin-right: 28px; }
+
+  // Mode carte
+  .ms__list-header { display: none; }
+
+  .ms__row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 20px 20px 20px 24px;
+  }
+
+  .ms__col--plan        { width: 100%; }
+  .ms__col--actions     { width: 100%; justify-content: flex-start; }
+  .ms__col--contract,
+  .ms__col--period,
+  .ms__col--amount,
+  .ms__col--beneficiary,
+  .ms__col--status      { width: auto; }
+}
+
+@media (max-width: 640px) {
+  .ms__hero    { padding: 32px 20px 28px; }
+  .ms__alert, .ms__loading, .ms__empty, .ms__list { margin-left: 16px; margin-right: 16px; }
+  .ms__hero-stats { flex-wrap: wrap; gap: 16px; }
+  .ms__stat-sep   { display: none; }
+  .ms__stat       { padding: 0; }
+  .ms__hero-title { font-size: 2.2rem; }
+  .ms__btn--primary { width: 100%; height: 44px; }
+}

@@ -1,16 +1,52 @@
 <div class="assurance-page">
+
+  <!-- HERO -->
   <section class="assurance-hero">
-    <h1 class="assurance-title">Souscriptions clients</h1>
-    <p class="assurance-subtitle">
-      Consultez tous les contrats d’assurance souscrits par les utilisateurs.
-    </p>
+    <div class="assurance-hero__content">
+      <p class="assurance-kicker">Insurance Administration</p>
+
+      <h1 class="assurance-title">Customer Subscriptions</h1>
+
+      <p class="assurance-subtitle">
+        Review all insurance contracts subscribed by customers, monitor their status
+        and update subscription lifecycle information.
+      </p>
+    </div>
   </section>
 
+  <!-- SUMMARY -->
+  <section class="subscription-summary" *ngIf="!loading">
+    <article class="summary-card">
+      <span>Total subscriptions</span>
+      <strong>{{ souscriptions.length }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--active">
+      <span>Active</span>
+      <strong>{{ activeCount }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--pending">
+      <span>Pending</span>
+      <strong>{{ pendingCount }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--closed">
+      <span>Closed / rejected</span>
+      <strong>{{ expiredOrCancelledCount }}</strong>
+    </article>
+  </section>
+
+  <!-- MESSAGES -->
   <div *ngIf="loading" class="assurance-loading">
-    Chargement des souscriptions...
+    <div class="mini-loader"></div>
+    <div>
+      <strong>Loading subscriptions...</strong>
+      <p>Please wait while customer insurance contracts are being loaded.</p>
+    </div>
   </div>
 
-  <div *ngIf="successMessage" class="assurance-empty">
+  <div *ngIf="successMessage" class="assurance-success">
     {{ successMessage }}
   </div>
 
@@ -18,46 +54,94 @@
     {{ errorMessage }}
   </div>
 
+  <!-- LIST -->
   <section class="assurance-grid" *ngIf="!loading && souscriptions.length">
     <article class="assurance-card" *ngFor="let souscription of souscriptions">
-      <div style="display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-        <h3 class="assurance-card-title">
-          {{ souscription.assurance?.titre || 'Contrat assurance' }}
-        </h3>
 
-        <span class="assurance-badge" [ngClass]="getStatusClass(souscription.statut)">
-          {{ statusLabels[souscription.statut] }}
+      <div class="assurance-card-header">
+        <div>
+          <span class="contract-label">Insurance contract</span>
+
+          <h3 class="assurance-card-title">
+            {{ souscription.assurance?.titre || 'Insurance contract' }}
+          </h3>
+        </div>
+
+        <span
+          class="assurance-badge"
+          [ngClass]="getStatusClass(souscription.statut)"
+        >
+          <span class="badge-dot"></span>
+          {{ getStatusLabel(souscription.statut) }}
         </span>
       </div>
 
-      <p><strong>N° contrat :</strong> {{ souscription.numeroContrat || 'En attente' }}</p>
-      <p><strong>Client :</strong> {{ souscription.utilisateur?.nom || '-' }}</p>
-      <p><strong>Email :</strong> {{ souscription.utilisateur?.email || '-' }}</p>
-      <p><strong>Date début :</strong> {{ souscription.dateDebut }}</p>
-      <p><strong>Date fin :</strong> {{ souscription.dateFin }}</p>
-      <p><strong>Montant payé :</strong> {{ souscription.montantPaye | number:'1.2-2' }} TND</p>
-      <p><strong>Bénéficiaire :</strong> {{ souscription.beneficiaireNom }}</p>
-      <p><strong>Téléphone :</strong> {{ souscription.beneficiaireTelephone }}</p>
+      <div class="contract-number">
+        <span>Contract number</span>
+        <strong>{{ souscription.numeroContrat || 'Pending assignment' }}</strong>
+      </div>
 
-      <div class="assurance-field" style="margin-top:1rem;">
-        <label>Modifier le statut</label>
+      <div class="subscription-details">
+        <div>
+          <span>Customer</span>
+          <strong>{{ souscription.utilisateur?.nom || '-' }}</strong>
+        </div>
+
+        <div>
+          <span>Email</span>
+          <strong>{{ souscription.utilisateur?.email || '-' }}</strong>
+        </div>
+
+        <div>
+          <span>Start date</span>
+          <strong>{{ souscription.dateDebut || '-' }}</strong>
+        </div>
+
+        <div>
+          <span>End date</span>
+          <strong>{{ souscription.dateFin || '-' }}</strong>
+        </div>
+
+        <div>
+          <span>Paid amount</span>
+          <strong>{{ souscription.montantPaye | number:'1.2-2' }} TND</strong>
+        </div>
+
+        <div>
+          <span>Beneficiary</span>
+          <strong>{{ souscription.beneficiaireNom || '-' }}</strong>
+        </div>
+
+        <div>
+          <span>Beneficiary phone</span>
+          <strong>{{ souscription.beneficiaireTelephone || '-' }}</strong>
+        </div>
+      </div>
+
+      <div class="assurance-field">
+        <label>Update status</label>
 
         <select
           [value]="souscription.statut"
           (change)="changeStatut(souscription.id, $event)"
         >
-          <option value="EN_ATTENTE">En attente</option>
+          <option value="EN_ATTENTE">Pending</option>
           <option value="ACTIVE">Active</option>
-          <option value="EXPIREE">Expirée</option>
-          <option value="ANNULEE">Annulée</option>
-          <option value="SUSPENDUE">Suspendue</option>
-          <option value="REFUSEE">Refusée</option>
+          <option value="EXPIREE">Expired</option>
+          <option value="ANNULEE">Cancelled</option>
+          <option value="SUSPENDUE">Suspended</option>
+          <option value="REFUSEE">Rejected</option>
         </select>
       </div>
     </article>
   </section>
 
-  <div *ngIf="!loading && !souscriptions.length" class="assurance-empty" style="margin-top:1rem;">
-    Aucune souscription trouvée.
+  <!-- EMPTY -->
+  <div *ngIf="!loading && !souscriptions.length" class="assurance-empty">
+    <div class="empty-icon">📄</div>
+    <div>
+      <strong>No subscriptions found</strong>
+      <p>Customer insurance subscriptions will appear here once created.</p>
+    </div>
   </div>
 </div>

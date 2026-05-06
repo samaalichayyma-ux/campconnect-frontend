@@ -1,26 +1,39 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
   <div class="profile-card">
 
-    <div class="profile-top">
-      <div class="profile-header">
-        <div class="avatar-wrapper">
-          <div class="profile-avatar" *ngIf="!imagePreview">👤</div>
-          <img
-            *ngIf="imagePreview"
-            [src]="imagePreview"
-            alt="Photo profil"
-            class="profile-image"
-          />
+    <!-- HERO -->
+    <div class="profile-hero">
+      <div class="profile-hero__content">
+        <div class="profile-header">
+          <div class="avatar-wrapper">
+            <div class="profile-avatar" *ngIf="!imagePreview">
+              <span>👤</span>
+            </div>
+
+            <img
+              *ngIf="imagePreview"
+              [src]="imagePreview"
+              alt="Admin profile photo"
+              class="profile-image"
+            />
+          </div>
+
+          <div class="header-text">
+            <span class="profile-badge">Administrator</span>
+            <h1 class="profile-title">Admin Profile</h1>
+            <p class="profile-subtitle">
+              Manage your personal information and administrator account details.
+            </p>
+          </div>
         </div>
 
-        <div class="header-text">
-          <span class="profile-badge">Administrator</span>
-          <h1 class="profile-title">Admin Profile</h1>
-          <p class="profile-subtitle">Manage your personal information</p>
-        </div>
+        <button class="hero-dashboard-btn" routerLink="/admin">
+          Back to Dashboard
+        </button>
       </div>
     </div>
 
+    <!-- USER INFO -->
     <div class="profile-info-grid" *ngIf="user">
       <div class="info-card">
         <span class="info-label">Name</span>
@@ -43,16 +56,18 @@
       </div>
     </div>
 
+    <!-- FORM -->
     <div class="profile-content">
       <div class="form-section">
         <div class="section-title">
+          <span class="section-kicker">Personal Information</span>
           <h2>Edit Profile</h2>
-          <p>Update your profile details</p>
+          <p>Update your address, profile image and biography.</p>
         </div>
 
         <div class="profile-form">
           <div class="form-group full-width">
-            <label>Adresse</label>
+            <label>Address</label>
             <input
               type="text"
               [(ngModel)]="profile.adresse"
@@ -61,13 +76,15 @@
           </div>
 
           <div class="form-group full-width">
-            <label>Change profile image</label>
+            <label>Profile image URL</label>
+
             <div class="photo-url-box">
               <input
                 type="text"
                 [(ngModel)]="photoUrlInput"
                 placeholder="Paste image URL here"
               />
+
               <button
                 type="button"
                 class="btn primary-btn"
@@ -79,7 +96,7 @@
           </div>
 
           <div class="form-group full-width">
-            <label>Biographie</label>
+            <label>Biography</label>
             <textarea
               rows="5"
               [(ngModel)]="profile.biographie"
@@ -90,6 +107,7 @@
       </div>
     </div>
 
+    <!-- ALERTS -->
     <div *ngIf="successMessage" class="alert success-alert">
       {{ successMessage }}
     </div>
@@ -98,6 +116,7 @@
       {{ errorMessage }}
     </div>
 
+    <!-- ACTIONS -->
     <div class="profile-actions">
       <button class="btn secondary-btn" routerLink="/admin">
         Dashboard

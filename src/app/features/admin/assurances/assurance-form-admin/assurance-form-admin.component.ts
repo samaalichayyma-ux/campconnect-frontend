@@ -5,8 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { AssuranceService } from '../../../../core/services/assurance.service';
 import {
   Assurance,
-  TypeAssurance,
-  TYPE_ASSURANCE_LABELS
+  TypeAssurance
 } from '../../../../core/models/assurance.models';
 
 @Component({
@@ -14,7 +13,7 @@ import {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './assurance-form-admin.component.html',
-  styleUrls: ['./assurance-form-admin.component.css']
+  styleUrls: ['./assurance-form-admin.component.scss']
 })
 export class AssuranceFormAdminComponent implements OnInit {
   form!: FormGroup;
@@ -27,7 +26,6 @@ export class AssuranceFormAdminComponent implements OnInit {
   successMessage = '';
 
   readonly typeOptions = Object.values(TypeAssurance);
-  readonly typeLabels = TYPE_ASSURANCE_LABELS;
 
   constructor(
     private fb: FormBuilder,
@@ -72,7 +70,7 @@ export class AssuranceFormAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.errorMessage = 'Impossible de charger cette assurance.';
+        this.errorMessage = 'Unable to load this insurance offer.';
         this.loading = false;
       }
     });
@@ -100,19 +98,44 @@ export class AssuranceFormAdminComponent implements OnInit {
     request.subscribe({
       next: () => {
         this.successMessage = this.isEditMode
-          ? 'Assurance modifiée avec succès.'
-          : 'Assurance créée avec succès.';
+          ? 'Insurance offer updated successfully.'
+          : 'Insurance offer created successfully.';
+
         this.submitting = false;
-        setTimeout(() => this.router.navigate(['/admin/assurances']), 1000);
+
+        setTimeout(() => {
+          this.router.navigate(['/admin/assurances']);
+        }, 1000);
       },
       error: (error) => {
         console.error(error);
+
         this.errorMessage = this.isEditMode
-          ? 'Impossible de modifier cette assurance.'
-          : 'Impossible de créer cette assurance.';
+          ? 'Unable to update this insurance offer.'
+          : 'Unable to create this insurance offer.';
+
         this.submitting = false;
       }
     });
+  }
+
+  getTypeLabel(type?: string): string {
+    switch (type) {
+      case 'ANNULATION':
+        return 'Cancellation';
+      case 'ACCIDENT':
+        return 'Accident';
+      case 'RESPONSABILITE_CIVILE':
+        return 'Civil Liability';
+      case 'VOL_EQUIPEMENT':
+        return 'Equipment Theft';
+      case 'DOMMAGE_MATERIEL':
+        return 'Material Damage';
+      case 'ASSISTANCE_VOYAGE':
+        return 'Travel Assistance';
+      default:
+        return type || 'Insurance';
+    }
   }
 
   get f() {

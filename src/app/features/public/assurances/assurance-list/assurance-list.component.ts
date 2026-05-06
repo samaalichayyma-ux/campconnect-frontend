@@ -20,7 +20,7 @@ interface AssistantMessage {
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './assurance-list.component.html',
-  styleUrls: ['./assurance-list.component.css']
+  styleUrls: ['./assurance-list.component.scss']
 })
 export class AssuranceListComponent implements OnInit {
   assurances: Assurance[] = [];
@@ -29,6 +29,7 @@ export class AssuranceListComponent implements OnInit {
   loading = false;
   errorMessage = '';
   searchTerm = '';
+  chatOpen = false;
 
   hasReservation = false;
   hasInscriptionSite = false;

@@ -1,43 +1,115 @@
 <div class="assurance-page">
+
+  <!-- HERO -->
   <section class="assurance-hero">
-    <h1 class="assurance-title">Gestion des garanties</h1>
-    <p class="assurance-subtitle">
-      Ajoutez, modifiez et supprimez les garanties liées à cette assurance.
-    </p>
+    <div class="assurance-hero__content">
+      <p class="assurance-kicker">Insurance Administration</p>
+
+      <h1 class="assurance-title">Guarantees Management</h1>
+
+      <p class="assurance-subtitle">
+        Add, update and remove the guarantees linked to this insurance offer.
+        Manage coverage limits, deductibles and guarantee descriptions.
+      </p>
+    </div>
   </section>
 
-  <section class="assurance-card" style="margin-top:1.5rem;">
-    <h3 class="assurance-card-title">
-      {{ editingId ? 'Modifier une garantie' : 'Ajouter une garantie' }}
-    </h3>
+  <!-- SUMMARY -->
+  <section class="guarantee-summary" *ngIf="!loading">
+    <article class="summary-card">
+      <span>Total guarantees</span>
+      <strong>{{ garanties.length }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--coverage">
+      <span>Total coverage limit</span>
+      <strong>{{ totalPlafond | number:'1.0-0' }} TND</strong>
+    </article>
+
+    <article class="summary-card summary-card--deductible">
+      <span>Total deductible</span>
+      <strong>{{ totalFranchise | number:'1.2-2' }} TND</strong>
+    </article>
+  </section>
+
+  <!-- FORM -->
+  <section class="assurance-card form-card">
+    <div class="form-header">
+      <div>
+        <p class="form-kicker">
+          {{ editingId ? 'Edit mode' : 'Create mode' }}
+        </p>
+
+        <h3 class="assurance-card-title">
+          {{ editingId ? 'Update guarantee' : 'Add a new guarantee' }}
+        </h3>
+
+        <p class="form-subtitle">
+          Fill in the guarantee details, coverage limit and deductible amount.
+        </p>
+      </div>
+    </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
       <div class="assurance-field">
-        <label>Nom</label>
-        <input type="text" formControlName="nom" />
+        <label>Name</label>
+        <input
+          type="text"
+          formControlName="nom"
+          placeholder="Example: Equipment damage coverage"
+        />
+
+        <small *ngIf="form.get('nom')?.touched && form.get('nom')?.invalid">
+          Name is required and must contain at least 2 characters.
+        </small>
       </div>
 
-      <div class="assurance-field">
+      <div class="assurance-field full-width">
         <label>Description</label>
-        <textarea rows="4" formControlName="description"></textarea>
+        <textarea
+          rows="4"
+          formControlName="description"
+          placeholder="Describe what this guarantee covers..."
+        ></textarea>
+
+        <small *ngIf="form.get('description')?.touched && form.get('description')?.invalid">
+          Description is required and must contain at least 5 characters.
+        </small>
       </div>
 
       <div class="assurance-field">
-        <label>Plafond</label>
-        <input type="number" formControlName="plafond" />
+        <label>Coverage limit</label>
+        <input
+          type="number"
+          formControlName="plafond"
+          placeholder="0"
+        />
       </div>
 
       <div class="assurance-field">
-        <label>Franchise</label>
-        <input type="number" formControlName="franchise" />
+        <label>Deductible</label>
+        <input
+          type="number"
+          formControlName="franchise"
+          placeholder="0"
+        />
       </div>
 
-      <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
-      <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+      <div *ngIf="successMessage" class="assurance-success">
+        {{ successMessage }}
+      </div>
 
-      <div style="display:flex; gap:1rem; flex-wrap:wrap;">
-        <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submitting">
-          {{ submitting ? 'Enregistrement...' : (editingId ? 'Mettre à jour' : 'Ajouter') }}
+      <div *ngIf="errorMessage" class="assurance-error">
+        {{ errorMessage }}
+      </div>
+
+      <div class="form-actions">
+        <button
+          class="assurance-btn assurance-btn-primary"
+          type="submit"
+          [disabled]="submitting"
+        >
+          {{ submitting ? 'Saving...' : (editingId ? 'Update guarantee' : 'Add guarantee') }}
         </button>
 
         <button
@@ -46,45 +118,82 @@
           class="assurance-btn assurance-btn-secondary"
           (click)="resetForm()"
         >
-          Annuler
+          Cancel
         </button>
 
-        <a routerLink="/admin/assurances" class="assurance-btn assurance-btn-secondary" style="text-decoration:none;">
-          Retour
+        <a
+          routerLink="/admin/assurances"
+          class="assurance-btn assurance-btn-secondary"
+        >
+          Back to offers
         </a>
       </div>
     </form>
   </section>
 
-  <div *ngIf="loading" class="assurance-loading">Chargement des garanties...</div>
+  <!-- LOADING -->
+  <div *ngIf="loading" class="assurance-loading">
+    <div class="mini-loader"></div>
+    <div>
+      <strong>Loading guarantees...</strong>
+      <p>Please wait while the guarantee list is being loaded.</p>
+    </div>
+  </div>
 
-  <section class="assurance-grid" *ngIf="garanties.length">
-    <article class="assurance-card" *ngFor="let garantie of garanties">
-      <h3 class="assurance-card-title">{{ garantie.nom }}</h3>
-      <p style="color: var(--assurance-text-soft); line-height:1.65;">
+  <!-- LIST -->
+  <section class="assurance-grid" *ngIf="!loading && garanties.length">
+    <article class="assurance-card guarantee-card" *ngFor="let garantie of garanties">
+      <div class="guarantee-card__header">
+        <div>
+          <span class="guarantee-label">Guarantee</span>
+          <h3 class="assurance-card-title">{{ garantie.nom }}</h3>
+        </div>
+      </div>
+
+      <p class="guarantee-description">
         {{ garantie.description }}
       </p>
 
-      <p><strong>Plafond :</strong> {{ garantie.plafond | number:'1.0-0' }} TND</p>
-      <p><strong>Franchise :</strong> {{ garantie.franchise | number:'1.2-2' }} TND</p>
+      <div class="guarantee-details">
+        <div>
+          <span>Coverage limit</span>
+          <strong>{{ garantie.plafond | number:'1.0-0' }} TND</strong>
+        </div>
 
-      <div style="display:flex; gap:.8rem; flex-wrap:wrap; margin-top:1rem;">
-        <button class="assurance-btn assurance-btn-secondary" (click)="editGarantie(garantie)">
-          Modifier
+        <div>
+          <span>Deductible</span>
+          <strong>{{ garantie.franchise | number:'1.2-2' }} TND</strong>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button
+          class="assurance-btn assurance-btn-secondary"
+          type="button"
+          (click)="editGarantie(garantie)"
+        >
+          Edit
         </button>
 
         <button
-          class="assurance-btn"
-          style="background:#f6d7d3; color:#8d2f28;"
+          class="assurance-btn danger-btn"
+          type="button"
           (click)="deleteGarantie(garantie.id)"
         >
-          Supprimer
+          Delete
         </button>
       </div>
     </article>
   </section>
 
-  <div *ngIf="!loading && !garanties.length" class="assurance-empty" style="margin-top:1rem;">
-    Aucune garantie disponible.
+  <!-- EMPTY -->
+  <div *ngIf="!loading && !garanties.length" class="assurance-empty">
+    <div class="empty-icon">🛡️</div>
+
+    <div>
+      <strong>No guarantees available</strong>
+      <p>Create the first guarantee for this insurance offer.</p>
+    </div>
   </div>
+
 </div>

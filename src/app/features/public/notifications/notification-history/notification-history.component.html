@@ -1,79 +1,182 @@
 <section class="history-page">
-  <div class="history-overlay"></div>
-
   <div class="history-card">
-    <div class="history-header">
-      <div class="history-header-left">
+
+    <!-- HERO -->
+    <header class="history-hero">
+      <div class="history-hero__content">
         <span class="section-badge">CampConnect</span>
-        <h1>Historique des notifications</h1>
-        <p>Toutes vos notifications sont affichées ici</p>
+
+        <h1>Notification History</h1>
+
+        <p>
+          Review all your account alerts, security messages and important updates in one place.
+        </p>
+      </div>
+
+      <div class="history-stats">
+        <div class="history-stat history-stat--unread">
+          <span>Unread</span>
+          <strong>{{ unreadCount }}</strong>
+        </div>
+
+        <div class="history-stat">
+          <span>Read</span>
+          <strong>{{ readCount }}</strong>
+        </div>
+
+        <div class="history-stat">
+          <span>Total</span>
+          <strong>{{ totalCount }}</strong>
+        </div>
+      </div>
+    </header>
+
+    <!-- TOOLBAR -->
+    <div class="history-toolbar">
+      <div>
+        <h2>All Notifications</h2>
+        <p>
+          Click “Mark as read” to update the status of a notification.
+        </p>
       </div>
 
       <div class="history-actions">
-        <span class="badge" *ngIf="unreadCount > 0">
-          {{ unreadCount }} non lue(s)
+        <span class="unread-badge" *ngIf="unreadCount > 0">
+          {{ unreadCount }} unread
         </span>
 
         <button
+          type="button"
           class="btn primary-btn"
           (click)="markAllAsRead()"
           [disabled]="unreadCount === 0"
         >
-          Tout marquer comme lu
+          Mark all as read
         </button>
 
-        <button class="btn secondary-btn" routerLink="/public/profile">
-          Retour profil
+        <button
+          type="button"
+          class="btn secondary-btn"
+          routerLink="/public/profile"
+        >
+          Back to profile
         </button>
       </div>
     </div>
 
-    <div *ngIf="loading" class="state-box info-message">
-      Chargement...
+    <!-- LOADING -->
+    <div *ngIf="loading" class="state-box state-box--loading">
+      <div class="loader"></div>
+
+      <div>
+        <strong>Loading notification history...</strong>
+        <p>Please wait while we retrieve your latest notifications.</p>
+      </div>
     </div>
 
-    <div *ngIf="errorMessage" class="state-box error-message">
-      {{ errorMessage }}
+    <!-- ERROR -->
+    <div *ngIf="errorMessage" class="state-box state-box--error">
+      <div class="state-icon">!</div>
+
+      <div>
+        <strong>Something went wrong</strong>
+        <p>{{ errorMessage }}</p>
+      </div>
     </div>
 
-    <div *ngIf="!loading && notifications.length === 0" class="state-box info-message">
-      Aucune notification.
+    <!-- EMPTY -->
+    <div
+      *ngIf="!loading && notifications.length === 0 && !errorMessage"
+      class="state-box state-box--empty"
+    >
+      <div class="state-icon">✓</div>
+
+      <div>
+        <strong>No notifications yet</strong>
+        <p>You do not have any notifications at the moment.</p>
+      </div>
     </div>
 
+    <!-- LIST -->
     <div class="history-list" *ngIf="!loading && notifications.length > 0">
-      <div
+      <article
         class="history-item"
         *ngFor="let notification of notifications; trackBy: trackByNotificationId"
-        [class.unread]="!notification.read"
+        [class.history-item--unread]="!notification.read"
       >
-        <div class="history-top">
-          <div class="history-title-group">
-            <h3>{{ notification.titre }}</h3>
-            <span class="history-type">
-              {{ getNotificationLabel(notification.type) }}
+        <div class="history-icon">
+          <svg
+            *ngIf="!notification.read"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+          >
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+
+          <svg
+            *ngIf="notification.read"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+          >
+            <path d="M20 6 9 17l-5-5"/>
+          </svg>
+        </div>
+
+        <div class="history-content">
+          <div class="history-top">
+            <div>
+              <h3>{{ notification.titre }}</h3>
+
+              <small>
+                {{ notification.createdAt | date:'MMM d, y - HH:mm' }}
+              </small>
+            </div>
+
+            <div class="history-badges">
+              <span class="history-type">
+                {{ getNotificationLabel(notification.type) }}
+              </span>
+
+              <span
+                class="status-pill"
+                [class.status-pill--read]="notification.read"
+                [class.status-pill--unread]="!notification.read"
+              >
+                {{ notification.read ? 'Read' : 'Unread' }}
+              </span>
+            </div>
+          </div>
+
+          <p>{{ notification.message }}</p>
+
+          <div class="history-bottom">
+            <button
+              *ngIf="!notification.read"
+              class="link-btn"
+              type="button"
+              (click)="markAsRead(notification)"
+            >
+              Mark as read
+            </button>
+
+            <span class="read-message" *ngIf="notification.read">
+              This notification has already been read.
             </span>
           </div>
         </div>
 
-        <p>{{ notification.message }}</p>
-
-        <div class="history-bottom">
-          <small>{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
-
-          <button
-            *ngIf="!notification.read"
-            class="link-btn"
-            type="button"
-            (click)="markAsRead(notification)"
-          >
-            Marquer comme lu
-          </button>
-
-          <span class="read-pill" *ngIf="notification.read">
-            Lue
-          </span>
-        </div>
-      </div>
+        <div class="history-glow"></div>
+      </article>
     </div>
+
   </div>
 </section>

@@ -20,7 +20,11 @@
   </section>
 
   <div *ngIf="loading" class="stats-loading">
-    Loading insurance statistics...
+    <div class="mini-loader"></div>
+    <div>
+      <strong>Loading insurance statistics...</strong>
+      <p>Please wait while the dashboard data is being updated.</p>
+    </div>
   </div>
 
   <div *ngIf="errorMessage" class="stats-error">
@@ -83,7 +87,7 @@
     </article>
   </section>
 
-  <!-- Weather current section -->
+  <!-- WEATHER -->
   <section class="weather-dashboard-panel" *ngIf="!loading">
     <div class="weather-top">
       <div>
@@ -118,7 +122,11 @@
     </div>
 
     <div *ngIf="weatherLoading" class="stats-loading">
-      Loading current weather...
+      <div class="mini-loader"></div>
+      <div>
+        <strong>Loading current weather...</strong>
+        <p>Fetching the latest weather data for {{ weatherCity }}.</p>
+      </div>
     </div>
 
     <div *ngIf="currentWeather && !weatherLoading" class="weather-content">
@@ -171,7 +179,7 @@
   </section>
 
   <section class="stats-main-grid" *ngIf="!loading">
-    <!-- IA Fraud -->
+    <!-- AI FRAUD -->
     <article class="stats-ai-panel">
       <div class="stats-panel-header">
         <div>
@@ -226,7 +234,7 @@
       </p>
     </article>
 
-    <!-- Recent claims -->
+    <!-- RECENT CLAIMS -->
     <article class="stats-table-panel">
       <div class="stats-panel-header">
         <div>

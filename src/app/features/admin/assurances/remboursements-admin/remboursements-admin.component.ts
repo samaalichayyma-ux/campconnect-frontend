@@ -3,8 +3,7 @@ import { CommonModule } from '@angular/common';
 import { AssuranceService } from '../../../../core/services/assurance.service';
 import {
   Remboursement,
-  StatutRemboursement,
-  STATUT_REMBOURSEMENT_LABELS
+  StatutRemboursement
 } from '../../../../core/models/assurance.models';
 import { FormsModule } from '@angular/forms';
 
@@ -13,7 +12,7 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './remboursements-admin.component.html',
-  styleUrls: ['./remboursements-admin.component.css']
+  styleUrls: ['./remboursements-admin.component.scss']
 })
 export class RemboursementsAdminComponent implements OnInit {
   remboursements: Remboursement[] = [];
@@ -21,8 +20,13 @@ export class RemboursementsAdminComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
 
-  readonly statusLabels = STATUT_REMBOURSEMENT_LABELS;
   readonly statusOptions = Object.values(StatutRemboursement);
+
+  readonly statusLabels: Record<string, string> = {
+    EN_ATTENTE: 'Pending',
+    EFFECTUE: 'Completed',
+    REJETE: 'Rejected'
+  };
 
   constructor(private assuranceService: AssuranceService) {}
 
@@ -33,6 +37,7 @@ export class RemboursementsAdminComponent implements OnInit {
   loadRemboursements(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.assuranceService.getAllRemboursements().subscribe({
       next: (data) => {
@@ -41,7 +46,7 @@ export class RemboursementsAdminComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.errorMessage = 'Impossible de charger les remboursements.';
+        this.errorMessage = 'Unable to load reimbursements.';
         this.loading = false;
       }
     });
@@ -53,25 +58,54 @@ export class RemboursementsAdminComponent implements OnInit {
     this.assuranceService.updateRemboursement(payload).subscribe({
       next: () => {
         remboursement.statut = statut;
-        this.successMessage = 'Statut du remboursement mis à jour.';
+        this.successMessage = 'Reimbursement status updated successfully.';
       },
       error: (error) => {
         console.error(error);
-        this.errorMessage = 'Impossible de mettre à jour le remboursement.';
+        this.errorMessage = 'Unable to update this reimbursement.';
       }
     });
+  }
+
+  get completedCount(): number {
+    return this.remboursements.filter((r) => r.statut === 'EFFECTUE').length;
+  }
+
+  get pendingCount(): number {
+    return this.remboursements.filter((r) => r.statut === 'EN_ATTENTE').length;
+  }
+
+  get rejectedCount(): number {
+    return this.remboursements.filter((r) => r.statut === 'REJETE').length;
+  }
+
+  get totalAmount(): number {
+    return this.remboursements
+      .filter((r) => r.statut === 'EFFECTUE')
+      .reduce((sum, r) => sum + Number(r.montant || 0), 0);
   }
 
   getStatusClass(status: string | undefined): string {
     switch (status) {
       case 'EFFECTUE':
-        return 'badge-effectue';
+        return 'badge-completed';
+
       case 'EN_ATTENTE':
-        return 'badge-en-attente';
-      case 'REJETE':
-        return 'badge-rejete';
-      default:
         return 'badge-pending';
+
+      case 'REJETE':
+        return 'badge-rejected';
+
+      default:
+        return 'badge-neutral';
     }
+  }
+
+  getStatusLabel(status: string | undefined): string {
+    if (!status) {
+      return 'Unknown';
+    }
+
+    return this.statusLabels[status] || status;
   }
 }

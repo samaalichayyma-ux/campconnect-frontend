@@ -1,134 +1,343 @@
-<div class="assurance-page">
-  <section class="assurance-hero">
-    <h1 class="assurance-title">Déclarer un sinistre</h1>
-    <p class="assurance-subtitle">
-      Décrivez précisément l’incident pour accélérer l’étude de votre dossier.
-    </p>
-  </section>
+<div class="sf">
 
-  <section class="assurance-card" style="margin-top:1.5rem;">
-    <form [formGroup]="form" (ngSubmit)="submit()" class="assurance-form">
-      <div class="assurance-field">
-        <label>Type de sinistre</label>
-        <select formControlName="typeSinistre">
-          <option *ngFor="let item of typeOptions" [value]="item">
-            {{ typeLabels[item] }}
-          </option>
-        </select>
-      </div>
+  <!-- ══ HERO ═══════════════════════════════════════════════ -->
+  <header class="sf__hero">
+    <div class="sf__hero-bg"></div>
+    <div class="sf__hero-content">
+      <span class="sf__eyebrow">CampConnect · Claims Center</span>
+      <h1 class="sf__hero-title">File a New Claim</h1>
+      <p class="sf__hero-sub">Describe your incident precisely to help us process your claim as quickly as possible.</p>
 
-      <div class="assurance-field">
-        <label>Description</label>
-        <textarea rows="5" formControlName="description" placeholder="Décrivez ce qui s’est passé..."></textarea>
-      </div>
-
-      <button
-  type="button"
-  class="assurance-btn assurance-btn-secondary"
-  (click)="analyserDescriptionAvecIA()"
-  [disabled]="aiLoading"
->
-  {{ aiLoading ? 'Analyse IA...' : 'Analyser avec IA' }}
-</button>
-
-<div *ngIf="aiResult" class="assurance-empty" style="margin-top:1rem; white-space:pre-wrap;">
-  {{ aiResult }}
-</div>
-
-      <div class="assurance-field">
-        <label>Lieu de l’incident</label>
-        <input type="text" formControlName="lieuIncident" />
-      </div>
-
-      <div class="assurance-field">
-        <label>Montant estimé</label>
-        <input type="number" formControlName="montantEstime" />
-      </div>
-
-      <section class="weather-card">
-  <div class="weather-card-header">
-    <div>
-      <p class="weather-kicker">Vérification météo</p>
-      <h3>Contrôler la météo du jour</h3>
-      <p>
-        Vérifie si la météo du lieu et de la date correspond au sinistre déclaré.
-      </p>
-    </div>
-
-    <button
-      type="button"
-      class="weather-btn"
-      (click)="verifierMeteoAvantDeclaration()"
-      [disabled]="weatherLoading"
-    >
-      {{ weatherLoading ? 'Vérification...' : 'Vérifier météo' }}
-    </button>
-  </div>
-
-  <div *ngIf="weatherError" class="weather-error">
-    {{ weatherError }}
-  </div>
-
-  <div *ngIf="weatherResult" class="weather-result">
-    <div class="weather-status" [ngClass]="weatherResult.meteoCompatible ? 'compatible' : 'warning'">
-      {{ weatherResult.meteoCompatible ? 'Météo compatible' : 'À vérifier manuellement' }}
-    </div>
-
-    <div class="weather-grid">
-      <div>
-        <span>Lieu</span>
-        <strong>{{ weatherResult.lieu }}</strong>
-      </div>
-
-      <div>
-        <span>Date</span>
-        <strong>{{ weatherResult.date }}</strong>
-      </div>
-
-      <div>
-        <span>Condition</span>
-        <strong>{{ weatherResult.condition }}</strong>
-      </div>
-
-      <div>
-        <span>Vent max</span>
-        <strong>{{ weatherResult.ventMaxKph }} km/h</strong>
-      </div>
-
-      <div>
-        <span>Précipitations</span>
-        <strong>{{ weatherResult.precipitationMm }} mm</strong>
-      </div>
-
-      <div>
-        <span>Risque météo</span>
-        <strong>{{ weatherResult.niveauRisqueMeteo }}</strong>
+      <div class="sf__hero-steps">
+        <div class="sf__step sf__step--active">
+          <div class="sf__step-num">1</div>
+          <span>Incident details</span>
+        </div>
+        <div class="sf__step-line"></div>
+        <div class="sf__step sf__step--active">
+          <div class="sf__step-num">2</div>
+          <span>AI analysis</span>
+        </div>
+        <div class="sf__step-line"></div>
+        <div class="sf__step">
+          <div class="sf__step-num">3</div>
+          <span>Weather check</span>
+        </div>
+        <div class="sf__step-line"></div>
+        <div class="sf__step">
+          <div class="sf__step-num">4</div>
+          <span>Submit</span>
+        </div>
       </div>
     </div>
+    <div class="sf__hero-shape"></div>
+  </header>
 
-    <p class="weather-conclusion">
-      {{ weatherResult.conclusion }}
-    </p>
+  <!-- ══ ALERTS ════════════════════════════════════════════ -->
+  <div *ngIf="successMessage" class="sf__alert sf__alert--success">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    {{ successMessage }}
   </div>
-</section>
 
-      <div *ngIf="successMessage" class="assurance-empty">{{ successMessage }}</div>
-      <div *ngIf="errorMessage" class="assurance-error">{{ errorMessage }}</div>
+  <div *ngIf="errorMessage" class="sf__alert sf__alert--error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
 
-      <div class="assurance-field">
-  <label>Réclamation liée</label>
-  <select formControlName="reclamationId">
-    <option [ngValue]="null">Aucune réclamation</option>
+  <!-- ══ FORM WRAPPER ═══════════════════════════════════════ -->
+  <form [formGroup]="form" (ngSubmit)="submit()" class="sf__body">
 
-    <option *ngFor="let reclamation of reclamations" [ngValue]="reclamation.id">
-      Réclamation #{{ reclamation.id }} - {{ reclamation.statut }}
-    </option>
-  </select>
-</div>
+    <!-- ── COLONNE GAUCHE ──────────────────────────────── -->
+    <div class="sf__col sf__col--main">
 
-      <button class="assurance-btn assurance-btn-primary" type="submit" [disabled]="submitting">
-        {{ submitting ? 'Envoi en cours...' : 'Déclarer le sinistre' }}
-      </button>
-    </form>
-  </section>
+      <!-- Bloc 1 : Incident details -->
+      <section class="sf__card" style="animation-delay:0.05s">
+        <div class="sf__card-header">
+          <div class="sf__card-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="sf__card-title">Incident details</h2>
+            <p class="sf__card-sub">Fill in all fields about the incident</p>
+          </div>
+        </div>
+
+        <div class="sf__grid">
+
+          <!-- Type sinistre -->
+          <div class="sf__field sf__field--full">
+            <label class="sf__label" for="typeSinistre">
+              Claim type
+              <span class="sf__required">*</span>
+            </label>
+            <div class="sf__select-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sf__select-icon">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+              <select id="typeSinistre" formControlName="typeSinistre">
+                <option *ngFor="let item of typeOptions" [value]="item">
+                  {{ typeLabels[item] }}
+                </option>
+              </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sf__chevron">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Lieu -->
+          <div class="sf__field">
+            <label class="sf__label" for="lieuIncident">
+              Incident location
+              <span class="sf__required">*</span>
+            </label>
+            <div class="sf__input-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+              </svg>
+              <input
+                id="lieuIncident"
+                type="text"
+                formControlName="lieuIncident"
+                placeholder="City, region or address…"
+                [class.sf__input--error]="form.get('lieuIncident')?.invalid && form.get('lieuIncident')?.touched"
+              />
+            </div>
+            <span class="sf__field-error" *ngIf="form.get('lieuIncident')?.invalid && form.get('lieuIncident')?.touched">
+              Location is required (min. 3 characters)
+            </span>
+          </div>
+
+          <!-- Montant -->
+          <div class="sf__field">
+            <label class="sf__label" for="montantEstime">
+              Estimated amount
+              <span class="sf__required">*</span>
+            </label>
+            <div class="sf__input-wrap">
+              <span class="sf__input-prefix">TND</span>
+              <input
+                id="montantEstime"
+                type="number"
+                formControlName="montantEstime"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                [class.sf__input--error]="form.get('montantEstime')?.invalid && form.get('montantEstime')?.touched"
+              />
+            </div>
+            <span class="sf__field-error" *ngIf="form.get('montantEstime')?.invalid && form.get('montantEstime')?.touched">
+              Please enter a valid amount
+            </span>
+          </div>
+
+          <!-- Description -->
+          <div class="sf__field sf__field--full">
+            <label class="sf__label" for="description">
+              Incident description
+              <span class="sf__required">*</span>
+            </label>
+            <textarea
+              id="description"
+              rows="5"
+              formControlName="description"
+              placeholder="Describe what happened in detail: date, circumstances, damages, witnesses…"
+              [class.sf__input--error]="form.get('description')?.invalid && form.get('description')?.touched"
+            ></textarea>
+            <div class="sf__field-footer">
+              <span class="sf__field-error" *ngIf="form.get('description')?.invalid && form.get('description')?.touched">
+                Description is required (min. 10 characters)
+              </span>
+              <span class="sf__char-count">
+                {{ form.get('description')?.value?.length || 0 }} chars
+              </span>
+            </div>
+          </div>
+
+          <!-- Réclamation liée -->
+          <div class="sf__field sf__field--full">
+            <label class="sf__label" for="reclamationId">
+              Linked complaint
+              <span class="sf__optional">(optional)</span>
+            </label>
+            <div class="sf__select-wrap">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sf__select-icon">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+              </svg>
+              <select id="reclamationId" formControlName="reclamationId">
+                <option [ngValue]="null">No linked complaint</option>
+                <option *ngFor="let reclamation of reclamations" [ngValue]="reclamation.id">
+                  Complaint #{{ reclamation.id }} — {{ reclamation.statut }}
+                </option>
+              </select>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="sf__chevron">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── SUBMIT ──────────────────────────────────────── -->
+      <div class="sf__submit-row">
+        <a routerLink="/public/assurances/mes-souscriptions" class="sf__btn sf__btn--ghost" style="text-decoration:none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+          </svg>
+          Back
+        </a>
+        <button class="sf__btn sf__btn--primary" type="submit" [disabled]="submitting">
+          <svg *ngIf="!submitting" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          </svg>
+          <span *ngIf="submitting" class="sf__btn-dots"><span></span><span></span><span></span></span>
+          {{ submitting ? 'Submitting…' : 'Submit claim' }}
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ── COLONNE DROITE : outils IA & météo ─────────── -->
+    <div class="sf__col sf__col--aside">
+
+      <!-- Bloc IA -->
+      <section class="sf__card sf__card--ai" style="animation-delay:0.12s">
+        <div class="sf__card-header">
+          <div class="sf__card-icon sf__card-icon--ai">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <circle cx="12" cy="16" r="1" fill="currentColor"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="sf__card-title">AI Analysis</h2>
+            <p class="sf__card-sub">Get instant feedback on your description</p>
+          </div>
+        </div>
+
+        <p class="sf__ai-hint">
+          Our AI reviews your description and helps identify missing information or inconsistencies before submission.
+        </p>
+
+        <button
+          type="button"
+          class="sf__btn sf__btn--ai"
+          (click)="analyserDescriptionAvecIA()"
+          [disabled]="aiLoading"
+        >
+          <svg *ngIf="!aiLoading" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span *ngIf="aiLoading" class="sf__btn-dots sf__btn-dots--light"><span></span><span></span><span></span></span>
+          {{ aiLoading ? 'Analysing…' : 'Analyse with AI' }}
+        </button>
+
+        <div *ngIf="aiResult" class="sf__ai-result">
+          <div class="sf__ai-result-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            AI feedback
+          </div>
+          <p>{{ aiResult }}</p>
+        </div>
+      </section>
+
+      <!-- Bloc Météo -->
+      <section class="sf__card sf__card--weather" style="animation-delay:0.18s">
+        <div class="sf__card-header">
+          <div class="sf__card-icon sf__card-icon--weather">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="sf__card-title">Weather Check</h2>
+            <p class="sf__card-sub">Verify weather conditions at incident location</p>
+          </div>
+        </div>
+
+        <p class="sf__ai-hint">
+          Cross-reference the declared location and date with actual weather data to strengthen your claim file.
+        </p>
+
+        <button
+          type="button"
+          class="sf__btn sf__btn--weather"
+          (click)="verifierMeteoAvantDeclaration()"
+          [disabled]="weatherLoading"
+        >
+          <svg *ngIf="!weatherLoading" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z"/>
+          </svg>
+          <span *ngIf="weatherLoading" class="sf__btn-dots sf__btn-dots--light"><span></span><span></span><span></span></span>
+          {{ weatherLoading ? 'Checking…' : 'Check weather' }}
+        </button>
+
+        <!-- Erreur météo -->
+        <div *ngIf="weatherError" class="sf__weather-error">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          {{ weatherError }}
+        </div>
+
+        <!-- Résultat météo -->
+        <div *ngIf="weatherResult" class="sf__weather-result">
+
+          <div class="sf__weather-status"
+            [class.sf__weather-status--ok]="weatherResult.meteoCompatible"
+            [class.sf__weather-status--warn]="!weatherResult.meteoCompatible"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline *ngIf="weatherResult.meteoCompatible" points="20 6 9 17 4 12"/>
+              <path *ngIf="!weatherResult.meteoCompatible" d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            </svg>
+            {{ weatherResult.meteoCompatible ? 'Weather consistent with claim' : 'Manual verification recommended' }}
+          </div>
+
+          <div class="sf__weather-grid">
+            <div class="sf__weather-item">
+              <span>Location</span>
+              <strong>{{ weatherResult.lieu }}</strong>
+            </div>
+            <div class="sf__weather-item">
+              <span>Date</span>
+              <strong>{{ weatherResult.date }}</strong>
+            </div>
+            <div class="sf__weather-item">
+              <span>Condition</span>
+              <strong>{{ weatherResult.condition }}</strong>
+            </div>
+            <div class="sf__weather-item">
+              <span>Max wind</span>
+              <strong>{{ weatherResult.ventMaxKph }} km/h</strong>
+            </div>
+            <div class="sf__weather-item">
+              <span>Precipitation</span>
+              <strong>{{ weatherResult.precipitationMm }} mm</strong>
+            </div>
+            <div class="sf__weather-item">
+              <span>Risk level</span>
+              <strong>{{ weatherResult.niveauRisqueMeteo }}</strong>
+            </div>
+          </div>
+
+          <p class="sf__weather-conclusion">{{ weatherResult.conclusion }}</p>
+        </div>
+
+      </section>
+
+    </div>
+  </form>
+
 </div>

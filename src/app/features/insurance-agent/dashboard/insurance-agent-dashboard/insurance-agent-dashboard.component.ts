@@ -26,7 +26,7 @@ interface AiFraudeDashboardResult {
   standalone: true,
   imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './insurance-agent-dashboard.component.html',
-  styleUrls: ['./insurance-agent-dashboard.component.css']
+  styleUrls: ['./insurance-agent-dashboard.component.scss']
 })
 export class InsuranceAgentDashboardComponent implements OnInit {
   assurances: Assurance[] = [];
@@ -43,7 +43,7 @@ export class InsuranceAgentDashboardComponent implements OnInit {
   sinistresRefusesCount = 0;
   montantTotalRembourse = 0;
 
-  assurancePlusUtilisee = 'Aucune donnée';
+  assurancePlusUtilisee = 'No data available';
   assurancePlusUtiliseeCount = 0;
 
   fraudeLoading = false;
@@ -54,7 +54,6 @@ export class InsuranceAgentDashboardComponent implements OnInit {
 
   recentSinistres: Sinistre[] = [];
 
-  // Weather dashboard
   weatherCity = 'Tabarka';
   currentWeather?: CurrentWeatherResponse;
   weatherLoading = false;
@@ -74,28 +73,28 @@ export class InsuranceAgentDashboardComponent implements OnInit {
     forkJoin({
       assurances: this.assuranceService.getAllAssurances().pipe(
         catchError((error) => {
-          console.error('Erreur chargement assurances', error);
+          console.error('Error loading insurance offers', error);
           return of([] as Assurance[]);
         })
       ),
 
       souscriptions: this.assuranceService.getAllSouscriptions().pipe(
         catchError((error) => {
-          console.error('Erreur chargement souscriptions', error);
+          console.error('Error loading subscriptions', error);
           return of([] as SouscriptionAssurance[]);
         })
       ),
 
       sinistres: this.assuranceService.getAllSinistres().pipe(
         catchError((error) => {
-          console.error('Erreur chargement sinistres', error);
+          console.error('Error loading claims', error);
           return of([] as Sinistre[]);
         })
       ),
 
       remboursements: this.assuranceService.getAllRemboursements().pipe(
         catchError((error) => {
-          console.error('Erreur chargement remboursements', error);
+          console.error('Error loading reimbursements', error);
           return of([] as Remboursement[]);
         })
       )
@@ -107,12 +106,11 @@ export class InsuranceAgentDashboardComponent implements OnInit {
         this.remboursements = remboursements;
 
         this.calculateStats();
-
         this.loading = false;
       },
       error: (error) => {
         console.error(error);
-        this.errorMessage = 'Impossible de charger les statistiques assurance.';
+        this.errorMessage = 'Unable to load insurance dashboard statistics.';
         this.loading = false;
       }
     });
@@ -135,7 +133,7 @@ export class InsuranceAgentDashboardComponent implements OnInit {
         this.weatherLoading = false;
       },
       error: (error) => {
-        console.error('Erreur météo actuelle', error);
+        console.error('Error loading current weather', error);
         this.weatherError =
           error?.error?.message ||
           'Unable to load current weather data.';
@@ -202,14 +200,14 @@ export class InsuranceAgentDashboardComponent implements OnInit {
     this.souscriptions.forEach((souscription) => {
       const title = this.getAssuranceTitleFromSouscription(souscription);
 
-      if (!title || title === 'Assurance non définie') {
+      if (!title || title === 'Undefined insurance') {
         return;
       }
 
       counts.set(title, (counts.get(title) || 0) + 1);
     });
 
-    let bestTitle = 'Aucune donnée';
+    let bestTitle = 'No data available';
     let bestCount = 0;
 
     counts.forEach((count, title) => {
@@ -234,13 +232,13 @@ export class InsuranceAgentDashboardComponent implements OnInit {
       data?.assuranceTitre ||
       data?.titreAssurance ||
       data?.assurance?.nom ||
-      'Assurance non définie'
+      'Undefined insurance'
     );
   }
 
   analyserTauxFraudeIa(): void {
     if (!this.sinistres.length) {
-      this.fraudeError = 'Aucun sinistre disponible pour l’analyse IA.';
+      this.fraudeError = 'No claims available for AI fraud analysis.';
       return;
     }
 
@@ -255,14 +253,14 @@ export class InsuranceAgentDashboardComponent implements OnInit {
       .map((sinistre) =>
         this.assuranceService.detectFraudeBySinistreAi(sinistre.id!).pipe(
           catchError((error) => {
-            console.error('Erreur IA fraude pour sinistre', sinistre.id, error);
+            console.error('AI fraud analysis error for claim', sinistre.id, error);
             return of('');
           })
         )
       );
 
     if (!requests.length) {
-      this.fraudeError = 'Aucun sinistre valide à analyser.';
+      this.fraudeError = 'No valid claims available for analysis.';
       this.fraudeLoading = false;
       return;
     }
@@ -289,7 +287,7 @@ export class InsuranceAgentDashboardComponent implements OnInit {
               this.fraudeHighRiskCount++;
             }
           } catch (error) {
-            console.error('Réponse IA fraude non lisible', error);
+            console.error('Unreadable AI fraud response', error);
           }
         });
 
@@ -304,7 +302,7 @@ export class InsuranceAgentDashboardComponent implements OnInit {
       },
       error: (error) => {
         console.error(error);
-        this.fraudeError = 'Impossible de calculer le taux de fraude IA.';
+        this.fraudeError = 'Unable to calculate the AI fraud rate.';
         this.fraudeLoading = false;
       }
     });
@@ -332,7 +330,7 @@ export class InsuranceAgentDashboardComponent implements OnInit {
 
   getFraudeDisplayValue(): string {
     if (this.tauxFraudeIa === null) {
-      return 'Non analysé';
+      return 'Not analyzed';
     }
 
     return `${this.tauxFraudeIa}%`;
@@ -359,22 +357,22 @@ export class InsuranceAgentDashboardComponent implements OnInit {
   getSinistreStatusLabel(statut?: string): string {
     switch (statut) {
       case 'EN_ATTENTE':
-        return 'En attente';
+        return 'Pending';
 
       case 'EN_COURS':
-        return 'En cours';
+        return 'In progress';
 
       case 'ACCEPTE':
-        return 'Accepté';
+        return 'Accepted';
 
       case 'REFUSE':
-        return 'Refusé';
+        return 'Rejected';
 
       case 'REMBOURSE':
-        return 'Remboursé';
+        return 'Reimbursed';
 
       default:
-        return 'Inconnu';
+        return 'Unknown';
     }
   }
 
@@ -383,11 +381,17 @@ export class InsuranceAgentDashboardComponent implements OnInit {
       return 'weather-normal';
     }
 
-    if (this.currentWeather.windKph >= 60 || this.currentWeather.precipitationMm >= 20) {
+    if (
+      this.currentWeather.windKph >= 60 ||
+      this.currentWeather.precipitationMm >= 20
+    ) {
       return 'weather-danger';
     }
 
-    if (this.currentWeather.windKph >= 35 || this.currentWeather.precipitationMm >= 5) {
+    if (
+      this.currentWeather.windKph >= 35 ||
+      this.currentWeather.precipitationMm >= 5
+    ) {
       return 'weather-warning';
     }
 

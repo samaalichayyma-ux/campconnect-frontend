@@ -1,0 +1,788 @@
+// ============================================================
+// CAMPING INSURANCE — Subscription Form
+// Design: Organic luxury · Forest premium · Nature editorial
+// ============================================================
+
+// ── Google Fonts ────────────────────────────────────────────
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+// ── Design Tokens ───────────────────────────────────────────
+$forest-deep:     #1A2E1E;
+$forest-mid:      #2D4A32;
+$forest-light:    #3D6142;
+$moss:            #6B8F5E;
+$sage:            #A8C5A0;
+$parchment:       #F8F3EC;
+$linen:           #EFE8DD;
+$clay:            #C9A882;
+$amber:           #E8923A;
+$amber-warm:      #F5A855;
+$white:           #FFFFFF;
+$ink:             #1C2B1E;
+$ink-soft:        #4A5E4D;
+$ink-muted:       #7A917D;
+$border-subtle:   rgba(45, 74, 50, 0.13);
+$border-mid:      rgba(45, 74, 50, 0.22);
+$shadow-sm:       0 4px 16px rgba(26, 46, 30, 0.08);
+$shadow-md:       0 12px 36px rgba(26, 46, 30, 0.12);
+$shadow-lg:       0 24px 64px rgba(26, 46, 30, 0.16);
+$shadow-xl:       0 36px 80px rgba(26, 46, 30, 0.20);
+$ease-smooth:     cubic-bezier(0.4, 0, 0.2, 1);
+$ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease-out:        cubic-bezier(0.0, 0, 0.2, 1);
+
+// ── Mixins ───────────────────────────────────────────────────
+@mixin glass($opacity: 0.78, $blur: 20px) {
+  background: rgba($white, $opacity);
+  backdrop-filter: blur($blur);
+  -webkit-backdrop-filter: blur($blur);
+}
+
+@mixin card-base {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba($white, 0.7);
+  box-shadow: $shadow-lg;
+  transition: transform 0.38s $ease-smooth, box-shadow 0.38s $ease-smooth;
+  @include glass;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, rgba($white, 0.45), transparent 55%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+@mixin fade-up($delay: 0s, $duration: 0.7s) {
+  opacity: 0;
+  animation: fadeUpIn $duration $ease-out $delay forwards;
+}
+
+// ── Keyframes ────────────────────────────────────────────────
+@keyframes fadeUpIn {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmerHero {
+  0%   { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(12px, -18px) scale(1.04); }
+  66%       { transform: translate(-8px, 10px) scale(0.97); }
+}
+
+@keyframes pulseRing {
+  0%   { transform: scale(0.9); opacity: 0.6; }
+  50%  { transform: scale(1.08); opacity: 0.2; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+@keyframes badgePop {
+  0%   { transform: scale(0.8) translateY(6px); opacity: 0; }
+  60%  { transform: scale(1.06) translateY(-2px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+
+// ── Root Wrapper ─────────────────────────────────────────────
+.ins-page {
+  --c-forest-deep:  #{$forest-deep};
+  --c-forest-mid:   #{$forest-mid};
+  --c-forest-light: #{$forest-light};
+  --c-moss:         #{$moss};
+  --c-sage:         #{$sage};
+  --c-parchment:    #{$parchment};
+  --c-linen:        #{$linen};
+  --c-clay:         #{$clay};
+  --c-amber:        #{$amber};
+  --c-amber-warm:   #{$amber-warm};
+  --c-ink:          #{$ink};
+  --c-ink-soft:     #{$ink-soft};
+  --c-ink-muted:    #{$ink-muted};
+
+  font-family: 'DM Sans', sans-serif;
+  color: $ink;
+  min-height: 100vh;
+  padding: 40px;
+  position: relative;
+  overflow-x: hidden;
+
+  // Rich layered background
+  background:
+    radial-gradient(ellipse 60% 40% at 8% 12%, rgba($amber, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 92% 8%, rgba($forest-light, 0.12) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 50% 110%, rgba($forest-deep, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 0% 80%, rgba($moss, 0.07) 0%, transparent 50%),
+    linear-gradient(158deg, #FDFAF5 0%, #F5EFE4 40%, #EFE8DA 75%, #E8E0D3 100%);
+
+  // Decorative background orbs
+  &::before,
+  &::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: floatOrb 16s ease-in-out infinite;
+  }
+
+  &::before {
+    width: 520px;
+    height: 520px;
+    top: -180px;
+    right: -160px;
+    background: radial-gradient(circle, rgba($amber, 0.09), transparent 70%);
+    filter: blur(40px);
+  }
+
+  &::after {
+    width: 620px;
+    height: 620px;
+    bottom: -200px;
+    left: -180px;
+    background: radial-gradient(circle, rgba($forest-light, 0.10), transparent 70%);
+    filter: blur(50px);
+    animation-delay: -6s;
+  }
+
+  > * { position: relative; z-index: 1; }
+}
+
+// ── Status Messages ───────────────────────────────────────────
+.ins-status {
+  margin-bottom: 24px;
+  padding: 16px 22px;
+  border-radius: 16px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  @include fade-up(0s, 0.4s);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &--loading {
+    background: rgba($white, 0.75);
+    border: 1px solid $border-subtle;
+    color: $ink-soft;
+    box-shadow: $shadow-sm;
+
+    &::before {
+      background: $moss;
+      animation: pulseRing 1.5s ease infinite;
+    }
+  }
+
+  &--error {
+    background: rgba(#FEF2F1, 0.95);
+    border: 1px solid rgba(#C0392B, 0.18);
+    color: #8B2518;
+
+    &::before { background: #C0392B; }
+  }
+
+  &--success {
+    background: rgba(#F0FAF0, 0.95);
+    border: 1px solid rgba($forest-mid, 0.18);
+    color: $forest-mid;
+
+    &::before { background: $moss; }
+  }
+}
+
+// ── Hero Section ─────────────────────────────────────────────
+.ins-hero {
+  position: relative;
+  padding: 52px 52px 48px;
+  border-radius: 32px;
+  overflow: hidden;
+  margin-bottom: 32px;
+  @include fade-up(0.05s, 0.8s);
+
+  // Layered forest gradient
+  background:
+    linear-gradient(130deg,
+      rgba($forest-light, 0.07) 0%,
+      transparent 40%
+    ),
+    linear-gradient(220deg,
+      rgba($amber, 0.12) 0%,
+      transparent 35%
+    ),
+    linear-gradient(155deg, $forest-deep 0%, #1E3822 45%, #253D29 100%);
+
+  box-shadow: $shadow-xl, inset 0 1px 0 rgba($white, 0.08);
+  border: 1px solid rgba($white, 0.06);
+
+  // Texture overlay
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.018'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 1;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Shimmer sweep
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent 0%, rgba($white, 0.06) 50%, transparent 100%);
+    animation: shimmerHero 9s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  > * { position: relative; z-index: 2; }
+
+  // Decorative corner orb
+  &__orb {
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba($amber, 0.18), transparent 65%);
+    pointer-events: none;
+    z-index: 1;
+    animation: floatOrb 14s ease-in-out infinite;
+  }
+}
+
+.ins-hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  background: rgba($amber, 0.18);
+  border: 1px solid rgba($amber-warm, 0.35);
+  color: rgba($amber-warm, 0.92);
+  box-shadow: 0 2px 12px rgba($amber, 0.15);
+  animation: badgePop 0.6s $ease-spring 0.3s both;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: $amber-warm;
+    box-shadow: 0 0 8px rgba($amber-warm, 0.6);
+  }
+}
+
+.ins-hero__eyebrow {
+  display: block;
+  margin-top: 28px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: rgba($sage, 0.75);
+  @include fade-up(0.2s);
+}
+
+.ins-hero__title {
+  margin: 10px 0 16px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.3px;
+  color: $white;
+  @include fade-up(0.25s, 0.9s);
+
+  em {
+    font-style: italic;
+    color: rgba($amber-warm, 0.9);
+  }
+}
+
+.ins-hero__subtitle {
+  max-width: 680px;
+  font-size: 1rem;
+  font-weight: 300;
+  line-height: 1.85;
+  color: rgba($white, 0.72);
+  margin: 0;
+  @include fade-up(0.35s, 0.7s);
+}
+
+.ins-hero__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 32px;
+  @include fade-up(0.45s, 0.7s);
+}
+
+.ins-hero__meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba($white, 0.62);
+
+  &::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba($sage, 0.5);
+  }
+}
+
+// ── Two-Column Grid ───────────────────────────────────────────
+.ins-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 26px;
+  align-items: start;
+}
+
+// ── Cards ─────────────────────────────────────────────────────
+.ins-card {
+  @include card-base;
+  padding: 36px 32px;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: $shadow-xl;
+  }
+
+  > * { position: relative; z-index: 1; }
+
+  &--summary {
+    @include fade-up(0.15s, 0.75s);
+
+    // Subtle left accent line
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 32px;
+      bottom: 32px;
+      width: 3px;
+      border-radius: 0 3px 3px 0;
+      background: linear-gradient($forest-mid, $moss);
+    }
+  }
+
+  &--form {
+    @include fade-up(0.25s, 0.75s);
+  }
+}
+
+.ins-card__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: $moss;
+  margin-bottom: 8px;
+
+  &::before {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: currentColor;
+  }
+}
+
+.ins-card__title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: $forest-deep;
+  margin: 0 0 28px;
+  line-height: 1.25;
+}
+
+// ── Summary Lines ─────────────────────────────────────────────
+.ins-summary {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ins-summary__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid $border-subtle;
+  transition: background 0.2s;
+
+  &:last-child { border-bottom: none; }
+
+  &:hover {
+    .ins-summary__key { color: $forest-mid; }
+  }
+}
+
+.ins-summary__key {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: $ink-muted;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+
+.ins-summary__val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: $ink;
+  text-align: right;
+
+  &--highlight {
+    color: $forest-mid;
+    font-size: 1.1rem;
+  }
+
+  &--status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #926B1A;
+    background: rgba($amber, 0.12);
+    border: 1px solid rgba($amber, 0.22);
+    padding: 3px 10px;
+    border-radius: 999px;
+
+    &::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: $amber;
+    }
+  }
+}
+
+.ins-summary__note {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba($forest-deep, 0.04);
+  border: 1px solid $border-subtle;
+  font-size: 0.84rem;
+  line-height: 1.7;
+  color: $ink-muted;
+
+  strong {
+    color: $ink-soft;
+    font-weight: 600;
+  }
+}
+
+.ins-summary__desc {
+  margin-top: 14px;
+  font-size: 0.88rem;
+  line-height: 1.75;
+  color: $ink-muted;
+  padding-top: 14px;
+  border-top: 1px dashed $border-subtle;
+}
+
+// ── Form ──────────────────────────────────────────────────────
+.ins-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ins-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.ins-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  @include fade-up(0s, 0.5s);
+
+  @for $i from 1 through 6 {
+    &:nth-child(#{$i}) { animation-delay: #{$i * 0.07}s; }
+  }
+}
+
+.ins-field__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $ink-soft;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  .required {
+    color: $amber;
+    font-size: 0.75rem;
+  }
+}
+
+.ins-field__input {
+  width: 100%;
+  border: 1.5px solid $border-subtle;
+  border-radius: 16px;
+  background: rgba($white, 0.9);
+  color: $ink;
+  font-size: 0.95rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  padding: 14px 18px;
+  outline: none;
+  transition:
+    border-color 0.28s $ease-smooth,
+    box-shadow 0.28s $ease-smooth,
+    transform 0.28s $ease-smooth,
+    background 0.28s $ease-smooth;
+  box-shadow: inset 0 1px 2px rgba($forest-deep, 0.04);
+  appearance: none;
+  -webkit-appearance: none;
+
+  // Date input icon styling
+  &[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.5;
+    cursor: pointer;
+    filter: hue-rotate(60deg);
+  }
+
+  &::placeholder {
+    color: rgba($ink-muted, 0.6);
+    font-weight: 300;
+  }
+
+  &:hover {
+    border-color: rgba($moss, 0.4);
+    background: rgba($white, 0.96);
+    box-shadow: inset 0 1px 2px rgba($forest-deep, 0.03), 0 6px 18px rgba($forest-deep, 0.05);
+  }
+
+  &:focus {
+    border-color: $forest-light;
+    background: $white;
+    box-shadow:
+      0 0 0 4px rgba($forest-light, 0.10),
+      0 8px 24px rgba($forest-deep, 0.08);
+    transform: translateY(-1px);
+  }
+
+  &.ng-invalid.ng-touched {
+    border-color: rgba(#C0392B, 0.5);
+    box-shadow: 0 0 0 4px rgba(#C0392B, 0.07);
+  }
+}
+
+.ins-field__error {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #9D2B1F;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 2px;
+  animation: fadeUpIn 0.3s $ease-out;
+
+  &::before {
+    content: '!';
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(#C0392B, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+}
+
+// ── Divider ───────────────────────────────────────────────────
+.ins-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, $border-mid, transparent);
+  margin: 4px 0;
+}
+
+// ── CTA Button ────────────────────────────────────────────────
+.ins-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 17px 28px;
+  border: none;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  overflow: hidden;
+  transition:
+    transform 0.32s $ease-spring,
+    box-shadow 0.32s $ease-smooth,
+    opacity 0.22s;
+
+  // Shimmer
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -80%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent, rgba($white, 0.28), transparent);
+    transition: left 0.55s $ease-smooth;
+    pointer-events: none;
+  }
+
+  &:hover::before { left: 130%; }
+
+  &--primary {
+    background: linear-gradient(135deg, $amber 0%, $amber-warm 55%, lighten($amber-warm, 8%) 100%);
+    color: darken($forest-deep, 2%);
+    box-shadow:
+      0 8px 24px rgba($amber, 0.32),
+      0 2px 8px rgba($amber, 0.2),
+      inset 0 1px 0 rgba($white, 0.3);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.008);
+      box-shadow:
+        0 16px 36px rgba($amber, 0.38),
+        0 6px 16px rgba($amber, 0.25),
+        inset 0 1px 0 rgba($white, 0.3);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(-1px) scale(0.998);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 4px 12px rgba($amber, 0.15);
+    }
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    transition: transform 0.32s $ease-spring;
+  }
+
+  &:hover:not(:disabled) &__icon {
+    transform: translateX(3px);
+  }
+
+  &__spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba($forest-deep, 0.2);
+    border-top-color: $forest-deep;
+    border-radius: 50%;
+    animation: spinLoader 0.8s linear infinite;
+  }
+}
+
+// ── Trust Badges ──────────────────────────────────────────────
+.ins-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.ins-trust__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: $ink-muted;
+
+  svg {
+    width: 14px;
+    height: 14px;
+    color: $moss;
+    flex-shrink: 0;
+  }
+}
+
+// ── Responsive ────────────────────────────────────────────────
+@media (max-width: 1024px) {
+  .ins-page { padding: 28px; }
+  .ins-grid { grid-template-columns: 1fr; }
+  .ins-hero { padding: 40px 36px; }
+  .ins-card { padding: 30px 26px; }
+}
+
+@media (max-width: 640px) {
+  .ins-page { padding: 18px 16px; }
+
+  .ins-hero {
+    padding: 30px 22px;
+    border-radius: 24px;
+  }
+
+  .ins-hero__title { font-size: 2.2rem; }
+
+  .ins-card {
+    padding: 24px 18px;
+    border-radius: 22px;
+  }
+
+  .ins-form__row { grid-template-columns: 1fr; }
+
+  .ins-grid { gap: 18px; }
+}

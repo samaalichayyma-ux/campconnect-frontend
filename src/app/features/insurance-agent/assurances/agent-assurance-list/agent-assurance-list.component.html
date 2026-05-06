@@ -1,14 +1,15 @@
 <div class="agent-page">
+
   <!-- HERO -->
   <section class="agent-hero">
-    <div>
-      <p class="agent-kicker">Module assurance</p>
+    <div class="agent-hero__content">
+      <p class="agent-kicker">Insurance Module</p>
 
-      <h1>Gestion des offres d’assurance</h1>
+      <h1>Insurance Offers Management</h1>
 
       <p>
-        L’agent assurance peut gérer les offres, garanties, souscriptions,
-        sinistres et remboursements comme l’administrateur.
+        Manage insurance offers, guarantees, subscriptions, claims and reimbursements
+        from a professional insurance agent workspace.
       </p>
     </div>
 
@@ -16,30 +17,61 @@
       routerLink="/insurance-agent/assurances/new"
       class="agent-primary-btn"
     >
-      + Nouvelle assurance
+      <span>+</span>
+      New Insurance Offer
     </a>
   </section>
 
-  <!-- RACCOURCIS -->
+  <!-- SUMMARY -->
+  <section class="agent-summary">
+    <article class="summary-card">
+      <span>Total offers</span>
+      <strong>{{ assurances.length }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--active">
+      <span>Active offers</span>
+      <strong>{{ activeCount }}</strong>
+    </article>
+
+    <article class="summary-card summary-card--inactive">
+      <span>Inactive offers</span>
+      <strong>{{ inactiveCount }}</strong>
+    </article>
+  </section>
+
+  <!-- SHORTCUTS -->
   <section class="agent-shortcuts">
     <a routerLink="/insurance-agent/souscriptions">
       <span>📄</span>
-      Souscriptions
+      <div>
+        <strong>Subscriptions</strong>
+        <small>Review customer contracts</small>
+      </div>
     </a>
 
     <a routerLink="/insurance-agent/sinistres">
       <span>⚠️</span>
-      Sinistres
+      <div>
+        <strong>Claims</strong>
+        <small>Track reported incidents</small>
+      </div>
     </a>
 
     <a routerLink="/insurance-agent/remboursements">
       <span>💰</span>
-      Remboursements
+      <div>
+        <strong>Reimbursements</strong>
+        <small>Manage claim payments</small>
+      </div>
     </a>
 
     <a routerLink="/insurance-agent/statistiques">
       <span>📊</span>
-      Statistiques
+      <div>
+        <strong>Statistics</strong>
+        <small>View analytics dashboard</small>
+      </div>
     </a>
   </section>
 
@@ -53,45 +85,52 @@
   </div>
 
   <div *ngIf="loading" class="agent-loading">
-    Chargement des offres...
+    <div class="mini-loader"></div>
+    <div>
+      <strong>Loading insurance offers...</strong>
+      <p>Please wait while the offer list is being updated.</p>
+    </div>
   </div>
 
-  <!-- LISTE ASSURANCES -->
+  <!-- INSURANCE LIST -->
   <section class="agent-grid" *ngIf="!loading && assurances.length">
     <article class="agent-card" *ngFor="let assurance of assurances">
       <div class="agent-card-top">
         <span class="agent-badge">
-          {{ typeLabels[assurance.typeAssurance] }}
+          {{ getTypeLabel(assurance.typeAssurance) }}
         </span>
 
         <span
           class="agent-status"
           [ngClass]="assurance.active ? 'active' : 'inactive'"
         >
+          <span class="status-dot"></span>
           {{ assurance.active ? 'Active' : 'Inactive' }}
         </span>
       </div>
 
-      <h3>{{ assurance.titre }}</h3>
+      <div class="agent-card-body">
+        <h3>{{ assurance.titre }}</h3>
 
-      <p class="agent-description">
-        {{ assurance.description }}
-      </p>
+        <p class="agent-description">
+          {{ assurance.description }}
+        </p>
 
-      <div class="agent-info-grid">
-        <div>
-          <span>Prime</span>
-          <strong>{{ assurance.prime | number:'1.2-2' }} TND</strong>
-        </div>
+        <div class="agent-info-grid">
+          <div>
+            <span>Premium</span>
+            <strong>{{ assurance.prime | number:'1.2-2' }} TND</strong>
+          </div>
 
-        <div>
-          <span>Couverture</span>
-          <strong>{{ assurance.montantCouverture | number:'1.0-0' }} TND</strong>
-        </div>
+          <div>
+            <span>Coverage</span>
+            <strong>{{ assurance.montantCouverture | number:'1.0-0' }} TND</strong>
+          </div>
 
-        <div>
-          <span>Durée</span>
-          <strong>{{ assurance.dureeValidite }} jours</strong>
+          <div>
+            <span>Duration</span>
+            <strong>{{ assurance.dureeValidite }} days</strong>
+          </div>
         </div>
       </div>
 
@@ -100,14 +139,14 @@
           [routerLink]="['/insurance-agent/assurances', assurance.id, 'edit']"
           class="agent-btn secondary"
         >
-          Modifier
+          Edit
         </a>
 
         <a
           [routerLink]="['/insurance-agent/assurances', assurance.id, 'garanties']"
           class="agent-btn olive"
         >
-          Garanties
+          Guarantees
         </a>
 
         <button
@@ -115,7 +154,7 @@
           class="agent-btn danger"
           (click)="deleteAssurance(assurance.id)"
         >
-          Supprimer
+          Delete
         </button>
       </div>
     </article>
@@ -123,6 +162,11 @@
 
   <!-- EMPTY -->
   <div *ngIf="!loading && !assurances.length" class="agent-empty">
-    Aucune assurance disponible.
+    <div class="empty-icon">🛡️</div>
+    <div>
+      <strong>No insurance offers available</strong>
+      <p>Create your first insurance offer to start managing customer subscriptions.</p>
+    </div>
   </div>
+
 </div>

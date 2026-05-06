@@ -17,7 +17,7 @@ import { WeatherVerificationResponse } from '../../../../core/models/assurance.m
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './sinistre-form.component.html',
-  styleUrls: ['./sinistre-form.component.css']
+  styleUrls: ['./sinistre-form.component.scss']
 })
 export class SinistreFormComponent implements OnInit {
   form!: FormGroup;
