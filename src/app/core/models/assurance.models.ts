@@ -237,3 +237,12 @@ export interface CurrentWeatherResponse {
   precipitationMm: number;
   conseilAssurance: string;
 }
+
+export interface AnalyseSinistreAiResponse {
+  typeSinistre: string;
+  gravite: string;
+  causeProbable: string;
+  documentsNecessaires: string[];
+  recommandation?: string;
+  recommendation?: string;
+}

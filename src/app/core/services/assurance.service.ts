@@ -11,7 +11,8 @@ import {
   ReclamationLight,
   StatutSouscription,
   WeatherVerificationRequest,
-  WeatherVerificationResponse
+  WeatherVerificationResponse,
+  AnalyseSinistreAiResponse
 } from '../models/assurance.models';
 import { forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -334,11 +335,13 @@ updateSouscriptionStatut(
 // AI
 // =========================
 
-analyseSinistreAi(description: string): Observable<string> {
+analyseSinistreAi(description: string): Observable<AnalyseSinistreAiResponse> {
   return this.http.post(
     `${this.apiUrl}/assurance-ai/analyse-sinistre`,
     { description },
     { responseType: 'text' }
+  ).pipe(
+    map((response) => this.parseAiJson<AnalyseSinistreAiResponse>(response))
   );
 }
 
@@ -417,5 +420,7 @@ getCurrentWeather(city: string): Observable<CurrentWeatherResponse> {
     }
   );
 }
+
+
 
 }
