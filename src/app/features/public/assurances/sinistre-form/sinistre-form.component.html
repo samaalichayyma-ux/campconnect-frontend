@@ -115,6 +115,33 @@
             </span>
           </div>
 
+          <div class="sf__field">
+  <label class="sf__label" for="dateIncident">
+    Incident date
+    <span class="sf__required">*</span>
+  </label>
+
+  <div class="sf__input-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+
+    <input
+      id="dateIncident"
+      type="date"
+      formControlName="dateIncident"
+      [class.sf__input--error]="form.get('dateIncident')?.invalid && form.get('dateIncident')?.touched"
+    />
+  </div>
+
+  <span class="sf__field-error" *ngIf="form.get('dateIncident')?.invalid && form.get('dateIncident')?.touched">
+    Incident date is required
+  </span>
+</div>
+
           <!-- Montant -->
           <div class="sf__field">
             <label class="sf__label" for="montantEstime">
@@ -242,14 +269,42 @@
         </button>
 
         <div *ngIf="aiResult" class="sf__ai-result">
-          <div class="sf__ai-result-header">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-            AI feedback
-          </div>
-          <p>{{ aiResult }}</p>
-        </div>
+  <div class="sf__ai-result-header">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+    </svg>
+    AI feedback
+  </div>
+
+  <div class="sf__ai-item">
+    <span>Claim type</span>
+    <strong>{{ aiResult.typeSinistre }}</strong>
+  </div>
+
+  <div class="sf__ai-item">
+    <span>Severity</span>
+    <strong>{{ aiResult.gravite }}</strong>
+  </div>
+
+  <div class="sf__ai-item">
+    <span>Probable cause</span>
+    <p>{{ aiResult.causeProbable }}</p>
+  </div>
+
+  <div class="sf__ai-item" *ngIf="aiResult.documentsNecessaires?.length">
+    <span>Required documents</span>
+    <ul class="sf__ai-docs">
+      <li *ngFor="let doc of aiResult.documentsNecessaires">
+        {{ doc }}
+      </li>
+    </ul>
+  </div>
+
+  <div class="sf__ai-item">
+    <span>Recommendation</span>
+    <p>{{ aiResult.recommandation || aiResult.recommendation }}</p>
+  </div>
+</div>
       </section>
 
       <!-- Bloc Météo -->

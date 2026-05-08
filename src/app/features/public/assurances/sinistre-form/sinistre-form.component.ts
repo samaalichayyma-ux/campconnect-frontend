@@ -8,7 +8,8 @@ import {
   Sinistre,
   StatutSinistre,
   TYPE_SINISTRE_LABELS,
-  TypeSinistre
+  TypeSinistre,
+  AnalyseSinistreAiResponse
 } from '../../../../core/models/assurance.models';
 import { WeatherVerificationResponse } from '../../../../core/models/assurance.models';
 
@@ -29,7 +30,7 @@ export class SinistreFormComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   aiLoading = false;
-aiResult = '';
+aiResult?: AnalyseSinistreAiResponse;
 
 weatherResult?: WeatherVerificationResponse;
 weatherLoading = false;
@@ -51,15 +52,16 @@ weatherError = '';
     this.loadReclamations();
   }
 
-  initForm(): void {
-    this.form = this.fb.group({
-      typeSinistre: [TypeSinistre.ACCIDENT, Validators.required],
-      description: ['', [Validators.required, Validators.minLength(10)]],
-      lieuIncident: ['', [Validators.required, Validators.minLength(3)]],
-      montantEstime: [0, [Validators.required, Validators.min(0)]],
-      reclamationId: [null]
-    });
-  }
+ initForm(): void {
+  this.form = this.fb.group({
+    typeSinistre: [TypeSinistre.ACCIDENT, Validators.required],
+    description: ['', [Validators.required, Validators.minLength(10)]],
+    lieuIncident: ['', [Validators.required, Validators.minLength(3)]],
+    montantEstime: [0, [Validators.required, Validators.min(0)]],
+    dateIncident: [new Date().toISOString().split('T')[0], Validators.required],
+    reclamationId: [null]
+  });
+}
 
   loadReclamations(): void {
     this.assuranceService.getMyReclamations().subscribe({
@@ -86,13 +88,14 @@ weatherError = '';
 
     const reclamationId = this.form.value.reclamationId;
 
-    const payload: Sinistre = {
-      typeSinistre: this.form.value.typeSinistre,
-      description: this.form.value.description,
-      lieuIncident: this.form.value.lieuIncident,
-      montantEstime: this.form.value.montantEstime,
-      statut: StatutSinistre.EN_ATTENTE
-    };
+   const payload: Sinistre = {
+  typeSinistre: this.form.value.typeSinistre,
+  description: this.form.value.description,
+  lieuIncident: this.form.value.lieuIncident,
+  montantEstime: this.form.value.montantEstime,
+  dateDeclaration: this.form.value.dateIncident,
+  statut: StatutSinistre.EN_ATTENTE
+};
 
     this.submitting = true;
     this.successMessage = '';
@@ -125,7 +128,7 @@ weatherError = '';
   }
 
   this.aiLoading = true;
-  this.aiResult = '';
+  this.aiResult = undefined;
   this.errorMessage = '';
 
   this.assuranceService.analyseSinistreAi(description).subscribe({
@@ -143,7 +146,7 @@ weatherError = '';
 
 verifierMeteoAvantDeclaration(): void {
   const lieu = this.form.get('lieuIncident')?.value;
-  const date = this.form.get('dateDeclaration')?.value;
+const date = this.form.get('dateIncident')?.value;
   const description = this.form.get('description')?.value;
 
   if (!lieu || !date || !description) {
