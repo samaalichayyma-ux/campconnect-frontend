@@ -124,10 +124,6 @@ import { Component, Input } from '@angular/core';
           <circle cx="12" cy="12" r="3"></circle>
         </ng-container>
 
-        <ng-container *ngSwitchCase="'comments'">
-          <path d="M4 5h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H9l-5 4v-4H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"></path>
-        </ng-container>
-
         <ng-container *ngSwitchCase="'heart'">
           <path d="m12 20-1.35-1.23C5.4 14 2 10.91 2 7.5 2 4.91 4.01 3 6.5 3 8.24 3 9.91 3.81 11 5.08 12.09 3.81 13.76 3 15.5 3 17.99 3 20 4.91 20 7.5c0 3.41-3.4 6.5-8.65 11.27L12 20z"></path>
         </ng-container>
@@ -284,24 +280,7 @@ import { Component, Input } from '@angular/core';
           <path d="M12 8v5"></path>
           <path d="M12 16h.01"></path>
         </ng-container>
-        <ng-container *ngSwitchCase="'camping'">
-          <path d="M3 20l9-16 9 16"></path>
-          <path d="M3 20h18"></path>
-          <path d="M12 8v12"></path>
-        </ng-container>
 
-        <ng-container *ngSwitchCase="'delivery'">
-            <path d="M1 3h15v13H1z"></path>
-            <path d="M16 8h4l3 3v5h-7z"></path>
-            <circle cx="5.5" cy="18.5" r="2.5"></circle>
-            <circle cx="18.5" cy="18.5" r="2.5"></circle>
-          </ng-container>
-
-          <ng-container *ngSwitchCase="'complaints'">
-            <path d="M10.29 3.86l-7.4 12.8A1 1 0 003.75 18h16.5a1 1 0 00.86-1.54l-7.4-12.8a1 1 0 00-1.72 0z"></path>
-            <path d="M12 9v4"></path>
-            <circle cx="12" cy="15" r="1"></circle>
-          </ng-container>
         <ng-container *ngSwitchDefault>
           <circle cx="12" cy="12" r="9"></circle>
         </ng-container>

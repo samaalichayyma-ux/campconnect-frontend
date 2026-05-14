@@ -358,8 +358,3 @@
   align-items: center;
   gap: 10px;
 }
-
-.disabled {
-  pointer-events: none;
-  opacity: 0.5;
-}

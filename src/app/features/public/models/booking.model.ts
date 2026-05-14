@@ -1,7 +1,7 @@
 import { CampingSite } from './camping-site.model';
 
 export interface UpdateSiteBooking {
-  idInscription: number;
+  idInscription?: number;
   dateDebut: string;
   dateFin: string;
   numberOfGuests: number;
@@ -15,11 +15,5 @@ export interface SiteBooking {
   dateFin: string;
   numberOfGuests: number;
   siteId: number;
-}
-
-export interface InscriptionCheckoutResponse {
-  inscription: SiteBooking;
-  checkoutUrl: string;
-  sessionId: string;
 }
 

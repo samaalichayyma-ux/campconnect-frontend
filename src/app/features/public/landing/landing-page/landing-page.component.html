@@ -216,32 +216,23 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
         </p>
       </div>
     </section>
-    
 <section class="u-clearfix u-section-7" id="block-16">
   <div class="u-clearfix u-sheet u-valign-middle-lg u-valign-middle-md u-valign-middle-sm u-valign-middle-xs u-sheet-1">
 
-    <!-- Section title -->
-    <div style="text-align:center; margin-bottom: 30px;">
-      <h2 class="u-text u-text-default u-text-1">Recommended Camping Sites</h2>
-      <p class="u-text u-text-2">
-        Explore smart campsite recommendations based on ratings, popularity, availability, and overall quality.
-      </p>
-    </div>
-
     <!-- Loading State -->
-    <div *ngIf="isRecommendedLoading" style="text-align:center; padding:40px;">
-      <h3>Loading recommended camping sites...</h3>
+    <div *ngIf="isLoading" style="text-align:center; padding:40px;">
+      <h3>Loading camping sites...</h3>
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="!isRecommendedLoading && recommendedSites.length === 0" style="text-align:center; padding:40px;">
-      <h3>No recommended camping sites available yet</h3>
-      <p>Please check back soon.</p>
+    <div *ngIf="!isLoading && latestSites.length === 0" style="text-align:center; padding:40px;">
+      <h3>No camping sites available yet</h3>
+      <p>We are preparing amazing destinations for you. Please check back soon.</p>
     </div>
 
-    <!-- Recommended Sites List -->
+    <!-- Sites List -->
     <div
-      *ngFor="let site of recommendedSites"
+      *ngFor="let site of latestSites"
       class="data-layout-selected u-clearfix u-expanded-width u-gutter-0 u-layout-wrap u-layout-wrap-1"
     >
       <div class="u-layout">
@@ -272,44 +263,14 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
               </p>
 
               <p class="u-align-left u-text u-text-3">
-                {{ site.recommendationReason || site.description || 'A recommended camping destination for your next adventure.' }}
+                {{ site.description || 'Discover this beautiful camping destination and enjoy nature.' }}
               </p>
-
-              <p class="u-align-left u-text u-text-3" style="margin-top: 10px; font-weight: 600;">
-                ⭐ {{ (site.averageRating ?? 0) | number:'1.1-1' }} • {{ site.totalRatings || 0 }} reviews • {{ site.prixParNuit | number:'1.0-2' }} DT / night
-              </p>
-
-              <div *ngIf="site.smartTags?.length" style="margin: 12px 0 18px 0;">
-                <span
-                  *ngFor="let tag of site.smartTags"
-                  style="
-                    display:inline-block;
-                    background:#e3dcd2;
-                    color:#244735;
-                    padding:6px 10px;
-                    margin-right:8px;
-                    margin-bottom:8px;
-                    border-radius:16px;
-                    font-size:12px;
-                    font-weight:600;
-                  "
-                >
-                  {{ tag }}
-                </span>
-              </div>
 
               <a
                 class="u-btn u-button-style u-none u-text-custom-color-1 u-text-hover-custom-color-1 u-btn-1"
-                [class.disabled]="isAdmin()"
-                [routerLink]="
-                  isAdmin()
-                    ? null
-                    : isLoggedIn()
-                      ? ['/public/site-booking', site.siteId]
-                      : ['/login']
-                "
+                [routerLink]="['/public/site-booking', site.idSite]"
               >
-                {{ isAdmin() ? 'ADMIN ACCESS' : isLoggedIn() ? 'LEARN MORE' : 'LOGIN TO BOOK' }}
+                LEARN MORE
                 <span class="u-icon u-text-custom-color-1">
                   <svg class="u-svg-content" viewBox="0 -32 426.66667 426" style="width:1em;height:1em;">
                     <path d="m213.332031 181.667969c0 4.265625-1.277343 8.53125-3.625 11.730469l-106.667969 160c-3.839843 5.761718-10.238281 9.601562-17.707031 9.601562h-64c-11.730469 0-21.332031-9.601562-21.332031-21.332031 0-4.269531 1.28125-8.535157 3.625-11.734375l98.773438-148.265625-98.773438-148.269531c-2.34375-3.199219-3.625-7.464844-3.625-11.730469 0-11.734375 9.601562-21.335938 21.332031-21.335938h64c7.46875 0 13.867188 3.839844 17.707031 9.601563l106.667969 160c2.347657 3.199218 3.625 7.464844 3.625 11.734375zm0 0"></path>
@@ -453,9 +414,9 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
       <div class="u-clearfix u-sheet cc-events-slider__shell">
         <div class="cc-events-slider__header">
           <div class="cc-events-slider__intro">
-            <h2 class="cc-events-slider__title">Events To Explore</h2>
+            <h2 class="cc-events-slider__title">Upcoming Events</h2>
             <p class="cc-events-slider__text">
-              Discover what is coming next on CampConnect and revisit completed events to check their ratings, reviews, and details.
+              Discover the next outdoor workshops, guided escapes, and community gatherings waiting on CampConnect.
             </p>
           </div>
 
@@ -484,7 +445,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
           </div>
         </div>
 
-        <div *ngIf="isLandingEventsLoading" class="cc-events-slider__loading">
+        <div *ngIf="isUpcomingEventsLoading" class="cc-events-slider__loading">
           <div *ngFor="let item of visibleEventSkeletons" class="cc-events-slide cc-events-slide--skeleton">
             <div class="cc-events-slide__skeleton-media"></div>
             <div class="cc-events-slide__skeleton-line cc-events-slide__skeleton-line--short"></div>
@@ -493,13 +454,13 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
           </div>
         </div>
 
-        <div *ngIf="!isLandingEventsLoading && pagedLandingEvents.length" class="cc-events-slider">
+        <div *ngIf="!isUpcomingEventsLoading && pagedUpcomingEvents.length" class="cc-events-slider">
           <div class="cc-events-slider__viewport">
             <div
               class="cc-events-slider__track"
               [style.transform]="'translateX(-' + (currentEventsPage * 100) + '%)'">
               <div
-                *ngFor="let eventsPage of pagedLandingEvents"
+                *ngFor="let eventsPage of pagedUpcomingEvents"
                 class="cc-events-slider__page"
                 [style.gridTemplateColumns]="'repeat(' + cardsPerView + ', minmax(0, 1fr))'">
                 <a
@@ -511,7 +472,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
                       [src]="getEventImageUrl(event)"
                       [alt]="event.titre"
                       class="cc-events-slide__image"
-                      (error)="onLandingImageError($event)">
+                      (error)="onUpcomingImageError($event)">
 
                     <div class="cc-events-slide__date">
                       <span>{{ getEventDay(event.dateDebut) }}</span>
@@ -521,27 +482,12 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
 
                   <div class="cc-events-slide__body">
                     <div class="cc-events-slide__topline">
-                      <div class="cc-events-slide__labels">
-                        <span class="cc-events-slide__category">{{ getCategoryLabel(event.categorie) }}</span>
-                        <span class="cc-events-slide__status" [ngClass]="getEventStatusClass(event)">
-                          {{ getEventStatusLabel(event) }}
-                        </span>
-                      </div>
+                      <span class="cc-events-slide__category">{{ getCategoryLabel(event.categorie) }}</span>
                       <span class="cc-events-slide__price">{{ formatPrice(event.prix) }}</span>
                     </div>
 
                     <h3>{{ event.titre }}</h3>
                     <p>{{ getShortDescription(event.description, 88) }}</p>
-
-                    <div class="cc-events-slide__rating" [class.is-empty]="!hasFeedback(event)">
-                      <div class="cc-events-slide__stars" [attr.aria-label]="hasFeedback(event) ? ('Rated ' + getAverageRatingLabel(event) + ' out of 5') : 'No ratings yet'">
-                        <span
-                          *ngFor="let star of ratingStars"
-                          [class.filled]="hasFeedback(event) && star <= getRoundedAverageRating(event)">★</span>
-                      </div>
-                      <span *ngIf="hasFeedback(event)" class="cc-events-slide__rating-value">{{ getAverageRatingLabel(event) }}</span>
-                      <span class="cc-events-slide__rating-count">{{ hasFeedback(event) ? getFeedbackCountLabel(event) : 'No ratings yet' }}</span>
-                    </div>
 
                     <div class="cc-events-slide__meta">
                       <span>{{ formatEventDate(event.dateDebut) }}</span>
@@ -560,7 +506,7 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
 
           <div *ngIf="hasMultipleEventPages" class="cc-events-slider__dots">
             <button
-              *ngFor="let eventsPage of pagedLandingEvents; let pageIndex = index"
+              *ngFor="let eventsPage of pagedUpcomingEvents; let pageIndex = index"
               type="button"
               class="cc-events-slider__dot"
               [class.is-active]="pageIndex === currentEventsPage"
@@ -570,10 +516,10 @@ c6.177,6.18,9.262,14.271,9.262,22.366C354.708,234.018,351.617,242.115,345.441,24
           </div>
         </div>
 
-        <div *ngIf="!isLandingEventsLoading && !pagedLandingEvents.length" class="cc-events-slider__empty">
-          <span class="cc-events-slider__empty-tag">Event lineup refresh in progress</span>
-          <h3>Fresh events and recent highlights will appear here soon.</h3>
-          <p>Check the events page for live listings, completed experiences, and the latest reviews.</p>
+        <div *ngIf="!isUpcomingEventsLoading && !pagedUpcomingEvents.length" class="cc-events-slider__empty">
+          <span class="cc-events-slider__empty-tag">Calendar refresh in progress</span>
+          <h3>New outdoor experiences are being prepared.</h3>
+          <p>Check the events page for the latest CampConnect releases and newly published activities.</p>
           <a routerLink="/public/events" class="cc-events-slider__link">Open events page</a>
         </div>
       </div>
