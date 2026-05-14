@@ -1,0 +1,4 @@
+ALTER TABLE event
+    ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 7) NULL AFTER lieu,
+    ADD COLUMN IF NOT EXISTS longitude DECIMAL(10, 7) NULL AFTER latitude,
+    ADD COLUMN IF NOT EXISTS google_place_id VARCHAR(255) NULL AFTER longitude;

@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+
+  mysql:
+    image: mysql:8.3
+    container_name: campconnect-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: campconnect
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: campconnect-phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    ports:
+      - "8081:80"
+  backend:
+    build: .
+    container_name: campconnect-backend
+    depends_on:
+      - mysql
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      CLOUDINARY_CLOUD_NAME: dczqefpdb
+      CLOUDINARY_API_KEY: 496427515753929
+      CLOUDINARY_API_SECRET: n-zjAvwxckpv6zxxHyiBHo-q_8k
+      APP_UPLOAD_DIR: /app/uploads/events
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      PAYMENT_CURRENCY: ${PAYMENT_CURRENCY:-usd}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL:-http://localhost:4200}
+      PAYMENT_SUCCESS_PATH: ${PAYMENT_SUCCESS_PATH:-/public/events/my-reservations}
+      PAYMENT_CANCEL_PATH: ${PAYMENT_CANCEL_PATH:-/public/events/my-reservations}
+      GOOGLE_MAPS_BROWSER_API_KEY: ${GOOGLE_MAPS_BROWSER_API_KEY:-}
+      GOOGLE_MAPS_SERVER_API_KEY: ${GOOGLE_MAPS_SERVER_API_KEY:-}
+      GOOGLE_MAPS_STATIC_MAP_WIDTH: ${GOOGLE_MAPS_STATIC_MAP_WIDTH:-900}
+      GOOGLE_MAPS_STATIC_MAP_HEIGHT: ${GOOGLE_MAPS_STATIC_MAP_HEIGHT:-420}
+      GOOGLE_MAPS_STATIC_MAP_ZOOM: ${GOOGLE_MAPS_STATIC_MAP_ZOOM:-14}
+      MAIL_USER: ${MAIL_USER:-}
+      MAIL_PASS: ${MAIL_PASS:-}
+      NOTIFICATION_EMAIL_ENABLED: ${NOTIFICATION_EMAIL_ENABLED:-true}
+      BREVO_API_BASE_URL: ${BREVO_API_BASE_URL:-https://api.brevo.com/v3}
+      BREVO_API_KEY: ${BREVO_API_KEY:-}
+      BREVO_SENDER_EMAIL: ${BREVO_SENDER_EMAIL:-}
+      BREVO_SENDER_NAME: ${BREVO_SENDER_NAME:-CampConnect}
+      BREVO_SANDBOX_MODE: ${BREVO_SANDBOX_MODE:-false}
+    restart: always
+    volumes:
+      - backend_uploads:/app/uploads
+
+volumes:
+  mysql_data:
+  backend_uploads:
