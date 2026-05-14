@@ -38,28 +38,38 @@ export class BookingSummaryComponent implements OnInit {
     }
   }
 
-confirmPayment(): void {
-  if (!this.bookingData) return;
-
-  this.campingService.createBooking(this.bookingData).subscribe({
-    next: (res) => {
-      //  Stripe
-      window.location.href = res.checkoutUrl;
-    },
-    error: (error) => {
-      console.error(error);
-
-      Swal.fire({
-        icon: 'error',
-        title: 'Payment Failed',
-        text: 'Something went wrong while starting the payment.',
-        confirmButtonColor: '#96952f',
-        background: '#f5f5f3',
-        color: '#172b44'
-      });
+  confirmPayment(): void {
+    if (!this.bookingData) {
+      return;
     }
-  });
-}
+
+    this.campingService.createBooking(this.bookingData).subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: 'Payment Successful',
+          text: 'Your booking has been confirmed successfully.',
+          confirmButtonColor: '#96952f',
+          background: '#f5f5f3',
+          color: '#172b44'
+        }).then(() => {
+          this.router.navigate(['/public/camping-sites']);
+        });
+      },
+      error: (error) => {
+        console.error(error);
+
+        Swal.fire({
+          icon: 'error',
+          title: 'Payment Failed',
+          text: 'Something went wrong while confirming your booking.',
+          confirmButtonColor: '#96952f',
+          background: '#f5f5f3',
+          color: '#172b44'
+        });
+      }
+    });
+  }
 
   goBack(): void {
     this.router.navigate(['/public/site-booking', this.selectedSite?.idSite]);

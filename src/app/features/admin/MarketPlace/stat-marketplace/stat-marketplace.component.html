@@ -1,0 +1,110 @@
+<nav class="navbar">
+  <div class="logo">CampConnect</div>
+
+  <ul class="nav-links">
+    <li><a routerLink="/admin/Market/listProduct">Produits</a></li>
+    <li><a routerLink="/admin/Market/listCommande">Commandes</a></li>
+    <li><a routerLink="/admin/Market/statistiques">Statistiques</a></li>
+  </ul>
+</nav>
+
+<section class="stats-page">
+
+  <div class="stats-header">
+    <div>
+      <h1>Statistiques Marketplace</h1>
+      <p>Analyse des ventes, achats et performances des produits</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    Chargement des statistiques...
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <div class="cards-grid" *ngIf="resume">
+
+    <div class="stat-card">
+      <span>Total produits vendus</span>
+      <strong>{{ resume.totalProduitsVendus }}</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Chiffre d'affaires</span>
+      <strong>{{ resume.chiffreAffaireTotal }} TND</strong>
+    </div>
+
+    <div class="stat-card">
+      <span>Produits achetés</span>
+      <strong>{{ resume.nombreProduitsAchetes }}</strong>
+    </div>
+
+    <div class="stat-card best">
+      <span>Meilleur produit</span>
+      <strong>
+        {{ resume.meilleurProduit?.nomProduit || '-' }}
+      </strong>
+    </div>
+
+  </div>
+
+  <div class="chart-card" *ngIf="statsProduits.length > 0">
+    <h2>Quantité vendue par produit</h2>
+
+    <div class="bar-row" *ngFor="let produit of statsProduits">
+      <div class="bar-label">
+        {{ produit.nomProduit }}
+      </div>
+
+      <div class="bar-track">
+        <div
+          class="bar-fill"
+          [style.width]="getBarWidth(produit.quantiteVendue)"
+        >
+        </div>
+      </div>
+
+      <div class="bar-value">
+        {{ produit.quantiteVendue }}
+      </div>
+    </div>
+  </div>
+
+  <div class="table-wrapper" *ngIf="statsProduits.length > 0">
+
+    <table>
+      <thead>
+        <tr>
+          <th>Classement</th>
+          <th>Produit</th>
+          <th>Quantité vendue</th>
+          <th>Chiffre d'affaires</th>
+          <th>Taux d'achat</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let produit of statsProduits; let i = index">
+          <td>#{{ i + 1 }}</td>
+          <td>{{ produit.nomProduit }}</td>
+          <td>{{ produit.quantiteVendue }}</td>
+          <td>{{ produit.chiffreAffaire }} TND</td>
+          <td>
+            <span class="rate-badge">
+              {{ produit.tauxAchat }} %
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="empty" *ngIf="!loading && statsProduits.length === 0">
+    Aucune statistique disponible.
+  </div>
+
+</section>

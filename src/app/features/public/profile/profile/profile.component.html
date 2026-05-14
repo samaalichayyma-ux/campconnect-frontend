@@ -1,337 +1,68 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
-  <div class="profile-card" @fadeSlideUp>
+  <div class="profile-card">
+    <div class="profile-avatar">
+      👤
+    </div>
 
-    <!-- HEADER -->
-    <div class="profile-hero">
-      <div class="profile-hero__content">
+    <h1 class="profile-title">My Profile</h1>
 
-        <div class="profile-identity">
-          <div class="avatar-wrapper">
-            <div class="profile-avatar" *ngIf="!imagePreview">
-              <span>👤</span>
-            </div>
+    <div class="profile-info" *ngIf="user">
+      <div class="profile-item">
+        <span class="label">Name:</span>
+        <span class="value">{{ user.nom }}</span>
+      </div>
 
-            <img
-              *ngIf="imagePreview"
-              [src]="imagePreview"
-              alt="Photo de profil"
-              class="profile-image"
-            />
-          </div>
+      <div class="profile-item">
+        <span class="label">Email:</span>
+        <span class="value">{{ user.email }}</span>
+      </div>
 
-          <div class="header-text">
-            <span class="profile-badge">Camper Account</span>
-            <h1 class="profile-title">My Profile</h1>
-            <p class="profile-subtitle">
-              Manage your personal information and account security
-            </p>
-          </div>
-        </div>
+      <div class="profile-item">
+        <span class="label">Phone:</span>
+        <span class="value">{{ user.telephone || 'Not available' }}</span>
+      </div>
 
-        <!-- NOTIFICATIONS -->
-        <div class="notification-zone">
-          <button
-            type="button"
-            class="notification-button"
-            [class.notification-button--active]="showNotificationsPanel"
-            (click)="toggleNotificationsPanel()"
-            aria-label="Open notifications"
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-            </svg>
-
-            <span class="notification-count" *ngIf="unreadNotificationsCount > 0">
-              {{ unreadNotificationsCount > 9 ? '9+' : unreadNotificationsCount }}
-            </span>
-          </button>
-
-          <div class="notification-panel" *ngIf="showNotificationsPanel" @fadeScale>
-            <div class="notification-panel-header">
-              <div>
-                <h3>Notifications</h3>
-                <p>{{ unreadNotificationsCount }} nouvelle(s) notification(s)</p>
-              </div>
-
-              <button
-                type="button"
-                class="link-btn"
-                *ngIf="unreadNotificationsCount > 0"
-                (click)="markAllNotificationsAsRead()"
-              >
-                Tout lire
-              </button>
-            </div>
-
-            <div *ngIf="notificationsLoading" class="notification-empty">
-              <div class="mini-loader"></div>
-              <span>Chargement...</span>
-            </div>
-
-            <div
-              *ngIf="!notificationsLoading && unreadNotifications.length === 0"
-              class="notification-empty"
-            >
-              <div class="notification-empty-icon">✓</div>
-              <span>Aucune nouvelle notification</span>
-            </div>
-
-            <div
-              class="notification-mini-item"
-              *ngFor="let notification of unreadNotifications"
-            >
-              <div class="notification-mini-icon">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
-                  <path d="M20 6 9 17l-5-5"/>
-                </svg>
-              </div>
-
-              <div class="notification-mini-content">
-                <div class="notification-mini-top">
-                  <strong>{{ notification.titre }}</strong>
-                  <span>{{ getNotificationLabel(notification.type) }}</span>
-                </div>
-
-                <p>{{ notification.message }}</p>
-
-                <div class="notification-mini-actions">
-                  <small>{{ notification.createdAt | date:'dd/MM/yyyy HH:mm' }}</small>
-
-                  <button
-                    type="button"
-                    class="link-btn"
-                    (click)="markNotificationAsRead(notification)"
-                  >
-                    Lire
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div class="notification-history-btn">
-              <button
-                type="button"
-                class="btn secondary-btn"
-                (click)="goToNotificationsHistory()"
-              >
-                Voir l’historique
-              </button>
-            </div>
-          </div>
-        </div>
-
+      <div class="profile-item">
+        <span class="label">Role:</span>
+        <span class="value">{{ user.role }}</span>
       </div>
     </div>
 
-    <!-- USER INFO -->
-    <div class="profile-info-grid" *ngIf="user">
-      <div class="info-card">
-        <span class="info-label">Name</span>
-        <span class="info-value">{{ user.nom }}</span>
+    <div class="profile-form">
+      <div class="form-group">
+        <label>Adresse</label>
+        <input type="text" [(ngModel)]="profile.adresse" />
       </div>
 
-      <div class="info-card">
-        <span class="info-label">Email</span>
-        <span class="info-value">{{ user.email }}</span>
+      <div class="form-group">
+        <label>Photo URL</label>
+        <input type="text" [(ngModel)]="profile.photo" />
       </div>
 
-      <div class="info-card">
-        <span class="info-label">Phone</span>
-        <span class="info-value">{{ user.telephone || 'Not available' }}</span>
-      </div>
-
-      <div class="info-card">
-        <span class="info-label">Role</span>
-        <span class="info-value">{{ user.role }}</span>
+      <div class="form-group">
+        <label>Biographie</label>
+        <textarea rows="4" [(ngModel)]="profile.biographie"></textarea>
       </div>
     </div>
 
-    <!-- CONTENT -->
-    <div class="profile-content">
-
-      <!-- SECURITY -->
-      <div class="security-section">
-        <div class="section-title">
-          <span class="section-kicker">Security</span>
-          <h2>Two-Factor Authentication</h2>
-          <p>Manage your Google Authenticator settings</p>
-        </div>
-
-        <div class="security-status-box">
-          <div>
-            <strong>Google Authenticator</strong>
-            <p>Protect your account with an extra verification code.</p>
-          </div>
-
-          <span
-            class="security-status"
-            [class.security-status--enabled]="twoFactorEnabled"
-            [class.security-status--disabled]="!twoFactorEnabled"
-          >
-            {{ twoFactorEnabled ? 'Enabled' : 'Disabled' }}
-          </span>
-        </div>
-
-        <div *ngIf="twoFactorMessage" class="alert success-alert">
-          {{ twoFactorMessage }}
-        </div>
-
-        <div *ngIf="twoFactorError" class="alert error-alert">
-          {{ twoFactorError }}
-        </div>
-
-        <div
-          *ngIf="!twoFactorEnabled && !isSettingUp2FA"
-          class="security-actions"
-        >
-          <button
-            type="button"
-            class="btn primary-btn"
-            (click)="setupTwoFactor()"
-          >
-            Activate Google Authenticator
-          </button>
-        </div>
-
-        <div *ngIf="twoFactorEnabled" class="security-actions">
-          <button
-            type="button"
-            class="btn danger-btn"
-            (click)="disableTwoFactor()"
-          >
-            Disable 2FA
-          </button>
-        </div>
-
-        <div *ngIf="isSettingUp2FA" class="twofa-setup-box">
-          <div class="twofa-text">
-            <h3>Scan this QR Code</h3>
-            <p>Open Google Authenticator and scan this code to link your account.</p>
-          </div>
-
-          <div class="qr-box" *ngIf="twoFactorQrCode">
-            <img
-              [src]="twoFactorQrCode"
-              alt="QR Code Google Authenticator"
-              class="qr-image"
-            />
-          </div>
-
-          <div class="secret-box" *ngIf="twoFactorSecret">
-            <span>Secret key</span>
-            <strong>{{ twoFactorSecret }}</strong>
-          </div>
-
-          <div class="form-group otp-group">
-            <label>Enter the 6-digit code</label>
-            <input
-              type="text"
-              [(ngModel)]="otpCode"
-              maxlength="6"
-              placeholder="000000"
-            />
-          </div>
-
-          <div class="security-actions">
-            <button
-              type="button"
-              class="btn primary-btn"
-              (click)="verifyTwoFactor()"
-            >
-              Verify and Activate
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- EDIT PROFILE -->
-      <div class="form-section">
-        <div class="section-title">
-          <span class="section-kicker">Personal information</span>
-          <h2>Edit Profile</h2>
-          <p>Update your profile information</p>
-        </div>
-
-        <div class="profile-form">
-          <div class="form-group full-width">
-            <label>Adresse</label>
-            <input
-              type="text"
-              [(ngModel)]="profile.adresse"
-              placeholder="Enter your address"
-            />
-          </div>
-
-          <div class="form-group full-width">
-            <label>Change profile image</label>
-            <div class="photo-url-box">
-              <input
-                type="text"
-                [(ngModel)]="photoUrlInput"
-                placeholder="Paste image URL here"
-              />
-
-              <button
-                type="button"
-                class="btn primary-btn"
-                (click)="applyPhotoUrl()"
-              >
-                Apply Image
-              </button>
-            </div>
-          </div>
-
-          <div class="form-group full-width">
-            <label>Biographie</label>
-            <textarea
-              rows="5"
-              [(ngModel)]="profile.biographie"
-              placeholder="Write a short biography..."
-            ></textarea>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ALERTS -->
-    <div *ngIf="successMessage" class="alert success-alert">
+    <div *ngIf="successMessage" class="success-message">
       {{ successMessage }}
     </div>
 
-    <div *ngIf="errorMessage" class="alert error-alert">
+    <div *ngIf="errorMessage" class="error-message">
       {{ errorMessage }}
     </div>
 
-    <div *ngIf="notificationErrorMessage" class="alert error-alert">
-      {{ notificationErrorMessage }}
-    </div>
-
-    <!-- ACTIONS -->
     <div class="profile-actions">
-      <button class="btn secondary-btn" routerLink="/public">
-        Back to Home
-      </button>
-
-      <button
-        class="btn primary-btn"
-        (click)="saveProfile()"
-        [disabled]="saving"
-      >
+      <button class="btn back-btn" routerLink="/public">Back to Home</button>
+      <button class="btn save-btn" (click)="saveProfile()" [disabled]="saving">
         {{ saving ? 'Saving...' : 'Save Profile' }}
       </button>
-
-      <button class="btn danger-btn" (click)="logout()">
-        Logout
-      </button>
+      <button class="btn logout-btn" (click)="logout()">Logout</button>
     </div>
-
   </div>
 </section>
 
 <ng-template #loadingTpl>
-  <div class="loading-container">
-    <div class="loader"></div>
-    <p class="loading-text">Loading profile...</p>
-  </div>
+  <p>Loading profile...</p>
 </ng-template>

@@ -5,7 +5,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
 import { AuthService } from '../../../../core/services/auth.service';
-import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { EventResponseDTO } from '../models/event.model';
 import { EventService } from '../services/event.service';
 
@@ -16,9 +15,8 @@ import { EventService } from '../services/event.service';
   templateUrl: './events-list.component.html',
   styleUrl: './events-list.component.css'
 })
-export class EventsListComponent extends ToastMessageHost implements OnInit, OnDestroy {
+export class EventsListComponent implements OnInit, OnDestroy {
   readonly fallbackImageUrl = 'assets/images/default-image.jpg';
-  readonly ratingStars = [1, 2, 3, 4, 5];
   private readonly successMessageDurationMs = 5 * 1000;
 
   allEvents: EventResponseDTO[] = [];
@@ -26,6 +24,8 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
   paginatedEvents: EventResponseDTO[] = [];
 
   isLoading = false;
+  errorMessage = '';
+  successMessage = '';
   noResultsMessage = '';
   showFavoritesOnly = false;
 
@@ -68,7 +68,6 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
   favoriteEventIds = new Set<number>();
   favoriteActionEventIds = new Set<number>();
   private filterSpotlightTimeoutId: number | null = null;
-  private searchDebounceTimeoutId: number | null = null;
   private successMessageTimeoutId: number | null = null;
 
   get pageSize(): number {
@@ -80,9 +79,7 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     private route: ActivatedRoute,
     private router: Router,
     public authService: AuthService
-  ) {
-    super();
-  }
+  ) {}
 
   @HostListener('window:resize')
   onWindowResize(): void {
@@ -96,16 +93,10 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     if (this.authService.isLoggedIn()) {
       this.loadFavoriteEvents();
     }
-    if (this.searchQuery.trim()) {
-      this.searchEvents();
-      return;
-    }
-
     this.loadEvents();
   }
 
   ngOnDestroy(): void {
-    this.clearSearchDebounce();
     this.clearSuccessMessageTimeout();
   }
 
@@ -117,6 +108,10 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     this.eventService.getAllEvents().subscribe({
       next: (data) => {
         this.allEvents = data;
+        if (this.searchQuery.trim()) {
+          this.searchEvents();
+          return;
+        }
         this.applyFilters();
         this.isLoading = false;
       },
@@ -133,17 +128,7 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     this.applyFilters();
   }
 
-  queueSearch(): void {
-    this.clearSearchDebounce();
-    this.searchDebounceTimeoutId = window.setTimeout(() => {
-      this.searchDebounceTimeoutId = null;
-      this.searchEvents();
-    }, 250);
-  }
-
   searchEvents(): void {
-    this.clearSearchDebounce();
-
     if (!this.searchQuery.trim()) {
       this.loadEvents();
       return;
@@ -252,14 +237,6 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     this.paginatedEvents = this.filteredEvents.slice(start, end);
-  }
-
-  trackByEventId(_index: number, event: EventResponseDTO): number {
-    return event.id;
-  }
-
-  trackByFilterValue(_index: number, option: { value: string }): string {
-    return option.value;
   }
 
   previousPage(): void {
@@ -376,36 +353,6 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     return this.eventService.getEventPrimaryImageUrl(event, this.fallbackImageUrl);
   }
 
-  getEventDescriptionPreview(event: EventResponseDTO): string {
-    const description = event.description?.trim();
-    if (!description) {
-      return 'Discover the details of this experience and see whether it fits your next plan.';
-    }
-
-    return description.length > 120 ? `${description.slice(0, 120)}...` : description;
-  }
-
-  getEventLocationPreview(event: EventResponseDTO): string {
-    const location = event.lieu?.trim();
-    if (!location) {
-      return 'Location to be announced';
-    }
-
-    return location.length > 42 ? `${location.slice(0, 42)}...` : location;
-  }
-
-  getAvailabilityPercentage(event: EventResponseDTO): number {
-    const capacity = Number(event.capaciteMax || 0);
-    const availableSeats = Number(event.availableSeats || 0);
-
-    if (capacity <= 0) {
-      return 0;
-    }
-
-    const reservedSeats = Math.max(0, capacity - availableSeats);
-    return Math.min(100, Math.max(0, (reservedSeats / capacity) * 100));
-  }
-
   onImageError(event: globalThis.Event): void {
     const imageElement = event.target as HTMLImageElement | null;
     if (!imageElement || imageElement.dataset['fallbackApplied'] === 'true') {
@@ -495,24 +442,6 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
     }
 
     return `${event.availableSeats} seats available`;
-  }
-
-  hasFeedback(event: EventResponseDTO): boolean {
-    return Number(event.feedbackCount || 0) > 0;
-  }
-
-  getRoundedAverageRating(event: EventResponseDTO): number {
-    return Math.max(0, Math.min(5, Math.round(Number(event.averageRating || 0))));
-  }
-
-  getAverageRatingLabel(event: EventResponseDTO): string {
-    const averageRating = Number(event.averageRating || 0);
-    return averageRating > 0 ? averageRating.toFixed(1) : '0.0';
-  }
-
-  getFeedbackCountLabel(event: EventResponseDTO): string {
-    const feedbackCount = Number(event.feedbackCount || 0);
-    return feedbackCount === 1 ? '1 review' : `${feedbackCount} reviews`;
   }
 
   getUrgencyLabel(event: EventResponseDTO): string {
@@ -617,13 +546,6 @@ export class EventsListComponent extends ToastMessageHost implements OnInit, OnD
         this.filterSpotlightTimeoutId = null;
       }, 1600);
     }, 40);
-  }
-
-  private clearSearchDebounce(): void {
-    if (this.searchDebounceTimeoutId !== null) {
-      window.clearTimeout(this.searchDebounceTimeoutId);
-      this.searchDebounceTimeoutId = null;
-    }
   }
 
   private refreshPagination(resetToFirstPage = false): void {

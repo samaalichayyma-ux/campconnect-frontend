@@ -1,0 +1,189 @@
+<section class="cart-page">
+  <div class="cart-container">
+    <div class="cart-wrapper">
+      <h2 class="cart-title">My Cart</h2>
+
+      <p class="cart-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="cart-loading" *ngIf="loading">Loading cart...</p>
+
+      <div *ngIf="!loading && detailsPanier.length === 0" class="empty-cart">
+        <p>Your cart is empty.</p>
+        <button class="secondary-btn" (click)="continuerShopping()">
+          Continue Shopping
+        </button>
+      </div>
+
+      <div *ngIf="!loading && detailsPanier.length > 0">
+        <div class="cart-table-wrapper">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let detail of detailsPanier">
+                <td class="product-cell">
+                  <button
+                    class="remove-btn"
+                    (click)="supprimerArticle(getDetailId(detail)!)"
+                    title="Remove">
+                    ✕
+                  </button>
+
+                  <img
+                    [src]="getImage(detail)"
+                    [alt]="getNomComplet(detail)"
+                    class="product-image"
+                  />
+
+                  <div class="product-info">
+                    <h3>{{ getNomComplet(detail) }}</h3>
+                  </div>
+                </td>
+
+                <td>{{ getPrix(detail) }} TND</td>
+
+                <td>
+                  <div class="qty-box">
+                    <button
+                      type="button"
+                      class="qty-btn"
+                      (click)="diminuerQuantite(detail)">
+                      -
+                    </button>
+
+                    <input
+                      class="qty-input"
+                      type="text"
+                      [value]="detail.quantite"
+                      readonly
+                    />
+
+                    <button
+                      type="button"
+                      class="qty-btn"
+                      (click)="augmenterQuantite(detail)"
+                      [disabled]="!canIncrease(detail)"
+                      [title]="!canIncrease(detail) ? 'Stock maximum atteint' : 'Augmenter la quantité'">
+                      +
+                    </button>
+                  </div>
+                </td>
+
+                <td class="subtotal">{{ getSubtotal(detail) }} TND</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cart-actions">
+          <button class="link-btn" (click)="continuerShopping()">
+            ← Continue Shopping
+          </button>
+
+          <button class="secondary-btn" (click)="viderPanier()">
+            Empty Cart
+          </button>
+        </div>
+
+       <div class="cart-bottom">
+  <div class="coupon-card">
+    <h3>Coupon</h3>
+
+    <p class="coupon-info">
+      First order? Receive your coupon by email.
+    </p>
+
+    <button class="secondary-btn coupon-send-btn" (click)="envoyerCouponPremiereCommande()">
+      Send Coupon
+    </button>
+
+    <div class="coupon-apply">
+      <input
+        type="text"
+        [(ngModel)]="couponCode"
+        placeholder="Enter your coupon"
+        class="coupon-input"
+      />
+
+      <button class="primary-btn coupon-apply-btn" (click)="appliquerCoupon()">
+        Apply Coupon
+      </button>
+    </div>
+
+    <p class="coupon-success" *ngIf="couponSuccessMessage">
+      {{ couponSuccessMessage }}
+    </p>
+
+    <p class="coupon-error" *ngIf="couponErrorMessage">
+      {{ couponErrorMessage }}
+    </p>
+  </div>
+
+  <div class="cart-summary">
+    <div class="summary-card">
+      <h3>Cart Totals</h3>
+
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span>{{ getTotal().toFixed(2) }} TND</span>
+      </div>
+
+      <div class="summary-row" *ngIf="discountAmount > 0">
+        <span>Discount ({{ couponPercent }}%)</span>
+        <span>- {{ discountAmount.toFixed(2) }} TND</span>
+      </div>
+
+      <div class="summary-row total">
+        <span>Total</span>
+        <span>{{ getTotalAvecReduction().toFixed(2) }} TND</span>
+      </div>
+
+      <button class="primary-btn" (click)="passerCommande()">
+        Proceed to Checkout
+      </button>
+    </div>
+  </div>
+</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="checkout-popup-overlay" *ngIf="showCheckoutPopup">
+  <div class="checkout-popup">
+    <h3>Validation par SMS</h3>
+
+    <p>Un code de vérification a été envoyé sur votre numéro de téléphone.</p>
+
+    <input
+      type="text"
+      [(ngModel)]="checkoutCode"
+      placeholder="Entrer le code"
+      class="coupon-input"
+    />
+
+    <p class="coupon-success" *ngIf="checkoutSuccessMessage">
+      {{ checkoutSuccessMessage }}
+    </p>
+
+    <p class="coupon-error" *ngIf="checkoutErrorMessage">
+      {{ checkoutErrorMessage }}
+    </p>
+
+    <div class="popup-actions">
+      <button class="secondary-btn" (click)="fermerCheckoutPopup()">
+        Annuler
+      </button>
+
+      <button class="primary-btn popup-confirm-btn" (click)="verifierCodeCheckout()">
+        Vérifier
+      </button>
+    </div>
+  </div>
+</div>

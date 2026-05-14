@@ -73,11 +73,3 @@
   border-radius: 6px;
   cursor: pointer;
 }
-
-.btn-cancel:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: #ccc;
-  color: #666;
-}
-

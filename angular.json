@@ -31,7 +31,6 @@
 
             "styles": [
               
-              "node_modules/leaflet/dist/leaflet.css",
               "src/assets/css/nicepage.css",
               "src/assets/css/index.css",
               "src/assets/css/Blog-Template.css",
@@ -119,7 +118,7 @@
             ],
 
             "styles": [
-              "node_modules/leaflet/dist/leaflet.css",
+              
               "src/assets/css/nicepage.css",
               "src/assets/css/index.css",
               "src/assets/css/Blog-Template.css",
