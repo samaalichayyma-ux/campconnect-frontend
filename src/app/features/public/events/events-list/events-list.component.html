@@ -38,7 +38,7 @@
               class="search-input"
               placeholder="Search events by title, category, or location..."
               [(ngModel)]="searchQuery"
-              (input)="searchEvents()">
+              (input)="queueSearch()">
             <button
               class="search-btn"
               (click)="searchQuery = ''; searchEvents()"
@@ -90,7 +90,7 @@
         </h3>
         <div class="filter-options">
           <button
-            *ngFor="let cat of categories"
+            *ngFor="let cat of categories; trackBy: trackByFilterValue"
             class="filter-option"
             [class.active]="selectedCategory === cat.value"
             (click)="onCategoryChange(cat.value)"
@@ -112,7 +112,7 @@
           <span>Event Status</span>
         </h3>
         <select class="filter-select premium" [(ngModel)]="selectedStatus" (change)="applyFilters()">
-          <option *ngFor="let status of statuses" [value]="status.value">
+          <option *ngFor="let status of statuses; trackBy: trackByFilterValue" [value]="status.value">
             {{ status.label }}
           </option>
         </select>
@@ -252,31 +252,6 @@
         </div>
       </div>
 
-      <div *ngIf="errorMessage" class="message error-message">
-        <span class="message-icon">
-          <app-admin-icon name="warning" [size]="18"></app-admin-icon>
-        </span>
-        <div class="message-content">
-          <strong>Oops!</strong>
-          {{ errorMessage }}
-        </div>
-        <button class="message-close" (click)="errorMessage = ''" type="button" aria-label="Close message">
-          <app-admin-icon name="close" [size]="16"></app-admin-icon>
-        </button>
-      </div>
-
-      <div *ngIf="successMessage" class="message success-message">
-        <span class="message-icon">
-          <app-admin-icon name="check" [size]="18"></app-admin-icon>
-        </span>
-        <div class="message-content">
-          {{ successMessage }}
-        </div>
-        <button class="message-close" (click)="clearSuccessMessage()" type="button" aria-label="Close message">
-          <app-admin-icon name="close" [size]="16"></app-admin-icon>
-        </button>
-      </div>
-
       <div *ngIf="isLoading" class="loading-state">
         <div class="loading-container">
           <div class="spinner"></div>
@@ -287,7 +262,7 @@
 
       <div *ngIf="!isLoading && paginatedEvents.length > 0 && viewMode === 'grid'" class="events-grid">
         <div
-          *ngFor="let event of paginatedEvents; let i = index"
+          *ngFor="let event of paginatedEvents; let i = index; trackBy: trackByEventId"
           class="event-card"
           [style.animation-delay]="(i * 0.05) + 's'"
           (click)="viewEventDetails(event.id)">
@@ -331,15 +306,25 @@
               </button>
             </div>
 
-            <p class="event-description">{{ event.description | slice:0:90 }}...</p>
+            <p class="event-description">{{ getEventDescriptionPreview(event) }}</p>
+
+            <div class="event-rating" [class.unrated]="!hasFeedback(event)">
+              <div class="event-rating-stars" [attr.aria-label]="hasFeedback(event) ? ('Rated ' + getAverageRatingLabel(event) + ' out of 5') : 'No ratings yet'">
+                <span
+                  *ngFor="let star of ratingStars"
+                  [class.filled]="hasFeedback(event) && star <= getRoundedAverageRating(event)">★</span>
+              </div>
+              <span *ngIf="hasFeedback(event)" class="event-rating-value">{{ getAverageRatingLabel(event) }}</span>
+              <span class="event-rating-count">{{ hasFeedback(event) ? getFeedbackCountLabel(event) : 'No ratings yet' }}</span>
+            </div>
 
             <div class="event-details">
               <div class="detail-item">
                 <span class="detail-icon">
                   <app-admin-icon name="location" [size]="15"></app-admin-icon>
                 </span>
-                <span class="detail-text" [title]="event.lieu">
-                  {{ event.lieu.length > 20 ? (event.lieu | slice:0:20) + '...' : event.lieu }}
+                <span class="detail-text" [title]="event.lieu || 'Location to be announced'">
+                  {{ getEventLocationPreview(event) }}
                 </span>
               </div>
               <div class="detail-item">
@@ -374,7 +359,7 @@
             </div>
 
             <div class="availability-bar" [class.booked]="event.isFullyBooked">
-              <div class="availability-fill" [style.width]="((event.capaciteMax - event.availableSeats) / event.capaciteMax) * 100 + '%'"></div>
+              <div class="availability-fill" [style.width]="getAvailabilityPercentage(event) + '%'"></div>
             </div>
             <p class="availability-text" [class.booked]="event.isFullyBooked">
               {{ getAvailabilityText(event) }}
@@ -396,7 +381,7 @@
 
       <div *ngIf="!isLoading && paginatedEvents.length > 0 && viewMode === 'list'" class="events-list-view">
         <div
-          *ngFor="let event of paginatedEvents; let i = index"
+          *ngFor="let event of paginatedEvents; let i = index; trackBy: trackByEventId"
           class="event-list-item"
           [style.animation-delay]="(i * 0.05) + 's'"
           (click)="viewEventDetails(event.id)">
@@ -433,6 +418,16 @@
             </div>
 
             <p class="list-item-description">{{ event.description }}</p>
+
+            <div class="event-rating list-rating" [class.unrated]="!hasFeedback(event)">
+              <div class="event-rating-stars" [attr.aria-label]="hasFeedback(event) ? ('Rated ' + getAverageRatingLabel(event) + ' out of 5') : 'No ratings yet'">
+                <span
+                  *ngFor="let star of ratingStars"
+                  [class.filled]="hasFeedback(event) && star <= getRoundedAverageRating(event)">★</span>
+              </div>
+              <span *ngIf="hasFeedback(event)" class="event-rating-value">{{ getAverageRatingLabel(event) }}</span>
+              <span class="event-rating-count">{{ hasFeedback(event) ? getFeedbackCountLabel(event) : 'No ratings yet' }}</span>
+            </div>
 
             <div class="list-item-meta">
               <div class="meta-item">

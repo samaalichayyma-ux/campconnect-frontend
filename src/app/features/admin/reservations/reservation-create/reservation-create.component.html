@@ -8,26 +8,6 @@
     <p>Loading users and events...</p>
   </div>
 
-  <div *ngIf="successMessage && !isLoading" class="success-message">
-    <div class="message-icon success">
-      <app-admin-icon name="check" [size]="18"></app-admin-icon>
-    </div>
-    <div class="message-copy">
-      <strong>Reservation created</strong>
-      <p>{{ successMessage }}</p>
-    </div>
-  </div>
-
-  <div *ngIf="errorMessage && !isLoading" class="error-message">
-    <div class="message-icon error">
-      <app-admin-icon name="error" [size]="18"></app-admin-icon>
-    </div>
-    <div class="message-copy">
-      <strong>Unable to continue</strong>
-      <p>{{ errorMessage }}</p>
-    </div>
-  </div>
-
   <form *ngIf="!isLoading" [formGroup]="reservationForm" (ngSubmit)="submitForm()" class="reservation-form">
     <div class="form-layout">
       <div class="form-main">
@@ -81,6 +61,20 @@
                 [class.error]="reservationForm.get('nombreParticipants')?.invalid && reservationForm.get('nombreParticipants')?.touched" />
               <span *ngIf="reservationForm.get('nombreParticipants')?.invalid && reservationForm.get('nombreParticipants')?.touched" class="error-text">
                 {{ getErrorMessage('nombreParticipants') }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="promoCode">Promo code</label>
+              <input
+                type="text"
+                id="promoCode"
+                formControlName="promoCode"
+                placeholder="Optional code like CAMP15"
+                [class.error]="reservationForm.get('promoCode')?.invalid && reservationForm.get('promoCode')?.touched" />
+              <span class="helper-text">Use a global or event-specific code when the booking should be discounted.</span>
+              <span *ngIf="reservationForm.get('promoCode')?.invalid && reservationForm.get('promoCode')?.touched" class="error-text">
+                {{ getErrorMessage('promoCode') }}
               </span>
             </div>
           </div>
@@ -153,10 +147,24 @@
             <span>Status</span>
             <strong>{{ selectedEvent ? formatStatusLabel(selectedEvent.statut) : '-' }}</strong>
           </div>
+          <div class="summary-row" *ngIf="reservationForm.get('promoCode')?.value">
+            <span>Promo code</span>
+            <strong>{{ reservationForm.get('promoCode')?.value }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Base subtotal</span>
+            <strong>${{ baseSubtotal | number:'1.0-2' }}</strong>
+          </div>
+          <div class="summary-row discount-row" *ngIf="hasDiscountApplied">
+            <span>Discount</span>
+            <strong>- ${{ discountAmount | number:'1.0-2' }}</strong>
+          </div>
           <div class="summary-row total-row">
             <span>Estimated total</span>
             <strong>${{ estimatedTotal | number:'1.0-2' }}</strong>
           </div>
+          <p *ngIf="isLoadingPricing" class="summary-note">Refreshing pricing preview...</p>
+          <p *ngIf="promoFeedbackMessage && !isLoadingPricing" [class]="promoFeedbackClass">{{ promoFeedbackMessage }}</p>
         </section>
 
         <div *ngIf="willBeWaitlisted" class="alert-card waitlist-warning">

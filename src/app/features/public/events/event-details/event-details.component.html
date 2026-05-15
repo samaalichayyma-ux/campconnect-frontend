@@ -4,66 +4,32 @@
     <p>Loading event details...</p>
   </div>
 
-  <div *ngIf="errorMessage && !isLoading" class="error-banner">
-    <div class="message-shell">
-      <span class="message-icon danger">
-        <app-admin-icon name="warning" [size]="20"></app-admin-icon>
-      </span>
-      <div class="message-copy">
-        <p class="message-title">{{ getErrorTitle() }}</p>
-        <p class="message-text">{{ errorMessage }}</p>
-      </div>
-      <button
-        (click)="handleErrorAction()"
-        class="message-action"
-        type="button"
-        [disabled]="!event && !hasReservationConflict">
-        {{ getErrorActionLabel() }}
-      </button>
-    </div>
-  </div>
-
-  <div *ngIf="successMessage" class="success-banner">
-    <div class="message-shell">
-      <span class="message-icon success">
-        <app-admin-icon name="check" [size]="20"></app-admin-icon>
-      </span>
-      <div class="message-copy">
-        <p class="message-title">Action complete</p>
-        <p class="message-text">{{ successMessage }}</p>
-      </div>
-    </div>
-  </div>
-
   <div *ngIf="!isLoading" class="page-shell">
     <ng-container *ngIf="event; else eventUnavailable">
       <section class="page-header">
-        <div class="header-actions">
-          <button (click)="goBack()" class="back-btn" type="button">
-            <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
-            <span>Back to Events</span>
-          </button>
-
-          <button (click)="toggleFavorite()" class="ghost-btn" type="button" [disabled]="isFavoriteLoading">
-            <app-admin-icon name="heart" [size]="16"></app-admin-icon>
-            <span>{{ isFavorite ? 'Saved' : 'Save Event' }}</span>
-          </button>
-
-          <button *ngIf="isLoggedIn" (click)="goToSavedEvents()" class="ghost-btn" type="button">
-            <app-admin-icon name="heart" [size]="16"></app-admin-icon>
-            <span>Saved Events</span>
-          </button>
-
-          <button *ngIf="isLoggedIn" (click)="goToMyReservations()" class="ghost-btn" type="button">
-            <app-admin-icon name="reservations" [size]="16"></app-admin-icon>
-            <span>My Reservations</span>
-          </button>
-        </div>
-
         <div class="header-copy">
           <span class="header-kicker">Event Details</span>
-          <h1>Review the experience before you book</h1>
-          <p>See the event story, seat status, and booking preview in the same visual flow as the reservation pages.</p>
+          <h1>Review the event, then reserve with confidence.</h1>
+          <p>The page keeps the essentials close so you can scan the event and move into checkout without noise.</p>
+        </div>
+
+        <div class="header-command-card">
+          <div class="header-action-grid">
+            <button (click)="goBack()" class="back-btn" type="button">
+              <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
+              <span>Back to Events</span>
+            </button>
+
+            <button
+              (click)="toggleFavorite()"
+              class="ghost-btn"
+              [class.saved]="isFavorite"
+              type="button"
+              [disabled]="isFavoriteLoading">
+              <app-admin-icon name="heart" [size]="16"></app-admin-icon>
+              <span>{{ isFavorite ? 'Saved' : 'Save Event' }}</span>
+            </button>
+          </div>
         </div>
       </section>
 
@@ -77,20 +43,21 @@
 
           <div class="hero-chip-row">
             <span class="category-pill">{{ getCategoryLabel(event.categorie) }}</span>
-            <span class="status-pill" [class.live]="event.statut === 'ONGOING'" [class.full]="isEventFull()">
-              {{ isEventFull() ? 'Waitlist likely' : getStatusLabel(event.statut) }}
-            </span>
-            <span class="availability-pill" [class.warning]="isWaitlistLikely()">
-              {{ isEventFull() ? '0 open seats' : (getAvailableSeats() + ' open seats') }}
+            <span
+              class="status-pill"
+              [class.live]="event.statut === 'ONGOING' && !isReservationClosed()"
+              [class.closed]="isReservationClosed()"
+              [class.full]="isEventFull() && !isReservationClosed()">
+              {{ getHeroStatusLabel() }}
             </span>
             <span *ngIf="isAlmostFull()" class="availability-pill warning">
               Almost full
             </span>
+            <span class="availability-pill" [class.warning]="isEventFull() || isAlmostFull()">
+              {{ isEventFull() ? '0 open seats' : (getAvailableSeats() + ' open seats') }}
+            </span>
             <span *ngIf="event.waitlistCount" class="availability-pill waitlist-pill">
               {{ event.waitlistCount }} waiting
-            </span>
-            <span *ngIf="event.favoriteCount" class="availability-pill">
-              {{ event.favoriteCount }} saved
             </span>
           </div>
         </div>
@@ -111,104 +78,12 @@
                 <small>{{ formatTime(event.dateDebut) }} - {{ formatTime(event.dateFin) }}</small>
               </div>
             </div>
-
-            <div class="meta-item">
-              <span class="meta-icon">
-                <app-admin-icon name="location" [size]="17"></app-admin-icon>
-              </span>
-              <div>
-                <span class="meta-label">Location</span>
-                <strong>{{ event.lieu }}</strong>
-                <small>Meet-up and arrival point</small>
-              </div>
-            </div>
-
-            <div class="meta-item">
-              <span class="meta-icon">
-                <app-admin-icon name="users" [size]="17"></app-admin-icon>
-              </span>
-              <div>
-                <span class="meta-label">Capacity</span>
-                <strong>{{ event.capaciteMax }} guests total</strong>
-                <small>{{ getAvailableSeats() }} seats still open</small>
-              </div>
-            </div>
-
-            <div class="meta-item">
-              <span class="meta-icon">
-                <app-admin-icon name="wallet" [size]="17"></app-admin-icon>
-              </span>
-              <div>
-                <span class="meta-label">Price</span>
-                <strong>{{ event.prix | currency:'USD':'code':'1.0-2' }}</strong>
-                <small>Per guest before confirmation</small>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
       <div class="details-grid">
         <div class="details-main">
-          <section class="section-card">
-            <div class="section-heading">
-              <div>
-                <span class="section-kicker">Experience Overview</span>
-                <h3>What to expect</h3>
-              </div>
-              <span class="section-badge">{{ getDurationLabel() }}</span>
-            </div>
-
-            <p class="body-copy">{{ event.description }}</p>
-          </section>
-
-          <section class="section-card">
-            <div class="section-heading">
-              <div>
-                <span class="section-kicker">Event Snapshot</span>
-                <h3>Plan at a glance</h3>
-              </div>
-            </div>
-
-            <div class="snapshot-grid">
-              <div class="snapshot-card">
-                <span class="snapshot-icon">
-                  <app-admin-icon name="clock" [size]="18"></app-admin-icon>
-                </span>
-                <span class="snapshot-label">Duration</span>
-                <strong>{{ getDurationLabel() }}</strong>
-                <small>{{ event.dureeMinutes }} total minutes</small>
-              </div>
-
-              <div class="snapshot-card">
-                <span class="snapshot-icon">
-                  <app-admin-icon name="users" [size]="18"></app-admin-icon>
-                </span>
-                <span class="snapshot-label">Attendees</span>
-                <strong>{{ event.participantsCount }}</strong>
-                <small>{{ getAvailableSeats() }} seats still open</small>
-              </div>
-
-              <div class="snapshot-card">
-                <span class="snapshot-icon">
-                  <app-admin-icon name="warning" [size]="18"></app-admin-icon>
-                </span>
-                <span class="snapshot-label">Waitlist</span>
-                <strong>{{ event.waitlistCount || 0 }}</strong>
-                <small>Requests currently waiting</small>
-              </div>
-
-              <div class="snapshot-card">
-                <span class="snapshot-icon">
-                  <app-admin-icon [name]="getStatusIcon(event.statut)" [size]="18"></app-admin-icon>
-                </span>
-                <span class="snapshot-label">Status</span>
-                <strong>{{ getStatusLabel(event.statut) }}</strong>
-                <small>Current event lifecycle</small>
-              </div>
-            </div>
-          </section>
-
           <section class="section-card">
             <div class="section-heading">
               <div>
@@ -224,65 +99,6 @@
               [placeId]="event.googlePlaceId ?? null"
               [googleMapsUrl]="event.googleMapsUrl ?? null">
             </app-event-location-map>
-
-            <div class="location-meta-grid">
-              <div class="location-meta-card">
-                <span class="section-kicker">Saved address</span>
-                <strong>{{ event.lieu }}</strong>
-              </div>
-
-              <div class="location-meta-card">
-                <span class="section-kicker">Coordinates</span>
-                <strong>{{ getLocationCoordinatesLabel() }}</strong>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-card">
-            <div class="section-heading">
-              <div>
-                <span class="section-kicker">Availability</span>
-                <h3>Seats and waitlist view</h3>
-              </div>
-            </div>
-
-            <div class="progress-shell" [class.full]="isEventFull()">
-              <div class="progress-fill" [style.width]="getAvailabilityFillPercentage() + '%'"></div>
-            </div>
-
-            <div class="availability-stats">
-              <div class="availability-stat">
-                <span>Reserved</span>
-                <strong>{{ getSpotsTaken() }}</strong>
-              </div>
-              <div class="availability-stat">
-                <span>Open</span>
-                <strong>{{ getAvailableSeats() }}</strong>
-              </div>
-              <div class="availability-stat">
-                <span>Waitlist</span>
-                <strong>{{ event.waitlistCount || 0 }}</strong>
-              </div>
-            </div>
-
-            <div class="capacity-badges">
-              <span class="capacity-pill" [class.full]="isEventFull()" [class.almost]="isAlmostFull() && !isEventFull()">
-                {{ getCapacityHeadline() }}
-              </span>
-              <span *ngIf="event.waitlistCount" class="capacity-pill waitlist">
-                {{ event.waitlistCount }} guests waiting
-              </span>
-            </div>
-
-            <p class="availability-note" *ngIf="!isWaitlistLikely()">
-              Your currently selected group fits inside the seats that are open right now.
-            </p>
-            <p class="availability-note warning" *ngIf="isWaitlistLikely()">
-              Your selected group is larger than the seats currently open, so the reservation will likely move through the waitlist flow.
-            </p>
-            <p class="availability-note emphasis">
-              {{ getCapacitySupportCopy() }}
-            </p>
           </section>
 
           <section *ngIf="galleryImages.length" class="section-card">
@@ -295,7 +111,7 @@
 
             <div class="gallery-grid">
               <figure
-                *ngFor="let imageUrl of galleryImages; let index = index"
+                *ngFor="let imageUrl of galleryImages; let index = index; trackBy: trackByGalleryImage"
                 class="gallery-card"
                 [class.featured]="index === 0">
                 <img
@@ -307,171 +123,130 @@
               </figure>
             </div>
           </section>
+
+          <section class="section-card feedback-section">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">Guest Feedback</span>
+                <h3>What attendees said</h3>
+              </div>
+              <div *ngIf="hasFeedback()" class="feedback-heading-badge">
+                <strong>{{ getAverageRatingLabel() }}/5</strong>
+                <span>{{ getFeedbackCountLabel() }}</span>
+              </div>
+            </div>
+
+            <ng-container *ngIf="hasFeedback(); else noFeedbackState">
+              <div class="feedback-summary">
+                <div class="feedback-summary-score">
+                  <span class="feedback-summary-value">{{ getAverageRatingLabel() }}</span>
+                  <div class="feedback-stars" aria-label="Average event rating">
+                    <span
+                      *ngFor="let star of ratingStars"
+                      [class.filled]="star <= getRoundedAverageRating()">★</span>
+                  </div>
+                  <p>{{ getFeedbackCountLabel() }}</p>
+                </div>
+
+                <div class="feedback-summary-copy">
+                  <p>Reviews appear here after attendees are marked present and submit their post-event feedback.</p>
+                </div>
+              </div>
+
+              <div class="feedback-grid">
+                <article *ngFor="let feedback of getFeedbackEntries()" class="feedback-card">
+                  <div class="feedback-card-head">
+                    <div>
+                      <strong>{{ feedback.reviewerName }}</strong>
+                      <span>{{ formatFeedbackDate(feedback.submittedAt) }}</span>
+                    </div>
+                    <div class="feedback-stars compact" [attr.aria-label]="'Rated ' + (feedback.rating || 0) + ' out of 5'">
+                      <span
+                        *ngFor="let star of ratingStars"
+                        [class.filled]="star <= (feedback.rating || 0)">★</span>
+                    </div>
+                  </div>
+                  <p>{{ feedback.comment || 'Rated this event without leaving a written comment.' }}</p>
+                </article>
+              </div>
+            </ng-container>
+
+            <ng-template #noFeedbackState>
+              <div class="feedback-empty">
+                <div class="feedback-stars">
+                  <span *ngFor="let star of ratingStars">★</span>
+                </div>
+                <strong>No feedback yet</strong>
+                <p>Once attendees finish the event and submit reviews, their comments and star ratings will appear here.</p>
+              </div>
+            </ng-template>
+          </section>
         </div>
 
         <aside class="details-side">
+          <section class="summary-card availability-card availability-side-card">
+            <div class="summary-header">
+              <span class="section-kicker">Availability</span>
+              <h3>Seats and waitlist view</h3>
+            </div>
+
+            <div class="availability-shell">
+              <div class="availability-overview">
+                <div class="availability-total">
+                  <span>Open now</span>
+                  <strong>{{ getAvailableSeats() }}</strong>
+                </div>
+              </div>
+
+              <div class="progress-shell" [class.full]="isEventFull()">
+                <div class="progress-fill" [style.width]="getAvailabilityFillPercentage() + '%'"></div>
+              </div>
+
+              <div class="availability-stats">
+                <div class="availability-stat">
+                  <span>Reserved</span>
+                  <strong>{{ getSpotsTaken() }}</strong>
+                </div>
+                <div class="availability-stat highlight">
+                  <span>Open</span>
+                  <strong>{{ getAvailableSeats() }}</strong>
+                </div>
+                <div class="availability-stat">
+                  <span>Waitlist</span>
+                  <strong>{{ event.waitlistCount || 0 }}</strong>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <section class="summary-card">
             <div class="summary-header">
-              <span class="section-kicker">Reservation Preview</span>
-              <h3>Save your spot</h3>
+              <span class="section-kicker">{{ isReservationClosed() ? 'Reservations Closed' : 'Ready To Book' }}</span>
+              <h3>{{ isReservationClosed() ? 'Booking unavailable' : 'Continue to checkout' }}</h3>
             </div>
 
             <div class="summary-total">
-              <span>Estimated total</span>
-              <strong>{{ getFinalTotal() | currency:'USD':'code':'1.0-2' }}</strong>
+              <span>From</span>
+              <strong>{{ event.prix | currency:'USD':'code':'1.0-2' }}</strong>
             </div>
 
-            <div class="guest-picker">
-              <span class="field-label">Guests</span>
-
-              <div class="counter-control">
-                <button
-                  (click)="decreaseParticipants()"
-                  [disabled]="numberOfParticipants <= 1"
-                  class="counter-btn"
-                  type="button"
-                  aria-label="Decrease participants">
-                  <app-admin-icon name="minus" [size]="16"></app-admin-icon>
-                </button>
-
-                <div class="counter-display">
-                  <span class="counter-value">{{ numberOfParticipants }}</span>
-                  <span class="counter-label">guest{{ numberOfParticipants > 1 ? 's' : '' }}</span>
-                </div>
-
-                <button
-                  (click)="increaseParticipants()"
-                  [disabled]="numberOfParticipants >= getParticipantLimit()"
-                  class="counter-btn"
-                  type="button"
-                  aria-label="Increase participants">
-                  <app-admin-icon name="plus" [size]="16"></app-admin-icon>
-                </button>
-              </div>
-
-              <p class="helper-copy" [class.warning]="isWaitlistLikely()">{{ getReservationHelperText() }}</p>
+            <div class="summary-context">
+              <span class="summary-context-pill">{{ getCheckoutStateLabel() }}</span>
             </div>
 
-            <div class="promo-card">
-              <div class="promo-card-header">
-                <span class="field-label">Promo code</span>
-                <span class="promo-loading" *ngIf="isLoadingPricing">Refreshing...</span>
-              </div>
-
-              <div class="promo-input-row">
-                <input
-                  [(ngModel)]="promoCodeInput"
-                  placeholder="Enter a code like CAMP15"
-                  class="promo-input"
-                  maxlength="64"
-                  type="text">
-
-                <button class="cta-btn primary promo-btn" (click)="applyPromoCode()" type="button">
-                  <app-admin-icon name="sparkles" [size]="16"></app-admin-icon>
-                  <span>Apply</span>
-                </button>
-
-                <button
-                  *ngIf="hasPromoCodeValue()"
-                  class="cta-btn secondary promo-btn"
-                  (click)="clearPromoCode()"
-                  type="button">
-                  <app-admin-icon name="close" [size]="16"></app-admin-icon>
-                  <span>Clear</span>
-                </button>
-              </div>
-
-              <p *ngIf="getPromoFeedbackText()" [class]="getPromoFeedbackClass()">
-                {{ getPromoFeedbackText() }}
-              </p>
-            </div>
-
-            <div class="summary-breakdown">
-              <div class="summary-row">
-                <span>Price per guest</span>
-                <strong>{{ event.prix | currency:'USD':'code':'1.0-2' }}</strong>
-              </div>
-              <div class="summary-row">
-                <span>Selected guests</span>
-                <strong>{{ numberOfParticipants }}</strong>
-              </div>
-              <div class="summary-row">
-                <span>Base subtotal</span>
-                <strong>{{ getBasePriceTotal() | currency:'USD':'code':'1.0-2' }}</strong>
-              </div>
-              <div class="summary-row discount" *ngIf="hasDiscountApplied()">
-                <span>Discount</span>
-                <strong>-{{ getDiscountAmount() | currency:'USD':'code':'1.0-2' }}</strong>
-              </div>
-              <div class="summary-row muted">
-                <span>Next state</span>
-                <strong>{{ getReservationNextStateLabel() }}</strong>
-              </div>
-            </div>
-
-            <button (click)="openBookingModal()" class="cta-btn primary" type="button">
-              <app-admin-icon [name]="isWaitlistLikely() ? 'warning' : 'reservations'" [size]="16"></app-admin-icon>
-              <span>{{ getReservationCtaLabel() }}</span>
+            <button
+              (click)="openBookingModal()"
+              class="cta-btn primary"
+              [class.is-disabled-closed]="isReservationClosed()"
+              [disabled]="isReservationClosed()"
+              type="button">
+              <app-admin-icon [name]="isReservationClosed() ? 'info' : (isEventFull() ? 'warning' : 'reservations')" [size]="16"></app-admin-icon>
+              <span>{{ getCheckoutCtaLabel() }}</span>
             </button>
 
-            <button (click)="goBack()" class="cta-btn secondary" type="button">
-              <app-admin-icon name="arrow-left" [size]="16"></app-admin-icon>
-              <span>Back to Events</span>
-            </button>
-          </section>
-
-          <section class="support-card">
-            <div class="section-heading compact">
-              <div>
-                <span class="section-kicker">What Happens Next</span>
-                <h3>Reservation flow</h3>
-              </div>
-            </div>
-
-            <div class="support-list">
-              <div class="support-item">
-                <span class="support-icon">
-                  <app-admin-icon name="check" [size]="16"></app-admin-icon>
-                </span>
-                <p>{{ getReservationReviewSupportCopy() }}</p>
-              </div>
-
-              <div class="support-item">
-                <span class="support-icon">
-                  <app-admin-icon name="warning" [size]="16"></app-admin-icon>
-                </span>
-                <p>{{ getReservationWaitlistSupportCopy() }}</p>
-              </div>
-
-              <div class="support-item">
-                <span class="support-icon">
-                  <app-admin-icon name="wallet" [size]="16"></app-admin-icon>
-                </span>
-                <p>{{ getReservationPaymentSupportCopy() }}</p>
-              </div>
-            </div>
-
-            <div *ngIf="isOnWaitlist" class="notice-card">
-              <span class="notice-icon">
-                <app-admin-icon name="info" [size]="16"></app-admin-icon>
-              </span>
-              <p>You are already marked on this event waitlist.</p>
-            </div>
-
-            <div *ngIf="availablePromotions.length > 0" class="offer-grid">
-              <article *ngFor="let promotion of availablePromotions" class="offer-card">
-                <div class="offer-pill-row">
-                  <span class="offer-pill">{{ getPromotionPillLabel(promotion) }}</span>
-                  <span class="offer-value">
-                    {{ promotion.discountType === 'PERCENTAGE'
-                      ? (promotion.discountValue + '% off')
-                      : ((promotion.discountValue | currency:'USD':'code':'1.0-2') + ' off') }}
-                  </span>
-                </div>
-                <h4>{{ promotion.name }}</h4>
-                <p>{{ promotion.description || getPromotionSupportCopy(promotion) }}</p>
-              </article>
-            </div>
+            <p class="summary-note" [class.is-closed]="isReservationClosed()">
+              {{ getCheckoutSupportCopy() }}
+            </p>
           </section>
         </aside>
       </div>

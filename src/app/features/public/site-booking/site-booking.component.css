@@ -373,3 +373,14 @@
 .reviews-list-card {
   background: linear-gradient(180deg, #ffffff, #f9f7f2);
 }
+
+.review-subtitle {
+  color: #667281;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.helper-text {
+  font-size: 13px;
+  color: #6b7280;
+}

@@ -13,15 +13,16 @@ export interface Product {
   description: string;
   prix: number;
 
-
+  // ✅ AJOUT IMPORTANT
   stock: number;
 
   images: string[];
   categorie: Categorie;
   active?: boolean;
 
-
+  // ✅ pour vetement / chaussure
   stocks: StockProduit[];
 
+  // optionnel pour affichage
   stockTotal?: number;
 }

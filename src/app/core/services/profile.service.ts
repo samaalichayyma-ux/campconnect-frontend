@@ -8,9 +8,8 @@ import { Profile } from '../../features/public/profile/models/profile.model';
   providedIn: 'root'
 })
 export class ProfileService {
-  private baseUrl  = 'http://localhost:8082/api';
+  private baseUrl = 'http://localhost:8082/api';
 
- 
   constructor(private http: HttpClient) {}
 
   getCurrentUser(): Observable<CurrentUser> {
@@ -23,5 +22,12 @@ export class ProfileService {
 
   updateMyProfile(profile: Profile): Observable<Profile> {
     return this.http.put<Profile>(`${this.baseUrl}/profile/me`, profile);
+  }
+
+  uploadProfileImage(file: File): Observable<Profile> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post<Profile>(`${this.baseUrl}/profile/me/upload-image`, formData);
   }
 }

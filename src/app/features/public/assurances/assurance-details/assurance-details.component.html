@@ -1,1 +1,257 @@
-<p>assurance-details works!</p>
+<div class="ad">
+
+  <!-- ══ LOADING ════════════════════════════════════════════ -->
+  <div *ngIf="loading" class="ad__loading">
+    <div class="ad__spinner"></div>
+    <span>Loading plan details…</span>
+  </div>
+
+  <div *ngIf="errorMessage && !assurance" class="ad__alert ad__alert--error">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="!loading && assurance">
+
+    <!-- ══ HERO ═══════════════════════════════════════════════ -->
+    <header class="ad__hero">
+      <div class="ad__hero-bg"></div>
+      <div class="ad__hero-content">
+        <div class="ad__hero-top">
+          <a routerLink="/public/assurances" class="ad__back-link">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+            </svg>
+            All plans
+          </a>
+          <span class="ad__type-badge">{{ typeLabels[assurance.typeAssurance] }}</span>
+        </div>
+
+        <h1 class="ad__hero-title">{{ assurance.titre }}</h1>
+        <p class="ad__hero-sub">{{ assurance.description }}</p>
+
+        <!-- Métriques rapides dans le hero -->
+        <div class="ad__hero-metrics">
+          <div class="ad__metric">
+            <span>Premium</span>
+            <strong>{{ assurance.prime | number:'1.2-2' }} <em>TND</em></strong>
+          </div>
+          <div class="ad__metric-sep"></div>
+          <div class="ad__metric">
+            <span>Max coverage</span>
+            <strong>{{ assurance.montantCouverture | number:'1.0-0' }} <em>TND</em></strong>
+          </div>
+          <div class="ad__metric-sep"></div>
+          <div class="ad__metric">
+            <span>Duration</span>
+            <strong>{{ assurance.dureeValidite }} <em>days</em></strong>
+          </div>
+          <div class="ad__metric-sep"></div>
+          <div class="ad__metric">
+            <span>Availability</span>
+            <strong class="ad__metric-status" [class.ad__metric-status--ok]="assurance.active">
+              {{ assurance.active ? 'Available' : 'Unavailable' }}
+            </strong>
+          </div>
+        </div>
+      </div>
+      <div class="ad__hero-shape"></div>
+    </header>
+
+    <!-- ══ ELIGIBILITÉ ════════════════════════════════════════ -->
+    <div *ngIf="!canSubscribe" class="ad__alert ad__alert--warning">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      You must first book an event or register at a camping site before subscribing.
+    </div>
+
+    <div *ngIf="canSubscribe" class="ad__alert ad__alert--success">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      You are eligible to subscribe to this plan.
+    </div>
+
+    <!-- ══ BODY 2 COLONNES ════════════════════════════════════ -->
+    <div class="ad__body">
+
+      <!-- ── COLONNE GAUCHE ──────────────────────────────────── -->
+      <div class="ad__col ad__col--main">
+
+        <!-- Conditions générales -->
+        <section class="ad__card" style="animation-delay:0.06s">
+          <div class="ad__card-header">
+            <div class="ad__card-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="ad__card-title">General terms & conditions</h2>
+              <p class="ad__card-sub">Full coverage policy details</p>
+            </div>
+          </div>
+          <div class="ad__terms-body">
+            <p>{{ assurance.conditionsGenerales }}</p>
+          </div>
+        </section>
+
+        <!-- Garanties -->
+        <section class="ad__garanties-section" style="animation-delay:0.12s">
+          <div class="ad__section-heading">
+            <h2 class="ad__section-title">Included guarantees</h2>
+            <span class="ad__garanties-count" *ngIf="garanties.length">{{ garanties.length }} guarantee{{ garanties.length > 1 ? 's' : '' }}</span>
+          </div>
+
+          <div *ngIf="!garanties.length" class="ad__empty">
+            <div class="ad__empty-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <p>No guarantees have been added for this plan yet.</p>
+          </div>
+
+          <div class="ad__garanties-list" *ngIf="garanties.length">
+            <article
+              class="ad__garantie-row"
+              *ngFor="let garantie of garanties; let i = index"
+              [style.animation-delay]="(0.14 + i * 0.06) + 's'"
+            >
+              <div class="ad__garantie-accent"></div>
+
+              <div class="ad__garantie-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M9 12l2 2 4-4" stroke-linecap="round"/>
+                </svg>
+              </div>
+
+              <div class="ad__garantie-info">
+                <h3 class="ad__garantie-name">{{ garantie.nom }}</h3>
+                <p class="ad__garantie-desc">{{ garantie.description }}</p>
+              </div>
+
+              <div class="ad__garantie-amounts">
+                <div class="ad__garantie-amount">
+                  <span>Ceiling</span>
+                  <strong>{{ garantie.plafond | number:'1.0-0' }} <em>TND</em></strong>
+                </div>
+                <div class="ad__garantie-amount">
+                  <span>Deductible</span>
+                  <strong>{{ garantie.franchise | number:'1.2-2' }} <em>TND</em></strong>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- ── COLONNE DROITE : sticky sidebar ─────────────────── -->
+      <aside class="ad__col ad__col--aside">
+
+        <!-- Carte récap -->
+        <div class="ad__sidebar-card">
+          <div class="ad__sidebar-header">
+            <div class="ad__sidebar-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div>
+              <p class="ad__sidebar-label">Plan overview</p>
+              <h3 class="ad__sidebar-name">{{ assurance.titre }}</h3>
+            </div>
+          </div>
+
+          <div class="ad__sidebar-rows">
+            <div class="ad__sidebar-row">
+              <span>Premium</span>
+              <strong class="ad__sidebar-highlight">{{ assurance.prime | number:'1.2-2' }} TND</strong>
+            </div>
+            <div class="ad__sidebar-row">
+              <span>Max coverage</span>
+              <strong>{{ assurance.montantCouverture | number:'1.0-0' }} TND</strong>
+            </div>
+            <div class="ad__sidebar-row">
+              <span>Duration</span>
+              <strong>{{ assurance.dureeValidite }} days</strong>
+            </div>
+            <div class="ad__sidebar-row">
+              <span>Plan type</span>
+              <strong>{{ typeLabels[assurance.typeAssurance] }}</strong>
+            </div>
+            <div class="ad__sidebar-row">
+              <span>Status</span>
+              <span class="ad__avail-badge" [class.ad__avail-badge--ok]="assurance.active">
+                <span class="ad__avail-dot"></span>
+                {{ assurance.active ? 'Available' : 'Unavailable' }}
+              </span>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <div class="ad__sidebar-cta">
+            <a
+              *ngIf="canSubscribe"
+              [routerLink]="['/public/assurances', assurance.id, 'souscrire']"
+              class="ad__btn ad__btn--primary"
+              style="text-decoration:none;"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4" stroke-linecap="round"/>
+              </svg>
+              Subscribe now
+            </a>
+
+            <button
+              *ngIf="!canSubscribe"
+              class="ad__btn ad__btn--primary ad__btn--disabled"
+              disabled
+              title="You must first book an event or camping site."
+            >
+              Subscribe now
+            </button>
+
+            <a
+              routerLink="/public/assurances"
+              class="ad__btn ad__btn--ghost"
+              style="text-decoration:none;"
+            >
+              Back to all plans
+            </a>
+          </div>
+
+          <!-- Garanties mini list -->
+          <div class="ad__sidebar-garanties" *ngIf="garanties.length">
+            <p class="ad__sidebar-garanties-title">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              What's included
+            </p>
+            <ul>
+              <li *ngFor="let g of garanties">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                {{ g.nom }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </aside>
+
+    </div>
+
+  </ng-container>
+</div>

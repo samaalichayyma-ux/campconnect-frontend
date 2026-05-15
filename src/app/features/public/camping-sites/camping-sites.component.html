@@ -6,6 +6,15 @@
       <p>Explore the available camping sites and choose your next destination.</p>
     </div>
 
+    <div class="filters" *ngIf="!isLoading && !errorMessage">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+        placeholder="Search by site name or location..."
+      />
+    </div>
+
     <div *ngIf="isLoading" class="info-message">
       Loading camping sites...
     </div>
@@ -14,21 +23,19 @@
       {{ errorMessage }}
     </div>
 
-    <div class="sites-grid" *ngIf="!isLoading && !errorMessage">
-      <div class="site-card" *ngFor="let site of sites">
+    <div class="sites-grid" *ngIf="!isLoading && !errorMessage && paginatedSites.length > 0">
+      <div class="site-card" *ngFor="let site of paginatedSites">
         <img
           [src]="site.imageUrl || 'assets/images/default-camp.jpg'"
           [alt]="site.nom"
         />
 
         <div class="site-card-content">
-
           <span
             class="status"
             [ngClass]="{
               'available': site.statutDispo === 'AVAILABLE',
-              'full': site.statutDispo === 'FULL',
-              'closed': site.statutDispo === 'CLOSED'
+              'full': site.statutDispo === 'FULL'
             }"
           >
             {{ site.statutDispo }}
@@ -37,6 +44,15 @@
           <h3>{{ site.nom }}</h3>
           <p class="location">{{ site.localisation }}</p>
 
+           <div class="rating-row">
+            <span class="stars">★</span>
+            <span class="rating-value">
+              {{ getSiteRating(site.idSite).averageRating | number:'1.1-1' }}
+            </span>
+            <span class="rating-count">
+              ({{ getSiteRating(site.idSite).totalRatings }} review{{ getSiteRating(site.idSite).totalRatings > 1 ? 's' : '' }})
+            </span>
+          </div>
           <p class="description">
             {{ site.description || 'A beautiful camping destination for your next trip.' }}
           </p>
@@ -48,30 +64,51 @@
             </div>
 
             <div class="info-row">
-              <span class="info-label">Remaining Capacity:</span>
-              <span class="info-value"> {{ site.remainingCapacity ?? 0 }}</span>
-            </div>
-
-            <div class="info-row">
               <span class="info-label">Price:</span>
               <span class="info-value">{{ site.prixParNuit }} DT / night</span>
             </div>
           </div>
-        <div class="site-actions">
-          <a
+
+      <div class="site-actions">
+        <a
             class="btn-primary"
-            [routerLink]="['/public/site-booking', site.idSite]"
-            *ngIf="(site.remainingCapacity ?? 0) > 0"
+            [class.disabled]="isAdmin()"
+            [routerLink]="
+              isAdmin()
+                ? null
+                : isLoggedIn()
+                  ? ['/public/site-booking', site.idSite]
+                  : ['/login']
+            "
           >
             Book Now
           </a>
-
-          <button class="btn-outline" *ngIf="site.remainingCapacity === 0" disabled>
-            Fully Booked
-          </button>
-        </div>
+      </div>
         </div>
       </div>
+    </div>
+
+    <div class="pagination" *ngIf="!isLoading && !errorMessage && filteredSites.length > itemsPerPage">
+      <button class="page-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        class="page-number"
+        *ngFor="let page of pageNumbers"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && filteredSites.length === 0" class="info-message">
+      No camping sites match your search.
     </div>
   </div>
 </section>

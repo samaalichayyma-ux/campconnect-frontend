@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import Swal from 'sweetalert2';
 import { Avis, SiteCampingAvisService } from '../../services/site-camping-avis.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-avis-list',
@@ -14,16 +15,73 @@ export class AvisListComponent implements OnInit {
   @Input() siteId!: number;
   avisList: Avis[] = [];
 
-  constructor(private avisService: SiteCampingAvisService) {}
+  constructor(private avisService: SiteCampingAvisService,private authService: AuthService ) {}
 
   ngOnInit(): void {
     this.loadAvis();
   }
+isOwner(avis: Avis): boolean {
+  const currentEmail = this.authService.getUserEmail();
 
-  loadAvis(): void {
-    this.avisService.getAvisBySite(this.siteId).subscribe(res => {
-      this.avisList = res;
-    });
+  return !!currentEmail && avis.utilisateurEmail === currentEmail;
+}
+
+
+loadAvis(): void {
+  this.avisService.getAvisBySite(this.siteId).subscribe(res => {
+    this.avisList = res.reverse();
+  });
+}
+
+refreshAvis(): void {
+  this.loadAvis();
+}
+
+  getDisplayName(avis: Avis): string {
+    const rawName =
+      (avis as any).utilisateurNom ||
+      (avis as any).userName ||
+      (avis as any).utilisateurEmail ||
+      (avis as any).email ||
+      'Guest User';
+
+    const name = String(rawName).trim();
+
+    if (!name) {
+      return 'Guest User';
+    }
+
+    if (name.includes('@')) {
+      return name.split('@')[0];
+    }
+
+    return name;
+  }
+
+  getUserInitial(avis: Avis): string {
+    const name = this.getDisplayName(avis).trim();
+    return name ? name.charAt(0).toUpperCase() : 'G';
+  }
+
+  getAvatarColor(avis: Avis): string {
+    const colors = [
+      '#1f5c36',
+      '#96952f',
+      '#172b44',
+      '#b64141',
+      '#3d5a2a',
+      '#6b5b95',
+      '#ff7f50'
+    ];
+
+    const seed = this.getDisplayName(avis);
+    let hash = 0;
+
+    for (let i = 0; i < seed.length; i++) {
+      hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    return colors[Math.abs(hash) % colors.length];
   }
 
   openEditPopup(avis: Avis): void {
@@ -115,9 +173,5 @@ export class AvisListComponent implements OnInit {
         });
       }
     });
-  }
-
-  getStars(note: number | null): number[] {
-    return Array(note || 0).fill(0);
   }
 }

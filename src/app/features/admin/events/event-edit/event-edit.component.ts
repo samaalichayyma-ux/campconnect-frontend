@@ -1,12 +1,20 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
+import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { EventLocationMapComponent } from '../../../public/events/components/event-location-map/event-location-map.component';
 import { EventCategory, EventImageDTO, EventLocationSelection, EventRequestDTO, EventResponseDTO } from '../../../public/events/models/event.model';
 import { EventService } from '../../../public/events/services/event.service';
+import {
+  calculateEventDurationMinutes,
+  eventScheduleValidator,
+  formatEventDurationLabel,
+  getEventScheduleValidationMessage,
+  rewriteScheduleSaveErrorMessage
+} from '../event-schedule.util';
 
 interface PendingImagePreview {
   file: File;
@@ -16,11 +24,11 @@ interface PendingImagePreview {
 @Component({
   selector: 'app-event-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AdminIconComponent, EventLocationMapComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, AdminIconComponent, EventLocationMapComponent],
   templateUrl: './event-edit.component.html',
   styleUrl: './event-edit.component.css'
 })
-export class EventEditComponent implements OnInit, OnDestroy {
+export class EventEditComponent extends ToastMessageHost implements OnInit, OnDestroy {
   private readonly allowedFileExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
   private readonly allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
   private readonly directImageHosts = [
@@ -40,8 +48,6 @@ export class EventEditComponent implements OnInit, OnDestroy {
   isSubmitting = false;
   isLoading = false;
   isGalleryActionRunning = false;
-  errorMessage = '';
-  successMessage = '';
 
   private originalFormValue: Record<string, string> | null = null;
 
@@ -74,6 +80,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute
   ) {
+    super();
     this.eventForm = this.createForm();
   }
 
@@ -166,6 +173,44 @@ export class EventEditComponent implements OnInit, OnDestroy {
       : 'Saved as draft';
   }
 
+  get durationMinutes(): number | null {
+    return calculateEventDurationMinutes(
+      this.eventForm.get('startTime')?.value,
+      this.eventForm.get('endTime')?.value
+    );
+  }
+
+  get durationSummary(): string {
+    return formatEventDurationLabel(this.durationMinutes);
+  }
+
+  get hasScheduleError(): boolean {
+    return this.eventForm.hasError('invalidTimeRange') || this.eventForm.hasError('tooShortSchedule');
+  }
+
+  get showScheduleFeedback(): boolean {
+    return !!this.eventForm.get('startTime')?.value && !!this.eventForm.get('endTime')?.value;
+  }
+
+  get scheduleFeedbackMessage(): string {
+    const scheduleErrorMessage = getEventScheduleValidationMessage(this.durationMinutes);
+    if (scheduleErrorMessage) {
+      return scheduleErrorMessage;
+    }
+
+    return this.showScheduleFeedback
+      ? `Current duration: ${this.durationSummary}.`
+      : '';
+  }
+
+  get displayErrorMessage(): string {
+    return this.errorMessage || (this.hasScheduleError ? this.scheduleFeedbackMessage : '');
+  }
+
+  get errorBannerTitle(): string {
+    return this.errorMessage ? 'Update failed' : 'Schedule needs attention';
+  }
+
   createForm(): FormGroup {
     return this.fb.group({
       title: ['', [Validators.required, Validators.minLength(3)]],
@@ -180,6 +225,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
       published: [false],
       price: ['', [Validators.required, Validators.min(0), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       imageUrl: ['', [Validators.maxLength(500)]]
+    }, {
+      validators: eventScheduleValidator()
     });
   }
 
@@ -353,7 +400,15 @@ export class EventEditComponent implements OnInit, OnDestroy {
   }
 
   submitForm(): void {
+    const scheduleErrorMessage = getEventScheduleValidationMessage(this.durationMinutes);
+    if (scheduleErrorMessage) {
+      this.markScheduleControlsTouched();
+      this.errorMessage = scheduleErrorMessage;
+      return;
+    }
+
     if (!this.eventForm.valid || !this.eventId) {
+      this.eventForm.markAllAsTouched();
       this.errorMessage = 'Please fill in all required fields correctly.';
       return;
     }
@@ -479,7 +534,7 @@ export class EventEditComponent implements OnInit, OnDestroy {
       reservationApprovalRequired: this.eventForm.value.reservationApprovalRequired !== false,
       published: this.eventForm.value.published === true,
       prix: parseFloat(this.eventForm.value.price),
-      dureeMinutes: this.calculateDurationMinutes(this.eventForm.value.startTime, this.eventForm.value.endTime)
+      dureeMinutes: this.durationMinutes ?? 0
     };
 
     if (imageReference) {
@@ -784,15 +839,16 @@ export class EventEditComponent implements OnInit, OnDestroy {
   private handleSaveError(error: any): void {
     this.isSubmitting = false;
     const errorMessage = this.extractValidationError(error);
+    const rewrittenScheduleMessage = rewriteScheduleSaveErrorMessage(errorMessage, this.durationMinutes);
 
     if (error.status === 403) {
       this.errorMessage = errorMessage || 'You do not have permission to update this event.';
     } else if (error.status === 404) {
       this.errorMessage = 'Event not found.';
     } else if (error.status === 400) {
-      this.errorMessage = errorMessage || 'Invalid event data. Please check the form and try again.';
+      this.errorMessage = rewrittenScheduleMessage || 'Invalid event data. Please check the form and try again.';
     } else {
-      this.errorMessage = errorMessage || 'Failed to update event. Please try again.';
+      this.errorMessage = rewrittenScheduleMessage || 'Failed to update event. Please try again.';
     }
 
     console.error('Error updating event:', error);
@@ -872,13 +928,8 @@ export class EventEditComponent implements OnInit, OnDestroy {
     return `${date}T${time}:00.000Z`;
   }
 
-  private calculateDurationMinutes(startTime: string, endTime: string): number {
-    const [startHour, startMinute] = startTime.split(':').map(Number);
-    const [endHour, endMinute] = endTime.split(':').map(Number);
-
-    const startTotalMinutes = startHour * 60 + startMinute;
-    const endTotalMinutes = endHour * 60 + endMinute;
-
-    return Math.max(0, endTotalMinutes - startTotalMinutes);
+  private markScheduleControlsTouched(): void {
+    this.eventForm.get('startTime')?.markAsTouched();
+    this.eventForm.get('endTime')?.markAsTouched();
   }
 }

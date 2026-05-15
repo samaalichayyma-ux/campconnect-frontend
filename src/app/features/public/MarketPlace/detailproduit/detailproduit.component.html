@@ -40,7 +40,6 @@
         <p class="category">Category: {{ produit.categorie }}</p>
         <p class="description">{{ produit.description }}</p>
 
-        <!-- VETEMENT -->
         <div class="variant-box" *ngIf="isVetement()">
           <label class="variant-label">Select Size</label>
           <div class="variant-options">
@@ -49,19 +48,13 @@
               class="variant-btn"
               *ngFor="let taille of tailles"
               [class.selected]="selectedTaille === taille"
-              [class.disabled]="!isTailleDisponible(taille)"
-              [disabled]="!isTailleDisponible(taille)"
-              (click)="choisirTaille(taille)"
+              (click)="selectedTaille = taille"
             >
               {{ taille }}
-              <span *ngIf="getStockTaille(taille) > 0">
-                ({{ getStockTaille(taille) }})
-              </span>
             </button>
           </div>
         </div>
 
-        <!-- CHAUSSURE -->
         <div class="variant-box" *ngIf="isChaussure()">
           <label class="variant-label">Select Shoe Size</label>
           <div class="variant-options">
@@ -70,48 +63,22 @@
               class="variant-btn"
               *ngFor="let pointure of pointures"
               [class.selected]="selectedPointure === pointure"
-              [class.disabled]="!isPointureDisponible(pointure)"
-              [disabled]="!isPointureDisponible(pointure)"
-              (click)="choisirPointure(pointure)"
+              (click)="selectedPointure = pointure"
             >
               {{ pointure }}
-              <span *ngIf="getStockPointure(pointure) > 0">
-                ({{ getStockPointure(pointure) }})
-              </span>
             </button>
           </div>
         </div>
-
-        <!-- PRODUIT SIMPLE -->
-        <p
-          class="stock-warning"
-          *ngIf="!isVetement() && !isChaussure() && getStockSimpleDisponible() === 0"
-        >
-          Out of stock
-        </p>
-
-        <p
-          class="stock-warning"
-          *ngIf="!isVetement() && !isChaussure() && getStockSimpleDisponible() > 0"
-        >
-          Stock restant : {{ getStockSimpleDisponible() }}
-        </p>
-
-        <button
-          class="buy-btn"
-          (click)="acheter()"
-          [disabled]="!canBuy()"
-        >
-          Ajouter au panier
-        </button>
-
-        <p class="success-message" *ngIf="successMessage">
-          {{ successMessage }}
-        </p>
-
-        <p class="stock-warning" *ngIf="errorMessage">
-          {{ errorMessage }}
-        </p>
+        <p class="stock-warning" *ngIf="produit.active === false || produit.stock === 0">
+  Out of stock
+</p>
+<button
+  class="buy-btn"
+  (click)="acheter()"
+  [disabled]="produit.active === false || produit.stock === 0 || !canBuy()"
+>
+  Buy Now
+</button>
       </div>
     </div>
   </div>

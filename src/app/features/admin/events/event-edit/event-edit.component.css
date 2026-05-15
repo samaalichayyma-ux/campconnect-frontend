@@ -24,6 +24,25 @@
   line-height: 1.6;
 }
 
+.insight-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #eaf4ff;
+  color: #2d76b5;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.insight-link:hover {
+  transform: translateY(-1px);
+  background: #dcecff;
+}
+
 .loading {
   padding: 64px 24px;
   border: 1px solid #e9e5dc;
@@ -294,6 +313,13 @@
   margin-top: 7px;
   color: #cf3f32;
   font-size: 0.84rem;
+}
+
+.helper-text {
+  margin-top: 7px;
+  color: #657267;
+  font-size: 0.84rem;
+  line-height: 1.45;
 }
 
 .image-card {
@@ -624,6 +650,10 @@
   text-align: right;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.summary-row strong.summary-error {
+  color: #cf3f32;
 }
 
 .form-actions {

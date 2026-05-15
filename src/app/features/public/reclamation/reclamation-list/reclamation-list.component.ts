@@ -1,28 +1,31 @@
-import { Component , OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ReclamationService } from '../reclamation.service';
+
 @Component({
   selector: 'app-reclamation-list',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './reclamation-list.component.html',
-  styleUrl: './reclamation-list.component.css'
+  styleUrls: ['./reclamation-list.component.css']
 })
-export class ReclamationListComponent  implements OnInit {
+export class ReclamationListComponent implements OnInit {
 
   reclamations: any[] = [];
 
   constructor(private reclamationService: ReclamationService) {}
 
   ngOnInit(): void {
-    this.loadReclamations();
+    this.loadUserReclamations();
   }
 
-  loadReclamations() {
-    this.reclamationService.getAll().subscribe({
+  loadUserReclamations() {
+    this.reclamationService.getMyReclamations().subscribe({
       next: (data) => {
         this.reclamations = data;
       },
       error: (err) => {
-        console.error(err);
+        console.error('Erreur loading reclamations', err);
       }
     });
   }
@@ -30,12 +33,8 @@ export class ReclamationListComponent  implements OnInit {
   deleteReclamation(id: number) {
     if (confirm('Supprimer cette réclamation ?')) {
       this.reclamationService.delete(id).subscribe({
-        next: () => {
-          this.loadReclamations();
-        },
-        error: (err) => {
-          console.error(err);
-        }
+        next: () => this.loadUserReclamations(),
+        error: (err) => console.error(err)
       });
     }
   }

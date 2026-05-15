@@ -82,11 +82,11 @@ export class ListProductComponent implements OnInit {
     this.router.navigate(['/public/detailP', product.idProduit]);
   }
 
- editProduct(product: Product): void {
-  if (product.idProduit == null) return;
+  editProduct(product: Product): void {
+    if (product.idProduit == null) return;
+    this.router.navigate(['/admin/products/edit', product.idProduit]);
+  }
 
-  this.router.navigate(['/admin/Market/EditProduct', product.idProduit]);
-}
   deactivateProduit(id: number): void {
     this.produitAdminService.deactivateProduit(id).subscribe({
       next: () => this.loadProduits(),

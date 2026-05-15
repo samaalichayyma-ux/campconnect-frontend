@@ -1,13 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import {
   EventResponseDTO,
-  PromotionOfferResponseDTO,
   PromotionPreviewDTO,
   ReservationRequestDTO,
   ReservationResponseDTO
@@ -17,11 +17,11 @@ import { EventService } from '../services/event.service';
 @Component({
   selector: 'app-event-reservation',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AdminIconComponent],
+  imports: [CommonModule, FormsModule, AdminIconComponent],
   templateUrl: './event-reservation.component.html',
   styleUrl: './event-reservation.component.css'
 })
-export class EventReservationComponent implements OnInit {
+export class EventReservationComponent extends ToastMessageHost implements OnInit {
   readonly fallbackImageUrl = 'assets/images/default-image.jpg';
   readonly activeReservationStatuses = new Set(['PENDING', 'CONFIRMED', 'PAID']);
   private readonly currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -34,18 +34,16 @@ export class EventReservationComponent implements OnInit {
 
   isLoading = false;
   isSubmitting = false;
-  errorMessage = '';
-  successMessage = '';
   hasReservationConflict = false;
   existingReservationConflict: ReservationResponseDTO | null = null;
 
   numberOfParticipants = 1;
   remarks = '';
+  remarksExpanded = false;
   totalPrice = 0;
   promoCodeInput = '';
   promoFeedbackMessage = '';
   pricingPreview: PromotionPreviewDTO | null = null;
-  availablePromotions: PromotionOfferResponseDTO[] = [];
   isLoadingPricing = false;
 
   isLoggedIn = false;
@@ -55,7 +53,9 @@ export class EventReservationComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.checkAuth();
@@ -93,8 +93,14 @@ export class EventReservationComponent implements OnInit {
         this.event = data;
         const maxParticipants = Math.max(1, Math.min(data.capaciteMax ?? 1, 100));
         this.numberOfParticipants = Math.max(1, Math.min(preferredParticipants, maxParticipants));
-        this.loadPublicPromotions();
-        this.calculatePrice();
+        this.totalPrice = data.prix * this.numberOfParticipants;
+        this.pricingPreview = null;
+        this.promoFeedbackMessage = '';
+
+        if (!this.isReservationClosed()) {
+          this.calculatePrice();
+        }
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -118,9 +124,10 @@ export class EventReservationComponent implements OnInit {
       this.getNormalizedPromoCode() || undefined
     ).subscribe({
       next: (preview) => {
+        const hasManualPromoCode = Boolean(this.getNormalizedPromoCode());
         this.pricingPreview = preview;
         this.totalPrice = preview.totalPrice;
-        this.promoFeedbackMessage = preview.validationMessage || '';
+        this.promoFeedbackMessage = hasManualPromoCode ? (preview.validationMessage || '') : '';
         this.isLoadingPricing = false;
       },
       error: (error) => {
@@ -136,6 +143,10 @@ export class EventReservationComponent implements OnInit {
   }
 
   increaseParticipants(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     const maxParticipants = this.getParticipantLimit();
     if (this.numberOfParticipants < maxParticipants) {
       this.numberOfParticipants++;
@@ -144,6 +155,10 @@ export class EventReservationComponent implements OnInit {
   }
 
   decreaseParticipants(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     if (this.numberOfParticipants > 1) {
       this.numberOfParticipants--;
       this.calculatePrice();
@@ -151,17 +166,40 @@ export class EventReservationComponent implements OnInit {
   }
 
   applyPromoCode(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     this.promoCodeInput = this.getNormalizedPromoCode();
     this.calculatePrice();
   }
 
   clearPromoCode(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
     this.promoCodeInput = '';
     this.promoFeedbackMessage = '';
     this.calculatePrice();
   }
 
+  toggleRemarks(): void {
+    if (this.isReservationClosed()) {
+      return;
+    }
+
+    this.remarksExpanded = !this.remarksExpanded;
+  }
+
   submitReservation(): void {
+    if (this.isReservationClosed()) {
+      this.errorMessage = this.getReservationClosedMessage();
+      this.hasReservationConflict = false;
+      this.existingReservationConflict = null;
+      return;
+    }
+
     if (!this.event || this.numberOfParticipants <= 0) {
       console.error('Invalid reservation data:', {
         event: this.event?.id || 'missing',
@@ -193,11 +231,16 @@ export class EventReservationComponent implements OnInit {
   }
 
   isWaitlistLikely(): boolean {
-    return this.numberOfParticipants > this.getAvailableSeats();
+    return !this.isReservationClosed() && this.numberOfParticipants > this.getAvailableSeats();
   }
 
   isEventFull(): boolean {
     return (this.event?.availableSeats || 0) === 0;
+  }
+
+  isReservationClosed(): boolean {
+    const status = this.getNormalizedEventStatus();
+    return status === 'COMPLETED' || status === 'CANCELLED';
   }
 
   isAlmostFull(): boolean {
@@ -207,6 +250,10 @@ export class EventReservationComponent implements OnInit {
   getCapacitySupportCopy(): string {
     if (!this.event) {
       return 'Capacity details will appear here once the event loads.';
+    }
+
+    if (this.isReservationClosed()) {
+      return this.getReservationClosedMessage();
     }
 
     if (this.isEventFull()) {
@@ -227,6 +274,10 @@ export class EventReservationComponent implements OnInit {
   }
 
   getReservationNextStateLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations closed';
+    }
+
     if (this.isWaitlistLikely()) {
       return 'Waitlist + payment required';
     }
@@ -235,24 +286,77 @@ export class EventReservationComponent implements OnInit {
   }
 
   getReservationReviewCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getReservationClosedMessage();
+    }
+
     return this.requiresReservationApproval()
       ? 'Your reservation will be created as pending and confirmed by the admin team.'
       : 'Your reservation will be confirmed immediately while seats are still available.';
   }
 
-  getReservationPaymentCopy(): string {
-    if (this.isWaitlistLikely()) {
-      return 'Waitlist reservations must be paid right away to hold your place in line. If a seat opens, CampConnect moves the booking straight to paid. If not, the full payment is refunded automatically when the event starts.';
+  getUrgencyBadgeLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations closed';
     }
 
-    return this.requiresReservationApproval()
-      ? 'Your request is sent securely. Once it is confirmed, you can finish the payment with Stripe from My Reservations.'
-      : 'Your request is sent securely. If it is confirmed immediately, Stripe payment becomes available from My Reservations right away.';
+    const availableSeats = this.getAvailableSeats();
+
+    if (availableSeats <= 0) {
+      return 'Waitlist only';
+    }
+
+    if (availableSeats <= 10) {
+      return `Only ${availableSeats} spot${availableSeats === 1 ? '' : 's'} left`;
+    }
+
+    return `${availableSeats} spots open`;
   }
 
-  getWaitlistNoticeCopy(): string {
-    const availableSeats = this.getAvailableSeats();
-    return `Only ${availableSeats} seat${availableSeats === 1 ? '' : 's'} are open right now, so this request will likely join the waitlist. Stripe payment is required immediately to hold your place in line, and CampConnect refunds it in full automatically if no seat opens before the event starts.`;
+  getGuestCountLabel(): string {
+    return `${this.numberOfParticipants} guest${this.numberOfParticipants === 1 ? '' : 's'}`;
+  }
+
+  getHeroSupportLabel(): string {
+    if (this.isReservationClosed()) {
+      return this.getStatusLabel(this.event?.statut || 'COMPLETED');
+    }
+
+    if ((this.event?.favoriteCount ?? 0) >= 10) {
+      return 'Popular pick';
+    }
+
+    if (this.isAlmostFull()) {
+      return 'Trending now';
+    }
+
+    return 'Live booking';
+  }
+
+  getHeroSupportMeta(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedEventStatus() === 'COMPLETED'
+        ? 'Finished experience'
+        : 'Booking unavailable';
+    }
+
+    if ((this.event?.favoriteCount ?? 0) > 0) {
+      return `Saved by ${this.event?.favoriteCount} guest${this.event?.favoriteCount === 1 ? '' : 's'}`;
+    }
+
+    return `${this.event?.organizerNom || 'CampConnect'} host`;
+  }
+
+  getDurationLabel(): string {
+    const minutes = this.event?.dureeMinutes ?? 0;
+
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const remainder = minutes % 60;
+      return remainder > 0 ? `${hours}h ${remainder}m` : `${hours}h`;
+    }
+
+    return `${minutes} min`;
   }
 
   formatDate(dateString: string): string {
@@ -324,6 +428,21 @@ export class EventReservationComponent implements OnInit {
     this.router.navigate(['/public/events']);
   }
 
+  goToEventDetails(): void {
+    if (!this.event) {
+      this.goBack();
+      return;
+    }
+
+    const normalizedPromoCode = this.getNormalizedPromoCode();
+    this.router.navigate(['/public/events', this.event.id], {
+      queryParams: {
+        participants: this.numberOfParticipants,
+        ...(normalizedPromoCode ? { promoCode: normalizedPromoCode } : {})
+      }
+    });
+  }
+
   goToMyReservations(reservationId?: number | null): void {
     this.router.navigate(['/public/events/my-reservations'], {
       queryParams: reservationId ? { focusReservation: reservationId } : undefined
@@ -364,6 +483,21 @@ export class EventReservationComponent implements OnInit {
   }
 
   getPromoFeedbackText(): string {
+    if (!this.hasPromoCodeValue()) {
+      return '';
+    }
+
+    if (this.pricingPreview?.invalidPromoCode) {
+      return this.promoFeedbackMessage || 'That code is not available for this reservation.';
+    }
+
+    if (this.hasDiscountApplied()) {
+      const promoCode = this.getNormalizedPromoCode();
+      return promoCode
+        ? `${promoCode} applied: -${this.formatCurrency(this.getDiscountAmount())}`
+        : `Discount applied: -${this.formatCurrency(this.getDiscountAmount())}`;
+    }
+
     if (this.promoFeedbackMessage) {
       return this.promoFeedbackMessage;
     }
@@ -372,26 +506,11 @@ export class EventReservationComponent implements OnInit {
       return this.pricingPreview.discountLabel;
     }
 
-    return '';
+    return 'Promo code checked.';
   }
 
-  getPromotionPillLabel(promotion: PromotionOfferResponseDTO): string {
-    if (promotion.autoApply) {
-      return 'Auto';
-    }
-
-    return promotion.code?.trim() || 'Code';
-  }
-
-  getPromotionSupportCopy(promotion: PromotionOfferResponseDTO): string {
-    const minimumParticipants = promotion.minimumParticipants
-      ? `${promotion.minimumParticipants}+ guests`
-      : 'any group size';
-    const minimumSubtotal = promotion.minimumSubtotal
-      ? ` from ${this.formatCurrency(promotion.minimumSubtotal)}`
-      : '';
-
-    return `${promotion.name} for ${minimumParticipants}${minimumSubtotal}.`;
+  shouldShowPromoFeedback(): boolean {
+    return Boolean(this.getPromoFeedbackText());
   }
 
   getErrorTitle(): string {
@@ -421,20 +540,79 @@ export class EventReservationComponent implements OnInit {
     this.goBack();
   }
 
-  private loadPublicPromotions(): void {
-    this.eventService.getPublicPromotions().subscribe({
-      next: (promotions) => {
-        this.availablePromotions = promotions;
-      },
-      error: (error) => {
-        console.warn('Could not load public promotions:', error);
-        this.availablePromotions = [];
-      }
-    });
-  }
-
   private getNormalizedPromoCode(): string {
     return this.promoCodeInput.trim().toUpperCase();
+  }
+
+  getSummaryTotalLabel(): string {
+    if (this.isReservationClosed()) {
+      return 'Reference price';
+    }
+
+    return this.isImmediatePaymentFlow() ? 'Total due today' : 'Estimated total';
+  }
+
+  getSummaryLineItemLabel(): string {
+    return `${this.formatCurrency(this.event?.prix || 0)} x ${this.getGuestCountLabel()}`;
+  }
+
+  getPromoLineItemLabel(): string {
+    const promoCode = this.getNormalizedPromoCode();
+    return promoCode ? `${promoCode} discount` : 'Discount';
+  }
+
+  getPrimaryActionLabel(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedEventStatus() === 'COMPLETED'
+        ? 'Event Completed - Reservations Closed'
+        : 'Reservations Closed';
+    }
+
+    return this.isImmediatePaymentFlow() ? 'Proceed to Secure Payment' : 'Submit Reservation Request';
+  }
+
+  getPrimaryActionHelperCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getReservationClosedMessage();
+    }
+
+    if (this.isWaitlistLikely()) {
+      return 'You will be taken to Stripe next to secure your waitlist position.';
+    }
+
+    return this.requiresReservationApproval()
+      ? 'You will not be charged yet. Payment opens only after the organizer confirms the reservation.'
+      : 'You will review the final payment securely on Stripe in the next step.';
+  }
+
+  isImmediatePaymentFlow(): boolean {
+    return !this.isReservationClosed() && (this.isWaitlistLikely() || !this.requiresReservationApproval());
+  }
+
+  getReservationFlowTitle(): string {
+    if (this.isReservationClosed()) {
+      return 'Reservations are closed';
+    }
+
+    return this.isWaitlistLikely()
+      ? 'Waitlist place protected'
+      : this.requiresReservationApproval()
+        ? 'Approval happens first'
+        : 'Instant confirmation available';
+  }
+
+  getReservationFlowCopy(): string {
+    if (this.isReservationClosed()) {
+      return this.getNormalizedEventStatus() === 'COMPLETED'
+        ? 'This event is completed, so we no longer accept reservations or waitlist entries.'
+        : 'This event is not accepting new reservations or waitlist entries.';
+    }
+
+    return this.isWaitlistLikely()
+      ? 'Your payment holds your place in line.'
+      : this.requiresReservationApproval()
+        ? 'You pay only after the organizer confirms.'
+        : 'You can continue straight to Stripe after this step.';
   }
 
   private getBackendMessage(error: unknown): string | null {
@@ -454,6 +632,16 @@ export class EventReservationComponent implements OnInit {
       || (apiError as { message?: string; error?: string; details?: string; title?: string })?.title;
 
     return typeof message === 'string' && message.trim() ? message.trim() : null;
+  }
+
+  private getReservationClosedMessage(): string {
+    return this.getNormalizedEventStatus() === 'COMPLETED'
+      ? 'This event is completed, so we do not accept reservations or waitlist entries anymore.'
+      : 'This event is not open for new reservations or waitlist entries anymore.';
+  }
+
+  private getNormalizedEventStatus(): string {
+    return String(this.event?.statut || '').toUpperCase();
   }
 
   private getForbiddenReservationMessage(): string {
@@ -481,29 +669,19 @@ export class EventReservationComponent implements OnInit {
       ...(promoCode ? { promoCode } : {})
     };
 
-    console.log('Submitting reservation:', reservationRequest);
-
     this.eventService.createReservation(reservationRequest).subscribe({
       next: (response: ReservationResponseDTO) => {
-        this.isSubmitting = false;
-        this.successMessage = response.estEnAttente
-          ? 'Your reservation was added to the waitlist. Pay now from My Reservations to hold your place in line.'
-          : response.statut === 'CONFIRMED'
-            ? `Reservation confirmed. Total: ${this.formatCurrency(response.prixTotal)}. You can now pay from My Reservations.`
-            : `Reservation request received. Total: ${this.formatCurrency(response.prixTotal)}. It is now pending admin confirmation.`;
+        if (this.canContinueToStripe(response)) {
+          this.successMessage = response.estEnAttente
+            ? 'Waitlist reservation created. Opening secure Stripe payment...'
+            : 'Reservation confirmed. Opening secure Stripe payment...';
+          this.startCheckoutForReservation(response);
+          return;
+        }
 
-        setTimeout(() => {
-          this.router.navigate(['/public/events/my-reservations'], {
-            queryParams: {
-              focusReservation: response.id,
-              created: response.estEnAttente
-                ? 'waitlist'
-                : response.statut === 'CONFIRMED'
-                  ? 'confirmed'
-                  : 'pending'
-            }
-          });
-        }, 2000);
+        this.isSubmitting = false;
+        this.successMessage = `Reservation request received. Total: ${this.formatCurrency(response.prixTotal)}. It is now pending admin confirmation.`;
+        this.navigateToReservationState(response);
       },
       error: (error: unknown) => {
         this.isSubmitting = false;
@@ -620,5 +798,46 @@ export class EventReservationComponent implements OnInit {
 
   private formatCurrency(amount: number): string {
     return this.currencyFormatter.format(Number(amount || 0));
+  }
+
+  private canContinueToStripe(reservation: ReservationResponseDTO): boolean {
+    return reservation.statut === 'CONFIRMED'
+      || (reservation.estEnAttente && reservation.statut === 'PENDING');
+  }
+
+  private startCheckoutForReservation(reservation: ReservationResponseDTO): void {
+    this.eventService.createCheckoutSession(reservation.id).subscribe({
+      next: (session) => {
+        if (!session.checkoutUrl) {
+          this.isSubmitting = false;
+          this.successMessage = 'Reservation created. Continue from My Reservations to finish payment.';
+          this.navigateToReservationState(reservation);
+          return;
+        }
+
+        window.location.assign(session.checkoutUrl);
+      },
+      error: (error) => {
+        console.error('Error creating Stripe checkout session:', error);
+        this.isSubmitting = false;
+        this.successMessage = 'Reservation created. We could not open Stripe automatically, so we are taking you to My Reservations.';
+        this.navigateToReservationState(reservation);
+      }
+    });
+  }
+
+  private navigateToReservationState(response: ReservationResponseDTO): void {
+    setTimeout(() => {
+      this.router.navigate(['/public/events/my-reservations'], {
+        queryParams: {
+          focusReservation: response.id,
+          created: response.estEnAttente
+            ? 'waitlist'
+            : response.statut === 'CONFIRMED'
+              ? 'confirmed'
+              : 'pending'
+        }
+      });
+    }, 1800);
   }
 }

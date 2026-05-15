@@ -1,62 +1,101 @@
 import { Component } from '@angular/core';
-import { ReclamationService } from '../reclamation.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { ReclamationService } from '../reclamation.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 @Component({
   selector: 'app-reclamation-add',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './reclamation-add.component.html',
-  styleUrl: './reclamation-add.component.css'
+  styleUrls: ['./reclamation-add.component.css']
 })
 export class ReclamationAddComponent {
+
+  types = ['Destination', 'Shop', 'Restaurant', 'Event', 'Formation'];
+
   reclamation = {
+    type: 'Destination',
     description: '',
     statut: 'EN_COURS',
     acceptationDeclaration: false,
-    dateAcceptation: null as string | null
+    dateAcceptation: null as string | null,
+    image: ''
   };
 
   submitted = false;
+  isSubmitting = false;
   showDeclaration = false;
 
-  constructor(private reclamationService: ReclamationService) {}
+  constructor(
+    private reclamationService: ReclamationService,
+    private authService: AuthService
+  ) {}
 
-  save() {
-    this.submitted = true;
-
-    if (!this.reclamation.description.trim()) {
-      alert('Veuillez saisir la description de la réclamation.');
-      return;
+  onFileSelected(event: any) {
+    const file = event.target.files?.[0];
+    if (file) {
+      this.reclamation.image = file.name;
     }
+  }
 
-    if (!this.reclamation.acceptationDeclaration) {
-      alert('Vous devez accepter le traitement des données personnelles.');
-      return;
+save() {
+  this.submitted = true;
+
+  if (!this.reclamation.description?.trim()) {
+    alert('Please enter a description.');
+    return;
+  }
+
+  if (!this.reclamation.acceptationDeclaration) {
+    alert('You must accept the personal data policy.');
+    return;
+  }
+
+  if (this.isSubmitting) return;
+  this.isSubmitting = true;
+
+  this.reclamation.dateAcceptation = new Date().toISOString();
+
+  const userId = this.authService.getUserId();
+
+
+const payload = {
+  utilisateur: {
+    id: this.authService.getUserId()
+  },
+  description: `${this.reclamation.type}: ${this.reclamation.description}`,
+  statut: 'EN_COURS',
+  acceptationDeclaration: this.reclamation.acceptationDeclaration,
+  dateAcceptation: new Date().toISOString(),
+  image: this.reclamation.image
+};
+
+  this.reclamationService.create(payload).subscribe({
+    next: () => {
+      alert('Complaint submitted successfully!');
+      this.resetForm();
+      this.isSubmitting = false;
+      this.submitted = false;
+    },
+    error: (err) => {
+      console.error('Error submitting reclamation:', err);
+      alert('Error submitting complaint. Please try again.');
+      this.isSubmitting = false;
     }
-
-    this.reclamation.dateAcceptation = new Date().toISOString();
-
-    this.reclamationService.create(this.reclamation).subscribe({
-      next: (res) => {
-        console.log('Réclamation ajoutée', res);
-        alert('Réclamation ajoutée avec succès');
-
-        this.reclamation = {
-          description: '',
-          statut: 'EN_COURS',
-          acceptationDeclaration: false,
-          dateAcceptation: null
-        };
-
-        this.submitted = false;
-      },
-      error: (err) => {
-        console.error(err);
-        alert('Erreur lors de l’ajout');
-      }
-    });
+  });
+}
+ private resetForm() {
+    this.reclamation = {
+      type: 'Destination',
+      description: '',
+      statut: 'EN_COURS',
+      acceptationDeclaration: false,
+      dateAcceptation: null,
+      image: ''
+    };
   }
 
   ouvrirDeclaration() {

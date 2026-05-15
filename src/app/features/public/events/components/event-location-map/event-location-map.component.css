@@ -109,10 +109,10 @@
 }
 
 .selection-summary {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px 18px;
+  align-items: end;
   padding: 16px 18px;
   border-radius: 18px;
   border: 1px solid #dbe6de;
@@ -127,6 +127,7 @@
   display: block;
   color: #1f2c24;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .selection-copy small {
@@ -134,10 +135,17 @@
   margin-top: 6px;
   color: #728176;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .maps-link {
-  min-width: 180px;
+  min-width: max-content;
+  max-width: 100%;
+  padding: 0 20px;
+  justify-self: end;
+  align-self: center;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 @media (max-width: 720px) {

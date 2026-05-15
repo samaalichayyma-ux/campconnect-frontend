@@ -6,6 +6,15 @@
       <p>Track your upcoming camping stays and revisit your reservation details.</p>
     </div>
 
+    <div class="filters" *ngIf="!isLoading && !errorMessage">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (input)="applyFilters()"
+        placeholder="Search by campsite, location, or status..."
+      />
+    </div>
+
     <div *ngIf="isLoading" class="info-message">
       Loading your bookings...
     </div>
@@ -14,16 +23,15 @@
       {{ errorMessage }}
     </div>
 
-    <div class="bookings-grid" *ngIf="!isLoading && !errorMessage && bookings.length > 0">
-      <div class="booking-card" *ngFor="let booking of bookings">
-        <div class="booking-image-wrap">
-          <img
-            [src]="booking.siteCamping?.imageUrl || 'assets/images/default-camp.jpg'"
-            [alt]="booking.siteCamping?.nom"
-            class="booking-image"
-          />
+    <div class="bookings-list" *ngIf="!isLoading && !errorMessage && paginatedBookings.length > 0">
+      <article class="booking-card" *ngFor="let booking of paginatedBookings">
+        <div class="booking-topbar">
+          <div class="booking-site">
+            <h3>{{ booking.siteCamping?.nom }}</h3>
+            <p>{{ booking.siteCamping?.localisation }}</p>
+          </div>
 
-          <span
+          <div
             class="status-badge"
             [ngClass]="{
               'pending': booking.statut === 'PENDING',
@@ -32,71 +40,88 @@
             }"
           >
             {{ booking.statut }}
-          </span>
-        </div>
-
-        <div class="booking-content">
-          <div class="booking-heading">
-            <div>
-              <p class="booking-label">Reserved campsite</p>
-              <h3>{{ booking.siteCamping?.nom }}</h3>
-              <p class="location">{{ booking.siteCamping?.localisation }}</p>
-            </div>
-
-            <div class="booking-id">
-              <span>Booking</span>
-              <strong>#{{ booking.idInscription }}</strong>
-            </div>
-          </div>
-
-          <div class="booking-dates">
-            <div class="date-box">
-              <span>Check-in</span>
-              <strong>{{ booking.dateDebut | date:'mediumDate' }}</strong>
-            </div>
-
-            <div class="date-separator"></div>
-
-            <div class="date-box">
-              <span>Check-out</span>
-              <strong>{{ booking.dateFin | date:'mediumDate' }}</strong>
-            </div>
-          </div>
-
-          <div class="booking-info">
-            <div class="info-row">
-              <span>Guests</span>
-              <strong>{{ booking.numberOfGuests }}</strong>
-            </div>
-
-            <div class="info-row">
-              <span>Nights</span>
-              <strong>{{ getNumberOfNights(booking.dateDebut, booking.dateFin) }}</strong>
-            </div>
-
-            <div class="info-row total-row">
-              <span>Total amount</span>
-              <strong>{{ getTotalPrice(booking) }} DT</strong>
-            </div>
-          </div>
-
-          <div class="booking-actions">
-            <a
-              class="btn-secondary"
-              *ngIf="booking.siteCamping?.idSite"
-              [routerLink]="['/public/site-booking', booking.siteCamping?.idSite]"
-            >
-              View Site
-            </a>
           </div>
         </div>
-      </div>
+
+        <div class="booking-body">
+          <div class="booking-image-wrap">
+            <img
+              [src]="booking.siteCamping?.imageUrl || 'assets/images/default-camp.jpg'"
+              [alt]="booking.siteCamping?.nom"
+              class="booking-image"
+            />
+          </div>
+
+          <div class="booking-details">
+            <div class="details-grid">
+              <div class="detail-box">
+                <span>Booking ID</span>
+                <strong>#{{ booking.idInscription }}</strong>
+              </div>
+
+              <div class="detail-box">
+                <span>Check-in</span>
+                <strong>{{ booking.dateDebut | date:'mediumDate' }}</strong>
+              </div>
+
+              <div class="detail-box">
+                <span>Check-out</span>
+                <strong>{{ booking.dateFin | date:'mediumDate' }}</strong>
+              </div>
+
+              <div class="detail-box">
+                <span>Guests</span>
+                <strong>{{ booking.numberOfGuests }}</strong>
+              </div>
+
+              <div class="detail-box">
+                <span>Nights</span>
+                <strong>{{ getNumberOfNights(booking.dateDebut, booking.dateFin) }}</strong>
+              </div>
+
+              <div class="detail-box total-box">
+                <span>Total Amount</span>
+                <strong>{{ getTotalPrice(booking) }} DT</strong>
+              </div>
+            </div>
+
+            <div class="booking-actions">
+              <a
+                class="btn-secondary"
+                *ngIf="booking.siteCamping?.idSite"
+                [routerLink]="['/public/site-booking', booking.siteCamping?.idSite]"
+              >
+                View Site
+              </a>
+            </div>
+          </div>
+        </div>
+      </article>
     </div>
 
-    <div *ngIf="!isLoading && !errorMessage && bookings.length === 0" class="empty-state">
+    <div class="pagination" *ngIf="!isLoading && !errorMessage && filteredBookings.length > itemsPerPage">
+      <button class="page-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+        Previous
+      </button>
+
+      <button
+        class="page-number"
+        *ngFor="let page of pageNumbers"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button class="page-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+        Next
+      </button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage && filteredBookings.length === 0" class="empty-state">
       <div class="empty-icon">🏕️</div>
-      <h3>No bookings yet</h3>
-      <p>You have not made any camping reservations yet.</p>
+      <h3>No bookings found</h3>
+      <p>No booking matches your search right now.</p>
       <a routerLink="/public/camping-sites" class="btn-explore">
         Explore Camping Sites
       </a>

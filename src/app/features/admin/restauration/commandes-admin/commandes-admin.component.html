@@ -1,1 +1,45 @@
-<p>ici commande admin</p>
+<section class="orders-page">
+  <div class="orders-header">
+    <div>
+      <h1>Meal Orders Management</h1>
+      <p>Track and manage meal orders</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading">Loading meal orders...</div>
+  <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+  <div class="table-wrapper" *ngIf="!loading">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date commande</th>
+          <th>Montant total</th>
+          <th>Statut</th>
+          <th>Client</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let commande of commandes">
+          <td>{{ commande.id }}</td>
+          <td>{{ commande.dateCommande }}</td>
+          <td>{{ commande.montantTotal }} TND</td>
+          <td>
+            <span class="status" [ngClass]="getStatusClass(commande.statut)">
+              {{ commande.statut }}
+            </span>
+          </td>
+          <td>{{ commande.clientNom || '-' }}</td>
+          <td class="actions">
+            <a [routerLink]="['/admin/commande-repas/details', commande.id]" class="btn details">Details</a>
+            <a [routerLink]="['/admin/commande-repas/edit', commande.id]" class="btn edit">Edit</a>
+            <button class="btn delete" (click)="deleteCommande(commande.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

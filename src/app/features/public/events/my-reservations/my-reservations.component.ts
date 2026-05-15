@@ -5,7 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import {
+  ReservationFeedbackRequestDTO,
   ReservationResponseDTO,
   UserNotificationResponseDTO,
   UserReservationStatsDTO
@@ -19,7 +21,7 @@ import { EventService } from '../services/event.service';
   templateUrl: './my-reservations.component.html',
   styleUrl: './my-reservations.component.css'
 })
-export class MyReservationsComponent implements OnInit {
+export class MyReservationsComponent extends ToastMessageHost implements OnInit {
   private readonly currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -37,29 +39,26 @@ export class MyReservationsComponent implements OnInit {
   isLoadingStats = false;
   isLoadingNotifications = false;
   isLoggedIn = false;
-  errorMessage = '';
-  successMessage = '';
   noReservationsMessage = '';
 
   selectedStatusFilter = 'all';
   sortBy = 'recent';
-
-  currentPage = 1;
-  pageSize = 10;
-  totalPages = 1;
   processingPaymentReservationId: number | null = null;
   downloadingReceiptReservationId: number | null = null;
   downloadingCalendarReservationId: number | null = null;
+  submittingFeedbackReservationId: number | null = null;
   markingNotificationId: number | null = null;
   focusReservationId: number | null = null;
   activeDashboardSection = 'dashboard-overview';
   unreadNotificationCount = 0;
+  feedbackDrafts: Record<number, ReservationFeedbackRequestDTO> = {};
 
   readonly statusFilters = [
     { value: 'all', label: 'All reservations' },
     { value: 'PENDING', label: 'Pending / waitlist' },
     { value: 'CONFIRMED', label: 'Confirmed' },
     { value: 'PAID', label: 'Paid' },
+    { value: 'ATTENDED', label: 'Attended' },
     { value: 'CANCELLED', label: 'Cancelled' }
   ];
 
@@ -71,10 +70,34 @@ export class MyReservationsComponent implements OnInit {
   ];
 
   readonly dashboardSections = [
-    { id: 'dashboard-overview', label: 'Summary', description: 'Live booking counts and the next actions that matter most' },
-    { id: 'notification-center', label: 'Notifications', description: 'Stay on top of confirmations, waitlist changes, and refunds' },
-    { id: 'billing-center', label: 'Billing Center', description: 'View bill history, reopen Stripe invoices, and download receipts' },
-    { id: 'reservation-history', label: 'History', description: 'Scan upcoming, past, cancelled, and paid reservations in one place' }
+    {
+      id: 'dashboard-overview',
+      label: 'Summary',
+      description: 'Live booking counts and the next actions that matter most',
+      icon: 'dashboard',
+      tone: 'tone-forest'
+    },
+    {
+      id: 'notification-center',
+      label: 'Notifications',
+      description: 'Stay on top of confirmations, payments, waitlist changes, and refunds',
+      icon: 'sparkles',
+      tone: 'tone-sky'
+    },
+    {
+      id: 'billing-center',
+      label: 'Billing Center',
+      description: 'View bill history, reopen Stripe invoices, and download receipts',
+      icon: 'wallet',
+      tone: 'tone-gold'
+    },
+    {
+      id: 'reservation-history',
+      label: 'History',
+      description: 'Scan upcoming, past, cancelled, and paid reservations in one place',
+      icon: 'clock',
+      tone: 'tone-plum'
+    }
   ];
 
   constructor(
@@ -82,7 +105,9 @@ export class MyReservationsComponent implements OnInit {
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    super();
+  }
 
   ngOnInit(): void {
     this.checkAuth();
@@ -111,6 +136,7 @@ export class MyReservationsComponent implements OnInit {
     this.eventService.getMyReservations().subscribe({
       next: (data) => {
         this.reservations = data;
+        this.initializeFeedbackDrafts();
         this.updateBillingReservations();
         this.applyFilters();
         this.isLoading = false;
@@ -124,6 +150,7 @@ export class MyReservationsComponent implements OnInit {
         this.errorMessage = 'Failed to load reservations. Please try again.';
         console.error('Error loading reservations:', error);
         this.isLoading = false;
+        this.feedbackDrafts = {};
       }
     });
   }
@@ -256,6 +283,74 @@ export class MyReservationsComponent implements OnInit {
     });
   }
 
+  getFeedbackDraft(reservation: ReservationResponseDTO): ReservationFeedbackRequestDTO {
+    const existingDraft = this.feedbackDrafts[reservation.id];
+    if (existingDraft) {
+      return existingDraft;
+    }
+
+    const draft: ReservationFeedbackRequestDTO = {
+      rating: reservation.feedbackRating ?? 5,
+      comment: reservation.feedbackComment ?? ''
+    };
+    this.feedbackDrafts[reservation.id] = draft;
+    return draft;
+  }
+
+  canShowFeedbackComposer(reservation: ReservationResponseDTO): boolean {
+    return Boolean(reservation.feedbackEligible) || Boolean(reservation.feedbackSubmittedAt);
+  }
+
+  hasSubmittedFeedback(reservation: ReservationResponseDTO): boolean {
+    return Boolean(reservation.feedbackSubmittedAt && reservation.feedbackRating);
+  }
+
+  isSubmittingFeedback(reservationId: number): boolean {
+    return this.submittingFeedbackReservationId === reservationId;
+  }
+
+  getFeedbackStars(reservation: ReservationResponseDTO): string {
+    const rating = Number(reservation.feedbackRating || 0);
+    if (!rating) {
+      return '';
+    }
+
+    return `${rating}/5`;
+  }
+
+  submitFeedback(reservation: ReservationResponseDTO): void {
+    if (!this.canShowFeedbackComposer(reservation) || this.isSubmittingFeedback(reservation.id)) {
+      return;
+    }
+
+    const draft = this.getFeedbackDraft(reservation);
+    if (!draft.rating || draft.rating < 1 || draft.rating > 5) {
+      this.errorMessage = 'Choose a rating between 1 and 5 before sending your feedback.';
+      return;
+    }
+
+    this.submittingFeedbackReservationId = reservation.id;
+    this.errorMessage = '';
+
+    this.eventService.submitReservationFeedback(reservation.id, draft).subscribe({
+      next: (updatedReservation) => {
+        this.replaceReservation(updatedReservation);
+        this.feedbackDrafts[reservation.id] = {
+          rating: updatedReservation.feedbackRating ?? draft.rating,
+          comment: updatedReservation.feedbackComment ?? draft.comment ?? ''
+        };
+        this.successMessage = 'Your feedback was saved. Thanks for helping improve the event experience.';
+        this.submittingFeedbackReservationId = null;
+      },
+      error: (error) => {
+        this.submittingFeedbackReservationId = null;
+        this.errorMessage = this.getBackendMessage(error)
+          || 'We could not save your feedback right now. Please try again.';
+        console.error('Error submitting reservation feedback:', error);
+      }
+    });
+  }
+
   payNextReservation(): void {
     const nextReservation = this.getNextPayableReservation();
     if (nextReservation) {
@@ -278,9 +373,6 @@ export class MyReservationsComponent implements OnInit {
 
     this.sortReservations(filtered);
     this.filteredReservations = filtered;
-    this.totalPages = Math.max(1, Math.ceil(filtered.length / this.pageSize));
-    this.currentPage = 1;
-    this.updatePaginatedReservations();
   }
 
   sortReservations(reservations: ReservationResponseDTO[]): void {
@@ -302,10 +394,6 @@ export class MyReservationsComponent implements OnInit {
         reservations.sort((a, b) => a.prixTotal - b.prixTotal);
         break;
     }
-  }
-
-  updatePaginatedReservations(): void {
-    this.filteredReservations = [...this.filteredReservations];
   }
 
   cancelReservation(reservation: ReservationResponseDTO): void {
@@ -406,6 +494,8 @@ export class MyReservationsComponent implements OnInit {
         return 'status-confirmed';
       case 'PAID':
         return 'status-paid';
+      case 'ATTENDED':
+        return 'status-confirmed';
       case 'CANCELLED':
         return 'status-cancelled';
       case 'NO_SHOW':
@@ -437,11 +527,16 @@ export class MyReservationsComponent implements OnInit {
   getNotificationClass(notification: UserNotificationResponseDTO): string {
     switch (notification.type) {
       case 'BOOKING_CONFIRMED':
+      case 'PAYMENT_CONFIRMED':
         return 'notification-confirmed';
       case 'WAITLIST_PROMOTED':
+      case 'WAITLIST_OFFER_EXPIRED':
         return 'notification-promoted';
       case 'REFUND_PROCESSED':
         return 'notification-refund';
+      case 'EVENT_REMINDER':
+      case 'FEEDBACK_REQUESTED':
+        return 'notification-default';
       default:
         return 'notification-default';
     }
@@ -451,10 +546,18 @@ export class MyReservationsComponent implements OnInit {
     switch (notification.type) {
       case 'BOOKING_CONFIRMED':
         return 'check';
+      case 'PAYMENT_CONFIRMED':
+        return 'wallet';
       case 'WAITLIST_PROMOTED':
         return 'sparkles';
+      case 'WAITLIST_OFFER_EXPIRED':
+        return 'warning';
       case 'REFUND_PROCESSED':
         return 'refund';
+      case 'EVENT_REMINDER':
+        return 'calendar';
+      case 'FEEDBACK_REQUESTED':
+        return 'sparkles';
       default:
         return 'clock';
     }
@@ -466,6 +569,7 @@ export class MyReservationsComponent implements OnInit {
         return 'clock';
       case 'CONFIRMED':
       case 'PAID':
+      case 'ATTENDED':
         return 'check';
       case 'CANCELLED':
       case 'REFUNDED':
@@ -536,6 +640,22 @@ export class MyReservationsComponent implements OnInit {
     return this.currencyFormatter.format(Number(amount || 0));
   }
 
+  trackByDashboardSection(_index: number, section: { id: string }): string {
+    return section.id;
+  }
+
+  trackByNotificationId(_index: number, notification: UserNotificationResponseDTO): number {
+    return notification.id;
+  }
+
+  trackByReservationId(_index: number, reservation: ReservationResponseDTO): number {
+    return reservation.id;
+  }
+
+  trackByOptionValue(_index: number, option: { value: string }): string {
+    return option.value;
+  }
+
   canCancel(reservation: ReservationResponseDTO): boolean {
     if (typeof reservation.cancellationPolicy?.canCancel === 'boolean') {
       return reservation.cancellationPolicy.canCancel;
@@ -576,11 +696,45 @@ export class MyReservationsComponent implements OnInit {
   }
 
   getNextPayableReservation(): ReservationResponseDTO | null {
-    return [...this.reservations]
-      .filter((reservation) => this.canPay(reservation))
-      .sort((firstReservation, secondReservation) =>
-        new Date(firstReservation.eventDateDebut).getTime() - new Date(secondReservation.eventDateDebut).getTime()
-      )[0] ?? null;
+    let nextPayableReservation: ReservationResponseDTO | null = null;
+
+    for (const reservation of this.reservations) {
+      if (!this.canPay(reservation)) {
+        continue;
+      }
+
+      if (!nextPayableReservation) {
+        nextPayableReservation = reservation;
+        continue;
+      }
+
+      const reservationDate = new Date(reservation.eventDateDebut).getTime();
+      const nextReservationDate = new Date(nextPayableReservation.eventDateDebut).getTime();
+      if (reservationDate < nextReservationDate) {
+        nextPayableReservation = reservation;
+      }
+    }
+
+    return nextPayableReservation;
+  }
+
+  get activeDashboardSectionMeta() {
+    return this.dashboardSections.find((section) => section.id === this.activeDashboardSection) ?? this.dashboardSections[0];
+  }
+
+  getDashboardSectionCount(sectionId: string): number {
+    switch (sectionId) {
+      case 'dashboard-overview':
+        return this.getTotalReservationsCount();
+      case 'notification-center':
+        return this.getUnreadNotificationsCount();
+      case 'billing-center':
+        return this.getBillsReadyCount();
+      case 'reservation-history':
+        return this.reservations.length;
+      default:
+        return 0;
+    }
   }
 
   goToReservationCard(reservationId: number): void {
@@ -894,6 +1048,10 @@ export class MyReservationsComponent implements OnInit {
       return 'Waitlist payment due';
     }
 
+    if (reservation.statut === 'ATTENDED') {
+      return 'Attended event';
+    }
+
     return this.isUpcomingReservation(reservation) ? 'Upcoming event' : 'Reservation history';
   }
 
@@ -956,6 +1114,87 @@ export class MyReservationsComponent implements OnInit {
     return `${discountLabel}. You saved ${this.formatCurrency(reservation.discountAmount)} off a base subtotal of ${this.formatCurrency(reservation.basePriceTotal)}. ${discountSource}`;
   }
 
+  getLifecycleNoteClass(reservation: ReservationResponseDTO): string {
+    switch (reservation.statut) {
+      case 'ATTENDED':
+        return 'payment-complete';
+      case 'NO_SHOW':
+      case 'CANCELLED':
+      case 'REFUNDED':
+        return 'payment-closed';
+      case 'PENDING':
+        return 'payment-locked';
+      default:
+        return 'payment-neutral';
+    }
+  }
+
+  getLifecycleNoteIcon(reservation: ReservationResponseDTO): string {
+    switch (reservation.statut) {
+      case 'ATTENDED':
+        return 'check';
+      case 'NO_SHOW':
+        return 'warning';
+      case 'CANCELLED':
+      case 'REFUNDED':
+        return 'close';
+      case 'PENDING':
+        return 'clock';
+      default:
+        return 'info';
+    }
+  }
+
+  getLifecycleNoteTitle(reservation: ReservationResponseDTO): string {
+    if (reservation.statusDescription?.trim()) {
+      return reservation.statusDescription.trim();
+    }
+
+    switch (reservation.statut) {
+      case 'ATTENDED':
+        return 'Attendance recorded';
+      case 'NO_SHOW':
+        return 'Marked as no-show';
+      case 'CANCELLED':
+        return 'Reservation cancelled';
+      case 'REFUNDED':
+        return 'Reservation refunded';
+      case 'PAID':
+        return 'Reservation paid and ready';
+      case 'CONFIRMED':
+        return 'Reservation confirmed';
+      default:
+        return 'Reservation update';
+    }
+  }
+
+  getLifecycleNoteCopy(reservation: ReservationResponseDTO): string {
+    if (reservation.nextStepMessage?.trim()) {
+      return reservation.nextStepMessage.trim();
+    }
+
+    switch (reservation.statut) {
+      case 'ATTENDED':
+        return 'This event has already finished, and CampConnect archived the reservation as attended for your history.';
+      case 'NO_SHOW':
+        return 'The event has already finished and this reservation was closed as a no-show.';
+      case 'PAID':
+        return 'Payment is complete, and the organizer will record attended or no-show during event check-in.';
+      case 'CONFIRMED':
+        return 'Your seat is reserved, but payment still needs to be completed before the event starts.';
+      case 'PENDING':
+        return reservation.estEnAttente
+          ? 'This request is still waiting for a seat to open before it can move forward.'
+          : 'The organizer still needs to review and confirm this reservation.';
+      case 'CANCELLED':
+        return 'This reservation is no longer active.';
+      case 'REFUNDED':
+        return 'Your refund has been completed for this reservation.';
+      default:
+        return 'CampConnect keeps the latest reservation state here so you can follow what happens next.';
+    }
+  }
+
   goToLogin(): void {
     this.authService.setReturnUrl('/public/events/my-reservations');
     this.router.navigate(['/login']);
@@ -973,6 +1212,24 @@ export class MyReservationsComponent implements OnInit {
         const secondDate = this.getBillingTimestamp(secondReservation);
         return secondDate - firstDate;
       });
+  }
+
+  private initializeFeedbackDrafts(): void {
+    this.feedbackDrafts = this.reservations.reduce<Record<number, ReservationFeedbackRequestDTO>>((drafts, reservation) => {
+      drafts[reservation.id] = {
+        rating: reservation.feedbackRating ?? 5,
+        comment: reservation.feedbackComment ?? ''
+      };
+      return drafts;
+    }, {});
+  }
+
+  private replaceReservation(updatedReservation: ReservationResponseDTO): void {
+    this.reservations = this.reservations.map((reservation) =>
+      reservation.id === updatedReservation.id ? updatedReservation : reservation
+    );
+    this.updateBillingReservations();
+    this.applyFilters();
   }
 
   private isBilledReservation(reservation: ReservationResponseDTO): boolean {
@@ -1163,3 +1420,4 @@ export class MyReservationsComponent implements OnInit {
     return typeof message === 'string' && message.trim() ? message.trim() : null;
   }
 }
+

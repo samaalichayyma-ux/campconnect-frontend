@@ -1,22 +1,14 @@
 <div class="reservation-list-container">
   <div class="list-header">
     <h1>Reservation Management</h1>
-    <a routerLink="/admin/reservations/new" class="create-btn">+ Create New Reservation</a>
+    <div class="header-actions">
+      <a routerLink="/admin/reservations/stats" [queryParams]="{ from: 'reservations' }" class="secondary-btn">View Reservation Stats</a>
+      <a routerLink="/admin/reservations/new" class="create-btn">+ Create New Reservation</a>
+    </div>
   </div>
 
   <div *ngIf="isLoading" class="loading">
     <p>Loading reservations...</p>
-  </div>
-
-  <div *ngIf="errorMessage && !isLoading" class="error-message">
-    <div class="alert-icon">
-      <app-admin-icon name="error" [size]="18"></app-admin-icon>
-    </div>
-    <div class="alert-copy">
-      <strong>Something went wrong</strong>
-      <p>{{ errorMessage }}</p>
-    </div>
-    <button type="button" (click)="loadReservations()" class="retry-btn">Retry</button>
   </div>
 
   <section *ngIf="!isLoading && reservations.length > 0" class="filters-panel">
@@ -113,7 +105,7 @@
     <table class="reservations-table">
       <thead>
         <tr>
-          <th>ID</th>
+          <th>Image</th>
           <th>Event</th>
           <th>User</th>
           <th>Total</th>
@@ -125,86 +117,98 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let reservation of paginatedReservations" [class.deleting]="actionDialog?.id === reservation.id">
-          <td class="id-cell">#{{ reservation.id }}</td>
-          <td class="event-cell">
-            <span class="primary-text">{{ reservation.eventTitre }}</span>
-            <span class="secondary-text">{{ reservation.eventLieu }}</span>
-            <span class="secondary-text">{{ formatDateTime(reservation.eventDateDebut) }}</span>
+        <tr *ngFor="let reservation of paginatedReservations; trackBy: trackByReservationId" [class.deleting]="actionDialog?.id === reservation.id">
+          <td class="image-cell">
+            <img
+              [src]="getEventImageUrl(reservation)"
+              [alt]="reservation.eventTitre"
+              class="event-thumbnail"
+              (error)="onImageError($event)">
           </td>
-          <td class="user-cell">
-            <span class="primary-text">{{ reservation.utilisateurNom }}</span>
-            <span class="secondary-text">{{ reservation.utilisateurEmail }}</span>
+          <td class="title-cell event-cell">
+            <span class="event-title">{{ reservation.eventTitre }}</span>
+            <span class="organizer-meta">Reservation #{{ reservation.id }}</span>
+            <span class="organizer-meta">{{ reservation.eventLieu }}</span>
+            <span class="organizer-meta">{{ formatDateTime(reservation.eventDateDebut) }}</span>
           </td>
-          <td class="total-cell">${{ reservation.prixTotal | number:'1.0-2' }}</td>
+          <td class="title-cell user-cell">
+            <span class="event-title">{{ reservation.utilisateurNom }}</span>
+            <span class="organizer-meta">{{ reservation.utilisateurEmail }}</span>
+          </td>
+          <td class="price total-cell">${{ reservation.prixTotal | number:'1.0-2' }}</td>
           <td>
-            <span class="status-badge" [ngClass]="getStatusClass(reservation.statut)">
+            <span class="visibility-badge status-badge" [ngClass]="getStatusClass(reservation.statut)">
               {{ formatStatusLabel(reservation.statut) }}
             </span>
           </td>
           <td>
-            <span class="payment-badge" [ngClass]="getPaymentStatusClass(reservation.statutPaiement)">
+            <span class="category-badge payment-badge" [ngClass]="getPaymentStatusClass(reservation.statutPaiement)">
               {{ formatStatusLabel(reservation.statutPaiement) }}
             </span>
           </td>
           <td>
-            <span class="waitlist-badge" [class.waitlisted]="reservation.estEnAttente">
+            <span class="registered-badge waitlist-badge" [class.waitlisted]="reservation.estEnAttente">
               {{ reservation.estEnAttente ? 'Waitlisted' : 'Open seats' }}
             </span>
           </td>
           <td class="created-cell">{{ formatDateTime(reservation.dateCreation) }}</td>
           <td class="actions-cell">
-            <div class="action-group">
+            <div class="actions-stack">
               <a
                 [routerLink]="['/admin/reservations', reservation.id, 'edit']"
-                class="row-action edit-action"
+                class="table-action primary"
                 title="Edit"
                 aria-label="Edit reservation">
-                <app-admin-icon name="edit" [size]="18"></app-admin-icon>
                 <span>Edit</span>
               </a>
               <button
                 *ngIf="canConfirm(reservation)"
                 type="button"
-                class="row-action approve-action"
+                class="table-action success"
                 [disabled]="isActionPending(reservation.id)"
                 (click)="openActionDialog(reservation.id, 'confirm')"
                 title="Confirm"
                 aria-label="Confirm reservation">
-                <app-admin-icon name="check" [size]="18"></app-admin-icon>
                 <span>Approve</span>
+              </button>
+              <button
+                *ngIf="canMarkAttended(reservation)"
+                type="button"
+                class="table-action success"
+                [disabled]="isActionPending(reservation.id)"
+                (click)="openActionDialog(reservation.id, 'attended')"
+                title="Mark attended"
+                aria-label="Mark reservation as attended">
+                <span>Attended</span>
               </button>
               <button
                 *ngIf="canMarkNoShow(reservation)"
                 type="button"
-                class="row-action no-show-action"
+                class="table-action warning"
                 [disabled]="isActionPending(reservation.id)"
                 (click)="openActionDialog(reservation.id, 'no-show')"
                 title="Mark no-show"
                 aria-label="Mark reservation as no-show">
-                <app-admin-icon name="close" [size]="18"></app-admin-icon>
                 <span>No-show</span>
               </button>
               <button
                 *ngIf="canRefund(reservation)"
                 type="button"
-                class="row-action refund-action"
+                class="table-action secondary"
                 [disabled]="isActionPending(reservation.id)"
                 (click)="refundReservation(reservation.id)"
                 title="Refund"
                 aria-label="Refund reservation">
-                <app-admin-icon name="refund" [size]="18"></app-admin-icon>
                 <span>Refund</span>
               </button>
               <button
                 *ngIf="canCancel(reservation) && actionDialog?.id !== reservation.id"
                 type="button"
-                class="row-action cancel-action"
+                class="table-action danger"
                 [disabled]="isActionPending(reservation.id)"
                 (click)="openActionDialog(reservation.id, 'cancel')"
                 title="Cancel"
                 aria-label="Cancel reservation">
-                <app-admin-icon name="delete" [size]="18"></app-admin-icon>
                 <span>Cancel</span>
               </button>
             </div>
@@ -235,7 +239,7 @@
       </button>
 
       <button
-        *ngFor="let page of visiblePageNumbers"
+        *ngFor="let page of visiblePageNumbers; trackBy: trackByPageNumber"
         type="button"
         class="page-number"
         [class.active]="page === currentPage"

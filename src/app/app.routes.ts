@@ -7,6 +7,8 @@ import { LandingPageComponent } from './features/public/landing/landing-page/lan
 
 import { LoginComponent } from './features/public/auth/login/login.component';
 import { RegisterComponent } from './features/public/auth/register/register.component';
+import { ForgotPasswordComponent } from './features/public/auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/public/auth/reset-password/reset-password.component';
 
 import { AssuranceListComponent as PublicAssuranceListComponent } from './features/public/assurances/assurance-list/assurance-list.component';
 import { AssuranceDetailsComponent as PublicAssuranceDetailsComponent } from './features/public/assurances/assurance-details/assurance-details.component';
@@ -18,33 +20,37 @@ import { UserCreateComponent } from './features/admin/users/user-create/user-cre
 import { UserEditComponent } from './features/admin/users/user-edit/user-edit.component';
 import { UserDetailsComponent } from './features/admin/users/user-details/user-details.component';
 
-import { AssuranceCreateComponent } from './features/admin/assurances/assurance-create/assurance-create.component';
-import { AssuranceEditComponent } from './features/admin/assurances/assurance-edit/assurance-edit.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { authGuard } from './core/guards/auth.guards';
-import { ProfileComponent } from './features/public/profile/profile/profile.component';
 import { adminGuard } from './core/guards/admin.guard';
+
+import { ProfileComponent } from './features/public/profile/profile/profile.component';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
+
 import { CampingSitesComponent } from './features/public/camping-sites/camping-sites.component';
 import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 import { CampingSiteListComponent } from './features/admin/camping-sites/camping-site-list/camping-site-list.component';
 import { CampingSiteCreateComponent } from './features/admin/camping-sites/camping-site-create/camping-site-create.component';
 import { CampingSiteEditComponent } from './features/admin/camping-sites/camping-site-edit/camping-site-edit.component';
-
-import { ReclamationListComponent } from './features/public/reclamation/reclamation-list/reclamation-list.component';
-import { ReclamationAddComponent } from './features/public/reclamation/reclamation-add/reclamation-add.component';
-import { RepasListComponent } from './features/public/restauration/repas-list/repas-list.component';
-import { CommandeRepasComponent } from './features/public/restauration/commande-repas/commande-repas.component';
-
-import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
-import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
-import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
-
-import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
 import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites/admin-camping-site-details/admin-camping-site-details.component';
 import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
 import { BookingSummaryComponent } from './features/public/booking-summary/booking-summary.component';
 import { MyBookingsComponent } from './features/public/my-bookings/my-bookings.component';
+
+import { ReclamationListComponent } from './features/public/reclamation/reclamation-list/reclamation-list.component';
+import { ReclamationAddComponent } from './features/public/reclamation/reclamation-add/reclamation-add.component';
+import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
+import { ReclamationDetailComponent } from './features/admin/reclamation/reclamation-detail/reclamation-detail.component';
+import { ReclamationEditComponent } from './features/admin/reclamation/reclamation-edit/reclamation-edit.component';
+
+import { RepasListComponent } from './features/public/restauration/repas-list/repas-list.component';
+import { CommandeRepasComponent } from './features/public/restauration/commande-repas/commande-repas.component';
+import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
+import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
+import { CommandeRepasEditComponent } from './features/admin/restauration/commande-repas-edit/commande-repas-edit.component';
+import { CommandeRepasDetailsComponent } from './features/admin/restauration/commande-repas-details/commande-repas-details.component';
+
+import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
 
 import { EventsListComponent } from './features/public/events/events-list/events-list.component';
 import { EventDetailsComponent } from './features/public/events/event-details/event-details.component';
@@ -52,7 +58,10 @@ import { EventReservationComponent } from './features/public/events/event-reserv
 import { EventListComponent } from './features/admin/events/event-list/event-list.component';
 import { EventCreateComponent } from './features/admin/events/event-create/event-create.component';
 import { EventEditComponent } from './features/admin/events/event-edit/event-edit.component';
+import { EventInsightsComponent } from './features/admin/events/event-insights/event-insights.component';
 import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.component';
+
+import { PromotionManagementComponent } from './features/admin/promotions/promotion-management/promotion-management.component';
 import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
 import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
 import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
@@ -62,20 +71,60 @@ import { DetailproduitComponent } from './features/public/MarketPlace/detailprod
 import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
 import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
 import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
-import { DetailpanierComponent } from './features/public/MarketPlace/detailpanier/detailpanier.component';
-import { PaymentComponent } from './features/public/MarketPlace/payment/payment.component';
-import { ListcommandeComponent } from './features/admin/MarketPlace/listcommande/listcommande.component';
-import { DetailCommandeComponent } from './features/admin/MarketPlace/detailcommande/detailcommande.component';
-import { StockProductComponent } from './features/admin/MarketPlace/stock-product/stock-product.component';
-import { MesCommandesComponent } from './features/public/MarketPlace/mes-commandes/mes-commandes.component';
-import { StatMarketplaceComponent } from './features/admin/MarketPlace/stat-marketplace/stat-marketplace.component';
 
+import { PublicationListComponent } from './features/public/publication/publication-list/publication-list.component';
+import { PublicationCreateComponent } from './features/public/publication/publication-create/publication-create.component';
+import { PublicationEditComponent } from './features/public/publication/publication-edit/publication-edit.component';
+import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
+import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
+
+import { ForumListComponent } from './features/public/forum/forum-list/forum-list.component';
+import { ForumCreateComponent } from './features/public/forum/forum-create/forum-create.component';
+import { ForumEditComponent } from './features/public/forum/forum-edit/forum-edit.component';
+
+import { CampingOwnerDashboardComponent } from './features/admin/camping-owner-dashboard/camping-owner-dashboard.component';
+
+import { BookingPaymentSuccessComponent } from './features/public/booking-payment/booking-payment-success/booking-payment-success.component';
+import { BookingPaymentCancelComponent } from './features/public/booking-payment/booking-payment-cancel/booking-payment-cancel.component';
+import { NotificationHistoryComponent } from './features/public/notifications/notification-history/notification-history.component';
+
+import { ReservationInsightsComponent } from './features/admin/reservations/reservation-insights/reservation-insights.component';
+import {NotificationBellComponent} from './features/public/reclamation/notification-bell/notification-bell.component';
+import { SouscriptionsAdminComponent } from './features/admin/assurances/souscriptions-admin/souscriptions-admin.component';
+import { SinistresAdminComponent } from './features/admin/assurances/sinistres-admin/sinistres-admin.component';
+import { RemboursementsAdminComponent } from './features/admin/assurances/remboursements-admin/remboursements-admin.component';
+import { GarantiesAdminComponent } from './features/admin/assurances/garanties-admin/garanties-admin.component';
+import { MesSouscriptionsComponent } from './features/public/assurances/mes-souscriptions/mes-souscriptions.component';
+import { MesSinistresComponent } from './features/public/assurances/mes-sinistres/mes-sinistres.component';
+import { SinistreFormComponent } from './features/public/assurances/sinistre-form/sinistre-form.component';
+import { SouscriptionFormComponent } from './features/public/assurances/souscription-form/souscription-form.component';
+import { AssuranceListComponent } from './features/admin/assurances/assurance-list-admin/assurance-list-admin.component';
+import { AssuranceFormAdminComponent } from './features/admin/assurances/assurance-form-admin/assurance-form-admin.component';
+import { InsuranceAgentLayoutComponent } from './core/layout/insurance-agent-layout/insurance-agent-layout.component';
+import { InsuranceAgentDashboardComponent } from './features/insurance-agent/dashboard/insurance-agent-dashboard/insurance-agent-dashboard.component';
+import { insuranceAgentGuard } from './core/guards/insurance-agent.guard';
+import { AgentAssuranceListComponent } from './features/insurance-agent/assurances/agent-assurance-list/agent-assurance-list.component';
+import { LivraisonListComponent } from './features/admin/livraison/livraison-list/livraison-list.component';
+import { MyLivreurLivraisonsComponent } from './features/admin/livraison/my-livreur-livraisons/my-livreur-livraisons.component';
+import { LivreurDashboardComponent } from './features/admin/livraison/livreur-dashboard/livreur-dashboard.component';
+import { CreateLivraisonComponent } from './features/admin/livraison/create-livraison/create-livraison.component';
+import { AvailableOrdersComponent } from './features/admin/livraison/available-orders/available-orders.component';
+import { PaymentCommandSuccessComponent } from './features/public/livraison/payment-command-success/payment-command-success.component';
+import { PaymentCommandCancelComponent } from './features/public/livraison/payment-command-cancel/payment-command-cancel.component';
+import { DemoCheckoutComponent } from './features/public/livraison/demo-checkout/demo-checkout.component';
+import { ClientMyDeliveriesComponent } from './features/public/livraison/client-my-deliveries/client-my-deliveries.component';
+import { ClientDeliveryDetailComponent } from './features/public/livraison/client-delivery-detail/client-delivery-detail.component';
+import { LivreurWalletComponent } from './features/admin/livraison/livreur-wallet/livreur-wallet.component';
+import { AdminLivreurWalletsComponent } from './features/admin/livraison/admin-livreur-wallets/admin-livreur-wallets.component';
+import { AdminLivraisonDetailComponent } from './features/admin/livraison/admin-livraison-detail/admin-livraison-detail.component';
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
+
   {
     path: 'admin',
     component: AdminLayoutComponent,
     canActivate: [adminGuard],
+    // data: { roles: ['ADMINISTRATEUR', 'LIVREUR', 'GUIDE'] },
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'profile', component: AdminProfileComponent },
@@ -85,43 +134,70 @@ export const routes: Routes = [
       { path: 'users/edit/:id', component: UserEditComponent },
       { path: 'users/details/:id', component: UserDetailsComponent },
 
-      { path: 'assurances/new', component: AssuranceCreateComponent },
-      { path: 'assurances/:id/edit', component: AssuranceEditComponent },
+      { path: 'owner-dashboard', component: CampingOwnerDashboardComponent },
 
       { path: 'camping-sites', component: CampingSiteListComponent },
       { path: 'camping-sites/new', component: CampingSiteCreateComponent },
       { path: 'camping-sites/:id/edit', component: CampingSiteEditComponent },
       { path: 'camping-sites/:id', component: AdminCampingSiteDetailsComponent },
       { path: 'site-bookings', component: SiteBookingsComponent },
+
       { path: 'avis', component: AdminAvisListComponent },
 
-      { path: 'events', component: EventListComponent },
-      { path: 'events/new', component: EventCreateComponent },
-      { path: 'events/:id/edit', component: EventEditComponent },
-      { path: 'events/api-demo', component: ApiDemoComponent },
-
-      { path: 'reservations', component: ReservationListComponent },
-      { path: 'reservations/new', component: ReservationCreateComponent },
-      { path: 'reservations/:id/edit', component: ReservationEditComponent },
-
       { path: 'reclamations', component: ReclamationAdminListComponent },
+      { path: 'reclamation/detail/:id', component: ReclamationDetailComponent },
+      { path: 'reclamations/edit/:id', component: ReclamationEditComponent },
+
       { path: 'repas', component: RepasAdminComponent },
       { path: 'commandes-repas', component: CommandesAdminComponent },
-      
-    { path: 'Market/AddProduct', component: AddProductComponent },
-    { path: 'Market/EditProduct/:id', component: AddProductComponent },
-    { path: 'Market/listProduct', component: ListProductComponent },
-    { path: 'Market/listCommande', component: ListcommandeComponent },
-    {path: 'Market/commandes/:id/details', component:DetailCommandeComponent},
-    { path: 'products/stock/:id', component: StockProductComponent },
-    { path: 'Market/statistiques', component: StatMarketplaceComponent},
- 
+      { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
+      { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
 
+      { path: 'events', component: EventListComponent },
+      { path: 'events/stats', component: EventInsightsComponent },
+      { path: 'events/new', component: EventCreateComponent },
+      { path: 'events/:id/edit', component: EventEditComponent },
+      { path: 'events/:id/insights', component: EventInsightsComponent },
+      { path: 'events/api-demo', component: ApiDemoComponent },
+      { path: 'promotions', component: PromotionManagementComponent },
 
+      { path: 'reservations', component: ReservationListComponent },
+      { path: 'reservations/stats', component: ReservationInsightsComponent },
+      { path: 'reservations/new', component: ReservationCreateComponent },
+      { path: 'reservations/:id/edit', component: ReservationEditComponent },
+      { path: 'reservations/:id/insights', component: ReservationInsightsComponent },
 
+      { path: 'Market/AddProduct', component: AddProductComponent },
+      { path: 'Market/EditProduct/:id', component: AddProductComponent },
+      { path: 'Market/listProduct', component: ListProductComponent },
 
+      { path: 'publication/list', component: PublicationAdminListComponent },
+      { path: 'publication/edit/:id', component: PublicationAdminEditComponent },
+
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+
+      { path: 'assurances', component: AssuranceListComponent },
+      { path: 'assurances/new', component: AssuranceFormAdminComponent },
+{ path: 'assurances/:id/edit', component: AssuranceFormAdminComponent },
+{ path: 'assurances/sinistres', component: SinistresAdminComponent },
+{ path: 'assurances/remboursements', component: RemboursementsAdminComponent },
+{ path: 'assurances/:id/garanties', component: GarantiesAdminComponent },
+{ path: 'assurances/souscriptions', component: SouscriptionsAdminComponent },
+      { path: 'livraison/dashboard', component: LivreurDashboardComponent},
+      { path: 'livraison/all', component: LivraisonListComponent },
+       { path: 'detail-livraison/:id',component: AdminLivraisonDetailComponent },
+
+       
+      { path: 'livraison/mine', component: MyLivreurLivraisonsComponent },
+       { path: 'livraison/create', component: CreateLivraisonComponent },
+       { path: 'livraison/orders', component: AvailableOrdersComponent },
+       { path: 'livraison/wallet', component: LivreurWalletComponent },
+       { path: 'livraison/wallets', component: AdminLivreurWalletsComponent }
     ]
   },
+
   {
     path: 'public',
     component: PublicLayoutComponent,
@@ -129,8 +205,6 @@ export const routes: Routes = [
       { path: '', component: LandingPageComponent, pathMatch: 'full' },
 
       { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
-      { path: 'assurances', component: PublicAssuranceListComponent },
-      { path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
 
       { path: 'camping-sites', component: CampingSitesComponent },
       { path: 'site-booking/:id', component: SiteBookingComponent },
@@ -152,19 +226,91 @@ export const routes: Routes = [
 
       { path: 'reclamations/add', component: ReclamationAddComponent },
       { path: 'reclamations', component: ReclamationListComponent },
+
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },
 
-
       { path: 'Accueil-Market', component: AccueilmarketComponent },
-      {path: 'listP', component: ListeProduitComponent},
+      { path: 'listP', component: ListeProduitComponent },
       { path: 'detailP/:id', component: DetailproduitComponent },
-      {path: 'detailpanier', component: DetailpanierComponent},
-      {path: 'payment', component: PaymentComponent },
-      {path:'mes-commandes',component:MesCommandesComponent}
+
+      { path: 'publications', component: PublicationListComponent },
+      { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
+      { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
+
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+      { path: 'notifications', component: NotificationHistoryComponent },
+      { path: 'profile/reclamation/add', component: ReclamationAddComponent },
+      { path: 'reclamation', component: ReclamationListComponent },
+      { path: 'repas', component: RepasListComponent },
+      { path: 'commande-repas', component: CommandeRepasComponent },
+      { path: 'Accueil-Market', component: AccueilmarketComponent },
+      { path: 'listP', component: ListeProduitComponent },
+      { path: 'detailP/:id', component: DetailproduitComponent },
+      { path: 'publications', component: PublicationListComponent },
+      { path: 'publications/create', component: PublicationCreateComponent, canActivate: [authGuard] },
+      { path: 'publications/edit/:id', component: PublicationEditComponent, canActivate: [authGuard] },
+      { path: 'forums', component: ForumListComponent },
+      { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
+      { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+      
+      { path: 'assurances', component: PublicAssuranceListComponent },
+{ path: 'assurances/mes-souscriptions', component: MesSouscriptionsComponent, canActivate: [authGuard] },
+{ path: 'assurances/mes-sinistres', component: MesSinistresComponent, canActivate: [authGuard] },
+{ path: 'assurances/sinistre/nouveau', component: SinistreFormComponent, canActivate: [authGuard] },
+{ path: 'assurances/:id/souscrire', component: SouscriptionFormComponent, canActivate: [authGuard] },
+{ path: 'assurances/:id', component: PublicAssuranceDetailsComponent },
+      { path: 'livraison/demo-checkout', component: DemoCheckoutComponent },
+        { path: 'payment-command-success', component: PaymentCommandSuccessComponent },
+        { path: 'payment-command-cancel',  component: PaymentCommandCancelComponent },
+        { path: 'my-deliveries', component: ClientMyDeliveriesComponent },
+      {
+          path: 'my-deliveries/success',
+          loadComponent: () =>
+            import('./features/public/livraison/client-delivery-detail/tip-payment-success/tip-payment-success.component')
+              .then(m => m.TipPaymentSuccessComponent)
+        },
+        {
+          path: 'my-deliveries/cancel',
+          loadComponent: () =>
+            import('./features/public/livraison/client-delivery-detail/tip-payment-cancel/tip-payment-cancel.component')
+              .then(m => m.TipPaymentCancelComponent)
+        },
+        { path: 'my-deliveries/:id', component: ClientDeliveryDetailComponent },
     ]
   },
+
+  {
+  path: 'insurance-agent',
+  component: InsuranceAgentLayoutComponent,
+  canActivate: [insuranceAgentGuard],
+  children: [
+    { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+    { path: 'dashboard', component: InsuranceAgentDashboardComponent },
+    { path: 'statistiques', component: InsuranceAgentDashboardComponent },
+
+    { path: 'assurances', component: AgentAssuranceListComponent },
+    { path: 'assurances/new', component: AssuranceFormAdminComponent },
+    { path: 'assurances/:id/edit', component: AssuranceFormAdminComponent },
+    { path: 'assurances/:id/garanties', component: GarantiesAdminComponent },
+
+    { path: 'souscriptions', component: SouscriptionsAdminComponent },
+    { path: 'sinistres', component: SinistresAdminComponent },
+    { path: 'remboursements', component: RemboursementsAdminComponent },
+    { path: 'profile', component: AdminProfileComponent }
+  ]
+},
+
+
+  { path: 'booking-payment-success', component: BookingPaymentSuccessComponent },
+  { path: 'booking-payment-cancel', component: BookingPaymentCancelComponent },
+
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+
   { path: '**', component: NotFoundComponent }
 ];

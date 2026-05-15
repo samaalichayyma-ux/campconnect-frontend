@@ -2,8 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+
 import { ProfileService } from '../../../../core/services/profile.service';
 import { AuthService } from '../../../../core/services/auth.service';
+
 import { CurrentUser } from '../../../public/profile/models/current-user.model';
 import { Profile } from '../../../public/profile/models/profile.model';
 
@@ -12,7 +14,7 @@ import { Profile } from '../../../public/profile/models/profile.model';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-profile.component.html',
-  styleUrl: './admin-profile.component.css'
+  styleUrl: './admin-profile.component.scss'
 })
 export class AdminProfileComponent implements OnInit {
   user: CurrentUser | null = null;
@@ -22,6 +24,9 @@ export class AdminProfileComponent implements OnInit {
     photo: '',
     biographie: ''
   };
+
+  imagePreview: string | null = null;
+  photoUrlInput = '';
 
   loading = false;
   saving = false;
@@ -41,22 +46,57 @@ export class AdminProfileComponent implements OnInit {
   loadCurrentUser(): void {
     this.loading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     this.profileService.getCurrentUser().subscribe({
-      next: (data) => {
-        this.user = data;
-        this.profile = {
-          adresse: data.adresse || '',
-          photo: data.photo || '',
-          biographie: data.biographie || ''
-        };
-        this.loading = false;
+      next: (userData) => {
+        this.user = userData;
+
+        this.profileService.getMyProfile().subscribe({
+          next: (profileData) => {
+            this.profile = {
+              adresse: profileData.adresse || '',
+              photo: profileData.photo || '',
+              biographie: profileData.biographie || ''
+            };
+
+            this.imagePreview =
+              this.profile.photo && !this.profile.photo.startsWith('file:///')
+                ? this.profile.photo
+                : null;
+
+            this.loading = false;
+          },
+          error: () => {
+            this.errorMessage = 'Unable to load profile details.';
+            this.loading = false;
+          }
+        });
       },
       error: () => {
-        this.errorMessage = 'Impossible de charger le profil admin';
+        this.errorMessage = 'Unable to load administrator profile.';
         this.loading = false;
       }
     });
+  }
+
+  applyPhotoUrl(): void {
+    const url = this.photoUrlInput.trim();
+
+    if (!url) {
+      this.errorMessage = 'Please enter an image URL.';
+      return;
+    }
+
+    if (url.startsWith('file:///')) {
+      this.errorMessage = 'Local file paths are not allowed.';
+      return;
+    }
+
+    this.profile.photo = url;
+    this.imagePreview = url;
+    this.photoUrlInput = '';
+    this.errorMessage = '';
   }
 
   saveProfile(): void {
@@ -65,13 +105,23 @@ export class AdminProfileComponent implements OnInit {
     this.errorMessage = '';
 
     this.profileService.updateMyProfile(this.profile).subscribe({
-      next: () => {
-        this.successMessage = 'Profil mis à jour avec succès';
+      next: (updatedProfile) => {
+        this.profile = {
+          adresse: updatedProfile.adresse || '',
+          photo: updatedProfile.photo || '',
+          biographie: updatedProfile.biographie || ''
+        };
+
+        this.imagePreview =
+          this.profile.photo && !this.profile.photo.startsWith('file:///')
+            ? this.profile.photo
+            : null;
+
+        this.successMessage = 'Profile updated successfully.';
         this.saving = false;
-        this.loadCurrentUser();
       },
       error: () => {
-        this.errorMessage = 'Erreur lors de la mise à jour du profil';
+        this.errorMessage = 'Unable to update profile.';
         this.saving = false;
       }
     });

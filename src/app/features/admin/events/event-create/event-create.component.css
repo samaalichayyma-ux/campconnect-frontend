@@ -286,6 +286,13 @@
   font-size: 0.84rem;
 }
 
+.helper-text {
+  margin-top: 7px;
+  color: #657267;
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 .image-frame {
   position: relative;
   overflow: hidden;
@@ -579,6 +586,10 @@
   text-align: right;
   line-height: 1.45;
   overflow-wrap: anywhere;
+}
+
+.summary-row strong.summary-error {
+  color: #cf3f32;
 }
 
 .form-actions {
