@@ -1,3 +1,17 @@
+
+<nav class="navbar">
+  <div class="logo">CampConnect</div>
+
+  <ul class="nav-links">
+    <li><a routerLink="/admin/Market/listProduct">Produits</a></li>
+    <li><a routerLink="/admin/Market/listCommande">Commandes</a></li>
+    <li>
+       <a routerLink="/admin/Market/statistiques">
+    Statistiques
+  </a>
+</li>
+  </ul>
+</nav>
 <section class="users-page">
   <div class="users-header">
     <div>
@@ -71,19 +85,9 @@
                 Details
               </a>
 
-              <a
-                [routerLink]="['/admin/Market/EditProduct', product.idProduit]"
-                class="btn edit"
-              >
-                Edit
-              </a>
+              <button class="btn edit"(click)="editProduct(product)"> Edit </button>
 
-              <a
-                [routerLink]="['/admin/products/stock', product.idProduit]"
-                class="btn stock"
-              >
-                Stock
-              </a>
+             <a [routerLink]="['/admin/products/stock', product.idProduit]" class="btn stock"> Stock </a>
 
               <button
                 class="btn deactivate"

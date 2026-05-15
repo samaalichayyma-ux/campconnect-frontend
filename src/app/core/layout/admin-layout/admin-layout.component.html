@@ -62,6 +62,17 @@
       </a>
 
       <a *ngIf="isAdmin()" routerLink="/admin/repas" routerLinkActive="active" class="nav-item">
+  <a routerLink="/admin/Market/listProduct"
+         routerLinkActive="active"
+         class="nav-item">
+        <span class="nav-icon">
+  <app-admin-icon name="shopping-cart" [size]="18"></app-admin-icon></span>
+        <span>Market Place</span>
+      </a> 
+      <a
+        routerLink="/admin/repas"
+        routerLinkActive="active"
+        class="nav-item">
         <span class="nav-icon"><app-admin-icon name="restaurants" [size]="18"></app-admin-icon></span>
         <span>Restaurants</span>
       </a>

@@ -1,0 +1,153 @@
+.orders-section {
+  background: #f8f8f8;
+  min-height: 100vh;
+  padding: 70px 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 3rem;
+  color: #222;
+  margin-bottom: 15px;
+}
+
+.section-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 45px;
+  font-style: italic;
+}
+
+.loading,
+.error-message,
+.empty-state {
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+}
+
+.error-message {
+  color: red;
+}
+
+.orders-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.order-card {
+  background: white;
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+  transition: 0.3s ease;
+}
+
+.order-card:hover {
+  transform: translateY(-4px);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  border-bottom: 1px solid #eee;
+
+  padding-bottom: 20px;
+
+  margin-bottom: 20px;
+}
+
+.order-header h3 {
+  margin: 0;
+  color: #222;
+}
+
+.order-header p {
+  margin-top: 8px;
+  color: #777;
+}
+
+.status-badge,
+.livraison-badge {
+  padding: 8px 16px;
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.en_attente {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.validee {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.payee {
+  background: #d4edda;
+  color: #155724;
+}
+
+.en_cours {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.livree {
+  background: #d4edda;
+  color: #155724;
+}
+
+.annulee {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.order-content {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-row strong {
+  color: #c59d5f;
+  font-size: 1.3rem;
+}
+
+@media (max-width: 768px) {
+
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  .order-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

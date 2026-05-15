@@ -1,0 +1,89 @@
+<nav class="navbar">
+  <div class="logo">CampConnect</div>
+
+  <ul class="nav-links">
+    <li><a routerLink="/admin/Market/listProduct">Produits</a></li>
+    <li><a routerLink="/admin/Market/listCommande">Commandes</a></li>
+    <li>
+       <a routerLink="/admin/Market/statistiques">
+    Statistiques
+  </a>
+</li>
+  </ul>
+</nav>
+<section class="admin-page">
+  <div class="admin-container">
+    <h2 class="title">Liste des Commandes</h2>
+    <button class="btn-pdf" (click)="telechargerPdfCommandes()">
+    Générer PDF
+  </button>
+
+    <div class="table-wrapper">
+      <table class="commande-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Date</th>
+            <th>Statut</th>
+            <th>Total</th>
+            <th>Livraison</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let cmd of commandes">
+            <td>#{{ cmd.idCommande }}</td>
+
+            <td>
+              {{ cmd.utilisateur?.nom || cmd.utilisateur?.email || 'Client' }}
+            </td>
+
+            <td>
+              {{ cmd.dateCommande }}
+            </td>
+
+            <td>
+              <span class="badge success">
+                PAYEE
+              </span>
+            </td>
+
+            <td>
+              {{ cmd.totalCommande }} TND
+            </td>
+
+            <td>
+  <select
+    class="status-select"
+    [(ngModel)]="cmd.etatLivraison"
+    (change)="changerEtatLivraison(cmd)"
+  >
+    <option value="EN_ATTENTE">En attente</option>
+    <option value="EN_PREPARATION">En préparation</option>
+    <option value="EN_COURS">En cours</option>
+    <option value="LIVREE">Livrée</option>
+    <option value="ANNULEE">Annulée</option>
+  </select>
+</td>
+            <td>
+             <button
+  class="btn-details"
+  (click)="voirDetails(cmd.idCommande)"
+>
+  Voir détails
+</button>
+            </td>
+          </tr>
+
+          <tr *ngIf="commandes.length === 0">
+            <td colspan="7" class="empty">
+              Aucune commande trouvée
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
