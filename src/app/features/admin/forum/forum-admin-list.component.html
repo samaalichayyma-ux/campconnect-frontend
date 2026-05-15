@@ -41,27 +41,76 @@
   <section class="highlights" *ngIf="!loading && !error">
     <div class="highlight-item">
       <span class="h-label">Forum le plus actif</span>
-      <p>{{ stats.mostActiveForumName }} ({{ stats.mostActiveForumCount }} publications)</p>
+      <a
+        *ngIf="stats.mostActiveForumId; else mostActiveForumText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.mostActiveForumId, 'publications']">
+        {{ stats.mostActiveForumName }} ({{ stats.mostActiveForumCount }} publications)
+      </a>
+      <ng-template #mostActiveForumText>
+        <p>{{ stats.mostActiveForumName }} ({{ stats.mostActiveForumCount }} publications)</p>
+      </ng-template>
     </div>
     <div class="highlight-item">
       <span class="h-label">Publication la plus likee</span>
-      <p>{{ stats.topLikedPublicationTitle }} ({{ stats.topLikedPublicationCount }} likes)</p>
+      <a
+        *ngIf="stats.topLikedPublicationId && stats.topLikedPublicationForumId; else topLikedText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.topLikedPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.topLikedPublicationId }">
+        {{ stats.topLikedPublicationTitle }} ({{ stats.topLikedPublicationCount }} likes)
+      </a>
+      <ng-template #topLikedText>
+        <p>{{ stats.topLikedPublicationTitle }} ({{ stats.topLikedPublicationCount }} likes)</p>
+      </ng-template>
     </div>
     <div class="highlight-item">
       <span class="h-label">Publication la plus vue</span>
-      <p>{{ stats.topViewedPublicationTitle }} ({{ stats.topViewedPublicationCount }} vues)</p>
+      <a
+        *ngIf="stats.topViewedPublicationId && stats.topViewedPublicationForumId; else topViewedText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.topViewedPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.topViewedPublicationId }">
+        {{ stats.topViewedPublicationTitle }} ({{ stats.topViewedPublicationCount }} vues)
+      </a>
+      <ng-template #topViewedText>
+        <p>{{ stats.topViewedPublicationTitle }} ({{ stats.topViewedPublicationCount }} vues)</p>
+      </ng-template>
     </div>
     <div class="highlight-item">
       <span class="h-label">Publication la plus commentee</span>
-      <p>{{ stats.topCommentedPublicationTitle }} ({{ stats.topCommentedPublicationCount }} commentaires)</p>
+      <a
+        *ngIf="stats.topCommentedPublicationId && stats.topCommentedPublicationForumId; else topCommentedText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.topCommentedPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.topCommentedPublicationId }">
+        {{ stats.topCommentedPublicationTitle }} ({{ stats.topCommentedPublicationCount }} commentaires)
+      </a>
+      <ng-template #topCommentedText>
+        <p>{{ stats.topCommentedPublicationTitle }} ({{ stats.topCommentedPublicationCount }} commentaires)</p>
+      </ng-template>
     </div>
     <div class="highlight-item">
       <span class="h-label">Auteur le plus actif</span>
-      <p>{{ stats.mostActiveAuthorEmail }} ({{ stats.mostActiveAuthorCount }} publications)</p>
+      <a
+        class="highlight-link"
+        [routerLink]="['/admin/publication/list']"
+        [queryParams]="{ author: stats.mostActiveAuthorEmail }">
+        {{ stats.mostActiveAuthorEmail }} ({{ stats.mostActiveAuthorCount }} publications)
+      </a>
     </div>
     <div class="highlight-item">
       <span class="h-label">Derniere publication par</span>
-      <p>{{ stats.newestPublisherEmail }} ({{ formatPublicationDate(stats.newestPublicationDate) }})</p>
+      <a
+        *ngIf="stats.newestPublicationId && stats.newestPublicationForumId; else newestPublicationText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.newestPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.newestPublicationId }">
+        {{ stats.newestPublisherEmail }} ({{ formatPublicationDate(stats.newestPublicationDate) }})
+      </a>
+      <ng-template #newestPublicationText>
+        <p>{{ stats.newestPublisherEmail }} ({{ formatPublicationDate(stats.newestPublicationDate) }})</p>
+      </ng-template>
     </div>
   </section>
 
@@ -90,9 +139,30 @@
           <span class="count-badge">{{ getPublicationCountForForum(forum.id) }}</span>
         </td>
         <td class="actions-cell">
-          <button type="button" (click)="openForum(forum.id)">Voir</button>
-          <button type="button" (click)="editForum(forum.id)">Modifier</button>
-          <button type="button" class="danger-btn" (click)="deleteForum(forum.id)">Supprimer</button>
+          <button
+            type="button"
+            class="action-btn"
+            title="Voir"
+            aria-label="Voir forum"
+            (click)="openForum(forum.id)">
+            <app-admin-icon name="menu" [size]="16"></app-admin-icon>
+          </button>
+          <button
+            type="button"
+            class="action-btn"
+            title="Modifier"
+            aria-label="Modifier forum"
+            (click)="editForum(forum.id)">
+            <app-admin-icon name="menu" [size]="16"></app-admin-icon>
+          </button>
+          <button
+            type="button"
+            class="action-btn danger-btn"
+            title="Supprimer"
+            aria-label="Supprimer forum"
+            (click)="deleteForum(forum.id)">
+            <app-admin-icon name="menu" [size]="16"></app-admin-icon>
+          </button>
         </td>
       </tr>
     </tbody>

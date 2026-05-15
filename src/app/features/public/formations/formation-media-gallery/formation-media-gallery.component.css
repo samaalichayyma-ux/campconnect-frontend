@@ -1,0 +1,158 @@
+:host {
+  display: block;
+}
+
+.gallery-card {
+  border: 1px solid rgba(58, 86, 66, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.heading h3 {
+  margin: 0;
+  color: #1f2d25;
+  font-size: 1.08rem;
+}
+
+.upload-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.file-input {
+  min-height: 42px;
+  border: 1px solid rgba(58, 86, 66, 0.2);
+  border-radius: 12px;
+  background: #fff;
+  padding: 8px 10px;
+  color: #2d4436;
+}
+
+.meta-line {
+  margin: 0;
+  color: #4f6557;
+  font-weight: 600;
+}
+
+.error-message {
+  margin: 0;
+  color: #7a2b23;
+}
+
+.state {
+  border: 1px dashed rgba(58, 86, 66, 0.2);
+  border-radius: 12px;
+  padding: 12px;
+  color: #4f6557;
+  text-align: center;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.media-item {
+  margin: 0;
+  border: 1px solid rgba(58, 86, 66, 0.12);
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+  display: grid;
+  gap: 8px;
+  padding-bottom: 10px;
+}
+
+.media-frame {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #e9f0ea;
+}
+
+.media-frame img,
+.media-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+figcaption {
+  display: grid;
+  gap: 4px;
+  padding: 0 10px;
+  color: #4f6557;
+  font-size: 0.84rem;
+}
+
+figcaption strong {
+  color: #1f2d25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.primary-btn,
+.secondary-btn {
+  min-height: 40px;
+  border-radius: 11px;
+  border: none;
+  padding: 0 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-only-btn {
+  width: 40px;
+  min-width: 40px;
+  padding: 0;
+}
+
+button.icon-only-btn::before {
+  content: none !important;
+  margin-right: 0 !important;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #43684f 0%, #294737 100%);
+  color: #fff;
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1f2d25;
+  border: 1px solid rgba(58, 86, 66, 0.18);
+}
+
+.danger-btn {
+  margin: 0 10px;
+  border-color: rgba(161, 62, 50, 0.3);
+  color: #7d2f27;
+}
+
+.secondary-btn:disabled,
+.primary-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .upload-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .primary-btn:not(.icon-only-btn),
+  .secondary-btn:not(.icon-only-btn) {
+    width: 100%;
+  }
+}

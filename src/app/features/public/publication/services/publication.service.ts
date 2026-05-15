@@ -1,16 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { AuthService } from '../../../../core/services/auth.service';
 import { Publication } from '../models/publication';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class PublicationService {
-  private apiUrl = '/api/publications';
+  private apiUrl = `${environment.apiUrl}/api/publications`;
+  private apiForums = `${environment.apiUrl}/api/forums`;
+  private apiBase = `${environment.apiUrl}/api`;
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -32,11 +35,24 @@ export class PublicationService {
       forum: Number.isFinite(forumId) && forumId > 0 ? { id: forumId } : publication.forum
     };
 
-    return this.http.post<Publication>(`${this.apiUrl}/create`, payload);
+    return this.http.post<Publication>(`${this.apiUrl}/create`, payload).pipe(
+      catchError(() => this.http.post<Publication>(this.apiUrl, payload))
+    );
   }
 
   update(id: number, publication: Publication): Observable<Publication> {
-    return this.http.put<Publication>(`${this.apiUrl}/${id}`, publication);
+    const payload = {
+      ...publication,
+      auteurEmail: publication.auteurEmail || this.authService.getUserEmail()
+    };
+    return this.http.put<Publication>(`${this.apiUrl}/${id}`, payload).pipe(
+      catchError(() =>
+        this.http.put<Publication>(
+          `${this.apiUrl}/${id}?auteurEmail=${encodeURIComponent(payload.auteurEmail || this.authService.getUserEmail())}`,
+          payload
+        )
+      )
+    );
   }
 
   delete(id: number, authorEmail = this.authService.getUserEmail()): Observable<void> {
@@ -45,19 +61,45 @@ export class PublicationService {
   }
 
   like(id: number): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}/like`, {});
+    return this.http
+      .put(`${this.apiUrl}/${id}/like`, {}, { responseType: 'text' })
+      .pipe(
+        map((body) => this.parseJsonOrFallback<any>(body, { id })),
+        catchError((err) => throwError(() => err))
+      );
   }
 
   getByForum(forumId: number): Observable<Publication[]> {
-    return this.http.get<Publication[]>(`${this.apiUrl}/forum/${forumId}`);
+    return this.http.get<Publication[]>(`${this.apiUrl}/forum/${forumId}`).pipe(
+      catchError(() =>
+        this.http.get<Publication[]>(this.apiUrl).pipe(
+          map((publications) =>
+            (publications || []).filter((publication) => {
+              const resolvedForumId = Number(publication.forumId || publication.forum?.id);
+              return Number.isFinite(resolvedForumId) && resolvedForumId === forumId;
+            })
+          ),
+          catchError(() => of([] as Publication[]))
+        )
+      )
+    );
   }
 
   incrementView(id: number): Observable<Publication> {
-    return this.http.put<Publication>(`${this.apiUrl}/${id}/view`, {});
+    return this.http
+      .put(`${this.apiBase}/publications/${id}/view`, {}, { responseType: 'text' })
+      .pipe(
+        map((body) => this.parseJsonOrFallback<Publication>(body, { id } as Publication)),
+        catchError(() =>
+          this.http
+            .put(`${this.apiUrl}/${id}/view`, {}, { responseType: 'text' })
+            .pipe(map((body) => this.parseJsonOrFallback<Publication>(body, { id } as Publication)))
+        )
+      );
   }
 
   private getAllFromForumEndpoints(): Observable<Publication[]> {
-    return this.http.get<Array<{ id?: number }>>('/api/forums').pipe(
+    return this.http.get<Array<{ id?: number }>>(this.apiForums).pipe(
       switchMap((forums) => {
         const forumIds = (forums || [])
           .map((forum) => Number(forum.id))
@@ -83,5 +125,18 @@ export class PublicationService {
       }),
       catchError(() => of([] as Publication[]))
     );
+  }
+
+  private parseJsonOrFallback<T>(body: string | null | undefined, fallback: T): T {
+    const raw = (body || '').trim();
+    if (!raw) {
+      return fallback;
+    }
+
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      return fallback;
+    }
   }
 }

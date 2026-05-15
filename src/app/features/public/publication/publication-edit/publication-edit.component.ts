@@ -14,6 +14,9 @@ import { PublicationService } from '../services/publication.service';
   styleUrl: './publication-edit.component.css'
 })
 export class PublicationEditComponent implements OnInit {
+  readonly maxTitleLength = 150;
+  readonly maxContentLength = 255;
+
   publicationId = 0;
   canEdit = false;
 
@@ -73,6 +76,14 @@ export class PublicationEditComponent implements OnInit {
       this.errorMessage = 'Titre et contenu sont obligatoires.';
       return;
     }
+    if (titre.length > this.maxTitleLength) {
+      this.errorMessage = `Le titre depasse ${this.maxTitleLength} caracteres.`;
+      return;
+    }
+    if (contenu.length > this.maxContentLength) {
+      this.errorMessage = `Le contenu depasse ${this.maxContentLength} caracteres.`;
+      return;
+    }
 
     this.publicationService.update(this.publicationId, { ...this.publication, titre, contenu }).subscribe({
       next: () => {
@@ -81,8 +92,31 @@ export class PublicationEditComponent implements OnInit {
       },
       error: (err) => {
         console.error('Erreur modification publication :', err);
-        this.errorMessage = 'Erreur modification publication.';
+        this.errorMessage = this.resolveActionError(err);
       }
     });
+  }
+
+  private resolveActionError(error: unknown): string {
+    const status = Number((error as { status?: unknown })?.status);
+    const backendError = (error as { error?: unknown })?.error;
+    const backendText = typeof backendError === 'string' ? backendError : '';
+
+    if (status === 0) {
+      return 'Backend inaccessible. Verifie que le serveur tourne.';
+    }
+    if (status === 401) {
+      return 'Session expiree. Reconnecte-toi.';
+    }
+    if (status === 403) {
+      return 'Tu peux modifier seulement ta propre publication.';
+    }
+    if (/data too long for column\s+'contenu'/i.test(backendText)) {
+      return `Le contenu est trop long (max ${this.maxContentLength} caracteres).`;
+    }
+    if (/data too long for column\s+'titre'/i.test(backendText)) {
+      return `Le titre est trop long (max ${this.maxTitleLength} caracteres).`;
+    }
+    return 'Erreur modification publication.';
   }
 }

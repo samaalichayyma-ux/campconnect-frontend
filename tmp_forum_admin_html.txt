@@ -1,0 +1,172 @@
+﻿<div class="forum-admin-page">
+  <div class="page-head">
+    <h2>Administration des forums</h2>
+    <p>Statistiques globales des forums et des publications</p>
+  </div>
+
+  <p *ngIf="loading" class="state-msg">Chargement...</p>
+  <p *ngIf="error" class="state-msg error">{{ error }}</p>
+
+  <section class="stats-grid" *ngIf="!loading && !error">
+    <article class="stat-card">
+      <span class="label">Forums</span>
+      <strong>{{ stats.totalForums }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Publications</span>
+      <strong>{{ stats.totalPublications }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Moyenne pubs/forum</span>
+      <strong>{{ stats.averagePublicationsPerForum | number:'1.1-1' }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Forums sans publication</span>
+      <strong>{{ stats.forumsWithoutPublications }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Likes total</span>
+      <strong>{{ stats.totalLikes }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Vues total</span>
+      <strong>{{ stats.totalViews }}</strong>
+    </article>
+    <article class="stat-card">
+      <span class="label">Commentaires total</span>
+      <strong>{{ stats.totalComments }}</strong>
+    </article>
+  </section>
+
+  <section class="highlights" *ngIf="!loading && !error">
+    <div class="highlight-item">
+      <span class="h-label">Forum le plus actif</span>
+      <a
+        *ngIf="stats.mostActiveForumId; else mostActiveForumText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.mostActiveForumId, 'publications']">
+        {{ stats.mostActiveForumName }} ({{ stats.mostActiveForumCount }} publications)
+      </a>
+      <ng-template #mostActiveForumText>
+        <p>{{ stats.mostActiveForumName }} ({{ stats.mostActiveForumCount }} publications)</p>
+      </ng-template>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Publication la plus likee</span>
+      <a
+        *ngIf="stats.topLikedPublicationId && stats.topLikedPublicationForumId; else topLikedText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.topLikedPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.topLikedPublicationId }">
+        {{ stats.topLikedPublicationTitle }} ({{ stats.topLikedPublicationCount }} likes)
+      </a>
+      <ng-template #topLikedText>
+        <p>{{ stats.topLikedPublicationTitle }} ({{ stats.topLikedPublicationCount }} likes)</p>
+      </ng-template>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Publication la plus vue</span>
+      <a
+        *ngIf="stats.topViewedPublicationId && stats.topViewedPublicationForumId; else topViewedText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.topViewedPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.topViewedPublicationId }">
+        {{ stats.topViewedPublicationTitle }} ({{ stats.topViewedPublicationCount }} vues)
+      </a>
+      <ng-template #topViewedText>
+        <p>{{ stats.topViewedPublicationTitle }} ({{ stats.topViewedPublicationCount }} vues)</p>
+      </ng-template>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Publication la plus commentee</span>
+      <a
+        *ngIf="stats.topCommentedPublicationId && stats.topCommentedPublicationForumId; else topCommentedText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.topCommentedPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.topCommentedPublicationId }">
+        {{ stats.topCommentedPublicationTitle }} ({{ stats.topCommentedPublicationCount }} commentaires)
+      </a>
+      <ng-template #topCommentedText>
+        <p>{{ stats.topCommentedPublicationTitle }} ({{ stats.topCommentedPublicationCount }} commentaires)</p>
+      </ng-template>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Auteur le plus actif</span>
+      <a
+        class="highlight-link"
+        [routerLink]="['/admin/publication/list']"
+        [queryParams]="{ author: stats.mostActiveAuthorEmail }">
+        {{ stats.mostActiveAuthorEmail }} ({{ stats.mostActiveAuthorCount }} publications)
+      </a>
+    </div>
+    <div class="highlight-item">
+      <span class="h-label">Derniere publication par</span>
+      <a
+        *ngIf="stats.newestPublicationId && stats.newestPublicationForumId; else newestPublicationText"
+        class="highlight-link"
+        [routerLink]="['/public/forums', stats.newestPublicationForumId, 'publications']"
+        [queryParams]="{ publicationId: stats.newestPublicationId }">
+        {{ stats.newestPublisherEmail }} ({{ formatPublicationDate(stats.newestPublicationDate) }})
+      </a>
+      <ng-template #newestPublicationText>
+        <p>{{ stats.newestPublisherEmail }} ({{ formatPublicationDate(stats.newestPublicationDate) }})</p>
+      </ng-template>
+    </div>
+  </section>
+
+  <table *ngIf="forums.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Icone</th>
+        <th>Nom</th>
+        <th>Categorie</th>
+        <th>Auteur</th>
+        <th>Date</th>
+        <th>Publications</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let forum of forums">
+        <td>{{ forum.id }}</td>
+        <td>{{ forum.icon || '-' }}</td>
+        <td>{{ forum.nom }}</td>
+        <td>{{ forum.categorie }}</td>
+        <td>{{ forum.auteurNom || forum.auteurEmail || '-' }}</td>
+        <td>{{ forum.dateCreation | date:'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <span class="count-badge">{{ getPublicationCountForForum(forum.id) }}</span>
+        </td>
+        <td class="actions-cell">
+          <button
+            type="button"
+            class="action-btn"
+            title="Voir"
+            aria-label="Voir forum"
+            (click)="openForum(forum.id)">
+            <app-admin-icon name="menu" [size]="16"></app-admin-icon>
+          </button>
+          <button
+            type="button"
+            class="action-btn"
+            title="Modifier"
+            aria-label="Modifier forum"
+            (click)="editForum(forum.id)">
+            <app-admin-icon name="menu" [size]="16"></app-admin-icon>
+          </button>
+          <button
+            type="button"
+            class="action-btn danger-btn"
+            title="Supprimer"
+            aria-label="Supprimer forum"
+            (click)="deleteForum(forum.id)">
+            <app-admin-icon name="menu" [size]="16"></app-admin-icon>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p *ngIf="!loading && forums.length === 0" class="state-msg">Aucun forum trouve.</p>
+</div>

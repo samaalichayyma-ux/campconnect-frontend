@@ -44,6 +44,9 @@
               "src/assets/js/jquery.js",
               "src/assets/js/nicepage.js"
           
+            ],
+            "allowedCommonJsDependencies": [
+              "sweetalert2"
             ]
           },
 

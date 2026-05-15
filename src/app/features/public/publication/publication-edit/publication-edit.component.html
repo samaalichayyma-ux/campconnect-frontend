@@ -10,13 +10,21 @@
       [(ngModel)]="publication.titre"
       placeholder="Titre de la publication"
       [disabled]="!canEdit"
+      [maxlength]="maxTitleLength"
     />
 
     <textarea
       [(ngModel)]="publication.contenu"
       placeholder="Modifiez votre publication..."
       [disabled]="!canEdit"
+      [maxlength]="maxContentLength"
     ></textarea>
+
+    <p class="length-msg">
+      {{ (publication.titre || '').length }}/{{ maxTitleLength }} titre
+      ·
+      {{ (publication.contenu || '').length }}/{{ maxContentLength }} contenu
+    </p>
 
     <div class="form-actions">
       <button class="save-btn" [disabled]="!canEdit" (click)="update()">

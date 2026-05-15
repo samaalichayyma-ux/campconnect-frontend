@@ -2,13 +2,31 @@
   <div class="edit-card">
     <h2>Modifier la publication</h2>
 
+    <p class="msg error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="msg success" *ngIf="successMessage">{{ successMessage }}</p>
+
+    <input
+      [(ngModel)]="publication.titre"
+      placeholder="Titre..."
+      [maxlength]="maxTitleLength"
+      class="title-input"
+    />
+
     <textarea
       [(ngModel)]="publication.contenu"
       placeholder="Modifier le contenu..."
+      [maxlength]="maxContentLength"
     ></textarea>
 
+    <div class="limits">
+      <span>{{ (publication.titre || '').length }}/{{ maxTitleLength }} titre</span>
+      <span>{{ (publication.contenu || '').length }}/{{ maxContentLength }} contenu</span>
+    </div>
+
     <div class="form-actions">
-      <button class="save-btn" (click)="update()">✔ Sauvegarder</button>
+      <button class="save-btn" (click)="update()" [disabled]="saving">
+        {{ saving ? 'Sauvegarde...' : 'Sauvegarder' }}
+      </button>
     </div>
   </div>
 </div>

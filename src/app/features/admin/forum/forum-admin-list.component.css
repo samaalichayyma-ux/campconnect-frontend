@@ -83,6 +83,19 @@
   font-size: 14px;
 }
 
+.highlight-link {
+  display: block;
+  margin: 0;
+  color: #1f2937;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.highlight-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -125,21 +138,26 @@ tr:last-child td {
   flex-wrap: wrap;
 }
 
-button {
+.action-btn {
   border: none;
   border-radius: 8px;
   background: #2f6f57;
   color: #ffffff;
-  padding: 6px 10px;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
+  line-height: 1;
 }
 
-button.danger-btn {
+.action-btn.danger-btn {
   background: #b91c1c;
 }
 
-button:hover {
+.action-btn:hover {
   opacity: 0.9;
 }

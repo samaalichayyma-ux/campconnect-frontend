@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Forum, ForumService } from '../../public/forum/services/forum.service';
 import { forkJoin } from 'rxjs';
 import { Publication, PublicationAdminService } from '../publication/publication-admin.service';
+import { AdminIconComponent } from '../../../core/components/admin-icon/admin-icon.component';
 
 interface ForumAdminStats {
   totalForums: number;
@@ -14,23 +15,32 @@ interface ForumAdminStats {
   totalViews: number;
   totalComments: number;
   mostActiveForumName: string;
+  mostActiveForumId: number | null;
   mostActiveForumCount: number;
   mostActiveAuthorEmail: string;
   mostActiveAuthorCount: number;
   newestPublisherEmail: string;
   newestPublicationDate: string;
+  newestPublicationId: number | null;
+  newestPublicationForumId: number | null;
   topLikedPublicationTitle: string;
+  topLikedPublicationId: number | null;
+  topLikedPublicationForumId: number | null;
   topLikedPublicationCount: number;
   topViewedPublicationTitle: string;
+  topViewedPublicationId: number | null;
+  topViewedPublicationForumId: number | null;
   topViewedPublicationCount: number;
   topCommentedPublicationTitle: string;
+  topCommentedPublicationId: number | null;
+  topCommentedPublicationForumId: number | null;
   topCommentedPublicationCount: number;
 }
 
 @Component({
   selector: 'app-forum-admin-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, AdminIconComponent],
   templateUrl: './forum-admin-list.component.html',
   styleUrl: './forum-admin-list.component.css'
 })
@@ -50,16 +60,25 @@ export class ForumAdminListComponent implements OnInit {
     totalViews: 0,
     totalComments: 0,
     mostActiveForumName: '-',
+    mostActiveForumId: null,
     mostActiveForumCount: 0,
     mostActiveAuthorEmail: '-',
     mostActiveAuthorCount: 0,
     newestPublisherEmail: '-',
     newestPublicationDate: '-',
+    newestPublicationId: null,
+    newestPublicationForumId: null,
     topLikedPublicationTitle: '-',
+    topLikedPublicationId: null,
+    topLikedPublicationForumId: null,
     topLikedPublicationCount: 0,
     topViewedPublicationTitle: '-',
+    topViewedPublicationId: null,
+    topViewedPublicationForumId: null,
     topViewedPublicationCount: 0,
     topCommentedPublicationTitle: '-',
+    topCommentedPublicationId: null,
+    topCommentedPublicationForumId: null,
     topCommentedPublicationCount: 0
   };
 
@@ -145,6 +164,7 @@ export class ForumAdminListComponent implements OnInit {
 
     const mostActiveForum = forums
       .map((forum) => ({
+        id: Number(forum.id) || null,
         name: forum.nom,
         count: publicationCounts[forum.id || 0] || 0
       }))
@@ -177,16 +197,25 @@ export class ForumAdminListComponent implements OnInit {
       totalViews,
       totalComments,
       mostActiveForumName: mostActiveForum?.name || '-',
+      mostActiveForumId: mostActiveForum?.id || null,
       mostActiveForumCount: mostActiveForum?.count || 0,
       mostActiveAuthorEmail: mostActiveAuthorEntry?.[0] || '-',
       mostActiveAuthorCount: mostActiveAuthorEntry?.[1] || 0,
       newestPublisherEmail: (newestPublication?.auteurEmail || '').trim() || '-',
       newestPublicationDate: newestPublication?.dateCreation || '',
+      newestPublicationId: this.resolvePublicationId(newestPublication),
+      newestPublicationForumId: this.resolveForumId(newestPublication),
       topLikedPublicationTitle: this.getPublicationLabel(topLikedPublication),
+      topLikedPublicationId: this.resolvePublicationId(topLikedPublication),
+      topLikedPublicationForumId: this.resolveForumId(topLikedPublication),
       topLikedPublicationCount: topLikedPublication?.likesCount || 0,
       topViewedPublicationTitle: this.getPublicationLabel(topViewedPublication),
+      topViewedPublicationId: this.resolvePublicationId(topViewedPublication),
+      topViewedPublicationForumId: this.resolveForumId(topViewedPublication),
       topViewedPublicationCount: topViewedPublication?.vuesCount || 0,
       topCommentedPublicationTitle: this.getPublicationLabel(topCommentedPublication),
+      topCommentedPublicationId: this.resolvePublicationId(topCommentedPublication),
+      topCommentedPublicationForumId: this.resolveForumId(topCommentedPublication),
       topCommentedPublicationCount: topCommentedPublication?.commentairesCount || 0
     };
   }
@@ -200,6 +229,10 @@ export class ForumAdminListComponent implements OnInit {
   }
 
   private resolveForumId(publication: Publication): number | null {
+    if (!publication) {
+      return null;
+    }
+
     const byField = Number(publication.forumId);
     if (Number.isFinite(byField) && byField > 0) {
       return byField;
@@ -211,6 +244,14 @@ export class ForumAdminListComponent implements OnInit {
     }
 
     return null;
+  }
+
+  private resolvePublicationId(publication?: Publication): number | null {
+    const id = Number(publication?.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return null;
+    }
+    return id;
   }
 
   private getPublicationLabel(publication?: Publication): string {

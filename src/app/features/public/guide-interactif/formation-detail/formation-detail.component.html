@@ -1,0 +1,646 @@
+<section class="guide-wrap" [class.embedded]="embedded">
+  <header class="guide-head" *ngIf="!embedded">
+    <div>
+      <span class="guide-kicker">Guide pratique</span>
+      <h1>{{ isFormationGuideMode ? formationGuideHeading : 'Guide interactif Formation' }}</h1>
+      <p>Une etape pratique a la fois: observer, executer, valider.</p>
+    </div>
+    <button
+      type="button"
+      class="secondary-btn icon-only-btn"
+      (click)="openFormationsList()"
+      title="Retour formations"
+      aria-label="Retour formations"
+    >
+      <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+    </button>
+  </header>
+
+  <div class="page-switcher" *ngIf="!embedded && !isFormationGuideMode">
+    <button
+      type="button"
+      class="page-chip icon-only-btn"
+      *ngFor="let option of pageOptions"
+      [class.active]="option.key === page"
+      (click)="switchPage(option.key)"
+      [title]="option.label"
+      [attr.aria-label]="option.label"
+    >
+      <app-admin-icon [name]="option.icon" [size]="14"></app-admin-icon>
+    </button>
+  </div>
+
+  <div class="guide-panel" *ngIf="!isLoading; else loadingState">
+    <div class="guide-toolbar" *ngIf="progressState as state">
+      <div
+        class="progress-line"
+        role="progressbar"
+        [attr.aria-valuenow]="progressPercent"
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <div class="progress-fill" [style.width.%]="progressPercent"></div>
+      </div>
+      <div class="toolbar-actions">
+        <span>
+          <ng-container *ngIf="isFormationGuideMode; else genericPageLabel">
+            Progression formation - {{ progressPercent }}% termine
+          </ng-container>
+          <ng-template #genericPageLabel>{{ currentPageLabel }} - {{ progressPercent }}% termine</ng-template>
+        </span>
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          *ngIf="!isClosed"
+          (click)="closeGuide()"
+          title="Fermer le guide"
+          aria-label="Fermer le guide"
+        >
+          <app-admin-icon name="close" [size]="14"></app-admin-icon>
+        </button>
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          *ngIf="isClosed"
+          (click)="resumeGuide()"
+          title="Reprendre le guide"
+          aria-label="Reprendre le guide"
+        >
+          <app-admin-icon name="list" [size]="14"></app-admin-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="reward-panel" *ngIf="canShowReward">
+      <div class="celebration-overlay" *ngIf="showCompletionCelebration" aria-hidden="true">
+        <span
+          class="confetti-piece"
+          *ngFor="let piece of celebrationConfetti"
+          [style.left]="piece.left"
+          [style.animationDelay]="piece.delay"
+          [style.animationDuration]="piece.duration"
+          [style.background]="piece.color"
+          [style.width]="piece.size"
+          [style.height]="piece.size"
+        ></span>
+      </div>
+
+      <span class="reward-kicker">Recompense finale</span>
+      <h2>Felicitations, guide termine a 100%</h2>
+      <p>Toutes les etapes sont terminees. Votre progression et vos recompenses sont enregistrees.</p>
+      <p class="bravo-shout" *ngIf="showCompletionCelebration" aria-live="polite">
+        BRAVOOOOOOOOOOOOO
+      </p>
+      <p class="bravo-line" *ngIf="showCompletionCelebration">
+        Applaudissements actives: CLAP CLAP CLAP. Guide termine avec succes.
+      </p>
+
+      <ul class="reward-list">
+        <li>
+          <strong>Badge:</strong> {{ rewardState.badgeName || 'Explorateur du camping' }}
+          <span class="pill success" *ngIf="rewardState.badgeExpertFormationUnlocked">Debloque</span>
+        </li>
+        <li>
+          <strong>Points:</strong> +{{ rewardState.lastAwardedPoints || completionPoints }}
+          <span class="pill">{{ rewardState.totalPoints }} points cumules</span>
+        </li>
+        <li>
+          <strong>Modele offert:</strong> {{ templatePreview.title }}
+          <span class="pill success" *ngIf="rewardState.templateUnlocked">Disponible</span>
+        </li>
+      </ul>
+
+      <div class="template-preview">
+        <h3>Modele de formation pret a utiliser</h3>
+        <p>{{ templatePreview.description }}</p>
+        <p>
+          Niveau: <strong>{{ templatePreview.level }}</strong> |
+          Duree: <strong>{{ templatePreview.estimatedDuration }}</strong>
+        </p>
+        <p *ngIf="rewardState.rewardSource === 'backend'">
+          Recompense synchronisee depuis le serveur.
+        </p>
+      </div>
+
+      <div class="reward-actions">
+        <button
+          type="button"
+          class="primary-btn icon-only-btn"
+          (click)="openRewardsOverview()"
+          title="Voir mes recompenses"
+          aria-label="Voir mes recompenses"
+        >
+          <app-admin-icon name="star" [size]="14"></app-admin-icon>
+        </button>
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          (click)="restartGuide()"
+          title="Recommencer le guide"
+          aria-label="Recommencer le guide"
+        >
+          <app-admin-icon name="refund" [size]="14"></app-admin-icon>
+        </button>
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          (click)="closeGuide()"
+          title="Fermer"
+          aria-label="Fermer"
+        >
+          <app-admin-icon name="close" [size]="14"></app-admin-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="guide-content" *ngIf="!isClosed && !canShowReward; else closedState">
+      <div class="guide-state" *ngIf="steps.length === 0">
+        <p *ngIf="isFormationGuideMode">Ce guide n a pas encore d etapes configurees pour cette formation.</p>
+        <p *ngIf="!isFormationGuideMode">Aucune etape disponible pour cette page du guide.</p>
+      </div>
+
+      <ng-container *ngIf="isFormationGuideMode; else genericGuideBlock">
+        <section class="formation-step-focus" *ngIf="steps.length > 0 && !canManageFormations && currentStep as step">
+          <article
+            class="formation-step-card active"
+            [class.done]="isStepDone(step.id)"
+          >
+            <header class="formation-step-head">
+              <h3>Etape {{ step.id }} / {{ steps.length }} : {{ step.title }}</h3>
+              <span class="step-state" [class.done]="isStepDone(step.id)">
+                {{ isStepDone(step.id) ? 'Terminee' : 'En cours' }}
+              </span>
+            </header>
+
+            <p>{{ getStepShortDescription(step.description) }}</p>
+
+            <div class="formation-step-media" *ngIf="getGuideStepImageUrl(step) || getGuideStepVideoEmbedUrl(step) || getGuideStepVideoSourceUrl(step); else noStepMediaState">
+              <img *ngIf="getGuideStepImageUrl(step)" [src]="getGuideStepImageUrl(step)" alt="Image etape guide" />
+              <iframe
+                *ngIf="getGuideStepVideoEmbedUrl(step)"
+                [src]="getGuideStepVideoEmbedUrl(step)"
+                title="Video etape guide"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+              ></iframe>
+              <video
+                *ngIf="getGuideStepVideoSourceUrl(step)"
+                [src]="getGuideStepVideoSourceUrl(step)"
+                controls
+                preload="metadata"
+              ></video>
+            </div>
+
+            <ng-template #noStepMediaState>
+              <p class="inline-media-placeholder">Aucun media pour cette etape.</p>
+            </ng-template>
+
+            <div class="actions-row step-navigation">
+              <button
+                type="button"
+                class="secondary-btn icon-only-btn"
+                (click)="previousStep()"
+                [disabled]="step.id <= 1"
+                title="Etape precedente"
+                aria-label="Etape precedente"
+              >
+                <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+              </button>
+              <button
+                type="button"
+                class="secondary-btn icon-only-btn"
+                (click)="nextStep()"
+                [disabled]="step.id >= steps.length"
+                title="Etape suivante"
+                aria-label="Etape suivante"
+              >
+                <app-admin-icon name="arrow-right" [size]="14"></app-admin-icon>
+              </button>
+              <button
+                type="button"
+                class="primary-btn step-complete-btn icon-only-btn"
+                [disabled]="isStepDone(step.id)"
+                (click)="completeStep(step.id)"
+                [title]="isStepDone(step.id) ? 'Etape terminee' : 'Terminer l etape'"
+                [attr.aria-label]="isStepDone(step.id) ? 'Etape terminee' : 'Terminer l etape'"
+              >
+                <app-admin-icon name="check" [size]="14"></app-admin-icon>
+              </button>
+            </div>
+          </article>
+
+          <section class="guide-quiz" *ngIf="hasQuizQuestions">
+            <header class="quiz-head">
+              <h3>Quiz utilisateur (verification IA)</h3>
+              <p>
+                Repondu: {{ answeredQuizCount }}/{{ quizQuestions.length }} |
+                Corrige: {{ correctedQuizCount }}/{{ quizQuestions.length }} |
+                Score: {{ quizScorePercent }}%
+              </p>
+            </header>
+
+            <ol class="quiz-question-list">
+              <li class="quiz-question-card" *ngFor="let question of quizQuestions; let i = index">
+                <p class="quiz-question-title">{{ i + 1 }}. {{ question.question }}</p>
+
+                <div class="quiz-choices">
+                  <button
+                    type="button"
+                    class="quiz-choice-btn"
+                    *ngFor="let choice of question.choices"
+                    [class.selected]="isQuizChoiceSelected(i, choice)"
+                    (click)="selectQuizChoice(i, choice)"
+                  >
+                    {{ choice }}
+                  </button>
+                </div>
+
+                <label class="quiz-free-answer">
+                  <span>Ou reponse libre</span>
+                  <input
+                    type="text"
+                    [value]="quizTypedAnswers[i] || ''"
+                    (input)="updateTypedQuizAnswer(i, $any($event.target).value)"
+                    placeholder="Expliquer votre reponse"
+                  />
+                </label>
+
+                <div class="actions-row">
+                  <button
+                    type="button"
+                    class="secondary-btn icon-only-btn"
+                    [disabled]="isEvaluatingQuiz"
+                    (click)="verifyQuizQuestionWithAi(i)"
+                    title="Verifier avec IA"
+                    aria-label="Verifier avec IA"
+                  >
+                    <app-admin-icon name="check" [size]="14"></app-admin-icon>
+                  </button>
+                </div>
+
+                <ng-container *ngIf="getQuizQuestionEvaluation(i) as evaluation">
+                  <p class="quiz-feedback" [class.correct]="evaluation.isCorrect" [class.wrong]="!evaluation.isCorrect">
+                    {{ evaluation.feedback }} (Confiance IA: {{ evaluation.confidence }}%)
+                  </p>
+                </ng-container>
+              </li>
+            </ol>
+
+            <div class="actions-row">
+              <button
+                type="button"
+                class="primary-btn icon-only-btn"
+                [disabled]="isEvaluatingQuiz"
+                (click)="verifyAllQuizAnswersWithAi()"
+                title="Corriger tout avec IA"
+                aria-label="Corriger tout avec IA"
+              >
+                <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+              </button>
+            </div>
+
+            <p class="media-message" *ngIf="quizEvaluationMessage">{{ quizEvaluationMessage }}</p>
+          </section>
+        </section>
+
+        <section class="formation-steps-list" *ngIf="steps.length > 0 && canManageFormations">
+          <article
+            class="formation-step-card"
+            *ngFor="let step of steps"
+            [class.active]="isActiveStep(step.id)"
+            [class.done]="isStepDone(step.id)"
+          >
+            <header class="formation-step-head">
+              <h3>Etape {{ step.id }} : {{ step.title }}</h3>
+              <span class="step-state" [class.done]="isStepDone(step.id)">
+                {{ isStepDone(step.id) ? 'Terminee' : 'En cours' }}
+              </span>
+            </header>
+
+            <p>{{ step.description }}</p>
+
+            <div class="formation-step-media" *ngIf="getGuideStepImageUrl(step) || getGuideStepVideoEmbedUrl(step) || getGuideStepVideoSourceUrl(step)">
+              <img *ngIf="getGuideStepImageUrl(step)" [src]="getGuideStepImageUrl(step)" alt="Image etape guide" />
+              <iframe
+                *ngIf="getGuideStepVideoEmbedUrl(step)"
+                [src]="getGuideStepVideoEmbedUrl(step)"
+                title="Video etape guide"
+                loading="lazy"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen
+              ></iframe>
+              <video
+                *ngIf="getGuideStepVideoSourceUrl(step)"
+                [src]="getGuideStepVideoSourceUrl(step)"
+                controls
+                preload="metadata"
+              ></video>
+            </div>
+
+          </article>
+        </section>
+
+        <section class="guide-media-links" *ngIf="canManageFormations">
+          <header>
+            <h3>Gestion des etapes du guide</h3>
+            <p>Ajoutez, modifiez ou supprimez les etapes pratiques associees a cette formation.</p>
+          </header>
+
+          <div class="actions-row">
+            <button
+              type="button"
+              class="secondary-btn icon-only-btn"
+              (click)="addFormationGuideStep()"
+              title="Ajouter une etape"
+              aria-label="Ajouter une etape"
+            >
+              <app-admin-icon name="plus" [size]="14"></app-admin-icon>
+            </button>
+            <button
+              type="button"
+              class="primary-btn icon-only-btn"
+              [disabled]="isSavingFormationGuide"
+              (click)="saveFormationGuideSteps()"
+              [title]="isSavingFormationGuide ? 'Enregistrement guide' : 'Enregistrer le guide'"
+              [attr.aria-label]="isSavingFormationGuide ? 'Enregistrement guide' : 'Enregistrer le guide'"
+            >
+              <app-admin-icon name="check" [size]="14"></app-admin-icon>
+            </button>
+          </div>
+
+          <div class="guide-media-grid" *ngIf="steps.length > 0">
+            <article class="guide-media-card" *ngFor="let step of steps">
+              <div class="guide-media-meta">
+                <label class="guide-field">
+                  <span>Ordre</span>
+                  <input
+                    type="number"
+                    min="1"
+                    [value]="step.id"
+                    (input)="onFormationGuideStepOrderChange(step.id, $any($event.target).value)"
+                  />
+                </label>
+
+                <label class="guide-field">
+                  <span>Titre</span>
+                  <input
+                    type="text"
+                    [value]="step.title"
+                    (input)="onFormationGuideStepTitleChange(step.id, $any($event.target).value)"
+                  />
+                </label>
+
+                <label class="guide-field">
+                  <span>Description</span>
+                  <textarea
+                    rows="3"
+                    [value]="step.description"
+                    (input)="onFormationGuideStepDescriptionChange(step.id, $any($event.target).value)"
+                  ></textarea>
+                </label>
+
+                <label class="guide-field">
+                  <span>Type media</span>
+                  <select
+                    [value]="step.mediaType || 'IMAGE'"
+                    (change)="onFormationGuideStepMediaTypeChange(step.id, $any($event.target).value)"
+                  >
+                    <option value="IMAGE">Image</option>
+                    <option value="VIDEO">Video</option>
+                  </select>
+                </label>
+
+                <label class="guide-field">
+                  <span>URL media</span>
+                  <input
+                    type="text"
+                    [placeholder]="(step.mediaType || 'IMAGE') === 'VIDEO' ? 'URL video YouTube/embed ou video upload' : 'URL image (https://...)'"
+                    [value]="step.mediaUrl || ''"
+                    (input)="onFormationGuideStepMediaUrlChange(step.id, $any($event.target).value)"
+                  />
+                </label>
+
+                <label class="guide-field" *ngIf="getFormationStepMediaOptions(step).length > 0">
+                  <span>Ou choisir un media upload</span>
+                  <select (change)="applyFormationGuideStepMediaFromLibrary(step.id, $any($event.target).value)">
+                    <option value="">Selectionner un media</option>
+                    <option
+                      *ngFor="let media of getFormationStepMediaOptions(step)"
+                      [value]="media.id"
+                    >
+                      {{ media.fileName || ('media-' + media.id) }}
+                    </option>
+                  </select>
+                </label>
+
+                <button
+                  type="button"
+                  class="danger-btn icon-only-btn"
+                  (click)="removeFormationGuideStep(step.id)"
+                  title="Supprimer l etape"
+                  aria-label="Supprimer l etape"
+                >
+                  <app-admin-icon name="delete" [size]="14"></app-admin-icon>
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <p class="media-message" *ngIf="formationGuideMessage">{{ formationGuideMessage }}</p>
+      </ng-container>
+
+      <ng-template #genericGuideBlock>
+        <section class="learning-split" *ngIf="currentStep as step">
+          <article class="learning-card theory-card">
+            <h3>Partie formation (theorie)</h3>
+            <p>{{ step.description }}</p>
+          </article>
+          <article class="learning-card practice-card">
+            <h3>Partie guide (pratique)</h3>
+            <p>{{ step.actionHint }}</p>
+            <p *ngIf="currentStepTutorial"><strong>Tutoriel:</strong> {{ currentStepTutorial }}</p>
+          </article>
+        </section>
+
+        <div class="steps-grid">
+          <button
+            type="button"
+            class="step-chip"
+            *ngFor="let step of steps"
+            [class.active]="step.id === progressState?.activeStep"
+            [class.done]="isStepDone(step.id)"
+            (click)="selectStep(step.id)"
+          >
+            {{ step.id }}. {{ step.title }}
+          </button>
+        </div>
+
+        <app-guide-step-tooltip
+          *ngIf="currentStep as step"
+          [stepLabel]="'Etape ' + step.id + '/' + steps.length"
+          [title]="step.title"
+          [description]="step.description"
+          [actionHint]="step.actionHint"
+          [tutorial]="step.tutorial || ''"
+          [checklist]="step.checklist || []"
+          [progressPercent]="progressPercent"
+        />
+
+        <div class="actions-row" *ngIf="progressState as state">
+          <button
+            type="button"
+            class="secondary-btn icon-only-btn"
+            (click)="previousStep()"
+            [disabled]="state.activeStep <= 1"
+            title="Etape precedente"
+            aria-label="Etape precedente"
+          >
+            <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+          </button>
+          <button
+            type="button"
+            class="secondary-btn icon-only-btn"
+            (click)="nextStep()"
+            [disabled]="state.activeStep >= steps.length"
+            title="Etape suivante"
+            aria-label="Etape suivante"
+          >
+            <app-admin-icon name="arrow-right" [size]="14"></app-admin-icon>
+          </button>
+          <button
+            type="button"
+            class="primary-btn icon-only-btn"
+            [disabled]="steps.length === 0"
+            (click)="completeCurrentStep()"
+            title="Terminer l etape"
+            aria-label="Terminer l etape"
+          >
+            <app-admin-icon name="check" [size]="14"></app-admin-icon>
+          </button>
+        </div>
+
+        <section class="guide-media-links">
+          <header>
+            <h3>Medias explicatifs du guide</h3>
+            <p *ngIf="canManageFormations; else mediaReadOnlyHint">Ajoutez une URL image ou video pour l etape en cours.</p>
+            <ng-template #mediaReadOnlyHint>
+              <p>Mode consultation: vous pouvez voir les medias, seuls ADMIN/GUIDE peuvent les modifier.</p>
+            </ng-template>
+          </header>
+
+          <div class="guide-media-form" *ngIf="canManageFormations">
+            <select
+              class="guide-field"
+              [value]="mediaLinkType"
+              (change)="mediaLinkType = $any($event.target).value"
+            >
+              <option value="IMAGE">Image</option>
+              <option value="VIDEO">Video</option>
+            </select>
+
+            <input
+              class="guide-field"
+              type="text"
+              placeholder="URL media (https://...)"
+              [value]="mediaLinkUrl"
+              (input)="mediaLinkUrl = $any($event.target).value"
+            />
+
+            <input
+              class="guide-field"
+              type="text"
+              placeholder="Libelle (optionnel)"
+              [value]="mediaLinkLabel"
+              (input)="mediaLinkLabel = $any($event.target).value"
+            />
+
+            <button
+              type="button"
+              class="secondary-btn icon-only-btn"
+              (click)="addGuideMediaLink()"
+              title="Ajouter le media"
+              aria-label="Ajouter le media"
+            >
+              <app-admin-icon name="plus" [size]="14"></app-admin-icon>
+            </button>
+          </div>
+
+          <p class="media-message" *ngIf="mediaMessage">{{ mediaMessage }}</p>
+
+          <div class="guide-media-grid" *ngIf="currentStepMediaLinks.length > 0; else emptyMediaLinks">
+            <article class="guide-media-card" *ngFor="let media of currentStepMediaLinks; trackBy: trackByMediaLinkId">
+              <div class="guide-media-preview">
+                <img
+                  *ngIf="media.type === 'IMAGE' && getGuideMediaImageUrl(media)"
+                  [src]="getGuideMediaImageUrl(media)"
+                  [alt]="media.label || 'Image explicative'"
+                />
+                <iframe
+                  *ngIf="getGuideMediaVideoEmbedUrl(media)"
+                  [src]="getGuideMediaVideoEmbedUrl(media)"
+                  title="Video explicative guide"
+                  loading="lazy"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                ></iframe>
+                <video
+                  *ngIf="getGuideMediaVideoSourceUrl(media)"
+                  [src]="getGuideMediaVideoSourceUrl(media)"
+                  controls
+                  preload="metadata"
+                ></video>
+                <p class="inline-media-placeholder" *ngIf="isGuideMediaVideoInvalid(media)">
+                  Video indisponible (URL invalide ou non prise en charge).
+                </p>
+              </div>
+
+              <div class="guide-media-meta">
+                <h4>{{ media.label }}</h4>
+                <p class="media-step-label">{{ getMediaStepLabel(media) }}</p>
+                <p class="media-inline-url">{{ media.url }}</p>
+                <button
+                  type="button"
+                  class="danger-btn icon-only-btn"
+                  *ngIf="canManageFormations"
+                  (click)="removeGuideMediaLink(media.id)"
+                  title="Supprimer"
+                  aria-label="Supprimer"
+                >
+                  <app-admin-icon name="delete" [size]="14"></app-admin-icon>
+                </button>
+              </div>
+            </article>
+          </div>
+        </section>
+      </ng-template>
+    </div>
+  </div>
+</section>
+
+<ng-template #loadingState>
+  <div class="guide-state">Chargement du guide...</div>
+</ng-template>
+
+<ng-template #closedState>
+  <div class="guide-state">
+    <p>Le guide est masque pour cette page.</p>
+    <button
+      type="button"
+      class="primary-btn icon-only-btn"
+      (click)="resumeGuide()"
+      title="Reprendre le guide"
+      aria-label="Reprendre le guide"
+    >
+      <app-admin-icon name="list" [size]="14"></app-admin-icon>
+    </button>
+  </div>
+</ng-template>
+
+<ng-template #emptyMediaLinks>
+  <p class="empty-media-links">Aucun media explicatif ajoute pour cette etape du guide.</p>
+</ng-template>

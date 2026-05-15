@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { forkJoin, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { ForumService, Publication } from '../../../public/forum/services/forum.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 interface AdminCommentView {
   id: number;
@@ -37,7 +38,10 @@ export class CommentaireAdminListComponent implements OnInit {
   editContenu = '';
   saving = false;
 
-  constructor(private forumService: ForumService) {}
+  constructor(
+    private forumService: ForumService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
     this.loadCommentaires();
@@ -99,7 +103,8 @@ export class CommentaireAdminListComponent implements OnInit {
     if (!contenu) return;
 
     this.saving = true;
-    this.forumService.updateCommentaire(commentaire.id, { contenu }, commentaire.auteurEmail || '').subscribe({
+    const targetAuthor = this.resolveTargetAuthorEmail(commentaire.auteurEmail);
+    this.forumService.updateCommentaire(commentaire.id, { contenu }, targetAuthor).subscribe({
       next: () => {
         commentaire.contenu = contenu;
         this.saving = false;
@@ -108,6 +113,7 @@ export class CommentaireAdminListComponent implements OnInit {
       },
       error: (err) => {
         console.error('Erreur modification commentaire admin :', err);
+        this.error = 'Impossible de modifier le commentaire.';
         this.saving = false;
       }
     });
@@ -116,15 +122,21 @@ export class CommentaireAdminListComponent implements OnInit {
   deleteComment(commentaire: AdminCommentView): void {
     if (!confirm('Supprimer ce commentaire ?')) return;
 
-    this.forumService.deleteCommentaire(commentaire.id, commentaire.auteurEmail || '').subscribe({
+    const targetAuthor = this.resolveTargetAuthorEmail(commentaire.auteurEmail);
+    this.forumService.deleteCommentaire(commentaire.id, targetAuthor).subscribe({
       next: () => {
         this.commentaires = this.commentaires.filter((item) => item.id !== commentaire.id);
         this.onFilterChange();
       },
       error: (err) => {
         console.error('Erreur suppression commentaire admin :', err);
+        this.error = 'Impossible de supprimer le commentaire.';
       }
     });
+  }
+
+  private resolveTargetAuthorEmail(authorEmail?: string): string {
+    return (authorEmail || '').trim() || this.authService.getUserEmail() || 'admin@campconnect.tn';
   }
 
   private loadCommentsByPublications(publications: Publication[]): void {

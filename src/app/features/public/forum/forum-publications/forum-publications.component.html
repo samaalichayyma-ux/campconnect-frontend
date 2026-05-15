@@ -30,12 +30,6 @@
               </span>
               <span>{{ showForm ? 'Fermer publication' : 'Nouvelle publication' }}</span>
             </button>
-            <button class="hero-quick-btn ghost" type="button" (click)="toggleFilters()">
-              <span class="btn-icon" aria-hidden="true">
-                <app-admin-icon name="filter" [size]="16"></app-admin-icon>
-              </span>
-              <span>{{ showFilters ? 'Masquer filtres' : 'Afficher filtres' }}</span>
-            </button>
           </div>
 
           <div class="hero-search">
@@ -166,6 +160,7 @@
             (ngModelChange)="onDraftChange()"
             placeholder="Titre de la publication..."
             class="fp-input"
+            [maxlength]="maxPublicationTitleLength"
           />
 
           <div class="ai-box">
@@ -215,10 +210,13 @@
             placeholder="Contenu de la publication..."
             rows="5"
             class="fp-textarea"
+            [maxlength]="maxPublicationContentLength"
           ></textarea>
 
           <div class="draft-meta">
             <span>{{ draftWordCount }} mots</span>
+            <span>{{ draftTitleLength }}/{{ maxPublicationTitleLength }} titre</span>
+            <span>{{ draftContentLength }}/{{ maxPublicationContentLength }} contenu</span>
             <span *ngIf="draftQuality">Score qualite: {{ draftQuality.score }}/100</span>
             <span *ngIf="draftQuality">Risque: {{ draftQuality.risk }}</span>
           </div>
@@ -287,6 +285,7 @@
                 [(ngModel)]="editPublicationTitre"
                 placeholder="Titre"
                 (click)="$event.stopPropagation()"
+                [maxlength]="maxPublicationTitleLength"
               />
               <textarea
                 class="comment-input"
@@ -294,6 +293,7 @@
                 [(ngModel)]="editPublicationContenu"
                 placeholder="Contenu"
                 (click)="$event.stopPropagation()"
+                [maxlength]="maxPublicationContentLength"
               ></textarea>
             </ng-template>
             <small>{{ pub.dateCreation | date:'dd/MM/yyyy HH:mm' }}</small>

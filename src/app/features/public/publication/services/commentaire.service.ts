@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ForumService } from '../../forum/services/forum.service';
 
 export interface Commentaire {
   id?: number;
@@ -15,32 +15,37 @@ export interface Commentaire {
   providedIn: 'root'
 })
 export class CommentaireService {
-  private apiUrl = '/api/commentaires';
-
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(
+    private forumService: ForumService,
+    private authService: AuthService
+  ) {}
 
   getByPublication(publicationId: number): Observable<Commentaire[]> {
-    return this.http.get<Commentaire[]>(`${this.apiUrl}/publication/${publicationId}`);
+    return this.forumService.getCommentaires(publicationId) as Observable<Commentaire[]>;
   }
 
   create(publicationId: number, commentaire: Commentaire): Observable<Commentaire> {
-    return this.http.post<Commentaire>(`${this.apiUrl}/publication/${publicationId}`, commentaire);
+    const payload = {
+      ...commentaire,
+      auteurEmail: commentaire.auteurEmail || this.authService.getUserEmail()
+    };
+    return this.forumService.addCommentaire(publicationId, payload) as Observable<Commentaire>;
   }
 
   update(id: number, commentaire: Commentaire, email = this.authService.getUserEmail()): Observable<Commentaire> {
-    return this.http.put<Commentaire>(`${this.apiUrl}/${id}`, {
-      ...commentaire,
-      auteurEmail: (email || '').trim()
-    });
+    return this.forumService.updateCommentaire(
+      id,
+      { ...commentaire, auteurEmail: (email || '').trim() },
+      (email || '').trim()
+    ) as Observable<Commentaire>;
   }
 
   delete(id: number, email = this.authService.getUserEmail()): Observable<void> {
-    const safeEmail = encodeURIComponent((email || '').trim());
-    return this.http.delete<void>(`${this.apiUrl}/${id}?auteurEmail=${safeEmail}`);
+    return this.forumService.deleteCommentaire(id, (email || '').trim()) as Observable<void>;
   }
 
   like(id: number): Observable<Commentaire> {
-    return this.http.put<Commentaire>(`${this.apiUrl}/${id}/like`, {});
+    return this.forumService.likeCommentaire(id) as Observable<Commentaire>;
   }
 
 }

@@ -1,0 +1,339 @@
+<section class="detail-page">
+  <header class="hero">
+    <div class="hero-layout">
+      <div class="hero-copy">
+        <span class="kicker">Formation terrain camping</span>
+        <h1>{{ displayTitle }}</h1>
+        <p class="hero-description">{{ headerDescription }}</p>
+
+        <div class="hero-facts">
+          <article class="fact-card metric-card" title="Likes">
+            <app-admin-icon name="heart" [size]="13"></app-admin-icon>
+            <div>
+              <strong>{{ likesCount }}</strong>
+              <small>J aime</small>
+            </div>
+          </article>
+          <article class="fact-card metric-card" title="Consultations">
+            <app-admin-icon name="eye" [size]="13"></app-admin-icon>
+            <div>
+              <strong>{{ consultationCount }}</strong>
+              <small>Consultations</small>
+            </div>
+          </article>
+          <article class="fact-card">
+            <small>Niveau</small>
+            <span class="meta-badge" [ngClass]="levelBadgeClass">{{ levelLabel }}</span>
+          </article>
+          <article class="fact-card">
+            <small>Duree</small>
+            <strong>{{ durationLabel }}</strong>
+          </article>
+          <article class="fact-card" *ngIf="canManage">
+            <small>Statut</small>
+            <span class="meta-badge" [ngClass]="statusBadgeClass">{{ statusLabel }}</span>
+          </article>
+          <article class="fact-card" *ngIf="canManage">
+            <small>Cree le</small>
+            <strong>{{ creationDateLabel }}</strong>
+          </article>
+        </div>
+
+        <div class="hero-actions">
+          <button
+            type="button"
+            class="secondary-btn icon-only-btn"
+            *ngIf="canLikeFormation"
+            [disabled]="likePending || likedByCurrentUser"
+            (click)="likeFormation()"
+            [title]="likedByCurrentUser ? 'Deja aimee' : 'Aimer'"
+            [attr.aria-label]="likedByCurrentUser ? 'Deja aimee' : 'Aimer'"
+          >
+            <app-admin-icon name="heart" [size]="15"></app-admin-icon>
+          </button>
+
+          <button
+            type="button"
+            class="secondary-btn icon-only-btn"
+            (click)="openGuideInteractif()"
+            title="Commencer le guide interactif"
+            aria-label="Commencer le guide interactif"
+          >
+            <app-admin-icon name="list" [size]="15"></app-admin-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-cover-shell">
+        <div class="hero-cover" [class.placeholder]="!hasHeroMedia">
+          <img *ngIf="coverImageUrl" [src]="coverImageUrl" alt="Image de couverture formation" />
+
+          <iframe
+            *ngIf="!coverImageUrl && heroVideoEmbedUrl"
+            [src]="heroVideoEmbedUrl"
+            title="Video de presentation formation"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+          ></iframe>
+
+          <video
+            *ngIf="!coverImageUrl && !heroVideoEmbedUrl && heroVideoSourceUrl"
+            [src]="heroVideoSourceUrl"
+            controls
+            preload="metadata"
+          ></video>
+
+          <div class="hero-media-placeholder" *ngIf="!hasHeroMedia">
+            <app-admin-icon name="formations" [size]="24"></app-admin-icon>
+            <p>Aucun media disponible pour le moment</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <p class="state error" *ngIf="pageMessage">{{ pageMessage }}</p>
+  <p class="state" *ngIf="isLoading">Chargement de la formation...</p>
+
+  <section class="panel" *ngIf="!isLoading && formation">
+    <div class="panel-grid">
+      <section class="content-block intro-block panel-span-2">
+        <div class="block-head">
+          <h2>Contenu detaille</h2>
+          <span class="block-note" *ngIf="displaySummary">Resume court disponible</span>
+        </div>
+        <p>{{ displayDescription }}</p>
+        <p class="summary-line" *ngIf="displaySummary">{{ displaySummary }}</p>
+
+        <div class="empty-content-box" *ngIf="showEmptyContentActions">
+          <p>Cette formation est enregistree mais son contenu detaille est vide.</p>
+          <div class="empty-content-actions">
+            <button
+              type="button"
+              class="secondary-btn icon-only-btn"
+              (click)="openAddContent()"
+              title="Modifier la formation"
+              aria-label="Modifier la formation"
+            >
+              <app-admin-icon name="edit" [size]="14"></app-admin-icon>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-block panel-span-2" *ngIf="showStandaloneFormationVideo">
+        <div class="block-head">
+          <h2>Video de la formation</h2>
+        </div>
+        <iframe
+          *ngIf="heroVideoEmbedUrl"
+          [src]="heroVideoEmbedUrl"
+          title="Video principale formation"
+          loading="lazy"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+        <video
+          *ngIf="heroVideoSourceUrl"
+          [src]="heroVideoSourceUrl"
+          controls
+          preload="metadata"
+        ></video>
+      </section>
+
+      <section class="content-block learn-block" *ngIf="whatYouWillLearn.length > 0">
+        <div class="block-head">
+          <h2>Ce que vous allez apprendre</h2>
+        </div>
+        <ul>
+          <li *ngFor="let objective of whatYouWillLearn">{{ objective }}</li>
+        </ul>
+      </section>
+
+      <section class="content-block guide-block">
+        <div class="block-head">
+          <h2>Progression guide interactif</h2>
+        </div>
+        <p class="guide-progress-line">
+          Progression actuelle: <strong>{{ guideProgressPercent }}%</strong>
+        </p>
+        <div class="progress-track" aria-hidden="true">
+          <span [style.width.%]="guideProgressPercent"></span>
+        </div>
+        <button
+          type="button"
+          class="secondary-btn guide-open-btn icon-only-btn"
+          (click)="openGuideInteractif()"
+          title="Commencer le guide interactif"
+          aria-label="Commencer le guide interactif"
+        >
+          <app-admin-icon name="list" [size]="14"></app-admin-icon>
+        </button>
+      </section>
+
+      <section class="content-block panel-span-2" *ngIf="formationSteps.length > 0">
+        <div class="block-head">
+          <h2>Sections theoriques</h2>
+        </div>
+        <div class="step-media-grid">
+          <article class="step-media-item" *ngFor="let step of formationSteps; let idx = index">
+            <div class="step-heading">
+              <span class="step-index">{{ idx + 1 }}</span>
+              <strong>{{ step.title }}</strong>
+            </div>
+            <p>{{ step.content }}</p>
+            <img
+              *ngIf="!coverImageUrl && getStepImageUrl(step, idx)"
+              [src]="getStepImageUrl(step, idx)"
+              alt="Illustration etape formation"
+            />
+            <iframe
+              *ngIf="getStepVideoEmbedUrl(step, idx)"
+              [src]="getStepVideoEmbedUrl(step, idx)"
+              title="Video etape"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+            <video
+              *ngIf="getStepVideoSourceUrl(step, idx)"
+              [src]="getStepVideoSourceUrl(step, idx)"
+              controls
+              preload="metadata"
+            ></video>
+            <p
+              class="inline-media-placeholder"
+              *ngIf="isStepVideoDeclared(step) && !getStepVideoEmbedUrl(step, idx) && !getStepVideoSourceUrl(step, idx)"
+            >
+              Video indisponible pour cette section (URL invalide ou non prise en charge).
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-block panel-span-2" *ngIf="quizCount > 0">
+        <header class="quiz-head">
+          <h2>Quiz utilisateur (verification IA)</h2>
+          <p>
+            Repondu: {{ answeredQuizCount }}/{{ quizItems.length }} |
+            Corrige: {{ correctedQuizCount }}/{{ quizItems.length }} |
+            Score: {{ quizScorePercent }}%
+          </p>
+        </header>
+
+        <ol class="quiz-question-list">
+          <li class="quiz-question-card" *ngFor="let item of quizItems; let i = index">
+            <p class="quiz-question-title">{{ i + 1 }}. {{ item.question }}</p>
+
+            <div class="quiz-choices" *ngIf="item.choices.length > 0">
+              <button
+                type="button"
+                class="quiz-choice-btn no-auto-icon"
+                *ngFor="let choice of item.choices"
+                [class.selected]="isQuizChoiceSelected(i, choice)"
+                (click)="selectQuizChoice(i, choice)"
+              >
+                {{ choice }}
+              </button>
+            </div>
+
+            <label class="quiz-free-answer">
+              <span>Ou reponse libre</span>
+              <input
+                type="text"
+                [value]="quizTypedAnswers[i] || ''"
+                (input)="updateTypedQuizAnswer(i, $any($event.target).value)"
+                placeholder="Expliquer votre reponse"
+              />
+            </label>
+
+            <div class="quiz-actions-row">
+              <button
+                type="button"
+                class="secondary-btn icon-only-btn"
+                [disabled]="isEvaluatingQuiz"
+                (click)="verifyQuizQuestionWithAi(i)"
+                title="Verifier avec IA"
+                aria-label="Verifier avec IA"
+              >
+                <app-admin-icon name="check" [size]="14"></app-admin-icon>
+              </button>
+            </div>
+
+            <ng-container *ngIf="getQuizQuestionEvaluation(i) as evaluation">
+              <p class="quiz-feedback" [class.correct]="evaluation.isCorrect" [class.wrong]="!evaluation.isCorrect">
+                {{ evaluation.feedback }} (Confiance IA: {{ evaluation.confidence }}%)
+              </p>
+            </ng-container>
+          </li>
+        </ol>
+
+        <div class="quiz-actions-row">
+          <button
+            type="button"
+            class="primary-btn icon-only-btn"
+            [disabled]="isEvaluatingQuiz"
+            (click)="verifyAllQuizAnswersWithAi()"
+            title="Corriger tout avec IA"
+            aria-label="Corriger tout avec IA"
+          >
+            <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+          </button>
+        </div>
+
+        <p class="quiz-message" *ngIf="quizEvaluationMessage">{{ quizEvaluationMessage }}</p>
+      </section>
+
+      <div class="actions panel-span-2" *ngIf="canManage">
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          (click)="editFormation()"
+          title="Modifier"
+          aria-label="Modifier"
+        >
+          <app-admin-icon name="edit" [size]="14"></app-admin-icon>
+        </button>
+        <button
+          type="button"
+          class="primary-btn icon-only-btn"
+          [disabled]="isPublishing"
+          (click)="publishFormation()"
+          title="Publier"
+          aria-label="Publier"
+        >
+          <app-admin-icon name="check" [size]="14"></app-admin-icon>
+        </button>
+        <button
+          type="button"
+          class="danger-btn icon-only-btn"
+          [disabled]="isDeleting"
+          (click)="deleteFormation()"
+          title="Supprimer"
+          aria-label="Supprimer"
+        >
+          <app-admin-icon name="delete" [size]="14"></app-admin-icon>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <app-formation-media-gallery
+    *ngIf="showMediaGallery"
+    [formationId]="formationId"
+    [canManage]="canManage"
+    [title]="'Images et videos liees a la formation'"
+    [mediaMode]="'all'"
+    (actionDone)="onMediaAction($event)"
+  />
+
+  <section class="media-placeholder-block" *ngIf="!isLoading && !showMediaGallery">
+    <app-admin-icon name="formations" [size]="24"></app-admin-icon>
+    <h3>Galerie media</h3>
+    <p>Le media de cette formation sera affiche ici des qu il sera ajoute.</p>
+  </section>
+</section>

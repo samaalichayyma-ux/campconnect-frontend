@@ -42,9 +42,10 @@ export interface CurrentUserResponse {
 export class AuthService {
   private apiUrl = 'http://localhost:8082/api/auth';
   private readonly currentUserFallbackUrl = 'http://localhost:8080/api/utilisateurs/me';
-  // Back-end security only grants /admin/** to ADMINISTRATEUR.
-  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR']);
-  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR']);
+  // Accept legacy and current admin role aliases.
+  private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'ADMIN']);
+  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'ADMIN']);
+  private readonly formationManagementRoles = new Set(['ADMINISTRATEUR', 'ADMIN', 'GUIDE']);
 
   constructor(private http: HttpClient) {}
 
@@ -127,8 +128,19 @@ export class AuthService {
     return this.eventManagementRoles.has(this.normalizeRole(role));
   }
 
+  canManageFormations(role = this.getRole()): boolean {
+    return this.formationManagementRoles.has(this.normalizeRole(role));
+  }
+
   redirectByRole(router: { navigate: (commands: string[]) => void }): void {
-    router.navigate([this.canAccessAdminPanel() ? '/admin' : '/public']);
+    const returnUrl = this.getReturnUrl();
+    if (returnUrl && returnUrl.trim()) {
+      this.clearReturnUrl();
+      router.navigate([returnUrl]);
+      return;
+    }
+
+    router.navigate(this.canAccessAdminPanel() ? ['/admin/dashboard'] : ['/public']);
   }
 
   saveUserName(nom: string): void {
@@ -189,7 +201,23 @@ export class AuthService {
   }
 
   getUserEmail(): string {
-    return localStorage.getItem('email') || '';
+    const storedEmail = localStorage.getItem('email') || '';
+    if (storedEmail.trim()) {
+      return storedEmail;
+    }
+
+    const token = this.getToken();
+    if (!token) {
+      return '';
+    }
+
+    const decodedEmail = this.resolveEmail(this.decodeJwtPayload(token));
+    if (decodedEmail) {
+      this.saveUserEmail(decodedEmail);
+      return decodedEmail;
+    }
+
+    return '';
   }
 
   isAdmin(): boolean {

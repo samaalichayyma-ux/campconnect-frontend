@@ -1,0 +1,150 @@
+<section class="stats-page">
+  <header class="hero">
+    <div class="hero-title">
+      <span class="kicker">Administration</span>
+      <h1>Statistiques formations</h1>
+      <p>Vue claire des performances formation et progression des guides interactifs.</p>
+    </div>
+    <div class="hero-actions">
+      <button type="button" class="secondary-btn" (click)="goBackToFormationList()">
+        <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+        <span>Retour formations</span>
+      </button>
+      <button type="button" class="primary-btn" (click)="reload()">
+        <app-admin-icon name="clock" [size]="14"></app-admin-icon>
+        <span>Actualiser</span>
+      </button>
+    </div>
+  </header>
+
+  <p class="state" *ngIf="isLoading">Chargement des statistiques...</p>
+  <p class="state error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="state" *ngIf="!isLoading && hasNoData">Aucune donnee statistique disponible.</p>
+
+  <ng-container *ngIf="!isLoading && !errorMessage && stats as vm">
+    <section class="kpi-grid">
+      <article class="kpi-card">
+        <span>Total formations</span>
+        <strong>{{ vm.kpi.totalFormations }}</strong>
+      </article>
+      <article class="kpi-card">
+        <span>Formations publiees</span>
+        <strong>{{ vm.kpi.publishedFormations }}</strong>
+      </article>
+      <article class="kpi-card">
+        <span>Formations brouillon</span>
+        <strong>{{ vm.kpi.draftFormations }}</strong>
+      </article>
+      <article class="kpi-card">
+        <span>Total likes</span>
+        <strong>{{ vm.kpi.totalLikes }}</strong>
+      </article>
+      <article class="kpi-card">
+        <span>Progression moyenne guide</span>
+        <strong>{{ guideAverageProgressPercent }}%</strong>
+      </article>
+      <article class="kpi-card">
+        <span>Guides termines</span>
+        <strong>{{ guideCompletedCount }}</strong>
+      </article>
+      <article class="kpi-card">
+        <span>Guides commences</span>
+        <strong>{{ guideStartedCount }}</strong>
+      </article>
+    </section>
+
+    <section class="highlights-grid">
+      <article class="highlight-card">
+        <span>Formation la plus vue</span>
+        <strong *ngIf="mostConsultedFormation as topConsulted; else noTopConsulted">
+          {{ topConsulted.title }}
+        </strong>
+        <p *ngIf="mostConsultedFormation as topConsulted">
+          {{ topConsulted.value }} vue(s)
+        </p>
+      </article>
+
+      <article class="highlight-card">
+        <span>Formation la plus likee</span>
+        <strong *ngIf="mostLikedFormation as topLiked; else noTopLiked">
+          {{ topLiked.title }}
+        </strong>
+        <p *ngIf="mostLikedFormation as topLiked">
+          {{ topLiked.value }} like(s)
+        </p>
+      </article>
+    </section>
+
+    <section class="charts-grid">
+      <article class="chart-card">
+        <header>
+          <h2>Formations les plus vues</h2>
+        </header>
+        <div class="bar-list" *ngIf="vm.topViewed.length > 0; else noViewedData">
+          <button
+            type="button"
+            class="bar-row"
+            *ngFor="let item of vm.topViewed; trackBy: trackByBarItem"
+            (click)="selectFormation(item)"
+          >
+            <span class="bar-label">{{ item.title }}</span>
+            <span class="bar-track">
+              <span class="bar-fill viewed" [style.width]="getBarWidth(item, getTopViewedMax())"></span>
+            </span>
+            <strong>{{ item.value }}</strong>
+          </button>
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <header>
+          <h2>Formations les plus likees</h2>
+        </header>
+        <div class="bar-list" *ngIf="vm.topLiked.length > 0; else noLikedData">
+          <button
+            type="button"
+            class="bar-row"
+            *ngFor="let item of vm.topLiked; trackBy: trackByBarItem"
+            (click)="selectFormation(item)"
+          >
+            <span class="bar-label">{{ item.title }}</span>
+            <span class="bar-track">
+              <span class="bar-fill liked" [style.width]="getBarWidth(item, getTopLikedMax())"></span>
+            </span>
+            <strong>{{ item.value }}</strong>
+          </button>
+        </div>
+      </article>
+
+      <article class="chart-card pie-card">
+        <header>
+          <h2>Repartition progression guides</h2>
+        </header>
+        <div class="pie-wrap">
+          <div class="pie-chart" [style.background]="getPieBackground()"></div>
+          <ul class="pie-legend">
+            <li><span class="dot completed"></span> Termine: {{ guideCompletedPercent }}%</li>
+            <li><span class="dot in-progress"></span> En cours: {{ guideInProgressPercent }}%</li>
+            <li><span class="dot not-started"></span> Non commence: {{ guideNotStartedPercent }}%</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+  </ng-container>
+</section>
+
+<ng-template #noViewedData>
+  <p class="empty-chart">Aucune vue disponible pour le moment.</p>
+</ng-template>
+
+<ng-template #noLikedData>
+  <p class="empty-chart">Aucun like disponible pour le moment.</p>
+</ng-template>
+
+<ng-template #noTopConsulted>
+  <strong>Aucune vue</strong>
+</ng-template>
+
+<ng-template #noTopLiked>
+  <strong>Aucun like</strong>
+</ng-template>

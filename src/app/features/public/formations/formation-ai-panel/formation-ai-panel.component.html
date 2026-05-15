@@ -1,0 +1,65 @@
+<section class="ai-card">
+  <header>
+    <h3>Actions IA rapides</h3>
+  </header>
+
+  <div class="ai-grid">
+    <input
+      type="text"
+      class="field-input"
+      placeholder="Sujet ex: Introduction au camping"
+      [value]="aiSubject"
+      (input)="aiSubject = $any($event.target).value"
+    />
+  </div>
+
+  <div class="actions">
+    <button
+      type="button"
+      class="primary-btn"
+      [disabled]="isGenerating"
+      (click)="generateWithAi()"
+      title="Generer avec IA"
+      aria-label="Generer avec IA"
+    >
+      <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+      <span>Generer</span>
+    </button>
+
+    <button
+      type="button"
+      class="secondary-btn"
+      [disabled]="isAnalyzing"
+      (click)="analyzeQuality()"
+      title="Analyser qualite"
+      aria-label="Analyser qualite"
+    >
+      <app-admin-icon name="target" [size]="14"></app-admin-icon>
+      <span>Analyser</span>
+    </button>
+
+    <button
+      type="button"
+      class="secondary-btn"
+      [disabled]="isGeneratingQuiz"
+      (click)="generateQuiz()"
+      title="Generer quiz IA"
+      aria-label="Generer quiz IA"
+    >
+      <app-admin-icon name="list" [size]="14"></app-admin-icon>
+      <span>Quiz IA</span>
+    </button>
+
+    <button
+      type="button"
+      class="secondary-btn improve-btn"
+      [disabled]="isImproving"
+      (click)="improveContent()"
+      title="Ameliorer le contenu"
+      aria-label="Ameliorer le contenu"
+    >
+      <app-admin-icon name="edit" [size]="14"></app-admin-icon>
+      <span>Ameliorer le contenu</span>
+    </button>
+  </div>
+</section>

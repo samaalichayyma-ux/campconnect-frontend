@@ -11,14 +11,21 @@ export const adminGuard: CanActivateFn = () => {
     return router.createUrlTree(['/login']);
   }
 
+  // Fast path: if role is already known from JWT/login response, don't block navigation.
+  if (authService.canAccessAdminPanel()) {
+    return true;
+  }
+
   return authService.fetchCurrentUser().pipe(
     map(() => authService.canAccessAdminPanel()
       ? true
       : router.createUrlTree(['/public'])),
     catchError((error) => {
       if (error?.status === 401 || error?.status === 403) {
-        authService.logout();
-        return of(router.createUrlTree(['/login']));
+        // Keep the session if role is already admin locally.
+        return of(authService.canAccessAdminPanel()
+          ? true
+          : router.createUrlTree(['/login']));
       }
 
       return of(authService.canAccessAdminPanel()

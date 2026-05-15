@@ -22,6 +22,7 @@ import { AssuranceCreateComponent } from './features/admin/assurances/assurance-
 import { AssuranceEditComponent } from './features/admin/assurances/assurance-edit/assurance-edit.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { authGuard } from './core/guards/auth.guards';
+import { formationManagerGuard } from './core/guards/formation-manager.guard';
 import { ProfileComponent } from './features/public/profile/profile/profile.component';
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
@@ -77,6 +78,11 @@ import { ForumAdminListComponent } from './features/admin/forum/forum-admin-list
 import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
 import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
 import { CommentaireAdminListComponent } from './features/admin/commentaire/commentaire-admin-list/commentaire-admin-list.component';
+import { GuideInteractifComponent } from './features/public/guide-interactif/formation-detail/formation-detail.component';
+import { FormationListComponent } from './features/public/formations/formation-list/formation-list.component';
+import { FormationDetailComponent } from './features/public/formations/formation-detail/formation-detail.component';
+import { FormationFormComponent } from './features/public/formations/formation-form/formation-form.component';
+import { FormationStatsComponent } from './features/public/formations/formation-stats/formation-stats.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -120,6 +126,14 @@ export const routes: Routes = [
       { path: 'reservations', component: ReservationListComponent },
       { path: 'reservations/new', component: ReservationCreateComponent },
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
+      { path: 'guides', component: GuideInteractifComponent },
+      { path: 'formations', component: FormationListComponent },
+      { path: 'formations/statistiques', component: FormationStatsComponent },
+      { path: 'formations/create', component: FormationFormComponent },
+      { path: 'formations/:id/edit', component: FormationFormComponent },
+      { path: 'formations/:id/guide', component: GuideInteractifComponent },
+      { path: 'formations/guide-interactif', component: GuideInteractifComponent },
+      { path: 'formations/:id', component: FormationDetailComponent },
 
     { path: 'Market/AddProduct', component: AddProductComponent },
     { path: 'Market/EditProduct/:id', component: AddProductComponent },
@@ -157,6 +171,15 @@ export const routes: Routes = [
       { path: 'events/:id/reservation', component: EventReservationComponent },
       { path: 'events/:id/book', component: EventReservationComponent },
       { path: 'events/:id', component: EventDetailsComponent },
+      { path: 'guide-interactif', component: GuideInteractifComponent },
+      { path: 'formations', component: FormationListComponent },
+      { path: 'formations/statistiques', component: FormationStatsComponent, canActivate: [authGuard, formationManagerGuard] },
+      { path: 'formations/create', component: FormationFormComponent, canActivate: [authGuard, formationManagerGuard] },
+      { path: 'formations/:id/edit', component: FormationFormComponent, canActivate: [authGuard, formationManagerGuard] },
+      { path: 'formations/:id/guide', component: GuideInteractifComponent },
+      { path: 'formations/guide-interactif', component: GuideInteractifComponent },
+      { path: 'guide-interactif/formations/:id', component: FormationDetailComponent },
+      { path: 'formations/:id', component: FormationDetailComponent },
 
       { path: 'reclamations/add', component: ReclamationAddComponent },
       { path: 'reclamations', component: ReclamationListComponent },

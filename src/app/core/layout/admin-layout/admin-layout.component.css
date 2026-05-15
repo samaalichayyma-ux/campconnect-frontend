@@ -12,6 +12,11 @@
   min-height: 100vh;
 }
 
+.admin-layout.formations-focus-mode {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto 1fr;
+}
+
 /* Sidebar */
 .sidebar {
   background: #1c2a39;
@@ -21,6 +26,37 @@
   flex-direction: column;
   gap: 28px;
   border-right: 1px solid rgba(244, 237, 228, 0.08);
+}
+
+.admin-layout.formations-focus-mode .sidebar {
+  border-right: none;
+  border-bottom: 1px solid rgba(244, 237, 228, 0.12);
+  padding: 12px 14px;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  overflow-x: auto;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.admin-layout.formations-focus-mode .sidebar-brand,
+.admin-layout.formations-focus-mode .sidebar-footer {
+  display: none;
+}
+
+.admin-layout.formations-focus-mode .sidebar-nav {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  width: max-content;
+}
+
+.admin-layout.formations-focus-mode .nav-item {
+  padding: 10px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
 }
 
 .sidebar-brand {
@@ -94,6 +130,10 @@
   flex-direction: column;
   gap: 22px;
   min-width: 0;
+}
+
+.admin-layout.formations-focus-mode .layout-content {
+  padding-top: 14px;
 }
 
 .topbar {
@@ -179,6 +219,15 @@
 
   .layout-content {
     padding: 18px;
+  }
+
+  .admin-layout.formations-focus-mode .sidebar {
+    padding: 10px 12px;
+  }
+
+  .admin-layout.formations-focus-mode .nav-item {
+    padding: 9px 11px;
+    font-size: 13px;
   }
 }
 

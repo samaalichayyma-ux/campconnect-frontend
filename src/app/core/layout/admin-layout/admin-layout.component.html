@@ -1,5 +1,5 @@
-<div class="admin-layout">
-  <aside class="sidebar">
+<div class="admin-layout" [class.formations-focus-mode]="isFormationRoute">
+  <aside class="sidebar" [class.formations-top-sidebar]="isFormationRoute">
     <div class="sidebar-brand">
       <div class="brand-logo">CC</div>
       <div>
@@ -106,7 +106,7 @@
         routerLinkActive="active"
         class="nav-item">
         <span class="nav-icon">
-        <app-admin-icon name="publication" [size]="18"></app-admin-icon>
+        <app-admin-icon name="list" [size]="18"></app-admin-icon>
         </span>
         <span>Publications</span>
        </a>
@@ -115,7 +115,7 @@
   routerLinkActive="active"
   class="nav-item">
   <span class="nav-icon">
-    <app-admin-icon name="forum" [size]="18"></app-admin-icon>
+    <app-admin-icon name="folder" [size]="18"></app-admin-icon>
   </span>
   <span>Forums</span>
 </a>
@@ -123,14 +123,14 @@
         routerLink="/admin/commentaires"
         routerLinkActive="active"
         class="nav-item">
-        <span class="nav-icon"><app-admin-icon name="publication" [size]="18"></app-admin-icon></span>
+        <span class="nav-icon"><app-admin-icon name="comments" [size]="18"></app-admin-icon></span>
         <span>Commentaires</span>
       </a>
     </nav>
   </aside>
 
   <main class="layout-content">
-    <header class="topbar">
+    <header class="topbar" *ngIf="!isFormationRoute">
       <div class="topbar-left">
         <h1>Administration</h1>
         <p>Manage your platform with clarity and control.</p>

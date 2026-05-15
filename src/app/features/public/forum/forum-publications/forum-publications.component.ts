@@ -20,6 +20,9 @@ type CommentTone = 'friendly' | 'curious' | 'expert';
   styleUrl: './forum-publications.component.css'
 })
 export class ForumPublicationsComponent implements OnInit {
+  readonly maxPublicationTitleLength = 150;
+  readonly maxPublicationContentLength = 255;
+
   forum?: Forum;
   forumId = 0;
   private targetPublicationId: number | null = null;
@@ -56,6 +59,7 @@ export class ForumPublicationsComponent implements OnInit {
   publishing = false;
 
   currentUserEmail = '';
+  currentUserName = '';
   isAdmin = false;
 
   // Commentaires
@@ -122,14 +126,22 @@ export class ForumPublicationsComponent implements OnInit {
     return this.nouveauContenu.trim().split(/\s+/).filter(Boolean).length;
   }
 
+  get draftContentLength(): number {
+    return this.nouveauContenu.length;
+  }
+
+  get draftTitleLength(): number {
+    return this.nouveauTitre.length;
+  }
+
   get publicationsView(): Publication[] {
     const query = this.searchTerm.trim().toLowerCase();
     const base = this.publications.filter((pub) => {
-      if (this.filterMode === 'mine' && !this.authService.ownsResource(pub.auteurEmail)) {
+      if (this.filterMode === 'mine' && !this.isMinePublication(pub)) {
         return false;
       }
 
-      if (this.filterMode === 'popular' && (pub.likesCount || 0) < 2 && (pub.commentairesCount || 0) < 2) {
+      if (this.filterMode === 'popular' && !this.isPopularPublication(pub)) {
         return false;
       }
 
@@ -198,6 +210,7 @@ export class ForumPublicationsComponent implements OnInit {
       next: (txt) => {
         this.aiLoading = false;
         this.nouveauContenu = txt || this.nouveauContenu;
+        this.clampDraftLengths();
         this.saveDraft();
 
         if (!this.nouveauTitre.trim() && this.nouveauContenu.trim()) {
@@ -225,6 +238,7 @@ export class ForumPublicationsComponent implements OnInit {
         this.aiLoading = false;
         if (txt) {
           this.nouveauContenu = txt;
+          this.clampDraftLengths();
           this.saveDraft();
         }
       },
@@ -249,6 +263,7 @@ export class ForumPublicationsComponent implements OnInit {
         this.aiTitleLoading = false;
         if (title) {
           this.nouveauTitre = title;
+          this.clampDraftLengths();
           this.saveDraft();
         }
       },
@@ -324,9 +339,17 @@ export class ForumPublicationsComponent implements OnInit {
       this.formError = 'Le titre doit contenir au moins 5 caracteres.';
       return;
     }
+    if (title.length > this.maxPublicationTitleLength) {
+      this.formError = `Le titre depasse la limite autorisee (${this.maxPublicationTitleLength} caracteres max).`;
+      return;
+    }
 
     if (content.length < 30) {
       this.formError = 'Le contenu doit contenir au moins 30 caracteres.';
+      return;
+    }
+    if (content.length > this.maxPublicationContentLength) {
+      this.formError = `Le contenu depasse la limite autorisee (${this.maxPublicationContentLength} caracteres max).`;
       return;
     }
 
@@ -480,6 +503,14 @@ export class ForumPublicationsComponent implements OnInit {
     const contenu = this.editPublicationContenu.trim();
     if (!titre || !contenu) {
       this.formError = 'Titre et contenu sont obligatoires pour modifier la publication.';
+      return;
+    }
+    if (titre.length > this.maxPublicationTitleLength) {
+      this.formError = `Le titre depasse la limite autorisee (${this.maxPublicationTitleLength} caracteres max).`;
+      return;
+    }
+    if (contenu.length > this.maxPublicationContentLength) {
+      this.formError = `Le contenu depasse la limite autorisee (${this.maxPublicationContentLength} caracteres max).`;
       return;
     }
 
@@ -776,8 +807,22 @@ export class ForumPublicationsComponent implements OnInit {
   }
 
   openPublicationFromInsight(pub?: Publication): void {
-    if (!pub) return;
-    this.ouvrir(pub);
+    const publicationId = Number(pub?.id);
+    if (!Number.isFinite(publicationId) || publicationId <= 0) {
+      return;
+    }
+
+    this.ensurePublicationVisible(publicationId);
+
+    const targetPublication =
+      this.publications.find((item) => Number(item.id) === publicationId) || pub;
+    if (!targetPublication) {
+      return;
+    }
+
+    this.ouvrir(targetPublication);
+    this.targetPublicationId = publicationId;
+    this.focusTargetPublication();
   }
 
   hasLikedPublication(pub: Publication): boolean {
@@ -900,6 +945,7 @@ export class ForumPublicationsComponent implements OnInit {
       this.nouveauTitre = draft.title || '';
       this.nouveauContenu = draft.content || '';
       this.aiTheme = draft.theme || '';
+      this.clampDraftLengths();
       this.showForm = !!(this.nouveauTitre || this.nouveauContenu || this.aiTheme);
     } catch {
       localStorage.removeItem(key);
@@ -929,6 +975,11 @@ export class ForumPublicationsComponent implements OnInit {
     return `forum-draft-${this.forumId || 0}`;
   }
 
+  private clampDraftLengths(): void {
+    this.nouveauTitre = this.nouveauTitre.slice(0, this.maxPublicationTitleLength);
+    this.nouveauContenu = this.nouveauContenu.slice(0, this.maxPublicationContentLength);
+  }
+
   private requireSession(): boolean {
     this.refreshSessionContext();
     if (this.authService.isLoggedIn()) {
@@ -948,6 +999,12 @@ export class ForumPublicationsComponent implements OnInit {
     }
     if (backendMessage && /invalid utf-8|utf-8/i.test(backendMessage)) {
       return 'Le texte contient des caracteres non supportes (emoji/symboles). Supprime-les puis reessaie.';
+    }
+    if (backendMessage && /data too long for column\s+'contenu'/i.test(backendMessage)) {
+      return `Le contenu est trop long pour la base de donnees (max ${this.maxPublicationContentLength} caracteres).`;
+    }
+    if (backendMessage && /data too long for column\s+'titre'/i.test(backendMessage)) {
+      return `Le titre est trop long pour la base de donnees (max ${this.maxPublicationTitleLength} caracteres).`;
     }
     if (status === 400) {
       return 'Donnees invalides envoyees au backend. Verifie le commentaire et reessaie.';
@@ -977,7 +1034,34 @@ export class ForumPublicationsComponent implements OnInit {
 
   private refreshSessionContext(): void {
     this.currentUserEmail = this.authService.getUserEmail();
+    this.currentUserName = this.authService.getUserName();
     this.isAdmin = this.authService.isAdmin();
+  }
+
+  private isMinePublication(pub: Publication): boolean {
+    const currentEmail = (this.currentUserEmail || '').trim().toLowerCase();
+    const currentName = (this.currentUserName || '').trim().toLowerCase();
+    const authorEmail = (pub.auteurEmail || '').trim().toLowerCase();
+    const authorName = (pub.auteurNom || '').trim().toLowerCase();
+
+    if (currentEmail && authorEmail) {
+      return currentEmail === authorEmail;
+    }
+
+    if (currentName && authorName) {
+      return currentName === authorName;
+    }
+
+    return this.authService.ownsResource(pub.auteurEmail);
+  }
+
+  private isPopularPublication(pub: Publication): boolean {
+    const likes = Number(pub.likesCount) || 0;
+    const comments = Number(pub.commentairesCount) || 0;
+    const views = Number(pub.vuesCount) || 0;
+
+    // Popular = engagement global (not only likes/comments).
+    return likes >= 2 || comments >= 2 || views >= 5 || (likes + comments + views) >= 6;
   }
 
   private normalizeForBackend(value: string): string {
@@ -1036,6 +1120,19 @@ export class ForumPublicationsComponent implements OnInit {
       return null;
     }
     return parsed;
+  }
+
+  private ensurePublicationVisible(publicationId: number): void {
+    const isAlreadyVisible = this.publicationsView.some(
+      (publication) => Number(publication.id) === publicationId
+    );
+
+    if (isAlreadyVisible) {
+      return;
+    }
+
+    this.filterMode = 'all';
+    this.searchTerm = '';
   }
 
   private focusTargetPublication(): void {

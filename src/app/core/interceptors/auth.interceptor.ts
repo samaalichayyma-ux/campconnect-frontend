@@ -3,7 +3,7 @@ import { catchError, throwError } from 'rxjs';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = getValidToken();
-  const shouldAttachToken = !!token && isBackendApiRequest(req.url) && !isPublicReadRequest(req.method, req.url);
+  const shouldAttachToken = !!token && isBackendApiRequest(req.url) && !isPublicAuthEndpoint(req.url);
 
   if (shouldAttachToken) {
     const clonedReq = req.clone({
@@ -36,20 +36,6 @@ function isBackendApiRequest(url: string): boolean {
   } catch {
     return false;
   }
-}
-
-function isPublicReadRequest(method: string, url: string): boolean {
-  if (method !== 'GET') {
-    return false;
-  }
-
-  const path = extractPathname(url);
-
-  return (
-    path === '/api/forums' ||
-    path.startsWith('/api/forums/') ||
-    path.startsWith('/api/publications/forum/')
-  );
 }
 
 function extractPathname(url: string): string {
@@ -96,6 +82,10 @@ function getValidToken(): string | null {
 }
 
 function shouldClearAuthOnError(url: string, status: number): boolean {
+  // Ignore login/register 401 so stale credentials don't wipe navigation state.
+  if (isPublicAuthEndpoint(url)) {
+    return false;
+  }
   // Only an unauthorized response from our backend API invalidates session.
   return status === 401 && isBackendApiRequest(url);
 }
@@ -107,4 +97,9 @@ function clearAuthStorage(): void {
   localStorage.removeItem('nom');
   localStorage.removeItem('email');
   localStorage.removeItem('returnUrl');
+}
+
+function isPublicAuthEndpoint(url: string): boolean {
+  const path = extractPathname(url).toLowerCase();
+  return path === '/api/auth/login' || path === '/api/auth/register';
 }
