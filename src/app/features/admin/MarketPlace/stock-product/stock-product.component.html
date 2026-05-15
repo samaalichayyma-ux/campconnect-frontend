@@ -1,0 +1,55 @@
+<section class="stock-page">
+  <div class="stock-container">
+
+    <h1>Gestion du stock produit #{{ idProduit }}</h1>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Taille</th>
+            <th>Pointure</th>
+            <th>Quantité</th>
+            <th>État</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let stock of stocks">
+            <td>{{ stock.taille || '-' }}</td>
+            <td>{{ stock.pointure || '-' }}</td>
+
+            <td>
+              <input type="number" [(ngModel)]="stock.stock" />
+            </td>
+
+            <td>
+              <span
+                class="badge"
+                [class.available]="stock.stock > 5"
+                [class.low]="stock.stock > 0 && stock.stock <= 5"
+                [class.out]="stock.stock === 0"
+              >
+                {{ getEtatStock(stock.stock) }}
+              </span>
+            </td>
+
+            <td>
+              <button class="btn edit" (click)="modifierStock(stock)">
+                Modifier
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="stocks.length === 0">
+            <td colspan="5" class="empty">
+              Aucun stock trouvé.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</section>

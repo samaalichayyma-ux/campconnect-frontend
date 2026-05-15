@@ -2,17 +2,30 @@
   <div class="form-header">
     <h1>Edit Reservation</h1>
     <p>Update reservation details from the admin panel.</p>
-    <a
-      routerLink="/admin/reservations/stats"
-      [queryParams]="{ from: 'reservations', focusReservationId: reservation?.id }"
-      class="insight-link">
-      <app-admin-icon name="dashboard" [size]="16"></app-admin-icon>
-      <span>Open Reservation Stats</span>
-    </a>
   </div>
 
   <div *ngIf="isLoading" class="loading">
     <p>Loading reservation details...</p>
+  </div>
+
+  <div *ngIf="successMessage && !isLoading" class="success-message">
+    <div class="message-icon success">
+      <app-admin-icon name="check" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Reservation updated</strong>
+      <p>{{ successMessage }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <div class="message-icon error">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Unable to continue</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
   </div>
 
   <form *ngIf="!isLoading && reservation" [formGroup]="reservationForm" (ngSubmit)="submitForm()" class="reservation-form">
@@ -110,20 +123,6 @@
                 {{ getErrorMessage('nombreParticipants') }}
               </span>
             </div>
-
-            <div class="form-group">
-              <label for="promoCode">Promo code</label>
-              <input
-                type="text"
-                id="promoCode"
-                formControlName="promoCode"
-                placeholder="Optional code like CAMP15"
-                [class.error]="reservationForm.get('promoCode')?.invalid && reservationForm.get('promoCode')?.touched" />
-              <span class="helper-text">Manual codes are validated against the selected event before the reservation is saved.</span>
-              <span *ngIf="reservationForm.get('promoCode')?.invalid && reservationForm.get('promoCode')?.touched" class="error-text">
-                {{ getErrorMessage('promoCode') }}
-              </span>
-            </div>
           </div>
         </section>
 
@@ -194,24 +193,10 @@
             <span>Waitlist</span>
             <strong>{{ willBeWaitlisted ? 'Likely yes' : (reservation.estEnAttente ? 'Currently yes' : 'No') }}</strong>
           </div>
-          <div class="summary-row" *ngIf="reservationForm.get('promoCode')?.value">
-            <span>Promo code</span>
-            <strong>{{ reservationForm.get('promoCode')?.value }}</strong>
-          </div>
-          <div class="summary-row">
-            <span>Base subtotal</span>
-            <strong>${{ baseSubtotal | number:'1.0-2' }}</strong>
-          </div>
-          <div class="summary-row discount-row" *ngIf="hasDiscountApplied">
-            <span>Discount</span>
-            <strong>- ${{ discountAmount | number:'1.0-2' }}</strong>
-          </div>
           <div class="summary-row total-row">
             <span>Estimated total</span>
             <strong>${{ estimatedTotal | number:'1.0-2' }}</strong>
           </div>
-          <p *ngIf="isLoadingPricing" class="summary-note">Refreshing pricing preview...</p>
-          <p *ngIf="promoFeedbackMessage && !isLoadingPricing" [class]="promoFeedbackClass">{{ promoFeedbackMessage }}</p>
         </section>
 
         <div *ngIf="willBeWaitlisted" class="alert-card waitlist-warning">

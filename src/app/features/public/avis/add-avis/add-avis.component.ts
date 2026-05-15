@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -13,7 +13,7 @@ import { SiteCampingAvisService } from '../../services/site-camping-avis.service
 })
 export class AddAvisComponent {
   @Input() siteId!: number;
-@Output() avisAdded = new EventEmitter<void>();
+
   selectedRating = 0;
   hoverRating = 0;
   form: FormGroup;
@@ -76,24 +76,22 @@ onSubmit(): void {
 
   this.avisService.createAvis(this.siteId, payload).subscribe({
     next: () => {
-  Swal.fire({
-    icon: 'success',
-    title: 'Success',
-    text: 'Review submitted!',
-    confirmButtonColor: '#96952f',
-    background: '#f5f5f3',
-    color: '#172b44'
-  });
+      Swal.fire({
+        icon: 'success',
+        title: 'Review Submitted',
+        text: 'Thank you for your feedback!',
+        confirmButtonColor: '#96952f',
+        background: '#f5f5f3',
+        color: '#172b44'
+      });
 
-  this.form.reset({
-    note: null,
-    commentaire: ''
-  });
-  this.selectedRating = 0;
-  this.hoverRating = 0;
+      this.form.reset({
+        note: null,
+        commentaire: ''
+      });
 
-  this.avisAdded.emit();
-},
+      this.selectedRating = 0;
+    },
     error: (error) => {
       console.error(error);
 

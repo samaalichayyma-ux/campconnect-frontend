@@ -1,16 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { forkJoin, Subscription } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { AdminUserService } from '../../../../core/services/admin-user.service';
 import { AdminIconComponent } from '../../../../core/components/admin-icon/admin-icon.component';
-import { ToastMessageHost } from '../../../../core/utils/toast-message-host';
 import { AdminUser } from '../../users/models/user.model';
 import {
   Event,
   PaymentStatus,
-  PromotionPreviewDTO,
   ReservationRequestDTO,
   ReservationResponseDTO,
   ReservationStatus
@@ -20,16 +18,15 @@ import { EventService } from '../../../public/events/services/event.service';
 @Component({
   selector: 'app-reservation-edit',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, AdminIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, AdminIconComponent],
   templateUrl: './reservation-edit.component.html',
   styleUrl: './reservation-edit.component.css'
 })
-export class ReservationEditComponent extends ToastMessageHost implements OnInit, OnDestroy {
+export class ReservationEditComponent implements OnInit {
   private readonly fieldLabels: Record<string, string> = {
     utilisateurId: 'User',
     eventId: 'Event',
     nombreParticipants: 'Participants',
-    promoCode: 'Promo code',
     remarques: 'Remarks'
   };
 
@@ -40,12 +37,8 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
   reservation: ReservationResponseDTO | null = null;
   isLoading = false;
   isSubmitting = false;
-  isLoadingPricing = false;
-  promoFeedbackMessage = '';
-  pricingPreview: PromotionPreviewDTO | null = null;
-  private readonly subscriptions = new Subscription();
-  private pricingPreviewTimeoutId: ReturnType<typeof setTimeout> | null = null;
-  private pricingPreviewRequest: Subscription | null = null;
+  errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -54,22 +47,14 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
     private route: ActivatedRoute,
     private router: Router
   ) {
-    super();
     this.reservationForm = this.createForm();
   }
 
   ngOnInit(): void {
-    this.setupPricingPreviewWatcher();
     this.reservationId = Number(this.route.snapshot.paramMap.get('id'));
     if (this.reservationId) {
       this.loadReservationData(this.reservationId);
     }
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-    this.clearPricingPreviewTimeout();
-    this.cancelPricingPreviewRequest();
   }
 
   createForm(): FormGroup {
@@ -77,7 +62,6 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
       utilisateurId: ['', Validators.required],
       eventId: ['', Validators.required],
       nombreParticipants: [1, [Validators.required, Validators.min(1), Validators.max(100), Validators.pattern(/^\d+$/)]],
-      promoCode: ['', [Validators.maxLength(64)]],
       remarques: ['', [Validators.maxLength(500)]]
     });
   }
@@ -101,10 +85,8 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
           utilisateurId: reservation.utilisateurId,
           eventId: reservation.eventId,
           nombreParticipants: reservation.nombreParticipants,
-          promoCode: reservation.promoCode || '',
           remarques: reservation.remarques || ''
-        }, { emitEvent: false });
-        this.refreshPricingPreview();
+        });
         this.isLoading = false;
       },
       error: (error: any) => {
@@ -137,10 +119,8 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
           utilisateurId: reservation.utilisateurId,
           eventId: reservation.eventId,
           nombreParticipants: reservation.nombreParticipants,
-          promoCode: reservation.promoCode || '',
           remarques: reservation.remarques || ''
         }, { emitEvent: false });
-        this.refreshPricingPreview();
         this.successMessage = 'Reservation updated successfully!';
         this.isSubmitting = false;
         setTimeout(() => {
@@ -190,10 +170,6 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
   }
 
   get estimatedTotal(): number {
-    if (typeof this.pricingPreview?.totalPrice === 'number') {
-      return this.pricingPreview.totalPrice;
-    }
-
     const selectedEvent = this.selectedEvent;
     const participants = Number(this.reservationForm.get('nombreParticipants')?.value || 0);
     if (!selectedEvent || !participants) {
@@ -212,38 +188,11 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
     return String(this.reservationForm.get('remarques')?.value || '').length;
   }
 
-  get baseSubtotal(): number {
-    return this.pricingPreview?.basePriceTotal ?? this.estimatedBaseTotal;
-  }
-
-  get estimatedBaseTotal(): number {
-    const selectedEvent = this.selectedEvent;
-    const participants = Number(this.reservationForm.get('nombreParticipants')?.value || 0);
-    if (!selectedEvent || !participants) {
-      return 0;
-    }
-
-    return Number(selectedEvent.prix || 0) * participants;
-  }
-
-  get discountAmount(): number {
-    return this.pricingPreview?.discountAmount ?? 0;
-  }
-
-  get hasDiscountApplied(): boolean {
-    return this.discountAmount > 0;
-  }
-
-  get promoFeedbackClass(): string {
-    return this.pricingPreview?.invalidPromoCode ? 'summary-note warning' : 'summary-note success';
-  }
-
   getStatusClass(status: ReservationStatus): string {
     const classes: Record<ReservationStatus, string> = {
       PENDING: 'status-pending',
       CONFIRMED: 'status-confirmed',
       PAID: 'status-paid',
-      ATTENDED: 'status-confirmed',
       NO_SHOW: 'status-no-show',
       CANCELLED: 'status-cancelled',
       REFUNDED: 'status-refunded'
@@ -296,80 +245,13 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
 
   private buildPayload(): ReservationRequestDTO {
     const remarks = String(this.reservationForm.value.remarques || '').trim();
-    const promoCode = String(this.reservationForm.value.promoCode || '').trim().toUpperCase();
 
     return {
       utilisateurId: Number(this.reservationForm.value.utilisateurId),
       eventId: Number(this.reservationForm.value.eventId),
       nombreParticipants: Number(this.reservationForm.value.nombreParticipants),
-      promoCode: promoCode || undefined,
       remarques: remarks || undefined
     };
-  }
-
-  private setupPricingPreviewWatcher(): void {
-    ['eventId', 'nombreParticipants', 'promoCode'].forEach((controlName) => {
-      const control = this.reservationForm.get(controlName);
-      if (!control) {
-        return;
-      }
-
-      this.subscriptions.add(control.valueChanges.subscribe(() => this.schedulePricingPreviewRefresh()));
-    });
-  }
-
-  private schedulePricingPreviewRefresh(): void {
-    this.clearPricingPreviewTimeout();
-    this.pricingPreviewTimeoutId = setTimeout(() => {
-      this.pricingPreviewTimeoutId = null;
-      this.refreshPricingPreview();
-    }, 250);
-  }
-
-  private refreshPricingPreview(): void {
-    this.cancelPricingPreviewRequest();
-
-    const eventId = Number(this.reservationForm.get('eventId')?.value);
-    const participants = Number(this.reservationForm.get('nombreParticipants')?.value);
-    const promoCode = String(this.reservationForm.get('promoCode')?.value || '').trim().toUpperCase();
-
-    if (!Number.isFinite(eventId) || eventId <= 0 || !Number.isFinite(participants) || participants <= 0) {
-      this.pricingPreview = null;
-      this.promoFeedbackMessage = '';
-      this.isLoadingPricing = false;
-      return;
-    }
-
-    this.isLoadingPricing = true;
-
-    this.pricingPreviewRequest = this.eventService.previewReservationPricing(eventId, participants, promoCode || undefined).subscribe({
-      next: (preview) => {
-        this.pricingPreview = preview;
-        this.promoFeedbackMessage = preview.validationMessage || '';
-        this.isLoadingPricing = false;
-        this.pricingPreviewRequest = null;
-      },
-      error: (error) => {
-        this.pricingPreview = null;
-        this.promoFeedbackMessage = promoCode
-          ? this.extractErrorMessage(error) || 'We could not validate that promo code right now.'
-          : '';
-        this.isLoadingPricing = false;
-        this.pricingPreviewRequest = null;
-      }
-    });
-  }
-
-  private clearPricingPreviewTimeout(): void {
-    if (this.pricingPreviewTimeoutId !== null) {
-      clearTimeout(this.pricingPreviewTimeoutId);
-      this.pricingPreviewTimeoutId = null;
-    }
-  }
-
-  private cancelPricingPreviewRequest(): void {
-    this.pricingPreviewRequest?.unsubscribe();
-    this.pricingPreviewRequest = null;
   }
 
   private extractErrorMessage(error: any): string | null {

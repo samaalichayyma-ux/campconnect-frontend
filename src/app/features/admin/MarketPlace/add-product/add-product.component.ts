@@ -64,6 +64,7 @@ export class AddProductComponent implements OnInit {
       next: (data: Product) => {
         this.produit = {
           ...data,
+          stock: data.stock ?? 0,
           stocks: data.stocks ?? [],
           active: data.active ?? true
         };
@@ -123,13 +124,15 @@ export class AddProductComponent implements OnInit {
   }
 
   onCategorieChange(): void {
-    this.produit.stocks = [];
     this.selectedTaille = '';
     this.selectedPointure = null;
     this.selectedStock = null;
 
     if (this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE') {
+      this.produit.stocks = [];
       this.produit.stock = 0;
+    } else {
+      this.produit.stocks = [];
     }
   }
 
@@ -216,114 +219,115 @@ export class AddProductComponent implements OnInit {
     return this.produit.stocks.reduce((total, item) => total + item.stock, 0);
   }
 
-onSubmit(): void {
-  this.produit.nom = this.produit.nom.trim();
-  this.produit.description = this.produit.description.trim();
+  onSubmit(): void {
+    this.produit.nom = this.produit.nom.trim();
+    this.produit.description = this.produit.description.trim();
 
-  if (!this.produit.nom || this.produit.nom.length < 3) {
-    alert('Product name must contain at least 3 characters.');
-    return;
-  }
-
-  if (!this.produit.description || this.produit.description.length < 5) {
-    alert('Description must contain at least 5 characters.');
-    return;
-  }
-
-  if (this.produit.prix <= 0) {
-    alert('Price must be greater than 0.');
-    return;
-  }
-
-  if (this.produit.categorie === 'VETEMENT' && this.produit.stocks.length === 0) {
-    alert('Please add at least one size with stock.');
-    return;
-  }
-
-  if (this.produit.categorie === 'CHAUSSURE' && this.produit.stocks.length === 0) {
-    alert('Please add at least one shoe size with stock.');
-    return;
-  }
-
-  if (
-    this.produit.categorie !== 'VETEMENT' &&
-    this.produit.categorie !== 'CHAUSSURE' &&
-    this.produit.stock <= 0
-  ) {
-    alert('Stock must be greater than 0.');
-    return;
-  }
-
-  if (!this.isEditMode && this.selectedImageFiles.length === 0) {
-    alert('Please select at least one image.');
-    return;
-  }
-
-  // 🔥 MODE UPDATE (inchangé)
-  if (this.isEditMode) {
-    const payload: Product = {
-      idProduit: this.productId,
-      nom: this.produit.nom,
-      description: this.produit.description,
-      prix: this.produit.prix,
-      stock: this.getStockTotalLocal(),
-      categorie: this.produit.categorie,
-      active: this.produit.active ?? true,
-      images: this.produit.images ?? [],
-      stocks: this.produit.stocks
-    };
-
-    this.produitService.updateProduit(this.productId, payload).subscribe({
-      next: () => {
-        alert('Product updated successfully.');
-        this.router.navigate(['/Market/listProduct']);
-      },
-      error: () => {
-        alert('Error updating product.');
-      }
-    });
-
-  } else {
-
-    // 🔥 MODE ADD
-    const formData = new FormData();
-
-    formData.append('nom', this.produit.nom);
-    formData.append('description', this.produit.description);
-    formData.append('prix', this.produit.prix.toString());
-    formData.append('categorie', this.produit.categorie);
-
-    // ✅ STOCK TOTAL AUTO
-    const totalStock =
-      this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE'
-        ? this.getStockTotalLocal()
-        : this.produit.stock;
-
-    formData.append('stock', totalStock.toString());
-
-    // 🔥 IMPORTANT : ENVOYER LES STOCKS
-    if (this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE') {
-      formData.append('stocks', JSON.stringify(this.produit.stocks));
+    if (!this.produit.nom || this.produit.nom.length < 3) {
+      alert('Product name must contain at least 3 characters.');
+      return;
     }
 
-    // images
-    this.selectedImageFiles.forEach(file => {
-      formData.append('images', file);
-    });
+    if (!this.produit.description || this.produit.description.length < 5) {
+      alert('Description must contain at least 5 characters.');
+      return;
+    }
 
-    this.produitService.ajouterProduit(formData).subscribe({
-      next: () => {
-        alert('Product added successfully.');
-        this.resetForm();
-        this.router.navigate(['/Market/listProduct']);
-      },
-      error: (err) => {
-        console.error(err);
-        alert('Error adding product.');
+    if (this.produit.prix <= 0) {
+      alert('Price must be greater than 0.');
+      return;
+    }
+
+    if (this.produit.categorie === 'VETEMENT' && this.produit.stocks.length === 0) {
+      alert('Please add at least one size with stock.');
+      return;
+    }
+
+    if (this.produit.categorie === 'CHAUSSURE' && this.produit.stocks.length === 0) {
+      alert('Please add at least one shoe size with stock.');
+      return;
+    }
+
+    if (
+      this.produit.categorie !== 'VETEMENT' &&
+      this.produit.categorie !== 'CHAUSSURE' &&
+      this.produit.stock <= 0
+    ) {
+      alert('Stock must be greater than 0.');
+      return;
+    }
+
+    if (!this.isEditMode && this.selectedImageFiles.length === 0) {
+      alert('Please select at least one image.');
+      return;
+    }
+
+    if (this.isEditMode) {
+      const payload: Product = {
+        idProduit: this.productId,
+        nom: this.produit.nom,
+        description: this.produit.description,
+        prix: this.produit.prix,
+        stock:
+          this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE'
+            ? this.getStockTotalLocal()
+            : this.produit.stock,
+        categorie: this.produit.categorie,
+        active: this.produit.active ?? true,
+        images: this.produit.images ?? [],
+        stocks:
+          this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE'
+            ? this.produit.stocks
+            : []
+      };
+
+      this.produitService.updateProduit(this.productId, payload).subscribe({
+        next: () => {
+          alert('Product updated successfully.');
+          this.router.navigate(['/admin/Market/listProduct']);
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Error updating product.');
+        }
+      });
+
+    } else {
+      const formData = new FormData();
+
+      formData.append('nom', this.produit.nom);
+      formData.append('description', this.produit.description);
+      formData.append('prix', this.produit.prix.toString());
+      formData.append('categorie', this.produit.categorie);
+
+      const totalStock =
+        this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE'
+          ? this.getStockTotalLocal()
+          : this.produit.stock;
+
+      formData.append('stock', totalStock.toString());
+
+      if (this.produit.categorie === 'VETEMENT' || this.produit.categorie === 'CHAUSSURE') {
+        formData.append('stocks', JSON.stringify(this.produit.stocks));
       }
-    });
+
+      this.selectedImageFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      this.produitService.ajouterProduit(formData).subscribe({
+        next: () => {
+          alert('Product added successfully.');
+          this.resetForm();
+          this.router.navigate(['/admin/Market/listProduct']);
+        },
+        error: (err) => {
+          console.error(err);
+          alert('Error adding product.');
+        }
+      });
+    }
   }
-}
 
   private resetForm(): void {
     this.produit = {

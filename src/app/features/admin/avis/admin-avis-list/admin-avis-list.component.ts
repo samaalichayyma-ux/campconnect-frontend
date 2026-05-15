@@ -19,27 +19,11 @@ export class AdminAvisListComponent implements OnInit {
     this.loadAvis();
   }
 
-  getUserRole(): string | null {
-  const token = localStorage.getItem('token');
-  if (!token) return null;
-
-  const payload = JSON.parse(atob(token.split('.')[1]));
-  return payload.role || payload.authorities?.[0]?.replace('ROLE_', '');
-}
-
   loadAvis() {
-  const role = this.getUserRole();
-
-  if (role === 'GUIDE') {
-    this.avisService.getMyCampAvis().subscribe(res => {
-      this.avisList = res.reverse();
-    });
-  } else {
     this.avisService.getAllAdminAvis().subscribe(res => {
-      this.avisList = res.reverse();
+      this.avisList = res;
     });
   }
-}
 
 deleteAvis(id: number) {
   Swal.fire({
