@@ -57,6 +57,19 @@ import { ReservationListComponent } from './features/admin/reservations/reservat
 import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
 import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
 
+import { AccueilmarketComponent } from './features/public/MarketPlace/accueilmarket/accueilmarket.component';
+import { DetailproduitComponent } from './features/public/MarketPlace/detailproduit/detailproduit.component';
+import { ListeProduitComponent } from './features/public/MarketPlace/liste-produit/liste-produit.component';
+import { AddProductComponent } from './features/admin/MarketPlace/add-product/add-product.component';
+import { ListProductComponent } from './features/admin/MarketPlace/list-product/list-product.component';
+import { DetailpanierComponent } from './features/public/MarketPlace/detailpanier/detailpanier.component';
+import { PaymentComponent } from './features/public/MarketPlace/payment/payment.component';
+import { ListcommandeComponent } from './features/admin/MarketPlace/listcommande/listcommande.component';
+import { DetailCommandeComponent } from './features/admin/MarketPlace/detailcommande/detailcommande.component';
+import { StockProductComponent } from './features/admin/MarketPlace/stock-product/stock-product.component';
+import { MesCommandesComponent } from './features/public/MarketPlace/mes-commandes/mes-commandes.component';
+import { StatMarketplaceComponent } from './features/admin/MarketPlace/stat-marketplace/stat-marketplace.component';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
   {
@@ -93,7 +106,20 @@ export const routes: Routes = [
 
       { path: 'reclamations', component: ReclamationAdminListComponent },
       { path: 'repas', component: RepasAdminComponent },
-      { path: 'commandes-repas', component: CommandesAdminComponent }
+      { path: 'commandes-repas', component: CommandesAdminComponent },
+      
+    { path: 'Market/AddProduct', component: AddProductComponent },
+    { path: 'Market/EditProduct/:id', component: AddProductComponent },
+    { path: 'Market/listProduct', component: ListProductComponent },
+    { path: 'Market/listCommande', component: ListcommandeComponent },
+    {path: 'Market/commandes/:id/details', component:DetailCommandeComponent},
+    { path: 'products/stock/:id', component: StockProductComponent },
+    { path: 'Market/statistiques', component: StatMarketplaceComponent},
+ 
+
+
+
+
     ]
   },
   {
@@ -127,7 +153,15 @@ export const routes: Routes = [
       { path: 'reclamations/add', component: ReclamationAddComponent },
       { path: 'reclamations', component: ReclamationListComponent },
       { path: 'repas', component: RepasListComponent },
-      { path: 'commande-repas', component: CommandeRepasComponent }
+      { path: 'commande-repas', component: CommandeRepasComponent },
+
+
+      { path: 'Accueil-Market', component: AccueilmarketComponent },
+      {path: 'listP', component: ListeProduitComponent},
+      { path: 'detailP/:id', component: DetailproduitComponent },
+      {path: 'detailpanier', component: DetailpanierComponent},
+      {path: 'payment', component: PaymentComponent },
+      {path:'mes-commandes',component:MesCommandesComponent}
     ]
   },
   { path: 'login', component: LoginComponent },
