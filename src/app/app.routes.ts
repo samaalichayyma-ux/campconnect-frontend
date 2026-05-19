@@ -20,28 +20,33 @@ import { UserDetailsComponent } from './features/admin/users/user-details/user-d
 
 import { AssuranceCreateComponent } from './features/admin/assurances/assurance-create/assurance-create.component';
 import { AssuranceEditComponent } from './features/admin/assurances/assurance-edit/assurance-edit.component';
+
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+
 import { authGuard } from './core/guards/auth.guards';
-import { ProfileComponent } from './features/public/profile/profile/profile.component';
 import { adminGuard } from './core/guards/admin.guard';
+import { formationManagerGuard } from './core/guards/formation-manager.guard';
+
+import { ProfileComponent } from './features/public/profile/profile/profile.component';
 import { AdminProfileComponent } from './features/admin/profile/admin-profile/admin-profile.component';
+
 import { CampingSitesComponent } from './features/public/camping-sites/camping-sites.component';
 import { SiteBookingComponent } from './features/public/site-booking/site-booking.component';
 import { CampingSiteListComponent } from './features/admin/camping-sites/camping-site-list/camping-site-list.component';
 import { CampingSiteCreateComponent } from './features/admin/camping-sites/camping-site-create/camping-site-create.component';
 import { CampingSiteEditComponent } from './features/admin/camping-sites/camping-site-edit/camping-site-edit.component';
+import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites/admin-camping-site-details/admin-camping-site-details.component';
 
 import { ReclamationListComponent } from './features/public/reclamation/reclamation-list/reclamation-list.component';
 import { ReclamationAddComponent } from './features/public/reclamation/reclamation-add/reclamation-add.component';
+import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
+
 import { RepasListComponent } from './features/public/restauration/repas-list/repas-list.component';
 import { CommandeRepasComponent } from './features/public/restauration/commande-repas/commande-repas.component';
-
-import { ReclamationAdminListComponent } from './features/admin/reclamation/reclamation-admin-list/reclamation-admin-list.component';
 import { RepasAdminComponent } from './features/admin/restauration/repas-admin/repas-admin.component';
 import { CommandesAdminComponent } from './features/admin/restauration/commandes-admin/commandes-admin.component';
 
 import { AdminAvisListComponent } from './features/admin/avis/admin-avis-list/admin-avis-list.component';
-import { AdminCampingSiteDetailsComponent } from './features/admin/camping-sites/admin-camping-site-details/admin-camping-site-details.component';
 import { SiteBookingsComponent } from './features/admin/site-bookings/site-bookings.component';
 import { BookingSummaryComponent } from './features/public/booking-summary/booking-summary.component';
 import { MyBookingsComponent } from './features/public/my-bookings/my-bookings.component';
@@ -53,6 +58,7 @@ import { EventListComponent } from './features/admin/events/event-list/event-lis
 import { EventCreateComponent } from './features/admin/events/event-create/event-create.component';
 import { EventEditComponent } from './features/admin/events/event-edit/event-edit.component';
 import { ApiDemoComponent } from './features/admin/events/api-demo/api-demo.component';
+
 import { ReservationListComponent } from './features/admin/reservations/reservation-list/reservation-list.component';
 import { ReservationCreateComponent } from './features/admin/reservations/reservation-create/reservation-create.component';
 import { ReservationEditComponent } from './features/admin/reservations/reservation-edit/reservation-edit.component';
@@ -70,8 +76,16 @@ import { StockProductComponent } from './features/admin/MarketPlace/stock-produc
 import { MesCommandesComponent } from './features/public/MarketPlace/mes-commandes/mes-commandes.component';
 import { StatMarketplaceComponent } from './features/admin/MarketPlace/stat-marketplace/stat-marketplace.component';
 
+/* FORMATIONS + GUIDE INTERACTIF */
+import { GuideInteractifComponent } from './features/public/guide-interactif/formation-detail/formation-detail.component';
+import { FormationListComponent } from './features/public/formations/formation-list/formation-list.component';
+import { FormationDetailComponent } from './features/public/formations/formation-detail/formation-detail.component';
+import { FormationFormComponent } from './features/public/formations/formation-form/formation-form.component';
+import { FormationStatsComponent } from './features/public/formations/formation-stats/formation-stats.component';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
+
   {
     path: 'admin',
     component: AdminLayoutComponent,
@@ -104,24 +118,30 @@ export const routes: Routes = [
       { path: 'reservations/new', component: ReservationCreateComponent },
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
 
+      /* GESTION FORMATIONS ADMIN */
+      { path: 'guides', component: GuideInteractifComponent },
+      { path: 'formations', component: FormationListComponent },
+      { path: 'formations/statistiques', component: FormationStatsComponent },
+      { path: 'formations/create', component: FormationFormComponent },
+      { path: 'formations/:id/edit', component: FormationFormComponent },
+      { path: 'formations/:id/guide', component: GuideInteractifComponent },
+      { path: 'formations/guide-interactif', component: GuideInteractifComponent },
+      { path: 'formations/:id', component: FormationDetailComponent },
+
       { path: 'reclamations', component: ReclamationAdminListComponent },
       { path: 'repas', component: RepasAdminComponent },
       { path: 'commandes-repas', component: CommandesAdminComponent },
-      
-    { path: 'Market/AddProduct', component: AddProductComponent },
-    { path: 'Market/EditProduct/:id', component: AddProductComponent },
-    { path: 'Market/listProduct', component: ListProductComponent },
-    { path: 'Market/listCommande', component: ListcommandeComponent },
-    {path: 'Market/commandes/:id/details', component:DetailCommandeComponent},
-    { path: 'products/stock/:id', component: StockProductComponent },
-    { path: 'Market/statistiques', component: StatMarketplaceComponent},
- 
 
-
-
-
+      { path: 'Market/AddProduct', component: AddProductComponent },
+      { path: 'Market/EditProduct/:id', component: AddProductComponent },
+      { path: 'Market/listProduct', component: ListProductComponent },
+      { path: 'Market/listCommande', component: ListcommandeComponent },
+      { path: 'Market/commandes/:id/details', component: DetailCommandeComponent },
+      { path: 'products/stock/:id', component: StockProductComponent },
+      { path: 'Market/statistiques', component: StatMarketplaceComponent }
     ]
   },
+
   {
     path: 'public',
     component: PublicLayoutComponent,
@@ -150,20 +170,44 @@ export const routes: Routes = [
       { path: 'events/:id/book', component: EventReservationComponent },
       { path: 'events/:id', component: EventDetailsComponent },
 
+      /* FORMATIONS + GUIDE PUBLIC */
+      { path: 'guide-interactif', component: GuideInteractifComponent },
+      { path: 'formations', component: FormationListComponent },
+      {
+        path: 'formations/statistiques',
+        component: FormationStatsComponent,
+        canActivate: [authGuard, formationManagerGuard]
+      },
+      {
+        path: 'formations/create',
+        component: FormationFormComponent,
+        canActivate: [authGuard, formationManagerGuard]
+      },
+      {
+        path: 'formations/:id/edit',
+        component: FormationFormComponent,
+        canActivate: [authGuard, formationManagerGuard]
+      },
+      { path: 'formations/:id/guide', component: GuideInteractifComponent },
+      { path: 'formations/guide-interactif', component: GuideInteractifComponent },
+      { path: 'guide-interactif/formations/:id', component: FormationDetailComponent },
+      { path: 'formations/:id', component: FormationDetailComponent },
+
       { path: 'reclamations/add', component: ReclamationAddComponent },
       { path: 'reclamations', component: ReclamationListComponent },
+
       { path: 'repas', component: RepasListComponent },
       { path: 'commande-repas', component: CommandeRepasComponent },
 
-
       { path: 'Accueil-Market', component: AccueilmarketComponent },
-      {path: 'listP', component: ListeProduitComponent},
+      { path: 'listP', component: ListeProduitComponent },
       { path: 'detailP/:id', component: DetailproduitComponent },
-      {path: 'detailpanier', component: DetailpanierComponent},
-      {path: 'payment', component: PaymentComponent },
-      {path:'mes-commandes',component:MesCommandesComponent}
+      { path: 'detailpanier', component: DetailpanierComponent },
+      { path: 'payment', component: PaymentComponent },
+      { path: 'mes-commandes', component: MesCommandesComponent }
     ]
   },
+
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: '**', component: NotFoundComponent }

@@ -1,0 +1,358 @@
+<div class="formation-page">
+  <section class="formation-hero">
+    <div class="formation-hero-content">
+      <span class="formation-badge">Formation CampConnect</span>
+      <h1>Creer une formation</h1>
+      <p *ngIf="formationId as id">
+        Galerie photo/video de la formation #{{ id }}.
+      </p>
+    </div>
+  </section>
+
+  <div class="page-shell">
+    <div class="error-banner" *ngIf="pageMessage">
+      <p>{{ pageMessage }}</p>
+    </div>
+
+    <section class="section-card hub-card" *ngIf="isAdminMode && !formationId">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Gestion formation</span>
+          <h2>Creer une formation</h2>
+        </div>
+      </div>
+
+      <p class="section-text">Commencez par creer votre formation.</p>
+
+      <div class="create-form">
+        <div class="guide-panel">
+          <p class="guide-title">Guide interactif - etape {{ currentGuideStep }}/5</p>
+          <p class="guide-tip">{{ currentGuideTip }}</p>
+          <div class="guide-step-editor">
+            <label class="guide-input-label" for="formation-title-input">Etape 1 - Titre formation</label>
+            <div class="title-field">
+              <input
+                id="formation-title-input"
+                type="text"
+                class="hub-input"
+                placeholder="Titre formation"
+                [ngModel]="newFormationTitle"
+                (ngModelChange)="onTitleInput($event)"
+                (focus)="onTitleFocus()"
+                (blur)="onTitleBlur()"
+              />
+              <ul class="suggestions-list" *ngIf="showTitleSuggestions">
+                <li
+                  class="suggestion-item"
+                  *ngFor="let suggestion of titleSuggestions"
+                  (mousedown)="selectTitleSuggestion(suggestion)"
+                >
+                  {{ suggestion }}
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="guide-steps">
+            <span [class.done]="isGuideStepCompleted(1)">1. Titre</span>
+            <span [class.done]="isGuideStepCompleted(2)">2. Description</span>
+            <span [class.done]="isGuideStepCompleted(3)">3. Contenu</span>
+            <span [class.done]="isGuideStepCompleted(4)">4. Quiz</span>
+            <span [class.done]="isGuideStepCompleted(5)">5. Analyse</span>
+          </div>
+        </div>
+
+        <div class="ai-panel">
+          <h3>Assistant IA</h3>
+          <div class="ai-grid">
+            <input
+              type="text"
+              class="hub-input"
+              placeholder="Sujet ex: Gestion des reservations camping"
+              [(ngModel)]="aiSubject"
+            />
+            <select class="hub-input" [(ngModel)]="aiLevel">
+              <option *ngFor="let level of aiLevelOptions" [value]="level">{{ getLevelLabel(level) }}</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            class="primary-btn"
+            [disabled]="isGeneratingAi"
+            (click)="generateWithAi()"
+          >
+            {{ isGeneratingAi ? 'Generation...' : 'Generer avec IA' }}
+          </button>
+          <p class="info-message" *ngIf="aiMessage">{{ aiMessage }}</p>
+        </div>
+
+        <div class="ai-preview-card" *ngIf="hasDraftPreview">
+          <h3>Brouillon structure</h3>
+          <div class="preview-grid">
+            <div class="preview-field">
+              <span class="preview-label">Titre</span>
+              <p>{{ newFormationTitle || '-' }}</p>
+            </div>
+            <div class="preview-field">
+              <span class="preview-label">Niveau</span>
+              <p>{{ getLevelLabel(newFormationLevel || aiLevel) }}</p>
+            </div>
+            <div class="preview-field full-width">
+              <span class="preview-label">Description</span>
+              <p>{{ newFormationDescription || '-' }}</p>
+            </div>
+            <div class="preview-field full-width" *ngIf="newFormationObjectives.length > 0">
+              <span class="preview-label">Objectifs</span>
+              <ul>
+                <li *ngFor="let objective of newFormationObjectives">{{ objective }}</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="preview-sections" *ngIf="generatedSections.length > 0">
+            <h4>Plan de formation</h4>
+            <article class="preview-section-card" *ngFor="let section of generatedSections; let index = index">
+              <strong>{{ index + 1 }}. {{ section.title }}</strong>
+              <p>{{ section.content }}</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="create-grid">
+          <h3 class="editor-title">Edition de la formation</h3>
+
+          <div class="field-block full-width">
+            <label for="formation-description-input">Description pedagogique</label>
+            <textarea
+              id="formation-description-input"
+              class="hub-input textarea"
+              placeholder="Expliquez le contexte, le public cible et la valeur de la formation."
+              [(ngModel)]="newFormationDescription"
+            ></textarea>
+          </div>
+
+          <div class="field-block full-width">
+            <label for="formation-content-input">Contenu detaille</label>
+            <textarea
+              id="formation-content-input"
+              class="hub-input textarea content-textarea"
+              placeholder="Detaillez les sections, les procedures et les points de controle."
+              [(ngModel)]="newFormationContent"
+            ></textarea>
+          </div>
+
+          <div class="field-block">
+            <label for="formation-objectives-input">Objectifs pedagogiques</label>
+            <textarea
+              id="formation-objectives-input"
+              class="hub-input textarea"
+              placeholder="Une ligne par objectif mesurable."
+              [ngModel]="newFormationObjectivesInput"
+              (ngModelChange)="syncObjectivesFromInput($event)"
+            ></textarea>
+          </div>
+
+          <div class="field-block">
+            <label for="formation-summary-input">Resume</label>
+            <textarea
+              id="formation-summary-input"
+              class="hub-input textarea"
+              placeholder="Resume court de la formation."
+              [(ngModel)]="newFormationSummary"
+            ></textarea>
+          </div>
+
+          <div class="field-block">
+            <label for="formation-duration-input">Duree estimee</label>
+            <input
+              id="formation-duration-input"
+              type="text"
+              class="hub-input"
+              placeholder="Ex: 45 minutes"
+              [(ngModel)]="estimatedDuration"
+            />
+          </div>
+        </div>
+
+        <div class="quiz-preview" *ngIf="generatedQuiz.length > 0">
+          <h3>Quiz propose</h3>
+          <ol>
+            <li *ngFor="let quizItem of generatedQuiz">
+              <p>{{ quizItem.question }}</p>
+              <ul>
+                <li *ngFor="let choice of quizItem.choices">{{ choice }}</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+
+        <div class="action-row">
+          <button
+            type="button"
+            class="secondary-btn"
+            [disabled]="isAnalyzingQuality"
+            (click)="analyzeQuality()"
+          >
+            {{ isAnalyzingQuality ? 'Analyse...' : 'Analyser qualite' }}
+          </button>
+          <button
+            type="button"
+            class="primary-btn"
+            [disabled]="isCreating"
+            (click)="createFormation()"
+          >
+            {{ isCreating ? 'Creation...' : 'Valider creation' }}
+          </button>
+        </div>
+
+        <div class="quality-card" *ngIf="analysisResult">
+          <p class="quality-score">Note: {{ analysisResult.score }}/100</p>
+          <div *ngIf="analysisResult.issues.length > 0">
+            <strong>Problemes detectes:</strong>
+            <ul>
+              <li *ngFor="let issue of analysisResult.issues">{{ issue }}</li>
+            </ul>
+          </div>
+          <div *ngIf="analysisResult.suggestions.length > 0">
+            <strong>Suggestions:</strong>
+            <ul>
+              <li *ngFor="let suggestion of analysisResult.suggestions">{{ suggestion }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="info-message" *ngIf="analysisMessage">{{ analysisMessage }}</p>
+        <p class="info-message" *ngIf="creationMessage">{{ creationMessage }}</p>
+      </div>
+    </section>
+
+    <section class="section-card upload-card" *ngIf="isAdminMode && formationId">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Administration</span>
+          <h2>Televersement et suppression</h2>
+        </div>
+      </div>
+
+      <p class="section-text">Ajoutez des photos ou videos pour cette formation.</p>
+
+      <div class="admin-tools">
+        <button
+          type="button"
+          class="secondary-btn"
+          [disabled]="isGeneratingQuiz"
+          (click)="generateQuizForCurrentFormation()"
+        >
+          {{ isGeneratingQuiz ? 'Generation quiz...' : 'Generer quiz automatique' }}
+        </button>
+        <button
+          type="button"
+          class="secondary-btn"
+          (click)="openSimulationMode()"
+        >
+          Tester la formation
+        </button>
+      </div>
+
+      <div class="upload-controls">
+        <input
+          #mediaInput
+          type="file"
+          class="file-input"
+          [accept]="acceptedFileTypes"
+          (change)="onMediaSelected($event)"
+        />
+        <button
+          type="button"
+          class="primary-btn"
+          [disabled]="!selectedFile || isUploading"
+          (click)="uploadSelectedMedia()"
+        >
+          {{ isUploading ? 'Televersement en cours...' : 'Televerser' }}
+        </button>
+      </div>
+
+      <p class="selected-file" *ngIf="selectedFileName">
+        Fichier selectionne: {{ selectedFileName }}
+      </p>
+
+      <div class="progress-wrapper" *ngIf="isUploading">
+        <div class="progress-bar" [style.width.%]="uploadProgress"></div>
+      </div>
+      <p class="progress-label" *ngIf="isUploading">{{ uploadProgress }}%</p>
+
+      <div class="error-banner inline" *ngIf="uploadMessage">
+        <p>{{ uploadMessage }}</p>
+      </div>
+      <div class="error-banner inline" *ngIf="deleteMessage">
+        <p>{{ deleteMessage }}</p>
+      </div>
+      <p class="info-message" *ngIf="quizMessage">{{ quizMessage }}</p>
+
+      <div class="quiz-preview" *ngIf="generatedQuiz.length > 0">
+        <h3>Quiz actuel</h3>
+        <ol>
+          <li *ngFor="let quizItem of generatedQuiz">
+            <p>{{ quizItem.question }}</p>
+            <ul>
+              <li *ngFor="let choice of quizItem.choices">{{ choice }}</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section-card gallery-section" *ngIf="formationId">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">Galerie formation</span>
+          <h2>Images et videos</h2>
+        </div>
+      </div>
+
+      <div class="gallery-state" *ngIf="isLoading">Chargement de la galerie...</div>
+      <div class="gallery-state" *ngIf="!isLoading && mediaList.length === 0">
+        Aucun media disponible pour cette formation.
+      </div>
+
+      <div class="gallery-grid" *ngIf="!isLoading && mediaList.length > 0">
+        <figure class="gallery-card" *ngFor="let media of mediaList; trackBy: trackByMediaId">
+          <div class="media-frame">
+            <img
+              *ngIf="!isVideo(media)"
+              [src]="resolveMediaUrl(media.mediaUrl)"
+              [alt]="media.fileName"
+              loading="lazy"
+              (error)="onImageError($event)"
+            />
+
+            <video
+              *ngIf="isVideo(media)"
+              [attr.aria-label]="media.fileName"
+              controls
+              preload="metadata"
+            >
+              <source [src]="resolveMediaUrl(media.mediaUrl)" [type]="media.mimeType || 'video/mp4'" />
+            </video>
+          </div>
+
+          <figcaption>
+            <strong [title]="media.fileName">{{ media.fileName }}</strong>
+            <span>{{ media.mimeType }}</span>
+            <span>{{ formatFileSize(media.fileSize) }}</span>
+            <span>Ajoute le {{ formatUploadDate(media.uploadDate) }}</span>
+          </figcaption>
+
+          <button
+            *ngIf="isAdminMode"
+            type="button"
+            class="forum-btn delete-btn"
+            [disabled]="deleteInProgress.has(media.id)"
+            (click)="deleteMedia(media)"
+          >
+            {{ deleteInProgress.has(media.id) ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </figure>
+      </div>
+    </section>
+  </div>
+</div>

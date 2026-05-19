@@ -64,6 +64,8 @@ export class AuthService {
   private readonly currentUserFallbackUrl = 'http://localhost:8082/api/auth/me';
   private readonly adminPanelRoles = new Set(['ADMINISTRATEUR', 'GUIDE', 'LIVREUR', 'GERANT_RESTAU']);
   private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
+  private readonly formationManagementRoles = new Set(['ADMINISTRATEUR', 'ADMIN', 'GUIDE']);
+
 
   constructor(private http: HttpClient) {}
 
@@ -191,6 +193,9 @@ export class AuthService {
   canManageEvents(role = this.getRole()): boolean {
     return this.eventManagementRoles.has(this.normalizeRole(role));
   }
+    canManageFormations(role = this.getRole()): boolean {
+    return this.formationManagementRoles.has(this.normalizeRole(role));
+  }
 
   redirectByRole(router: { navigate: (commands: string[]) => void }): void {
     const role = this.getRole();
@@ -292,6 +297,7 @@ export class AuthService {
     if (typeof userInfo.email === 'string' && userInfo.email.trim()) {
       this.saveUserEmail(userInfo.email.trim());
     }
+    
 
     const resolvedRole = this.extractRole(userInfo);
     if (resolvedRole) {
