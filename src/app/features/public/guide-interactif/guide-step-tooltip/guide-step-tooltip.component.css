@@ -1,0 +1,74 @@
+:host {
+  display: block;
+}
+
+.guide-tooltip {
+  border: 1px solid rgba(58, 86, 66, 0.18);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 12px;
+  box-shadow: 0 8px 20px rgba(34, 49, 38, 0.08);
+}
+
+.guide-tooltip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.step-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #617668;
+  font-weight: 700;
+}
+
+.progress {
+  font-size: 0.8rem;
+  color: #2f513f;
+  font-weight: 700;
+}
+
+h3 {
+  margin: 0 0 4px;
+  font-size: 0.98rem;
+  color: #1f2d25;
+}
+
+p {
+  margin: 0;
+  color: #4f6557;
+  line-height: 1.45;
+}
+
+.hint {
+  margin-top: 6px;
+  color: #365544;
+  font-weight: 600;
+}
+
+.tutorial {
+  margin-top: 8px;
+  color: #2f513f;
+}
+
+.checklist {
+  margin-top: 10px;
+  border-top: 1px dashed rgba(58, 86, 66, 0.22);
+  padding-top: 8px;
+}
+
+.checklist h4 {
+  margin: 0 0 4px;
+  font-size: 0.82rem;
+  color: #2b4436;
+}
+
+.checklist ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #4b6354;
+}

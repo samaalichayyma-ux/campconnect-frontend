@@ -102,4 +102,8 @@ export class NavbarComponent implements OnInit {
   closeDropdown(): void {
     this.isDropdownOpen = false;
   }
+
+   goToFormations(): void {
+    this.router.navigateByUrl('/public/formations');
+  }
 }

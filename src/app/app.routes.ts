@@ -124,6 +124,12 @@ import { ListcommandeComponent } from './features/admin/MarketPlace/listcommande
 import { DetailCommandeComponent } from './features/admin/MarketPlace/detailcommande/detailcommande.component';
 import { StockProductComponent } from './features/admin/MarketPlace/stock-product/stock-product.component';
 import { StatMarketplaceComponent } from './features/admin/MarketPlace/stat-marketplace/stat-marketplace.component';
+import { GuideInteractifComponent } from './features/public/guide-interactif/formation-detail/formation-detail.component';
+import { FormationListComponent } from './features/public/formations/formation-list/formation-list.component';
+import { FormationStatsComponent } from './features/public/formations/formation-stats/formation-stats.component';
+import { FormationFormComponent } from './features/public/formations/formation-form/formation-form.component';
+import { FormationDetailComponent } from './features/public/formations/formation-detail/formation-detail.component';
+import { formationManagerGuard } from './core/guards/formation-manager.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -175,6 +181,16 @@ export const routes: Routes = [
       { path: 'reservations/:id/edit', component: ReservationEditComponent },
       { path: 'reservations/:id/insights', component: ReservationInsightsComponent },
 
+       /* GESTION FORMATIONS ADMIN */
+      { path: 'guides', component: GuideInteractifComponent },
+      { path: 'formations', component: FormationListComponent },
+      { path: 'formations/statistiques', component: FormationStatsComponent },
+      { path: 'formations/create', component: FormationFormComponent },
+      { path: 'formations/:id/edit', component: FormationFormComponent },
+      { path: 'formations/:id/guide', component: GuideInteractifComponent },
+      { path: 'formations/guide-interactif', component: GuideInteractifComponent },
+      { path: 'formations/:id', component: FormationDetailComponent },
+
       { path: 'Market/AddProduct', component: AddProductComponent },
       { path: 'Market/EditProduct/:id', component: AddProductComponent },
       { path: 'Market/listProduct', component: ListProductComponent },
@@ -215,10 +231,6 @@ export const routes: Routes = [
     { path: 'products/stock/:id', component: StockProductComponent },
     { path: 'Market/statistiques', component: StatMarketplaceComponent},
  
-
-
-
-
     ]
   },
 
@@ -279,6 +291,29 @@ export const routes: Routes = [
       { path: 'forums', component: ForumListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
+
+       /* FORMATIONS + GUIDE PUBLIC */
+      { path: 'guide-interactif', component: GuideInteractifComponent },
+      { path: 'formations', component: FormationListComponent },
+      {
+        path: 'formations/statistiques',
+        component: FormationStatsComponent,
+        canActivate: [authGuard, formationManagerGuard]
+      },
+      {
+        path: 'formations/create',
+        component: FormationFormComponent,
+        canActivate: [authGuard, formationManagerGuard]
+      },
+      {
+        path: 'formations/:id/edit',
+        component: FormationFormComponent,
+        canActivate: [authGuard, formationManagerGuard]
+      },
+      { path: 'formations/:id/guide', component: GuideInteractifComponent },
+      { path: 'formations/guide-interactif', component: GuideInteractifComponent },
+      { path: 'guide-interactif/formations/:id', component: FormationDetailComponent },
+      { path: 'formations/:id', component: FormationDetailComponent },
       
       { path: 'assurances', component: PublicAssuranceListComponent },
 { path: 'assurances/mes-souscriptions', component: MesSouscriptionsComponent, canActivate: [authGuard] },

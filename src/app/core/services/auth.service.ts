@@ -68,7 +68,9 @@ private readonly adminPanelRoles = new Set([
   'LIVREUR',
   'GERANT_RESTAU',
   'AGENT_ASSURANCE'
-]);  private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
+]);  
+private readonly eventManagementRoles = new Set(['ADMINISTRATEUR', 'GERANT_RESTAU', 'GUIDE']);
+private readonly formationManagementRoles = new Set(['ADMINISTRATEUR', 'ADMIN', 'GUIDE']);
 
   constructor(private http: HttpClient) {}
 
@@ -199,6 +201,10 @@ private readonly adminPanelRoles = new Set([
 
   canManageEvents(role = this.getRole()): boolean {
     return this.eventManagementRoles.has(this.normalizeRole(role));
+  }
+
+  canManageFormations(role = this.getRole()): boolean {
+    return this.formationManagementRoles.has(this.normalizeRole(role));
   }
 
   redirectByRole(router: { navigate: (commands: string[]) => void }): void {

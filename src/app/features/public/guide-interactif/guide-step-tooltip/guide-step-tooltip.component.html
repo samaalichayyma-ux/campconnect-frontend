@@ -1,0 +1,18 @@
+<aside class="guide-tooltip" role="status" aria-live="polite">
+  <header class="guide-tooltip-head">
+    <span class="step-label">{{ stepLabel }}</span>
+    <span class="progress">{{ progressPercent }}%</span>
+  </header>
+
+  <h3>{{ title }}</h3>
+  <p>{{ description }}</p>
+  <p class="hint" *ngIf="actionHint">{{ actionHint }}</p>
+  <p class="tutorial" *ngIf="tutorial"><strong>Tutoriel:</strong> {{ tutorial }}</p>
+
+  <div class="checklist" *ngIf="checklist.length > 0">
+    <h4>Checklist</h4>
+    <ul>
+      <li *ngFor="let item of checklist">{{ item }}</li>
+    </ul>
+  </div>
+</aside>
