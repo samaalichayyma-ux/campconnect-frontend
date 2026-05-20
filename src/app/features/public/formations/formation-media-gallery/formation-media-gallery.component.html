@@ -1,0 +1,71 @@
+<section class="gallery-card">
+  <div class="heading">
+    <h3>{{ title }}</h3>
+  </div>
+
+  <div class="upload-row" *ngIf="canManage && formationId">
+    <input
+      #mediaInput
+      type="file"
+      class="file-input"
+      [accept]="acceptedFileTypes"
+      (change)="onMediaSelected($event)"
+    />
+    <button
+      type="button"
+      class="primary-btn icon-only-btn"
+      [disabled]="!selectedFile || isUploading"
+      (click)="uploadSelectedMedia()"
+      [title]="isUploading ? 'Televersement en cours' : 'Televerser le media'"
+      [attr.aria-label]="isUploading ? 'Televersement en cours' : 'Televerser le media'"
+    >
+      <app-admin-icon [name]="isUploading ? 'clock' : 'upload'" [size]="14"></app-admin-icon>
+    </button>
+  </div>
+
+  <p class="meta-line" *ngIf="selectedFileName">Fichier selectionne: {{ selectedFileName }}</p>
+  <p class="meta-line" *ngIf="isUploading">Progression: {{ uploadProgress }}%</p>
+  <p class="error-message" *ngIf="message">{{ message }}</p>
+
+  <div class="state" *ngIf="isLoading">Chargement de la galerie...</div>
+  <div class="state" *ngIf="!isLoading && visibleMediaList.length === 0">
+    {{ mediaMode === 'image' ? 'Aucune image disponible pour cette formation.' : 'Aucun media disponible pour cette formation.' }}
+  </div>
+
+  <div class="gallery-grid" *ngIf="!isLoading && visibleMediaList.length > 0">
+    <figure class="media-item" *ngFor="let media of visibleMediaList; trackBy: trackByMediaId">
+      <div class="media-frame">
+        <img
+          *ngIf="!isVideo(media)"
+          [src]="resolveMediaUrl(media.mediaUrl)"
+          [alt]="media.fileName"
+          loading="lazy"
+          (error)="onImageError($event)"
+        />
+
+        <video *ngIf="isVideo(media)" controls preload="metadata">
+          <source [src]="resolveMediaUrl(media.mediaUrl)" [type]="media.mimeType || 'video/mp4'" />
+        </video>
+      </div>
+
+      <figcaption>
+        <strong [title]="media.fileName">{{ media.fileName }}</strong>
+        <span>{{ media.mimeType }}</span>
+        <span>{{ formatFileSize(media.fileSize) }}</span>
+        <span>Ajoute le {{ formatUploadDate(media.uploadDate) }}</span>
+      </figcaption>
+
+      <button
+        *ngIf="canManage"
+        type="button"
+        class="secondary-btn danger-btn icon-only-btn"
+        [disabled]="deleteInProgress.has(media.id)"
+        (click)="deleteMedia(media)"
+        [title]="deleteInProgress.has(media.id) ? 'Suppression en cours' : 'Supprimer le media'"
+        [attr.aria-label]="deleteInProgress.has(media.id) ? 'Suppression en cours' : 'Supprimer le media'"
+      >
+        <app-admin-icon [name]="deleteInProgress.has(media.id) ? 'clock' : 'delete'" [size]="14"></app-admin-icon>
+      </button>
+    </figure>
+  </div>
+</section>

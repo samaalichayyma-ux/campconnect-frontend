@@ -1,0 +1,447 @@
+<div class="create-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Modifier Formation' : 'Creer Formation' }}</h1>
+  </div>
+
+  <div *ngIf="saveMessage" class="success-message">
+    <div class="message-icon success">
+      <app-admin-icon name="check" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Enregistrement reussi</strong>
+      <p>{{ saveMessage }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="deleteMessage" class="success-message">
+    <div class="message-icon success">
+      <app-admin-icon name="check" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Suppression reussie</strong>
+      <p>{{ deleteMessage }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="pageMessage" class="error-message">
+    <div class="message-icon error">
+      <app-admin-icon name="error" [size]="18"></app-admin-icon>
+    </div>
+    <div class="message-copy">
+      <strong>Action bloquee</strong>
+      <p>{{ pageMessage }}</p>
+    </div>
+  </div>
+
+  <p class="loading-message" *ngIf="isLoading">Chargement de la formation...</p>
+
+  <section class="formation-form" *ngIf="!isLoading">
+    <p class="ai-note">Le contenu genere par IA doit etre verifie avant publication.</p>
+
+    <p class="ai-warning" *ngIf="aiContentWarning">
+      <app-admin-icon name="warning" [size]="13"></app-admin-icon>
+      <span>{{ aiContentWarning }}</span>
+    </p>
+
+    <div class="form-layout">
+      <div class="form-main">
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Informations Formation</h3>
+          </div>
+
+          <div class="input-grid">
+            <label class="field full-span">
+              <div class="title-row">
+                <span>Titre *</span>
+                <div class="title-tools">
+                  <button
+                    type="button"
+                    class="secondary-btn icon-only-btn"
+                    [disabled]="isAiAssistantGenerating"
+                    (click)="generatePedagogicDraftWithAi()"
+                    title="Generer contenu IA"
+                    aria-label="Generer contenu IA"
+                  >
+                    <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="secondary-btn icon-only-btn"
+                    (click)="runQualityCheckWithAi()"
+                    title="Analyser qualite"
+                    aria-label="Analyser qualite"
+                  >
+                    <app-admin-icon name="target" [size]="14"></app-admin-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="secondary-btn icon-only-btn"
+                    (click)="applySuggestedDuration()"
+                    title="Appliquer duree suggeree"
+                    aria-label="Appliquer duree suggeree"
+                  >
+                    <app-admin-icon name="clock" [size]="14"></app-admin-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="secondary-btn icon-only-btn"
+                    (click)="togglePedagogicEditors()"
+                    [title]="showPedagogicEditors ? 'Masquer contenu pedagogique' : 'Afficher contenu pedagogique'"
+                    [attr.aria-label]="showPedagogicEditors ? 'Masquer contenu pedagogique' : 'Afficher contenu pedagogique'"
+                  >
+                    <app-admin-icon [name]="showPedagogicEditors ? 'minus' : 'plus'" [size]="14"></app-admin-icon>
+                  </button>
+                </div>
+              </div>
+              <input
+                type="text"
+                class="field-input"
+                [(ngModel)]="titre"
+                (ngModelChange)="onTitleChange()"
+                placeholder="Ex: Monter une tente en camping"
+              />
+            </label>
+
+            <label class="field">
+              <span>Niveau *</span>
+              <select class="field-input" [(ngModel)]="level" (ngModelChange)="onContentChange()">
+                <option *ngFor="let option of levelOptions" [value]="option.value">{{ option.label }}</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Duree *</span>
+              <select class="field-input" [(ngModel)]="estimatedDuration" (ngModelChange)="onContentChange()">
+                <option [ngValue]="''">Selectionner</option>
+                <option *ngFor="let duration of durationOptions" [value]="duration + ' minutes'">
+                  {{ duration }} minutes
+                </option>
+              </select>
+              <small>Autorise: 15, 30 ou 45 minutes.</small>
+            </label>
+
+            <label class="field full-span">
+              <span>Description courte *</span>
+              <textarea
+                class="field-input textarea short-textarea"
+                [(ngModel)]="description"
+                (ngModelChange)="onDescriptionChange()"
+                placeholder="Expliquez concretement ce que l utilisateur va apprendre sur terrain."
+              ></textarea>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Media de Formation</h3>
+            <p>Image couverture + video optionnelle integree dans CampConnect.</p>
+          </div>
+
+          <div class="input-grid">
+            <label class="field full-span">
+              <span>Image principale</span>
+              <input
+                type="text"
+                class="field-input"
+                [(ngModel)]="mainImageUrl"
+                (ngModelChange)="onMainImageUrlChange()"
+                placeholder="https://... ou /assets/images/..."
+              />
+            </label>
+
+            <label class="field" *ngIf="formationMediaOptions.length > 0">
+              <span>Choisir image upload</span>
+              <select class="field-input" (change)="applyMainImageFromMedia($any($event.target).value)">
+                <option value="">Selectionner</option>
+                <ng-container *ngFor="let media of formationMediaOptions">
+                  <option
+                    *ngIf="media.mediaType === 'IMAGE' || (media.mimeType || '').startsWith('image/')"
+                    [value]="media.id"
+                  >
+                    {{ media.fileName }}
+                  </option>
+                </ng-container>
+              </select>
+            </label>
+
+            <label class="field full-span">
+              <span>Video principale (optionnelle)</span>
+              <input
+                type="text"
+                class="field-input"
+                [(ngModel)]="mainVideoUrl"
+                (ngModelChange)="onMainVideoUrlChange()"
+                placeholder="URL YouTube ou lien video upload (.mp4)"
+              />
+            </label>
+
+            <label class="field" *ngIf="formationMediaOptions.length > 0">
+              <span>Choisir video upload</span>
+              <select class="field-input" (change)="applyMainVideoFromMedia($any($event.target).value)">
+                <option value="">Selectionner</option>
+                <ng-container *ngFor="let media of formationMediaOptions">
+                  <option
+                    *ngIf="media.mediaType === 'VIDEO' || (media.mimeType || '').startsWith('video/')"
+                    [value]="media.id"
+                  >
+                    {{ media.fileName }}
+                  </option>
+                </ng-container>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Contenu Pedagogique</h3>
+            <p>IA assiste la creation. Vous pouvez toujours modifier manuellement.</p>
+          </div>
+
+          <div class="input-grid" *ngIf="showPedagogicEditors">
+            <label class="field full-span">
+              <span>Objectifs (une ligne par objectif)</span>
+              <textarea
+                class="field-input textarea"
+                [(ngModel)]="objectifsInput"
+                (ngModelChange)="onContentChange()"
+                placeholder="- Choisir un terrain adapte&#10;- Preparer le materiel&#10;- Verifier la securite"
+              ></textarea>
+            </label>
+
+            <label class="field full-span">
+              <span>Sections theoriques</span>
+              <textarea
+                class="field-input textarea content"
+                [(ngModel)]="content"
+                (ngModelChange)="onContentChange()"
+                placeholder="Section 1 : ...&#10;Section 2 : ...&#10;Section 3 : ..."
+              ></textarea>
+            </label>
+
+            <label class="field full-span">
+              <span>Resume</span>
+              <textarea
+                class="field-input textarea"
+                [(ngModel)]="summary"
+                (ngModelChange)="onContentChange()"
+                placeholder="Resume simple de la formation."
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="sections-preview" *ngIf="hasPedagogicContentPreview">
+            <article *ngFor="let section of stepPreviewItems; let idx = index">
+              <strong>Section {{ idx + 1 }}. {{ section.title }}</strong>
+              <p>{{ section.content }}</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Guide Interactif Lie</h3>
+            <p>Creation du guide apres sauvegarde de la formation.</p>
+          </div>
+
+          <div class="guide-disabled" *ngIf="!canConfigureGuideInteractif">
+            <p>Enregistrez d abord la formation pour activer le guide interactif.</p>
+          </div>
+
+          <div class="guide-enabled" *ngIf="canConfigureGuideInteractif">
+            <div class="icon-actions">
+              <button
+                type="button"
+                class="secondary-btn icon-only-btn"
+                [disabled]="isGuideAiGenerating"
+                (click)="generateGuideInteractifWithAi()"
+                [title]="isGuideAiGenerating ? 'Generation guide IA' : 'Generer guide IA'"
+                [attr.aria-label]="isGuideAiGenerating ? 'Generation guide IA' : 'Generer guide IA'"
+              >
+                <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+              </button>
+              <button
+                type="button"
+                class="primary-btn icon-only-btn"
+                (click)="openGuideInteractif()"
+                title="Ouvrir guide interactif"
+                aria-label="Ouvrir guide interactif"
+              >
+                <app-admin-icon name="list" [size]="14"></app-admin-icon>
+              </button>
+            </div>
+
+            <p class="inline-message" *ngIf="guideMessage">{{ guideMessage }}</p>
+            <p class="inline-message error" *ngIf="guideErrorMessage">{{ guideErrorMessage }}</p>
+
+            <div class="guide-steps-list" *ngIf="guideSteps.length > 0">
+              <article class="guide-step-card" *ngFor="let step of guideSteps; trackBy: trackByGuideStepId">
+                <span class="guide-step-index">{{ step.order }}</span>
+                <div>
+                  <h4>{{ step.title }}</h4>
+                  <p>{{ step.description || 'Description a completer dans la page guide.' }}</p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside class="form-side">
+        <section class="panel-card action-card">
+          <div class="section-header">
+            <h3>Actions</h3>
+            <p>Boutons rapides en haut a droite.</p>
+          </div>
+          <div class="icon-actions">
+            <button
+              type="button"
+              class="secondary-btn icon-only-btn"
+              [disabled]="isSaving"
+              (click)="save()"
+              title="Enregistrer"
+              aria-label="Enregistrer"
+            >
+              <app-admin-icon name="check" [size]="14"></app-admin-icon>
+            </button>
+            <button
+              type="button"
+              class="primary-btn icon-only-btn"
+              [disabled]="isSaving"
+              (click)="publish()"
+              title="Publier"
+              aria-label="Publier"
+            >
+              <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+            </button>
+            <button
+              type="button"
+              class="secondary-btn icon-only-btn"
+              *ngIf="formationId"
+              (click)="goToDetail()"
+              title="Voir detail"
+              aria-label="Voir detail"
+            >
+              <app-admin-icon name="eye" [size]="14"></app-admin-icon>
+            </button>
+            <button
+              type="button"
+              class="danger-btn icon-only-btn"
+              *ngIf="formationId"
+              [disabled]="isDeleting"
+              (click)="deleteFormation()"
+              title="Supprimer"
+              aria-label="Supprimer"
+            >
+              <app-admin-icon name="delete" [size]="14"></app-admin-icon>
+            </button>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Preview Couverture</h3>
+            <p>Image et video affichees directement dans la formation user.</p>
+          </div>
+
+          <div class="image-frame" [class.empty]="!hasMainImage">
+            <img *ngIf="hasMainImage" [src]="mainImagePreviewUrl" alt="Apercu couverture formation" class="preview-image" />
+            <div class="image-placeholder" *ngIf="!hasMainImage">
+              <app-admin-icon name="formations" [size]="24"></app-admin-icon>
+              <strong>Aucune image</strong>
+              <span>Ajoutez une image principale pour la couverture.</span>
+            </div>
+          </div>
+
+          <div class="video-frame" *ngIf="hasMainVideo">
+            <iframe
+              *ngIf="mainVideoEmbedUrl"
+              [src]="mainVideoEmbedUrl"
+              title="Apercu video principale"
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+            <video *ngIf="mainVideoSourceUrl" [src]="mainVideoSourceUrl" controls preload="metadata"></video>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Quick Summary</h3>
+            <p>Controle rapide avant publication.</p>
+          </div>
+
+          <div class="summary-row">
+            <span>Niveau</span>
+            <strong>{{ level }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Duree</span>
+            <strong>{{ effectiveDurationMinutes ? (effectiveDurationMinutes + ' minutes') : 'Non validee' }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Objectifs</span>
+            <strong>{{ parsedObjectivesPreview.length }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Sections</span>
+            <strong>{{ stepPreviewItems.length }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Quiz</span>
+            <strong>{{ quiz.length }}</strong>
+          </div>
+          <div class="summary-row">
+            <span>Qualite</span>
+            <strong>{{ qualityLabel }} ({{ qualityPreview.score }}/100)</strong>
+          </div>
+          <div class="summary-row">
+            <span>Publication</span>
+            <strong>{{ publicationReadinessPercent }}%</strong>
+          </div>
+        </section>
+
+        <section class="panel-card">
+          <div class="section-header">
+            <h3>Checklist Publication</h3>
+            <p>Le statut doit etre complet avant publier.</p>
+          </div>
+
+          <ul class="readiness-list">
+            <li *ngFor="let item of publicationChecklist" [class.done]="item.done" [class.required]="item.required">
+              <strong>{{ item.required ? 'Obligatoire' : 'Optionnel' }}</strong>
+              <span>{{ item.label }}</span>
+              <small>{{ item.hint }}</small>
+            </li>
+          </ul>
+        </section>
+
+        <section class="panel-card" *ngIf="analysisResult">
+          <div class="section-header">
+            <h3>Analyse IA</h3>
+            <p>Points a corriger pour ameliorer la qualite.</p>
+          </div>
+          <p class="score-line">Score: {{ analysisResult.score }}/100</p>
+          <ul class="analysis-list" *ngIf="analysisResult.issues.length > 0">
+            <li *ngFor="let issue of analysisResult.issues">{{ issue }}</li>
+          </ul>
+          <ul class="analysis-list" *ngIf="analysisResult.suggestions.length > 0">
+            <li *ngFor="let suggestion of analysisResult.suggestions">{{ suggestion }}</li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </section>
+
+  <app-formation-media-gallery
+    *ngIf="formationId"
+    [formationId]="formationId"
+    [canManage]="canManage"
+    [title]="'Medias de la formation'"
+    (actionDone)="onMediaAction($event)"
+  />
+</div>

@@ -1,0 +1,372 @@
+<section class="formations-page">
+  <header class="hero">
+    <div class="hero-top">
+      <div class="hero-title">
+        <h1>Gestion des formations</h1>
+        <p class="hero-subtitle">Rechercher et filtrer facilement les formations</p>
+      </div>
+      <div class="hero-actions-top" *ngIf="canManage">
+        <button
+          type="button"
+          class="primary-btn icon-only-btn"
+          (click)="createFormation()"
+          title="Creer une formation"
+          aria-label="Creer une formation"
+        >
+          <app-admin-icon name="plus" [size]="14"></app-admin-icon>
+        </button>
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          *ngIf="canSeeStats"
+          (click)="openStatsDashboard()"
+          title="Statistiques"
+          aria-label="Statistiques"
+        >
+          <app-admin-icon name="dashboard" [size]="14"></app-admin-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <aside class="filters-sidebar">
+      <div class="filter-header">
+        <h2>
+          <app-admin-icon name="search" [size]="16"></app-admin-icon>
+          <span>Recherche</span>
+        </h2>
+      </div>
+
+      <div class="search-input-wrapper">
+        <span class="search-icon">
+          <app-admin-icon name="search" [size]="16"></app-admin-icon>
+        </span>
+        <input
+          type="text"
+          class="field-input search-input"
+          placeholder="Recherche par titre"
+          [(ngModel)]="search"
+          (input)="onSearchInput()"
+          (keyup.enter)="applyFilters()"
+        />
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn search-clear-btn"
+          *ngIf="search.trim()"
+          (click)="search = ''; applyFilters()"
+          title="Effacer la recherche"
+          aria-label="Effacer la recherche"
+        >
+          <app-admin-icon name="close" [size]="14"></app-admin-icon>
+        </button>
+      </div>
+
+      <div class="filters-stack">
+        <label class="field-label" for="formation-level-select">Niveau</label>
+        <select id="formation-level-select" class="field-input" [(ngModel)]="selectedLevel" (change)="applyFilters()">
+          <option *ngFor="let option of levelOptions" [value]="option.value">{{ option.label }}</option>
+        </select>
+
+        <ng-container *ngIf="canManage">
+          <label class="field-label" for="formation-status-select">Statut</label>
+          <select id="formation-status-select" class="field-input" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+            <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </ng-container>
+      </div>
+
+      <section class="sidebar-section">
+        <h3 class="section-title">
+          <app-admin-icon name="folder" [size]="14"></app-admin-icon>
+          <span>Categories camping</span>
+        </h3>
+        <div class="chip-grid">
+          <button
+            type="button"
+            class="filter-chip"
+            *ngFor="let category of categoryOptions"
+            [class.active]="selectedCategory === category.value"
+            (click)="setCategoryFilter(category.value)"
+          >
+            <app-admin-icon [name]="category.icon" [size]="13"></app-admin-icon>
+            <span>{{ category.label }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="sidebar-section">
+        <h3 class="section-title">
+          <app-admin-icon name="filter" [size]="14"></app-admin-icon>
+          <span>Filtres avances</span>
+        </h3>
+        <div class="chip-grid">
+          <button
+            type="button"
+            class="filter-chip"
+            *ngFor="let option of advancedFilterOptions"
+            [class.active]="isAdvancedFilterActive(option.key)"
+            (click)="toggleAdvancedFilter(option.key)"
+          >
+            <app-admin-icon [name]="option.icon" [size]="13"></app-admin-icon>
+            <span>{{ option.label }}</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="sidebar-section compact-stats">
+        <h3 class="section-title">
+          <app-admin-icon name="target" [size]="14"></app-admin-icon>
+          <span>Progression</span>
+        </h3>
+        <div class="stat-line">
+          <span>Formations terminees</span>
+          <strong>{{ completedFormationsCount }}</strong>
+        </div>
+        <div class="stat-line">
+          <span>Guides termines</span>
+          <strong>{{ completedGuidesCount }}</strong>
+        </div>
+        <div class="stat-line">
+          <span>Progression actuelle</span>
+          <strong>{{ currentProgressPercent }}%</strong>
+        </div>
+        <div class="mini-track" aria-hidden="true">
+          <span [style.width.%]="currentProgressPercent"></span>
+        </div>
+      </section>
+
+      <section class="sidebar-section" *ngIf="unlockedBadges.length > 0">
+        <h3 class="section-title">
+          <app-admin-icon name="star" [size]="14"></app-admin-icon>
+          <span>Badges</span>
+        </h3>
+        <div class="badge-grid">
+          <span class="badge-pill" *ngFor="let badge of unlockedBadges">{{ badge }}</span>
+        </div>
+      </section>
+
+      <section class="sidebar-section" *ngIf="aiRecommendations.length > 0">
+        <h3 class="section-title">
+          <app-admin-icon name="sparkles" [size]="14"></app-admin-icon>
+          <span>Recommandations IA</span>
+        </h3>
+        <div class="mini-list">
+          <button
+            type="button"
+            class="mini-card"
+            *ngFor="let formation of aiRecommendations"
+            (click)="openDetail(formation)"
+          >
+            <strong [title]="getTitle(formation)">{{ getShortTitle(formation) }}</strong>
+            <small>{{ getLevelLabel(formation) }} - {{ getLikeCount(formation) }} j aime</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="sidebar-section" *ngIf="ongoingGuideFormation as currentGuide">
+        <h3 class="section-title">
+          <app-admin-icon name="guides" [size]="14"></app-admin-icon>
+          <span>Guide en cours</span>
+        </h3>
+        <button
+          type="button"
+          class="primary-btn continue-guide-btn"
+          (click)="openGuideForFormation(currentGuide)"
+        >
+          Continuer mon guide
+        </button>
+      </section>
+
+      <section class="sidebar-section" *ngIf="recentConsultedFormations.length > 0">
+        <h3 class="section-title">
+          <app-admin-icon name="clock" [size]="14"></app-admin-icon>
+          <span>Dernieres consultees</span>
+        </h3>
+        <div class="mini-list">
+          <button
+            type="button"
+            class="mini-card"
+            *ngFor="let formation of recentConsultedFormations"
+            (click)="openDetail(formation)"
+          >
+            <strong [title]="getTitle(formation)">{{ getShortTitle(formation) }}</strong>
+            <small>{{ getConsultationCount(formation) }} consultations</small>
+          </button>
+        </div>
+      </section>
+
+    </aside>
+
+    <section class="formations-content">
+      <p class="state success" *ngIf="successMessage">{{ successMessage }}</p>
+      <p class="state error" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p class="state" *ngIf="loading">Chargement des formations...</p>
+      <p class="state" *ngIf="!loading">Total: {{ displayedTotal }} formation(s)</p>
+      <p class="state" *ngIf="!loading && showLikedOnly && visibleFormations.length === 0">
+        Aucune formation aimee pour le moment.
+      </p>
+
+      <div class="grid" *ngIf="!loading && visibleFormations.length > 0">
+        <article
+          class="card clickable-card"
+          *ngFor="let formation of visibleFormations; trackBy: trackByFormationId"
+          role="button"
+          tabindex="0"
+          (mousemove)="trackConsultationHover(formation)"
+          (click)="openDetail(formation)"
+          (keydown.enter)="openDetail(formation)"
+          (keydown.space)="openDetail(formation); $event.preventDefault()"
+        >
+          <div
+            class="card-cover"
+            [class.has-cover]="hasCardCover(formation)"
+          >
+            <img
+              *ngIf="hasCardCover(formation)"
+              [src]="getCardCoverUrl(formation)"
+              [alt]="'Couverture ' + getTitle(formation)"
+              loading="lazy"
+            />
+          </div>
+
+          <h2 [title]="getTitle(formation)">{{ getShortTitle(formation) }}</h2>
+          <p class="description">{{ getDescription(formation) }}</p>
+
+          <div class="guide-progress">
+            <div class="guide-progress-head">
+              <span>Progression guide</span>
+              <strong>{{ getGuideProgressPercent(formation) }}%</strong>
+            </div>
+            <div class="guide-progress-track">
+              <div class="guide-progress-fill" [style.width.%]="getGuideProgressPercent(formation)"></div>
+            </div>
+          </div>
+
+          <dl class="meta">
+            <div>
+              <dt>Niveau</dt>
+              <dd>
+                <span class="meta-badge" [ngClass]="getLevelBadgeClass(formation)">
+                  {{ getLevelLabel(formation) }}
+                </span>
+              </dd>
+            </div>
+            <div *ngIf="canManage">
+              <dt>Statut</dt>
+              <dd>
+                <span class="meta-badge" [ngClass]="getStatusBadgeClass(formation)">
+                  {{ getStatusLabel(formation) }}
+                </span>
+              </dd>
+            </div>
+            <div>
+              <dt>Duree</dt>
+              <dd>{{ getDurationLabel(formation) }}</dd>
+            </div>
+          </dl>
+
+          <div class="engagement-summary" *ngIf="!canManage">
+            <span
+              class="engagement-chip like-chip"
+              role="button"
+              tabindex="0"
+              [attr.title]="getLikeCount(formation) + ' j aime'"
+              [attr.aria-label]="getLikeCount(formation) + ' j aime'"
+              [class.liked]="isLiked(formation)"
+              [class.disabled]="isLikePending(formation.id) || isLiked(formation)"
+              [attr.aria-disabled]="isLikePending(formation.id) || isLiked(formation)"
+              (click)="toggleLike(formation, $event)"
+              (keydown.enter)="toggleLike(formation, $event)"
+              (keydown.space)="toggleLike(formation, $event); $event.preventDefault()"
+            >
+              <app-admin-icon name="heart" [size]="13"></app-admin-icon>
+              <span class="engagement-count">{{ getLikeCount(formation) }}</span>
+              <span class="sr-only">{{ getLikeCount(formation) }} j aime</span>
+            </span>
+            <span
+              class="engagement-chip"
+              [attr.title]="getConsultationCount(formation) + ' consultations'"
+              [attr.aria-label]="getConsultationCount(formation) + ' consultations'"
+            >
+              <app-admin-icon name="eye" [size]="13"></app-admin-icon>
+              <span class="engagement-count">{{ getConsultationCount(formation) }}</span>
+              <span class="sr-only">{{ getConsultationCount(formation) }} consultations</span>
+            </span>
+          </div>
+
+          <div class="card-actions" (click)="$event.stopPropagation()">
+            <button
+              type="button"
+              class="secondary-btn action-btn icon-only-btn"
+              [class.icon-only-btn]="!canManage"
+              [class.icon-action-btn]="!canManage"
+              (click)="openDetail(formation)"
+              title="Voir detail"
+              aria-label="Voir detail"
+            >
+              <app-admin-icon name="eye" [size]="14"></app-admin-icon>
+            </button>
+            <button
+              type="button"
+              class="secondary-btn action-btn icon-only-btn"
+              *ngIf="canManage"
+              (click)="editFormation(formation)"
+              title="Modifier"
+              aria-label="Modifier"
+            >
+              <app-admin-icon name="edit" [size]="14"></app-admin-icon>
+            </button>
+            <button
+              type="button"
+              class="secondary-btn action-btn like-btn icon-only-btn icon-action-btn"
+              *ngIf="!canManage"
+              [class.liked]="isLiked(formation)"
+              [disabled]="isLikePending(formation.id) || isLiked(formation)"
+              (click)="toggleLike(formation, $event)"
+              [title]="isLiked(formation) ? 'Deja aimee' : 'Aimer'"
+              [attr.aria-label]="isLiked(formation) ? 'Deja aimee' : 'Aimer'"
+            >
+              <app-admin-icon name="heart" [size]="14"></app-admin-icon>
+              <span class="sr-only">{{ isLiked(formation) ? 'Deja aimee' : 'Aimer' }}</span>
+            </button>
+            <button
+              type="button"
+              class="danger-btn action-btn icon-only-btn"
+              *ngIf="canManage"
+              (click)="deleteFormation(formation)"
+              title="Supprimer"
+              aria-label="Supprimer"
+            >
+              <app-admin-icon name="delete" [size]="14"></app-admin-icon>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <footer class="pagination" *ngIf="canShowPagination">
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          (click)="goPrevious()"
+          [disabled]="!canGoPrevious || loading"
+          title="Page precedente"
+          aria-label="Page precedente"
+        >
+          <app-admin-icon name="arrow-left" [size]="14"></app-admin-icon>
+        </button>
+        <span>Page {{ page + 1 }}</span>
+        <button
+          type="button"
+          class="secondary-btn icon-only-btn"
+          (click)="goNext()"
+          [disabled]="!canGoNext || loading"
+          title="Page suivante"
+          aria-label="Page suivante"
+        >
+          <app-admin-icon name="arrow-right" [size]="14"></app-admin-icon>
+        </button>
+      </footer>
+    </section>
+  </div>
+</section>
