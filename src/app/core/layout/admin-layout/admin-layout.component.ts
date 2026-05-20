@@ -91,5 +91,9 @@ getPageSubtitle(): string {
 
   return 'Manage your platform with clarity and control.';
 }
-
+getPanelName(): string {
+  if (this.isGuide()) return 'Guide Panel';
+  if (this.isLivreur()) return 'Delivery Panel';
+  return 'Admin Panel';
+}
 }

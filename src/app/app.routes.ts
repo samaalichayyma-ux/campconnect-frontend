@@ -202,7 +202,7 @@ export const routes: Routes = [
        { path: 'livraison/create', component: CreateLivraisonComponent },
        { path: 'livraison/orders', component: AvailableOrdersComponent },
        { path: 'livraison/wallet', component: LivreurWalletComponent },
-       { path: 'livraison/wallets', component: AdminLivreurWalletsComponent }
+       { path: 'livraison/wallets', component: AdminLivreurWalletsComponent },
       { path: 'reclamations', component: ReclamationAdminListComponent },
       { path: 'repas', component: RepasAdminComponent },
       { path: 'commandes-repas', component: CommandesAdminComponent },

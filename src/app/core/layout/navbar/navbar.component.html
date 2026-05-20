@@ -43,12 +43,6 @@
       >
         Forums
       </a>
-
-      <a routerLink="/public" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
-      <a routerLink="/public/camping-sites" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Destinations</a>
-      <a routerLink="/public/Accueil-Market">Shop</a>
-      <a routerLink="/public/repas" routerLinkActive="active">Restaurant</a>
-      <a routerLink="/public/events" routerLinkActive="active">Events</a>
       <a href="#">Formations</a>
 
       <a
@@ -60,12 +54,6 @@
     </nav>
 
     <div class="cc-actions">
-      <a routerLink="/public/panier" class="cc-cart-btn" aria-label="Cart">
-        🛒
-        <span class="cc-cart-count" *ngIf="(cartCount$ | async)! > 0">
-          {{ cartCount$ | async }}
-        </span>
-      </a>
 
  <a routerLink="/public/detailpanier" class="cc-cart-btn" aria-label="Cart">
   🛒
