@@ -405,4 +405,6 @@ export class SinistresAdminComponent implements OnInit {
     if (!sinistreId) return false;
     return !!this.weatherLoadings[sinistreId];
   }
+
+  
 }
