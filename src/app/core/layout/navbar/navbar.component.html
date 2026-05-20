@@ -99,50 +99,56 @@
             >
               My Bookings
             </a>
+                        <a
+            *ngIf="isClient()"
+            routerLink="/public/mes-commandes"
+            (click)="closeDropdown()"
+          >
+          Mes Commandes
+          </a>
             <a
             [class.disabled]="isAdmin()"
              routerLink="/public/livraison/demo-checkout" (click)="closeDropdown()">
               Order with Delivery
             </a>
+
             <a
             [class.disabled]="isAdmin()"
-             routerLink="my-deliveries" (click)="closeDropdown()">
+            routerLink="my-deliveries" (click)="closeDropdown()">
               My Deliveries
             </a>
 
-            <a routerLink="/public/profile" (click)="closeDropdown()">
-  Profile
-</a>
+          <a
+          *ngIf="isClient()"
+          routerLink="/public/assurances"
+          (click)="closeDropdown()"
+          >
+          Assurances
+          </a>
 
-<a
-  *ngIf="isClient()"
-  routerLink="/public/assurances"
-  (click)="closeDropdown()"
->
-  Assurances
-</a>
+          <a
+          *ngIf="isClient()"
+          routerLink="/public/assurances/mes-souscriptions"
+          (click)="closeDropdown()"
+          >
+          My Insurance
+          </a>
 
-<a
-  *ngIf="isClient()"
-  routerLink="/public/assurances/mes-souscriptions"
-  (click)="closeDropdown()"
->
-  My Insurance
-</a>
+          <a
+          *ngIf="isClient()"
+          routerLink="/public/assurances/mes-sinistres"
+          (click)="closeDropdown()"
+          >
+          My Claims
+          </a>
+                    <a routerLink="/public/profile" (click)="closeDropdown()">
+          Profile
+          </a>
+          <div class="dropdown-divider"></div>
 
-<a
-  *ngIf="isClient()"
-  routerLink="/public/assurances/mes-sinistres"
-  (click)="closeDropdown()"
->
-  My Claims
-</a>
-
-<div class="dropdown-divider"></div>
-
-<button (click)="logout()">
-  Logout
-</button>
+          <button (click)="logout()">
+          Logout
+          </button>
           </div>
         </div>
       </ng-template>
