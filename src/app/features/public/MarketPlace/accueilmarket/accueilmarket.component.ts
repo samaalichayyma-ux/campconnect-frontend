@@ -101,19 +101,19 @@ export class AccueilmarketComponent {
       title: 'Camping Chairs',
       description:
         'Lightweight and comfortable camping chairs, perfect for relaxing outdoors during your camping or hiking adventures.',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Folding Tables',
       description:
         'Easy-to-carry and simple-to-set-up folding tables, ideal for camping, picnics, and outdoor adventures.',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Air Mattresses',
       description:
         'Lightweight and durable air mattresses designed to provide maximum comfort during your nights outdoors.',
-      link: '/listP'
+      link: '/public/listP'
     }
   ];
 
@@ -127,7 +127,7 @@ export class AccueilmarketComponent {
     centerText:
       'Explore our website and easily shop for essential camping supplies.',
     buttonText: 'Join Us Now',
-    buttonLink: '/listP'
+    buttonLink: '/public/listP'
   };
 
   productsSectionTitle = 'Reliable Camping Equipment';
@@ -136,42 +136,42 @@ export class AccueilmarketComponent {
     {
       title: 'Essential Camping Items',
       image: '/assets/images/1.jpeg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Camping Lamps',
       image: '/assets/images/lampe.jpg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Camping Coolers',
       image: '/assets/images/glaciere.jpg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Solar Showers',
       image: '/assets/images/douche.jpg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Portable Barbecues',
       image: '/assets/images/bbq.jpg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Camping Hammocks',
       image: '/assets/images/feu9.jpeg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Camping Mats',
       image: '/assets/images/tapis.jpg',
-      link: '/listP'
+      link: '/public/listP'
     },
     {
       title: 'Camping Tableware',
       image: '/assets/images/cuis3.jpg',
-      link: '/listP'
+      link: '/public/listP'
     }
   ];
 
@@ -205,13 +205,13 @@ export class AccueilmarketComponent {
       'Our camping products website offers a wide range of essential equipment and accessories for your next getaway. Shop online with ease and get ready for a memorable experience.',
     image: '/assets/images/cuisine.jpeg',
     buttonText: 'Learn More',
-    link: '/listP'
+    link: '/public/listP'
   };
 
   customCta: CustomCta = {
     title: 'Complete Online Camping Store',
     buttonText: 'GO',
-    link: '/listP'
+    link: '/public/listP'
   };
 
   heroSection: HeroSection = {
@@ -220,7 +220,7 @@ export class AccueilmarketComponent {
       'Are you looking for an online store for your favorite camping products?',
     backgroundImage: '/assets/images/feu.jpeg',
     buttonText: 'See More',
-    buttonLink: '/listP'
+    buttonLink: '/public/listP'
   };
 
   currentIndex = 0;
