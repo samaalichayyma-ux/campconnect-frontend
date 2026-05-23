@@ -26,7 +26,9 @@ On some Docker Desktop/WSL setups, NodePort may not bind directly to Windows `lo
 kubectl -n campconnect port-forward svc/campconnect-frontend 30080:80
 ```
 
-The current Angular code still has several `http://localhost:8082` backend calls. Until those are moved behind a clean API base URL or Ingress route, keep the backend reachable on `localhost:8082` during testing. The backend Kubernetes layer provides a Docker Desktop `LoadBalancer` service for this. If that service is not available on your machine, use:
+The current Angular code still has several `http://localhost:8082` backend calls. The frontend Nginx container rewrites that backend origin to same-origin `/api` at response time, so Ingress can route API calls without requiring the browser to reach port `8082` directly.
+
+If you run an older image without the rewrite, keep the backend reachable on `localhost:8082` during testing. The backend Kubernetes layer provides a Docker Desktop `LoadBalancer` service for this. If that service is not available on your machine, use:
 
 ```powershell
 kubectl -n campconnect port-forward svc/campconnect-backend 8082:8082
