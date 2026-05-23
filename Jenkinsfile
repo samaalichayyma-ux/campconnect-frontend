@@ -6,6 +6,14 @@ def runNpm(String command) {
     }
 }
 
+def runCommand(String command) {
+    if (isUnix()) {
+        sh command
+    } else {
+        bat command
+    }
+}
+
 def runSonarScanner(String scannerHome) {
     if (isUnix()) {
         sh "${scannerHome}/bin/sonar-scanner"
@@ -28,11 +36,16 @@ pipeline {
         booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarQube analysis.')
         booleanParam(name: 'RUN_FRONTEND_TESTS', defaultValue: false, description: 'Run Angular tests. Requires Chrome/Chromium on the Jenkins agent.')
         booleanParam(name: 'ENFORCE_QUALITY_GATE', defaultValue: true, description: 'Fail the pipeline when the SonarQube quality gate fails.')
+        booleanParam(name: 'BUILD_DOCKER_IMAGE', defaultValue: true, description: 'Build the frontend Docker image.')
+        booleanParam(name: 'PUSH_DOCKER_IMAGE', defaultValue: true, description: 'Push the frontend Docker image to Docker Hub.')
+        string(name: 'DOCKERHUB_NAMESPACE', defaultValue: 'ihebboughanmi', description: 'Docker Hub namespace or username.')
+        string(name: 'DOCKERHUB_CREDENTIALS_ID', defaultValue: 'dockerhub-credentials', description: 'Jenkins Docker Hub credentials ID.')
     }
 
     environment {
         CI = 'true'
         CHROME_BIN = '/usr/bin/chromium'
+        DOCKER_IMAGE_NAME = 'campconnect-frontend'
     }
 
     stages {
@@ -95,6 +108,51 @@ pipeline {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            when {
+                expression { params.BUILD_DOCKER_IMAGE }
+            }
+            steps {
+                script {
+                    def tag = env.GIT_COMMIT ? env.GIT_COMMIT.take(12) : "build-${env.BUILD_NUMBER}"
+                    env.DOCKER_IMAGE_TAG = tag
+                    env.DOCKER_IMAGE_REPO = "${params.DOCKERHUB_NAMESPACE}/${env.DOCKER_IMAGE_NAME}"
+
+                    runCommand("docker build --pull -t ${env.DOCKER_IMAGE_REPO}:${env.DOCKER_IMAGE_TAG} -t ${env.DOCKER_IMAGE_REPO}:latest .")
+                }
+            }
+        }
+
+        stage('Docker Push') {
+            when {
+                expression { params.BUILD_DOCKER_IMAGE && params.PUSH_DOCKER_IMAGE }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: params.DOCKERHUB_CREDENTIALS_ID, usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_TOKEN')]) {
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                set +x
+                                echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+                                set -x
+                                docker push "$DOCKER_IMAGE_REPO:$DOCKER_IMAGE_TAG"
+                                docker push "$DOCKER_IMAGE_REPO:latest"
+                                docker logout
+                            '''
+                        } else {
+                            bat '''
+                                @echo off
+                                echo %DOCKERHUB_TOKEN% | docker login -u %DOCKERHUB_USERNAME% --password-stdin
+                                docker push %DOCKER_IMAGE_REPO%:%DOCKER_IMAGE_TAG%
+                                docker push %DOCKER_IMAGE_REPO%:latest
+                                docker logout
+                            '''
+                        }
+                    }
                 }
             }
         }
