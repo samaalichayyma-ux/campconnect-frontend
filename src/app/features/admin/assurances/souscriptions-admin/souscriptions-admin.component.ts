@@ -8,8 +8,8 @@ import { SouscriptionAssurance } from '../../../../core/models/assurance.models'
   selector: 'app-souscriptions-admin',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './Souscriptions-admin.component.html',
-  styleUrls: ['./Souscriptions-admin.component.scss']
+  templateUrl: './souscriptions-admin.component.html',
+  styleUrls: ['./souscriptions-admin.component.scss']
 })
 export class SouscriptionsAdminComponent implements OnInit {
   souscriptions: SouscriptionAssurance[] = [];
