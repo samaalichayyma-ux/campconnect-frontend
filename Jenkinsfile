@@ -40,6 +40,9 @@ pipeline {
         booleanParam(name: 'PUSH_DOCKER_IMAGE', defaultValue: true, description: 'Push the frontend Docker image to Docker Hub.')
         string(name: 'DOCKERHUB_NAMESPACE', defaultValue: 'ihebboughanmi', description: 'Docker Hub namespace or username.')
         string(name: 'DOCKERHUB_CREDENTIALS_ID', defaultValue: 'dockerhub-credentials', description: 'Jenkins Docker Hub credentials ID.')
+        booleanParam(name: 'DEPLOY_TO_K8S', defaultValue: false, description: 'Deploy the frontend to Kubernetes after pushing the Docker image.')
+        string(name: 'KUBECONFIG_CREDENTIALS_ID', defaultValue: 'kubeconfig-campconnect', description: 'Jenkins Secret file credential containing kubeconfig.')
+        string(name: 'K8S_NAMESPACE', defaultValue: 'campconnect', description: 'Kubernetes namespace.')
     }
 
     environment {
@@ -150,6 +153,35 @@ pipeline {
                                 docker push %DOCKER_IMAGE_REPO%:%DOCKER_IMAGE_TAG%
                                 docker push %DOCKER_IMAGE_REPO%:latest
                                 docker logout
+                            '''
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Kubernetes Deploy') {
+            when {
+                expression { params.DEPLOY_TO_K8S && params.BUILD_DOCKER_IMAGE && params.PUSH_DOCKER_IMAGE }
+            }
+            steps {
+                withCredentials([file(credentialsId: params.KUBECONFIG_CREDENTIALS_ID, variable: 'KUBECONFIG_FILE')]) {
+                    script {
+                        if (isUnix()) {
+                            sh '''
+                                set -e
+                                export KUBECONFIG="$KUBECONFIG_FILE"
+                                kubectl apply -f devops/k8s/frontend.yaml
+                                kubectl -n "$K8S_NAMESPACE" set image deployment/campconnect-frontend frontend="$DOCKER_IMAGE_REPO:$DOCKER_IMAGE_TAG"
+                                kubectl -n "$K8S_NAMESPACE" rollout status deployment/campconnect-frontend --timeout=180s
+                            '''
+                        } else {
+                            bat '''
+                                @echo off
+                                set KUBECONFIG=%KUBECONFIG_FILE%
+                                kubectl apply -f devops/k8s/frontend.yaml
+                                kubectl -n %K8S_NAMESPACE% set image deployment/campconnect-frontend frontend=%DOCKER_IMAGE_REPO%:%DOCKER_IMAGE_TAG%
+                                kubectl -n %K8S_NAMESPACE% rollout status deployment/campconnect-frontend --timeout=180s
                             '''
                         }
                     }
