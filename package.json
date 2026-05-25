@@ -6,7 +6,8 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:events-reservations": "ng test --watch=false --browsers=ChromeHeadless --code-coverage --ts-config=tsconfig.events-reservations.spec.json --include=src/app/features/admin/events/event-schedule.util.spec.ts --include=src/app/features/public/events/services/event.service.spec.ts --include=src/app/features/admin/reservations/reservation-list/reservation-list.component.spec.ts"
   },
   "private": true,
   "dependencies": {

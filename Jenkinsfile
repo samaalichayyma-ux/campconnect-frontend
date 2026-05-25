@@ -66,7 +66,7 @@ pipeline {
         string(name: 'SONARQUBE_SERVER', defaultValue: 'SonarQube', description: 'Jenkins SonarQube server name.')
         string(name: 'SONAR_SCANNER_TOOL', defaultValue: 'SonarScanner', description: 'Jenkins SonarScanner tool name.')
         booleanParam(name: 'RUN_SONAR', defaultValue: true, description: 'Run SonarQube analysis.')
-        booleanParam(name: 'RUN_FRONTEND_TESTS', defaultValue: false, description: 'Run Angular tests. Requires Chrome/Chromium on the Jenkins agent.')
+        booleanParam(name: 'RUN_FRONTEND_TESTS', defaultValue: true, description: 'Run focused Angular tests for events/reservations. Requires Chrome/Chromium on the Jenkins agent.')
         booleanParam(name: 'ENFORCE_QUALITY_GATE', defaultValue: true, description: 'Fail the pipeline when the SonarQube quality gate fails.')
         booleanParam(name: 'BUILD_DOCKER_IMAGE', defaultValue: true, description: 'Build the frontend Docker image.')
         booleanParam(name: 'PUSH_DOCKER_IMAGE', defaultValue: true, description: 'Push the frontend Docker image to Docker Hub.')
@@ -113,7 +113,7 @@ pipeline {
             }
             steps {
                 script {
-                    runNpm('npm test -- --watch=false --browsers=ChromeHeadless --code-coverage')
+                    runNpm('npm run test:events-reservations')
                 }
             }
             post {

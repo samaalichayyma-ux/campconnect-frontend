@@ -107,6 +107,7 @@
           "options": {
             "polyfills": ["zone.js", "zone.js/testing"],
             "tsConfig": "tsconfig.spec.json",
+            "karmaConfig": "karma.conf.js",
 
             "assets": [
               "src/favicon.ico",
@@ -119,20 +120,10 @@
             ],
 
             "styles": [
-              "node_modules/leaflet/dist/leaflet.css",
-              "src/assets/css/nicepage.css",
-              "src/assets/css/index.css",
-              "src/assets/css/Blog-Template.css",
-              "src/assets/css/intlTelInput.css",
-              "src/assets/css/Post-Template.css",
-              "src/assets/css/Search-Template.css",
               "src/styles.css"
             ],
 
-            "scripts": [
-              "src/assets/js/jquery.js",
-              "src/assets/js/nicepage.js"
-            ]
+            "scripts": []
           }
         }
       }
