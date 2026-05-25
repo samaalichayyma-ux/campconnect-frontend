@@ -75,7 +75,7 @@ pipeline {
         booleanParam(name: 'DEPLOY_TO_K8S', defaultValue: false, description: 'Deploy the frontend to Kubernetes after pushing the Docker image.')
         string(name: 'KUBECONFIG_CREDENTIALS_ID', defaultValue: 'kubeconfig-campconnect', description: 'Jenkins Secret file credential containing kubeconfig.')
         string(name: 'K8S_NAMESPACE', defaultValue: 'campconnect', description: 'Kubernetes namespace.')
-        string(name: 'NOTIFICATION_EMAIL', defaultValue: '', description: 'Optional email recipients for pipeline notifications. Leave empty to disable.')
+        string(name: 'NOTIFICATION_EMAIL', defaultValue: 'ihebboughanmi17@gmail.com', description: 'Optional email recipients for pipeline notifications. Leave empty to disable.')
     }
 
     environment {
