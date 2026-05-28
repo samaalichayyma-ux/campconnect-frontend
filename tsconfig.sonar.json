@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "node"
+  },
+  "include": [
+    "src/app/features/public/events/**/*.ts",
+    "src/app/features/admin/events/**/*.ts",
+    "src/app/features/admin/reservations/**/*.ts"
+  ],
+  "exclude": [
+    "**/*.spec.ts"
+  ]
+}

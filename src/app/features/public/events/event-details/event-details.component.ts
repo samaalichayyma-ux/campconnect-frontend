@@ -19,7 +19,7 @@ import { EventService } from '../services/event.service';
 export class EventDetailsComponent extends ToastMessageHost implements OnInit, OnDestroy {
   readonly fallbackImageUrl = 'assets/images/default-image.jpg';
   readonly ratingStars = [1, 2, 3, 4, 5];
-  private successMessageTimeoutId: ReturnType<typeof window.setTimeout> | null = null;
+  private successMessageTimeoutId: number | null = null;
 
   event: EventResponseDTO | null = null;
   galleryImages: string[] = [];
