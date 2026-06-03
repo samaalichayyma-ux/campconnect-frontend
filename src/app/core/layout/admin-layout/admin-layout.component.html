@@ -10,7 +10,7 @@
 
     <div class="sidebar-footer">
       <a 
-       *ngIf="isAdmin()"
+       *ngIf="isAdmin() || isGerantrestau()"
       routerLink="/public" class="public-link">
         <app-admin-icon name="public" [size]="18"></app-admin-icon>
         <span>Back to Public Site</span>

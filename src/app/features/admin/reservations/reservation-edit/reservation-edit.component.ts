@@ -243,11 +243,10 @@ export class ReservationEditComponent extends ToastMessageHost implements OnInit
       PENDING: 'status-pending',
       CONFIRMED: 'status-confirmed',
       PAID: 'status-paid',
-      ATTENDED: 'status-confirmed',
+      ATTENDED: 'status-attended',
       NO_SHOW: 'status-no-show',
       CANCELLED: 'status-cancelled',
-      REFUNDED: 'status-refunded',
-        ATTENDED: 'tone-success'
+      REFUNDED: 'status-refunded'
     };
 
     return classes[status] || 'status-default';

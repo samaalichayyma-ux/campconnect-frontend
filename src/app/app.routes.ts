@@ -165,7 +165,6 @@ export const routes: Routes = [
 
 
       {path: 'liste-repas', component: RepasAdminComponent},
-  { path: 'repas', component: RepasAdminComponent },
   { path: 'commandes-repas', component: CommandesAdminComponent },
   { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
   { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },

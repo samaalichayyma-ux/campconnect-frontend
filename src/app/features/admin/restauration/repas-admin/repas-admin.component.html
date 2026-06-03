@@ -3,8 +3,13 @@
     <h1>Meal Management</h1>
     <button class="add-btn" (click)="openForm()">+ Add Meal</button>
   </div>
-
-  <input [(ngModel)]="searchText" placeholder="Search meals..." class="search-input" />
+  
+  <input
+    [(ngModel)]="searchText"
+    placeholder="Search meals..."
+    class="search-input"
+    (keyup.enter)="searchRepas()"
+  />
 
   <div *ngIf="showForm" class="form-card">
     <h3>{{ isEdit ? 'Edit' : 'Add' }} Meal</h3>
@@ -12,7 +17,6 @@
     <input [(ngModel)]="form.nom" placeholder="Name" />
     <input [(ngModel)]="form.prix" type="number" placeholder="Price" />
 
-    <!-- Image actuelle si edit -->
     <div *ngIf="isEdit && form.image && !imagePreview" style="margin:8px 0">
       <label>Current image:</label><br>
       <img
@@ -21,7 +25,6 @@
       />
     </div>
 
-    <!-- Preview nouvelle image -->
     <div *ngIf="imagePreview" style="margin:8px 0">
       <label>New image preview:</label><br>
       <img [src]="imagePreview" style="width:80px; height:80px; object-fit:cover; border-radius:8px; margin-top:6px;" />
@@ -38,7 +41,8 @@
     </div>
   </div>
 
-  <div class="table-wrapper" *ngIf="repasList.length > 0">
+  <!-- ═══ Liste des repas ═══ -->
+  <div class="table-wrapper" *ngIf="filteredRepas.length > 0">
     <table>
       <thead>
         <tr>
@@ -70,56 +74,61 @@
     </table>
   </div>
 
+  <p *ngIf="searchText && filteredRepas.length === 0" style="color:#888; margin-top:12px">
+    No meal found for "{{ searchText }}".
+  </p>
+
+  <!-- ═══ Orders ═══ -->
   <h2>Orders</h2>
-<div class="table-wrapper" *ngIf="commandesList.length > 0">
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Date</th>
-        <th>Total Amount</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let c of commandesList">
-        <td>{{ c.id }}</td>
-        <td>{{ c.dateCommande | date:'short' }}</td>
-        <td>{{ c.montantTotal | currency }}</td>
-        <td>
-          <span [ngClass]="{
-            'statut-attente': c.statut === 'EN_ATTENTE',
-            'statut-confirmee': c.statut === 'CONFIRMEE',
-            'statut-preparation': c.statut === 'EN_PREPARATION',
-            'statut-livree': c.statut === 'LIVREE',
-            'statut-annulee': c.statut === 'ANNULEE'
-          }">{{ c.statut }}</span>
-        </td>
-        <td class="actions">
-          <button class="btn toggle"
-            *ngIf="c.statut === 'EN_ATTENTE'"
-            (click)="updateCommandeStatus(c, 'CONFIRMEE')">
-            Confirm
-          </button>
-          <button class="btn toggle"
-            *ngIf="c.statut === 'CONFIRMEE'"
-            (click)="updateCommandeStatus(c, 'EN_PREPARATION')">
-            Prepare
-          </button>
-          <button class="btn toggle"
-            *ngIf="c.statut === 'EN_PREPARATION'"
-            (click)="updateCommandeStatus(c, 'LIVREE')">
-            Mark Delivered
-          </button>
-          <button class="btn delete"
-            *ngIf="c.statut !== 'LIVREE'"
-            (click)="updateCommandeStatus(c, 'ANNULEE')">
-            Cancel
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  <div class="table-wrapper" *ngIf="commandesList.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Date</th>
+          <th>Total Amount</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of commandesList">
+          <td>{{ c.id }}</td>
+          <td>{{ c.dateCommande | date:'short' }}</td>
+          <td>{{ c.montantTotal | currency }}</td>
+          <td>
+            <span [ngClass]="{
+              'statut-attente': c.statut === 'EN_ATTENTE',
+              'statut-confirmee': c.statut === 'CONFIRMEE',
+              'statut-preparation': c.statut === 'EN_PREPARATION',
+              'statut-livree': c.statut === 'LIVREE',
+              'statut-annulee': c.statut === 'ANNULEE'
+            }">{{ c.statut }}</span>
+          </td>
+          <td class="actions">
+            <button class="btn toggle"
+              *ngIf="c.statut === 'EN_ATTENTE'"
+              (click)="updateCommandeStatus(c, 'CONFIRMEE')">
+              Confirm
+            </button>
+            <button class="btn toggle"
+              *ngIf="c.statut === 'CONFIRMEE'"
+              (click)="updateCommandeStatus(c, 'EN_PREPARATION')">
+              Prepare
+            </button>
+            <button class="btn toggle"
+              *ngIf="c.statut === 'EN_PREPARATION'"
+              (click)="updateCommandeStatus(c, 'LIVREE')">
+              Mark Delivered
+            </button>
+            <button class="btn delete"
+              *ngIf="c.statut !== 'LIVREE'"
+              (click)="updateCommandeStatus(c, 'ANNULEE')">
+              Cancel
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </section>
