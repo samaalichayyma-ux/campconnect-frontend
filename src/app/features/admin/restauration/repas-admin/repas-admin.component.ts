@@ -14,12 +14,12 @@ export class RepasAdminComponent implements OnInit {
 
   repasList: any[] = [];
   commandesList: any[] = [];
-
   searchText: string = '';
-
   showForm = false;
   isEdit = false;
-  form: any = { id: null, nom: '', prix: 0 };
+  form: any = { id: null, nom: '', prix: 0, image: '' };
+  selectedImageFile: File | null = null;
+  imagePreview: string | null = null;
 
   constructor(private repasService: RepasService) {}
 
@@ -28,12 +28,10 @@ export class RepasAdminComponent implements OnInit {
     this.loadCommandes();
   }
 
-  // Load meals from Spring Boot
   loadRepas() {
     this.repasService.getAllRepas().subscribe(data => this.repasList = data);
   }
 
-  // Load orders from Spring Boot
   loadCommandes() {
     this.repasService.getCommandes().subscribe(data => this.commandesList = data);
   }
@@ -41,6 +39,10 @@ export class RepasAdminComponent implements OnInit {
   get filteredRepas() {
     if (!this.searchText) return this.repasList;
     return this.repasList.filter(r => r.nom.toLowerCase().includes(this.searchText.toLowerCase()));
+  }
+
+  isCloudinaryUrl(url: string): boolean {
+    return !!url && (url.startsWith('http://') || url.startsWith('https://'));
   }
 
   openForm() {
@@ -53,6 +55,18 @@ export class RepasAdminComponent implements OnInit {
     this.form = { ...repas };
     this.showForm = true;
     this.isEdit = true;
+    this.selectedImageFile = null;
+    this.imagePreview = null;
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    if (!file) return;
+    if (file.size > 5_000_000) { alert('Max 5 Mo'); return; }
+    this.selectedImageFile = file;
+    if (this.imagePreview) URL.revokeObjectURL(this.imagePreview);
+    this.imagePreview = URL.createObjectURL(file);
   }
 
   save() {
@@ -61,13 +75,24 @@ export class RepasAdminComponent implements OnInit {
       return;
     }
 
-    if (this.isEdit) {
-      this.repasService.updateRepas(this.form.id, this.form).subscribe(() => this.loadRepas());
-    } else {
-      this.repasService.addRepas(this.form).subscribe(() => this.loadRepas());
+    const formData = new FormData();
+    formData.append('nom', this.form.nom);
+    formData.append('prix', this.form.prix.toString());
+    if (this.selectedImageFile) {
+      formData.append('image', this.selectedImageFile);
     }
 
-    this.cancel();
+    if (this.isEdit) {
+      this.repasService.updateRepasWithImage(this.form.id, formData).subscribe(() => {
+        this.loadRepas();
+        this.cancel();
+      });
+    } else {
+      this.repasService.addRepasWithImage(formData).subscribe(() => {
+        this.loadRepas();
+        this.cancel();
+      });
+    }
   }
 
   delete(id: number) {
@@ -87,6 +112,11 @@ export class RepasAdminComponent implements OnInit {
   }
 
   resetForm() {
-    this.form = { id: null, nom: '', prix: 0 };
+    this.form = { id: null, nom: '', prix: 0, image: '' };
+    this.selectedImageFile = null;
+    if (this.imagePreview) {
+      URL.revokeObjectURL(this.imagePreview);
+      this.imagePreview = null;
+    }
   }
 }

@@ -78,6 +78,7 @@ import { PublicationEditComponent } from './features/public/publication/publicat
 import { PublicationAdminListComponent } from './features/admin/publication/publication-admin-list/publication-admin-list.component';
 import { PublicationAdminEditComponent } from './features/admin/publication/publication-admin-edit/publication-admin-edit.component';
 
+
 import { ForumListComponent } from './features/public/forum/forum-list/forum-list.component';
 import { ForumCreateComponent } from './features/public/forum/forum-create/forum-create.component';
 import { ForumEditComponent } from './features/public/forum/forum-edit/forum-edit.component';
@@ -162,10 +163,13 @@ export const routes: Routes = [
       { path: 'reclamation/detail/:id', component: ReclamationDetailComponent },
       { path: 'reclamations/edit/:id', component: ReclamationEditComponent },
 
-      { path: 'repas', component: RepasAdminComponent },
-      { path: 'commandes-repas', component: CommandesAdminComponent },
-      { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
-      { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
+
+      {path: 'liste-repas', component: RepasAdminComponent},
+  { path: 'repas', component: RepasAdminComponent },
+  { path: 'commandes-repas', component: CommandesAdminComponent },
+  { path: 'commandes-repas/details/:id', component: CommandeRepasDetailsComponent },
+  { path: 'commandes-repas/edit/:id', component: CommandeRepasEditComponent },
+
 
       { path: 'events', component: EventListComponent },
       { path: 'events/stats', component: EventInsightsComponent },

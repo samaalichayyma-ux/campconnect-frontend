@@ -46,19 +46,34 @@
     <!-- Card Body -->
     <div class="card-body">
 
-      <!-- Info Grid -->
-      <div class="info-grid">
-        <div class="info-block">
-          <span class="info-label">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-            </svg>
-            User
-          </span>
-          <div class="info-value user-value">
-            <div class="avatar">{{ (reclamation.utilisateurNom || 'N')[0].toUpperCase() }}</div>
-            <span>{{ reclamation.utilisateurNom || 'N/A' }}</span>
-          </div>
+
+      <div class="info-row">
+        <span class="label">Created At</span>
+        <p class="value">{{ reclamation.dateCreation }}</p>
+      </div>
+
+      <div class="info-row">
+        <span class="label">User</span>
+        <p class="value">{{  reclamation.utilisateur?.email || 'N/A' }}</p>
+      </div>
+
+      <!-- Status Section -->
+      <div class="status-section">
+        <span class="label">Status</span>
+
+        <div class="status-actions">
+ <select [(ngModel)]="reclamation.statut" class="status-select">
+  <option value="REJETEE">Rejected</option>
+  <option value="EN_COURS">In Progress</option>
+  <option value="RESOLUE">Resolved</option>
+</select>
+
+          <button 
+            class="btn-update"
+            (click)="updateStatut(reclamation.statut)">
+            Update Status
+          </button>
+
         </div>
 
         <div class="info-block">

@@ -39,7 +39,12 @@ export class AdminLayoutComponent {
   isLivreur(): boolean {
   return this.adminRole === 'LIVREUR';
 }
-
+isClient(): boolean {
+  return this.adminRole === 'CLIENT';
+}
+  isGerantrestau(): boolean {
+  return this.adminRole === 'GERANT_RESTAU';
+}
   canAccessCampingManagement(): boolean {
     return this.isAdmin() || this.isGuide();
   }

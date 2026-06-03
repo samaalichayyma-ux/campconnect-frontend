@@ -1,1 +1,67 @@
-<p>icic liste repas</p>
+
+<section class="menu-section">
+  <div class="container">
+
+    <h2 class="title">Our Menu</h2>
+
+    <div class="menu-grid">
+      <div class="menu-card" *ngFor="let r of repas">
+
+        <div class="image-wrapper">
+          <img [src]="isCloudinaryUrl(r.image) ? r.image : 'assets/images/default-food.jpg'" 
+  alt="{{ r.nom }}" />
+        </div>
+
+        <h3>{{ r.nom }}</h3>
+        <p class="price">{{ r.prix }} TND</p>
+
+        <input type="number" [(ngModel)]="r.qty" min="1" />
+
+        <button class="btn-add-cart" (click)="ajouterAuPanier(r)">
+          🛒 Add to Cart
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Cart Preview Overlay -->
+<div class="cart-overlay" *ngIf="showCartPreview">
+  <div class="cart-preview">
+
+    <div class="cart-preview-header">
+      <h4>🛒 Cart ({{ panier.length }} items)</h4>
+      <button class="btn-close-cart" (click)="closeCartPreview()"></button>
+    </div>
+
+    <div class="cart-preview-items">
+      <div class="cart-preview-item" *ngFor="let p of panier">
+        <img [src]="isCloudinaryUrl(p.image) ? p.image : 'assets/images/default-food.jpg'" alt="{{ p.nom }}" />
+        <div class="cart-item-info">
+          <span class="cart-item-nom">{{ p.nom }}</span>
+          <span class="cart-item-qty">x{{ p.quantite }}</span>
+          <span class="cart-item-prix">{{ p.prix * p.quantite | number:'1.2-2' }} TND</span>
+        </div>
+        <button class="btn-remove" (click)="retirerDuPanier(p.repasId)"></button>
+      </div>
+    </div>
+
+    <div class="cart-preview-footer">
+      <div class="cart-total">
+        Total : <strong>{{ getTotalPanier() | number:'1.2-2' }} TND</strong>
+      </div>
+      <div class="cart-preview-actions">
+        <button class="btn-continue" (click)="closeCartPreview()">
+          Continue Shopping
+        </button>
+        <button class="btn-checkout" (click)="commander()" [disabled]="panier.length === 0">
+          Checkout
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+

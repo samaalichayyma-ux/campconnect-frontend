@@ -80,20 +80,30 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
   }
 
   openNotification(n: ReclamationNotification): void {
-    if (!n.read) {
-      this.notifService.markAsRead(n.id).subscribe({
-        next: () => {
-          n.read = true;
-          this.unreadCount = Math.max(0, this.unreadCount - 1);
-        },
-        error: () => {}
-      });
-    }
-
-    this.isPanelOpen = false;
-    this.router.navigate(['/public/reclamations']);
+  if (!n.read) {
+    this.notifService.markAsRead(n.id).subscribe({
+      next: () => {
+        n.read = true;
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+      },
+      error: () => {}
+    });
   }
 
+  this.isPanelOpen = false;
+
+  // Redirection selon le statut
+  if (n.newStatut === 'RESOLUE') {
+    // Réclamation résolue avec potentielle réduction → liste des repas
+    this.router.navigate(['/public/repas']);
+  } else if (n.newStatut === 'REJETEE') {
+    // Réclamation rejetée → liste des réclamations
+    this.router.navigate(['/public/reclamation']);
+  } else {
+    // EN_COURS ou autre → liste des réclamations
+    this.router.navigate(['/public/reclamation']);
+  }
+}
   markAllRead(): void {
     this.notifService.markAllAsRead().subscribe({
       next: () => {

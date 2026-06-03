@@ -23,7 +23,13 @@ export class RepasService {
   updateRepas(id: number, repas: any): Observable<any> {
     return this.http.put<any>(`${this.baseUrl}/repas/${id}`, repas);
   }
+addRepasWithImage(formData: FormData): Observable<any> {
+  return this.http.post<any>(`${this.baseUrl}/repas`, formData);
+}
 
+updateRepasWithImage(id: number, formData: FormData): Observable<any> {
+  return this.http.put<any>(`${this.baseUrl}/repas/${id}`, formData);
+}
   deleteRepas(id: number): Observable<any> {
     return this.http.delete<any>(`${this.baseUrl}/repas/${id}`);
   }
@@ -35,7 +41,10 @@ export class RepasService {
     return this.http.get<any[]>(`${this.baseUrl}/commandes-repas`);
   }
 
+  
   updateCommandeStatus(id: number, statut: string): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/commandes-repas/${id}`, { statut });
-  }
+  return this.http.put<any>(`${this.baseUrl}/commandes-repas/${id}/statut?statut=${statut}`, {});
+}
+
+
 }

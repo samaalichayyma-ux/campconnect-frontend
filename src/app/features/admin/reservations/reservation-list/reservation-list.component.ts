@@ -229,7 +229,8 @@ export class ReservationListComponent extends ToastMessageHost implements OnInit
       ATTENDED: 'status-confirmed',
       NO_SHOW: 'status-no-show',
       CANCELLED: 'status-cancelled',
-      REFUNDED: 'status-refunded'
+      REFUNDED: 'status-refunded',
+        ATTENDED: 'tone-success'
     };
 
     return classes[status] || 'status-default';

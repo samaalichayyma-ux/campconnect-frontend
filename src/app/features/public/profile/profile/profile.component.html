@@ -1,4 +1,5 @@
 <section class="profile-page" *ngIf="!loading; else loadingTpl">
+
   <div class="profile-card" @fadeSlideUp>
 
     <!-- HEADER -->
@@ -129,6 +130,7 @@
       <div class="info-card">
         <span class="info-label">Name</span>
         <span class="info-value">{{ user.nom }}</span>
+
       </div>
 
       <div class="info-card">
@@ -146,6 +148,7 @@
         <span class="info-value">{{ user.role }}</span>
       </div>
     </div>
+
 
     <!-- CONTENT -->
     <div class="profile-content">
@@ -296,12 +299,14 @@
 
     <!-- ALERTS -->
     <div *ngIf="successMessage" class="alert success-alert">
+
       {{ successMessage }}
     </div>
 
     <div *ngIf="errorMessage" class="alert error-alert">
       {{ errorMessage }}
     </div>
+
 
     <div *ngIf="notificationErrorMessage" class="alert error-alert">
       {{ notificationErrorMessage }}

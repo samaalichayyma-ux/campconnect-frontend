@@ -55,6 +55,15 @@
         <span class="nav-icon"><app-admin-icon name="assurances" [size]="18"></app-admin-icon></span>
         <span>Insurance Refunds</span>
       </a>
+          <a *ngIf="isAdmin() " routerLink="/admin/reclamations" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="Complains" [size]="18"></app-admin-icon></span>
+        <span>Complains</span>
+      </a>
+        
+              <a *ngIf="isGerantrestau() || isClient() " routerLink="/public/reclamations" routerLinkActive="active" class="nav-item">
+        <span class="nav-icon"><app-admin-icon name="Complains" [size]="18"></app-admin-icon></span>
+        <span>Complains</span>
+      </a>
       <a *ngIf="canAccessCampingManagement()" routerLink="/admin/camping-sites" routerLinkActive="active" class="nav-item">
         <span class="nav-icon"><app-admin-icon name="tent" [size]="18"></app-admin-icon></span>
         <span>Camping Sites</span>
@@ -89,7 +98,7 @@
         <span class="nav-icon"><app-admin-icon name="reservations" [size]="18"></app-admin-icon></span>
         <span>Reservations</span>
       </a>
-      <a *ngIf="isAdmin()" routerLink="/admin/repas" routerLinkActive="active" class="nav-item">
+      <a *ngIf="isAdmin()|| isGerantrestau()" routerLink="/admin/repas" routerLinkActive="active" class="nav-item">
         <span class="nav-icon"><app-admin-icon name="restaurants" [size]="18"></app-admin-icon></span>
         <span>Restaurants</span>
       </a>

@@ -117,3 +117,9 @@ th {
   border-radius: 10px;
   margin-top: 16px;
 }
+
+.statut-attente     { color: #f59e0b; font-weight: 600; }
+.statut-confirmee   { color: #3b82f6; font-weight: 600; }
+.statut-preparation { color: #8b5cf6; font-weight: 600; }
+.statut-livree      { color: #10b981; font-weight: 600; }
+.statut-annulee     { color: #ef4444; font-weight: 600; }

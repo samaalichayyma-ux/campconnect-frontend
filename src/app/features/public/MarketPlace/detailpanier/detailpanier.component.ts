@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../../core/services/auth.service';
 import { PanierServiceService } from '../services/panier-service.service';
 import { PanierService } from '../../../../core/services/panier.service';
+import { RepasPanierService, RepasItem } from '../../../../core/services/repas-panier.service';
+import { CommandeRepasService } from '../../restauration/commande-repas.service';
+import { ReclamationService } from '../../reclamation/reclamation.service';
 
 @Component({
   selector: 'app-detailpanier',
@@ -19,6 +22,9 @@ export class DetailpanierComponent implements OnInit {
   loading = false;
   errorMessage = '';
 
+  repasItems: RepasItem[] = [];
+  commandeRepasEnvoyee = false;
+
   couponCode = '';
   couponSuccessMessage = '';
   couponErrorMessage = '';
@@ -32,16 +38,68 @@ export class DetailpanierComponent implements OnInit {
   checkoutSuccessMessage = '';
   checkoutVerified = false;
 
+  // ── Réductions réclamations ──────────────────────────────────────────
+  reclamationsAvecReduction: any[] = [];
+  reductionReclamationAppliquee = false;
+  reductionReclamationId: number | null = null;
+  reductionReclamationPercent = 0;
+  reductionReclamationAmount = 0;
+  reductionReclamationMessage = '';
+  reductionReclamationError = '';
+
   constructor(
     private authService: AuthService,
     private panierApiService: PanierServiceService,
     private panierCountService: PanierService,
+    private repasPanier: RepasPanierService,
+    private commandeRepasService: CommandeRepasService,
+    private reclamationService: ReclamationService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadPanier();
+    this.repasPanier.items$.subscribe(items => {
+      this.repasItems = items;
+    });
+    this.loadReclamationsAvecReduction();
   }
+
+  // ── Réductions réclamations ──────────────────────────────────────────
+
+  loadReclamationsAvecReduction(): void {
+    this.reclamationService.getMyReclamations().subscribe({
+      next: (data) => {
+        this.reclamationsAvecReduction = data.filter(
+          r => r.reductionPourcentage != null && r.reductionPourcentage > 0
+        );
+      },
+      error: () => {}
+    });
+  }
+
+  appliquerReductionReclamation(r: any): void {
+    this.reductionReclamationAppliquee = true;
+    this.reductionReclamationId = r.id;
+    this.reductionReclamationPercent = r.reductionPourcentage;
+    this.reductionReclamationAmount = this.getTotalRepas() * (r.reductionPourcentage / 100);
+    this.reductionReclamationMessage = `Réduction de ${r.reductionPourcentage}% appliquée sur vos repas.`;
+    this.reductionReclamationError = '';
+  }
+
+  annulerReductionReclamation(): void {
+    this.reductionReclamationAppliquee = false;
+    this.reductionReclamationId = null;
+    this.reductionReclamationPercent = 0;
+    this.reductionReclamationAmount = 0;
+    this.reductionReclamationMessage = '';
+  }
+
+  getTotalRepasAvecReduction(): number {
+    return Math.max(0, this.getTotalRepas() - this.reductionReclamationAmount);
+  }
+
+  // ── Panier produits ──────────────────────────────────────────────────
 
   loadPanier(): void {
     this.loading = true;
@@ -104,42 +162,29 @@ export class DetailpanierComponent implements OnInit {
       prix: this.getPrix(detail),
       taille: detail?.taille ?? null,
       pointure: detail?.pointure ?? null,
-      panier: {
-        idPanier: detail?.panier?.idPanier ?? this.idPanier
-      },
-      produit: {
-        idProduit: detail?.produit?.idProduit
-      }
+      panier: { idPanier: detail?.panier?.idPanier ?? this.idPanier },
+      produit: { idProduit: detail?.produit?.idProduit }
     };
   }
 
   syncCount(): void {
     const total = this.detailsPanier.reduce(
-      (sum, item) => sum + Number(item?.quantite || 0),
-      0
+      (sum, item) => sum + Number(item?.quantite || 0), 0
     );
     this.panierCountService.setCount(total);
   }
 
   getImage(detail: any): string {
     const images = detail?.produit?.images || [];
-    if (images.length > 0) {
-      return 'http://localhost:8082/api/uploads/' + images[0];
-    }
-    return 'assets/images/default.jpg';
+    return images.length > 0
+      ? 'http://localhost:8082/api/uploads/' + images[0]
+      : 'assets/images/default.jpg';
   }
 
   getNomComplet(detail: any): string {
     let nom = detail?.produit?.nom || 'Produit';
-
-    if (detail?.taille) {
-      nom += ` - Taille ${detail.taille}`;
-    }
-
-    if (detail?.pointure !== null && detail?.pointure !== undefined) {
-      nom += ` - Pointure ${detail.pointure}`;
-    }
-
+    if (detail?.taille) nom += ` - Taille ${detail.taille}`;
+    if (detail?.pointure != null) nom += ` - Pointure ${detail.pointure}`;
     return nom;
   }
 
@@ -152,10 +197,7 @@ export class DetailpanierComponent implements OnInit {
   }
 
   getTotal(): number {
-    return this.detailsPanier.reduce(
-      (sum, item) => sum + this.getSubtotal(item),
-      0
-    );
+    return this.detailsPanier.reduce((sum, item) => sum + this.getSubtotal(item), 0);
   }
 
   getTotalAvecReduction(): number {
@@ -164,22 +206,17 @@ export class DetailpanierComponent implements OnInit {
 
   getDetailId(detail: any): number | null {
     return Number(
-      detail?.id ??
-      detail?.idDetailPanier ??
-      detail?.detailPanierId ??
-      0
+      detail?.id ?? detail?.idDetailPanier ?? detail?.detailPanierId ?? 0
     ) || null;
   }
 
   getStockMax(detail: any): number {
     const produit = detail?.produit;
-
     if (!produit) return 0;
 
     if (produit.categorie === 'VETEMENT') {
       const stockTaille = (produit.stocks || []).find(
-        (s: any) =>
-          (s.taille ?? '').toUpperCase() === (detail?.taille ?? '').toUpperCase()
+        (s: any) => (s.taille ?? '').toUpperCase() === (detail?.taille ?? '').toUpperCase()
       );
       return Number(stockTaille?.stock || 0);
     }
@@ -195,88 +232,45 @@ export class DetailpanierComponent implements OnInit {
   }
 
   canIncrease(detail: any): boolean {
-    const quantite = Number(detail?.quantite || 0);
-    const stockMax = this.getStockMax(detail);
-    return quantite < stockMax;
+    return Number(detail?.quantite || 0) < this.getStockMax(detail);
   }
 
   augmenterQuantite(detail: any): void {
     const idDetail = this.getDetailId(detail);
+    if (!idDetail) { this.errorMessage = 'Identifiant introuvable.'; return; }
+    if (!this.canIncrease(detail)) { this.errorMessage = 'Stock maximum atteint.'; return; }
 
-    if (!idDetail) {
-      this.errorMessage = 'Identifiant du détail panier introuvable.';
-      return;
-    }
-
-    if (!this.canIncrease(detail)) {
-      this.errorMessage = 'Stock maximum atteint pour ce produit.';
-      return;
-    }
-
-    const nouvelleQuantite = Number(detail?.quantite || 0) + 1;
-    const payload = this.buildDetailPayload(detail, nouvelleQuantite);
-
+    const payload = this.buildDetailPayload(detail, Number(detail?.quantite || 0) + 1);
     this.panierApiService.updateDetailPanier(idDetail, payload).subscribe({
-      next: () => {
-        this.errorMessage = '';
-        this.loadPanier();
-      },
-      error: (err) => {
-        console.error('Erreur augmentation quantité', err);
-        this.errorMessage = err?.error || 'Impossible d’augmenter la quantité.';
-      }
+      next: () => { this.errorMessage = ''; this.loadPanier(); },
+      error: (err) => { this.errorMessage = err?.error || 'Impossible d\'augmenter la quantité.'; }
     });
   }
 
   diminuerQuantite(detail: any): void {
     const idDetail = this.getDetailId(detail);
-
-    if (!idDetail) {
-      this.errorMessage = 'Identifiant du détail panier introuvable.';
-      return;
-    }
+    if (!idDetail) { this.errorMessage = 'Identifiant introuvable.'; return; }
 
     const current = Number(detail?.quantite || 0);
+    if (current <= 1) { this.supprimerArticle(idDetail); return; }
 
-    if (current <= 1) {
-      this.supprimerArticle(idDetail);
-      return;
-    }
-
-    const nouvelleQuantite = current - 1;
-    const payload = this.buildDetailPayload(detail, nouvelleQuantite);
-
+    const payload = this.buildDetailPayload(detail, current - 1);
     this.panierApiService.updateDetailPanier(idDetail, payload).subscribe({
-      next: () => {
-        this.errorMessage = '';
-        this.loadPanier();
-      },
-      error: (err) => {
-        console.error('Erreur diminution quantité', err);
-        this.errorMessage = err?.error || 'Impossible de diminuer la quantité.';
-      }
+      next: () => { this.errorMessage = ''; this.loadPanier(); },
+      error: (err) => { this.errorMessage = err?.error || 'Impossible de diminuer la quantité.'; }
     });
   }
 
   supprimerArticle(idDetail: number): void {
     this.panierApiService.deleteDetailPanier(idDetail).subscribe({
-      next: () => {
-        this.errorMessage = '';
-        this.loadPanier();
-      },
-      error: (err) => {
-        console.error('Erreur suppression article panier', err);
-        this.errorMessage = err?.error || 'Impossible de supprimer cet article.';
-      }
+      next: () => { this.errorMessage = ''; this.loadPanier(); },
+      error: (err) => { this.errorMessage = err?.error || 'Impossible de supprimer cet article.'; }
     });
   }
 
   viderPanier(): void {
     const userId = this.authService.getUserId();
-
-    if (!userId || userId <= 0) {
-      return;
-    }
+    if (!userId || userId <= 0) return;
 
     this.panierApiService.viderPanierEnCours(userId).subscribe({
       next: () => {
@@ -285,19 +279,14 @@ export class DetailpanierComponent implements OnInit {
         this.resetCoupon();
         this.syncCount();
       },
-      error: (err) => {
-        console.error('Erreur vidage panier', err);
-        this.errorMessage = err?.error || 'Impossible de vider le panier.';
-      }
+      error: (err) => { this.errorMessage = err?.error || 'Impossible de vider le panier.'; }
     });
   }
 
   envoyerCouponPremiereCommande(): void {
     const userId = this.authService.getUserId();
-
     if (!userId || userId <= 0) {
       this.couponErrorMessage = 'Veuillez vous connecter.';
-      this.couponSuccessMessage = '';
       return;
     }
 
@@ -307,8 +296,7 @@ export class DetailpanierComponent implements OnInit {
         this.couponErrorMessage = '';
       },
       error: (err) => {
-        console.error('Erreur envoi coupon', err);
-        this.couponErrorMessage = err?.error || 'Impossible d’envoyer le coupon.';
+        this.couponErrorMessage = err?.error || 'Impossible d\'envoyer le coupon.';
         this.couponSuccessMessage = '';
       }
     });
@@ -317,27 +305,21 @@ export class DetailpanierComponent implements OnInit {
   appliquerCoupon(): void {
     this.couponErrorMessage = '';
     this.couponSuccessMessage = '';
-
     const total = this.getTotal();
     const code = this.couponCode.trim().toUpperCase();
 
     if (!code) {
       this.couponErrorMessage = 'Veuillez entrer un coupon.';
-      this.discountAmount = 0;
-      this.couponPercent = 0;
-      this.couponApplied = false;
+      this.discountAmount = 0; this.couponPercent = 0; this.couponApplied = false;
       return;
     }
 
     if (code === 'CAMP15') {
       if (total > 200) {
-        this.couponErrorMessage = 'Ce coupon n’est pas valide pour un total supérieur à 200 TND.';
-        this.discountAmount = 0;
-        this.couponPercent = 0;
-        this.couponApplied = false;
+        this.couponErrorMessage = 'Ce coupon n\'est pas valide pour un total supérieur à 200 TND.';
+        this.discountAmount = 0; this.couponPercent = 0; this.couponApplied = false;
         return;
       }
-
       this.couponPercent = 15;
       this.discountAmount = total * 0.15;
       this.couponApplied = true;
@@ -348,12 +330,9 @@ export class DetailpanierComponent implements OnInit {
     if (code === 'CAMP30') {
       if (total <= 200) {
         this.couponErrorMessage = 'Ce coupon est valide uniquement pour un total supérieur à 200 TND.';
-        this.discountAmount = 0;
-        this.couponPercent = 0;
-        this.couponApplied = false;
+        this.discountAmount = 0; this.couponPercent = 0; this.couponApplied = false;
         return;
       }
-
       this.couponPercent = 30;
       this.discountAmount = total * 0.30;
       this.couponApplied = true;
@@ -361,38 +340,25 @@ export class DetailpanierComponent implements OnInit {
       return;
     }
 
-    this.discountAmount = 0;
-    this.couponPercent = 0;
-    this.couponApplied = false;
+    this.discountAmount = 0; this.couponPercent = 0; this.couponApplied = false;
     this.couponErrorMessage = 'Coupon invalide.';
   }
 
   recalculerCoupon(): void {
-    if (!this.couponApplied) {
-      this.discountAmount = 0;
-      this.couponPercent = 0;
-      return;
-    }
+    if (!this.couponApplied) { this.discountAmount = 0; this.couponPercent = 0; return; }
 
     const total = this.getTotal();
     const code = this.couponCode.trim().toUpperCase();
 
     if (code === 'CAMP15' && total <= 200) {
-      this.couponPercent = 15;
-      this.discountAmount = total * 0.15;
-      return;
+      this.couponPercent = 15; this.discountAmount = total * 0.15; return;
     }
-
     if (code === 'CAMP30' && total > 200) {
-      this.couponPercent = 30;
-      this.discountAmount = total * 0.30;
-      return;
+      this.couponPercent = 30; this.discountAmount = total * 0.30; return;
     }
 
-    this.couponApplied = false;
-    this.discountAmount = 0;
-    this.couponPercent = 0;
-    this.couponErrorMessage = 'Le coupon n’est plus valide pour le nouveau total.';
+    this.couponApplied = false; this.discountAmount = 0; this.couponPercent = 0;
+    this.couponErrorMessage = 'Le coupon n\'est plus valide pour le nouveau total.';
   }
 
   resetCoupon(): void {
@@ -406,11 +372,7 @@ export class DetailpanierComponent implements OnInit {
 
   passerCommande(): void {
     const userId = this.authService.getUserId();
-
-    if (!userId || userId <= 0) {
-      this.checkoutErrorMessage = 'Veuillez vous connecter.';
-      return;
-    }
+    if (!userId || userId <= 0) { this.checkoutErrorMessage = 'Veuillez vous connecter.'; return; }
 
     this.checkoutErrorMessage = '';
     this.checkoutSuccessMessage = '';
@@ -419,57 +381,37 @@ export class DetailpanierComponent implements OnInit {
     this.showCheckoutPopup = true;
 
     this.panierApiService.sendCheckoutCode(userId).subscribe({
-      next: () => {
-        this.checkoutSuccessMessage = 'Code envoyé par SMS.';
-      },
-      error: (err) => {
-        console.error('Erreur envoi code checkout', err);
-        this.checkoutErrorMessage = err?.error || 'Impossible d’envoyer le code.';
-      }
+      next: () => { this.checkoutSuccessMessage = 'Code envoyé par SMS.'; },
+      error: (err) => { this.checkoutErrorMessage = err?.error || 'Impossible d\'envoyer le code.'; }
     });
   }
 
   verifierCodeCheckout(): void {
     const userId = this.authService.getUserId();
+    if (!userId || userId <= 0) { this.checkoutErrorMessage = 'Veuillez vous connecter.'; return; }
+    if (!this.checkoutCode.trim()) { this.checkoutErrorMessage = 'Veuillez saisir le code.'; return; }
 
-    if (!userId || userId <= 0) {
-      this.checkoutErrorMessage = 'Veuillez vous connecter.';
-      return;
-    }
-
-    if (!this.checkoutCode.trim()) {
-      this.checkoutErrorMessage = 'Veuillez saisir le code.';
-      return;
-    }
-
-    this.panierApiService.verifyCheckoutCode({
-      userId,
-      code: this.checkoutCode.trim()
-    }).subscribe({
+    this.panierApiService.verifyCheckoutCode({ userId, code: this.checkoutCode.trim() }).subscribe({
       next: () => {
         this.checkoutVerified = true;
         this.checkoutErrorMessage = '';
         this.checkoutSuccessMessage = 'Code validé. Redirection vers paiement...';
 
         setTimeout(() => {
-  this.fermerCheckoutPopup();
-
- this.router.navigate(['/public/payment'], {
-  state: {
-    idPanier: this.idPanier,
-    detailsPanier: this.detailsPanier,
-    subtotal: this.getTotal(),
-    discountAmount: this.discountAmount,
-    couponPercent: this.couponPercent,
-    total: this.getTotalAvecReduction()
-  }
-});
-}, 800);
+          this.fermerCheckoutPopup();
+          this.router.navigate(['/public/payment'], {
+            state: {
+              idPanier: this.idPanier,
+              detailsPanier: this.detailsPanier,
+              subtotal: this.getTotal(),
+              discountAmount: this.discountAmount,
+              couponPercent: this.couponPercent,
+              total: this.getTotalAvecReduction()
+            }
+          });
+        }, 800);
       },
-      error: (err) => {
-        console.error('Erreur vérification code checkout', err);
-        this.checkoutErrorMessage = err?.error || 'Code invalide.';
-      }
+      error: (err) => { this.checkoutErrorMessage = err?.error || 'Code invalide.'; }
     });
   }
 
@@ -482,5 +424,57 @@ export class DetailpanierComponent implements OnInit {
 
   continuerShopping(): void {
     this.router.navigate(['/public/Accueil-Market']);
+  }
+
+  // ── Repas ────────────────────────────────────────────────────────────
+
+  retirerRepas(repasId: number): void {
+    this.repasPanier.retirer(repasId);
+  }
+
+  getTotalRepas(): number {
+    return this.repasPanier.getTotal();
+  }
+
+  isCloudinaryUrl(url: string): boolean {
+    return !!url && (url.startsWith('http://') || url.startsWith('https://'));
+  }
+
+  commanderRepas(): void {
+    if (this.repasItems.length === 0) return;
+
+    const commande = {
+      lignes: this.repasItems.map(i => ({
+        repasId: i.repasId,
+        quantite: i.quantite
+      })),
+      // On envoie la réduction si elle a été appliquée
+      reductionReclamationId: this.reductionReclamationAppliquee
+        ? this.reductionReclamationId
+        : null,
+      reductionPercent: this.reductionReclamationAppliquee
+        ? this.reductionReclamationPercent
+        : 0
+    };
+
+    this.commandeRepasService.create(commande).subscribe({
+      next: () => {
+        // Consommer la réduction en base si elle a été appliquée
+        if (this.reductionReclamationAppliquee && this.reductionReclamationId) {
+          this.reclamationService.consommerReduction(this.reductionReclamationId).subscribe({
+            next: () => {
+              this.reclamationsAvecReduction = this.reclamationsAvecReduction.filter(
+                r => r.id !== this.reductionReclamationId
+              );
+              this.annulerReductionReclamation();
+            },
+            error: () => {}
+          });
+        }
+        this.repasPanier.vider();
+        this.commandeRepasEnvoyee = true;
+      },
+      error: () => alert('Erreur lors de la commande des repas')
+    });
   }
 }

@@ -61,6 +61,7 @@
     {{ cartCount$ | async }}
   </span>
 </a>
+
       <ng-container *ngIf="!authService.isLoggedIn(); else loggedInBlock">
         <a routerLink="/login" class="cc-login-btn">Login</a>
       </ng-container>
@@ -105,6 +106,13 @@
             (click)="closeDropdown()"
           >
           Mes Commandes
+          </a>
+          <a
+            *ngIf="isClient()"
+            routerLink="/public/reclamation"
+            (click)="closeDropdown()"
+          >
+          My Complaint
           </a>
             <a
             [class.disabled]="isAdmin()"

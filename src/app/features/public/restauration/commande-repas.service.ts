@@ -6,7 +6,8 @@ import { Observable } from 'rxjs';
 })
 export class CommandeRepasService {
 
-  private apiUrl = 'http://localhost:8082/api/commandes-repas';
+private apiUrl = 'http://localhost:8082/api/commandes-repas';
+
 
   constructor(private http: HttpClient) {}
 

@@ -10,5 +10,10 @@ export interface Reclamation {
   description: string;
   dateCreation: string;
   statut: StatutReclamation;
-  utilisateurNom?: string;
+  reductionPourcentage?: number;
+  utilisateur?: {
+    id: number;
+    email: string;
+    nom?: string;
+  };
 }
