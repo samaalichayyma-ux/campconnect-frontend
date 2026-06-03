@@ -130,6 +130,7 @@ import { FormationStatsComponent } from './features/public/formations/formation-
 import { FormationFormComponent } from './features/public/formations/formation-form/formation-form.component';
 import { FormationDetailComponent } from './features/public/formations/formation-detail/formation-detail.component';
 import { formationManagerGuard } from './core/guards/formation-manager.guard';
+import { CommentaireAdminListComponent } from './features/admin/commentaire/commentaire-admin-list/commentaire-admin-list.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -199,6 +200,7 @@ export const routes: Routes = [
       { path: 'publication/edit/:id', component: PublicationAdminEditComponent },
 
       { path: 'forums', component: ForumListComponent },
+      { path: 'commentaires', component: CommentaireAdminListComponent },
       { path: 'forums/create', component: ForumCreateComponent, canActivate: [authGuard] },
       { path: 'forums/edit/:id', component: ForumEditComponent, canActivate: [authGuard] },
 
