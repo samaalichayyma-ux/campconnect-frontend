@@ -14,7 +14,7 @@ export class RepasService {
   // Repas endpoints
 
   getAllRepas(): Observable<Repas[]> {
-    return this.http.get<Repas[]>('${this.baseUrl}/repas');
+   return this.http.get<Repas[]>(`${this.baseUrl}/repas`);
   }
   addRepas(repas: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/repas`, repas);

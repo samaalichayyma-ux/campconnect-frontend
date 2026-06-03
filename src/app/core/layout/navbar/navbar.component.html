@@ -23,14 +23,23 @@
 
       <a routerLink="/public/Accueil-Market">Shop</a>
 
-      <a
-        routerLink="/public/repas"
-        routerLinkActive="active"
+  <a *ngIf="userRole === 'GERANT_RESTAU'" routerLink="/admin/liste-repas"
+       
       >
         Restaurant
       </a>
+      <a *ngIf="userRole === 'CLIENT'" routerLink="/public/repas"
+       
+      >
+        Restaurant
+      </a>
+     
 
-      <a
+
+
+
+
+ <a
         routerLink="/public/events"
         routerLinkActive="active"
       >
@@ -108,11 +117,18 @@
           Mes Commandes
           </a>
           <a
-            *ngIf="isClient()"
+            *ngIf="isClient()|| isGerantRestau()"
             routerLink="/public/reclamation"
             (click)="closeDropdown()"
           >
           My Complaint
+          </a>
+             <a
+            *ngIf="isAdmin() || isGerantRestau()"
+            routerLink="/admin/liste-repas"
+            (click)="closeDropdown()"
+          >
+          Meal Management
           </a>
             <a
             [class.disabled]="isAdmin()"

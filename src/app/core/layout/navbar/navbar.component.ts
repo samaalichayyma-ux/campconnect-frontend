@@ -38,7 +38,9 @@ export class NavbarComponent implements OnInit {
   isAdmin(): boolean {
     return this.userRole === 'ADMINISTRATEUR';
   }
-
+isGerantRestau(): boolean {
+    return this.userRole === 'GERANT_RESTAU';
+  }
   isInsuranceAgent(): boolean {
     return this.userRole === 'AGENT_ASSURANCE';
   }

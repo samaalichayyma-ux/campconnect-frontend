@@ -13,6 +13,7 @@ import { RepasService } from './repas.service';
 export class RepasAdminComponent implements OnInit {
 
   repasList: any[] = [];
+  filteredRepas: any[] = [];   // ← propriété simple, plus de getter
   commandesList: any[] = [];
   searchText: string = '';
   showForm = false;
@@ -29,16 +30,25 @@ export class RepasAdminComponent implements OnInit {
   }
 
   loadRepas() {
-    this.repasService.getAllRepas().subscribe(data => this.repasList = data);
+    this.repasService.getAllRepas().subscribe(data => {
+     
+      this.repasList = data;
+      this.filteredRepas = [...data];  // ← initialiser au chargement
+    });
   }
 
   loadCommandes() {
     this.repasService.getCommandes().subscribe(data => this.commandesList = data);
   }
 
-  get filteredRepas() {
-    if (!this.searchText) return this.repasList;
-    return this.repasList.filter(r => r.nom.toLowerCase().includes(this.searchText.toLowerCase()));
+  searchRepas(): void {
+    if (!this.searchText.trim()) {
+      this.filteredRepas = [...this.repasList];
+    } else {
+      this.filteredRepas = this.repasList.filter(r =>
+        r.nom.toLowerCase().includes(this.searchText.toLowerCase().trim())
+      );
+    }
   }
 
   isCloudinaryUrl(url: string): boolean {
