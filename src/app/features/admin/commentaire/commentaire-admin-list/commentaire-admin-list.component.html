@@ -1,1 +1,68 @@
-<p>commentaire-admin-list works!</p>
+<section class="admin-commentaires">
+  <header class="page-head">
+    <h2>Gestion des commentaires</h2>
+    <p>Admin: consultation, modification et suppression globale.</p>
+  </header>
+
+  <div class="filters">
+    <input
+      type="text"
+      class="search"
+      [(ngModel)]="searchTerm"
+      (input)="onFilterChange()"
+      placeholder="Rechercher (contenu, auteur, publication)..."
+    />
+
+    <select class="publication-filter" [(ngModel)]="selectedPublicationId" (change)="onFilterChange()">
+      <option [ngValue]="0">Toutes les publications</option>
+      <option *ngFor="let publication of publicationsFilter" [ngValue]="publication.id">
+        {{ publication.titre }}
+      </option>
+    </select>
+  </div>
+
+  <p class="state" *ngIf="loading">Chargement...</p>
+  <p class="state error" *ngIf="!loading && error">{{ error }}</p>
+  <p class="state" *ngIf="!loading && !error && filteredCommentaires.length === 0">Aucun commentaire.</p>
+
+  <div class="table-wrap" *ngIf="!loading && !error && filteredCommentaires.length > 0">
+    <table>
+      <thead>
+        <tr>
+          <th>Publication</th>
+          <th>Auteur</th>
+          <th>Commentaire</th>
+          <th>Likes</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let commentaire of filteredCommentaires">
+          <td>{{ commentaire.publicationTitre }}</td>
+          <td>{{ commentaire.auteurNom || commentaire.auteurEmail || '-' }}</td>
+          <td class="content-cell">
+            <ng-container *ngIf="editId !== commentaire.id; else editTpl">
+              {{ commentaire.contenu }}
+            </ng-container>
+            <ng-template #editTpl>
+              <textarea [(ngModel)]="editContenu" rows="3"></textarea>
+            </ng-template>
+          </td>
+          <td>{{ commentaire.likesCount || 0 }}</td>
+          <td>{{ commentaire.dateCreation | date:'dd/MM/yyyy HH:mm' }}</td>
+          <td class="actions">
+            <ng-container *ngIf="editId !== commentaire.id; else saveTpl">
+              <button class="btn edit" (click)="startEdit(commentaire)">Modifier</button>
+              <button class="btn delete" (click)="deleteComment(commentaire)">Supprimer</button>
+            </ng-container>
+            <ng-template #saveTpl>
+              <button class="btn save" [disabled]="saving" (click)="saveEdit(commentaire)">Enregistrer</button>
+              <button class="btn cancel" [disabled]="saving" (click)="cancelEdit()">Annuler</button>
+            </ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
