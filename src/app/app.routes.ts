@@ -131,6 +131,7 @@ import { FormationFormComponent } from './features/public/formations/formation-f
 import { FormationDetailComponent } from './features/public/formations/formation-detail/formation-detail.component';
 import { formationManagerGuard } from './core/guards/formation-manager.guard';
 import { CommentaireAdminListComponent } from './features/admin/commentaire/commentaire-admin-list/commentaire-admin-list.component';
+import { ForumPublicationsComponent } from './features/public/publication/forum-publications/forum-publications.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'public', pathMatch: 'full' },
@@ -297,6 +298,7 @@ export const routes: Routes = [
        /* FORMATIONS + GUIDE PUBLIC */
       { path: 'guide-interactif', component: GuideInteractifComponent },
       { path: 'formations', component: FormationListComponent },
+      { path: 'forums/:id/publications', component: ForumPublicationsComponent },
       {
         path: 'formations/statistiques',
         component: FormationStatsComponent,
